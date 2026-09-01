@@ -1,0 +1,19 @@
+.DS_Store
+
+# Dependencies and build output
+node_modules/
+dist/
+storybook-static/
+
+# Local environments and caches
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+
+# Credentials and certificates
+*.pem
+*.key
+*.crt
+credentials.json
