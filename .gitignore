@@ -4,6 +4,8 @@
 node_modules/
 dist/
 storybook-static/
+coverage/
+*.log
 
 # Local environments and caches
 .env
@@ -16,4 +18,8 @@ __pycache__/
 *.pem
 *.key
 *.crt
+*.p12
+*.pfx
+*.jks
 credentials.json
+token.json

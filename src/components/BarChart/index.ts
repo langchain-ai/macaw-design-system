@@ -1,0 +1,30 @@
+export { BarChart } from './BarChart';
+export type {
+  BarChartCategory,
+  BarChartCategoryAxis,
+  BarChartCategoryAxisSlotProps,
+  BarChartCornerStyle,
+  BarChartDataPoint,
+  BarChartGrid,
+  BarChartInteractionBar,
+  BarChartInteractionDatum,
+  BarChartMode,
+  BarChartOrientation,
+  BarChartPlotSlotProps,
+  BarChartProps,
+  BarChartRenderedBar,
+  BarChartSelectionRange,
+  BarChartSeries,
+  BarChartSlots,
+  BarChartValueAxis,
+  BarChartValueAxisSlotProps,
+  BarChartValueBand,
+} from './BarChart.types';
+export {
+  BAR_CHART_AXIS_THICKNESS,
+  BAR_CHART_HORIZONTAL_CATEGORY_AXIS_THICKNESS,
+  BAR_CHART_MARGIN_RIGHT,
+  BAR_CHART_MARGIN_TOP,
+  BAR_CHART_MINIMUM_PLOT_WIDTH,
+  BAR_CHART_VALUE_AXIS_THICKNESS,
+} from './constants';
