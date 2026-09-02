@@ -5,7 +5,7 @@ audience: designers, developers, and agents
 sources:
   tokens: docs/STYLES.md
   components: src/components
-  stories: src/stories
+  stories: src/components/**/*.stories.tsx
   primitives: src/styles/tokens.css
   base: src/styles/base.css
   tailwind: tailwind.preset.cjs
@@ -136,8 +136,9 @@ import { TabGroup } from '@langchain/design-system/components/Tabs';
 ```
 
 The root barrel at `src/components/index.ts` and the package export map are the
-canonical inventory. Stories in `src/stories` demonstrate states and intended
-composition.
+canonical inventory. Component stories live beside their implementations in
+`src/components`; cross-component and foundation stories remain in
+`src/stories`.
 
 Construction rules:
 
@@ -222,7 +223,7 @@ exported z-index utilities.
 | -------------------------------- | ----------------------- |
 | Token catalog and CSS contract   | `docs/STYLES.md`        |
 | Components and public barrel     | `src/components`        |
-| Component stories                | `src/stories`           |
+| Component stories                | `src/components`        |
 | Primitive and semantic variables | `src/styles/tokens.css` |
 | Base and component-support rules | `src/styles/base.css`   |
 | Public Tailwind preset           | `tailwind.preset.cjs`   |

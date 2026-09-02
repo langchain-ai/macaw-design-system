@@ -51,6 +51,8 @@ const runtimeSourceFiles = sourceFiles.filter(
     !path.endsWith('.d.ts') &&
     !path.includes('/__tests__/') &&
     !path.includes('/stories/') &&
+    !path.endsWith('.stories.ts') &&
+    !path.endsWith('.stories.tsx') &&
     !path.endsWith('.test.ts') &&
     !path.endsWith('.test.tsx') &&
     !path.endsWith('/test-utils.tsx')

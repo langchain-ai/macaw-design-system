@@ -23,6 +23,8 @@ function collectEntries(directory: string): string[] {
     if (
       !/\.(ts|tsx)$/.test(name) ||
       name.endsWith('.d.ts') ||
+      name.endsWith('.stories.ts') ||
+      name.endsWith('.stories.tsx') ||
       name.endsWith('.test.ts') ||
       name.endsWith('.test.tsx')
     ) {

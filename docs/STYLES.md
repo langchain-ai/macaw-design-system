@@ -136,7 +136,7 @@ warnings, and announcements.
 - Full-page (`flush`) banners should especially maintain short copy to ensure it's shown as single-line.
 - Avoid spamming/stacking multiple banners in a single page. Reserve banner use for important actions or announcements with real action items.
 
-See `src/stories/Banner.stories.tsx` for examples.
+See `src/components/Banner/Banner.stories.tsx` for examples.
 
 ---
 
@@ -200,7 +200,7 @@ is intended for trigger-based explanatory copy, not chart coordinates.
 - Feature-specific charts may compose richer content around these primitives,
   but shared tooltip structure and styling should remain in the design system.
 
-See `src/stories/ChartTooltip.stories.tsx` for complete examples.
+See `src/components/ChartTooltip/ChartTooltip.stories.tsx` for complete examples.
 
 ---
 
