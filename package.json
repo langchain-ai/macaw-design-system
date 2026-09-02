@@ -408,7 +408,6 @@
   "peerDependencies": {
     "react": ">=18.2.0 <20",
     "react-dom": ">=18.2.0 <20",
-    "react-router-dom": "^7.0.0",
     "tailwindcss": "^3.4.4"
   },
   "peerDependenciesMeta": {
@@ -417,7 +416,7 @@
     }
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "packageManager": "pnpm@10.27.0"
 }

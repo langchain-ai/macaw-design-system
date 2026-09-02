@@ -1,29 +1,45 @@
-import { forwardRef } from 'react';
-
 import {
-  Link as RouterLink,
-  type LinkProps as RouterLinkProps,
-} from 'react-router-dom';
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  type AnchorHTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 
 import { cn } from '../../utils/cn';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import { textVariantClasses } from '../Text';
 import type { TextProps } from '../Text';
 
-type LinkProps = (
-  | (RouterLinkProps & { href?: never })
-  | (React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-      href: string;
-      to?: never;
-    })
-) & {
+type LinkRenderElement = ReactElement<{
+  children?: ReactNode;
+  className?: string;
+  [key: string]: unknown;
+}>;
+
+type LinkProps = {
   /** Typography size — mirrors <Text> styles */
   variant?: TextProps['variant'];
   leftDecorator?: IconComponent;
   rightDecorator?: IconComponent;
   /** Phosphor weight used for decorator icons. */
   iconWeight?: IconWeight;
-};
+} & (
+  | (AnchorHTMLAttributes<HTMLAnchorElement> & {
+      /** Render a native anchor with this URL. */
+      href: string;
+      as?: never;
+    })
+  | (Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
+      /**
+       * Render link styling through a routing framework's anchor component.
+       * For example: `as={<RouterLink to="/runs" />}`.
+       */
+      as: LinkRenderElement;
+      href?: never;
+    })
+);
 
 const TextContent = (
   children: React.ReactNode,
@@ -65,6 +81,7 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(
       iconWeight,
       className,
       children,
+      as,
       ...props
     },
     ref
@@ -75,21 +92,30 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(
       className
     );
 
-    if ('href' in props && props.href !== undefined) {
-      const { href, ...anchorProps } = props;
-      return (
-        // eslint-disable-next-line react/forbid-elements
-        <a ref={ref} href={href} className={containerClass} {...anchorProps}>
-          {TextContent(children, leftDecorator, rightDecorator, iconWeight)}
-        </a>
-      );
+    const content = TextContent(
+      children,
+      leftDecorator,
+      rightDecorator,
+      iconWeight
+    );
+
+    if (as) {
+      if (!isValidElement(as)) return null;
+
+      return cloneElement(as, {
+        ...props,
+        ref,
+        className: cn(as.props.className, containerClass),
+        children: content,
+      });
     }
 
-    const { to, ...routerProps } = props as RouterLinkProps;
+    const { href, ...anchorProps } = props;
     return (
-      <RouterLink ref={ref} to={to} className={containerClass} {...routerProps}>
-        {TextContent(children, leftDecorator, rightDecorator, iconWeight)}
-      </RouterLink>
+      // eslint-disable-next-line react/forbid-elements
+      <a ref={ref} href={href} className={containerClass} {...anchorProps}>
+        {content}
+      </a>
     );
   }
 );

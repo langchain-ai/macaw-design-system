@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
+import { Link as RouterLink, MemoryRouter } from 'react-router-dom';
 
 import { ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowUpRight';
 import { FileTextIcon } from '@phosphor-icons/react/dist/ssr/FileText';
@@ -10,10 +10,7 @@ import { Text } from '../components/Text';
 import type { TextProps } from '../components/Text';
 import type { IconWeight } from '../utils/icon-types';
 
-// Storybook cannot infer args from discriminated union props (to vs href),
-// so we provide a flat type that covers both branches.
 type LinkStoryArgs = {
-  to?: string;
   href?: string;
   target?: string;
   rel?: string;
@@ -71,14 +68,14 @@ type Story = StoryObj<LinkStoryArgs>;
 
 export const Default: Story = {
   args: {
-    to: '/example',
+    href: '/example',
     children: 'View documentation',
   },
 };
 
 export const WithRightDecorator: Story = {
   args: {
-    to: '/example',
+    href: '/example',
     children: 'Open in new tab',
     rightDecorator: ArrowUpRightIcon,
     iconWeight: 'bold',
@@ -87,7 +84,7 @@ export const WithRightDecorator: Story = {
 
 export const WithLeftDecorator: Story = {
   args: {
-    to: '/example',
+    href: '/example',
     children: 'Go back',
     leftDecorator: ArrowUpRightIcon,
     iconWeight: 'bold',
@@ -97,28 +94,28 @@ export const WithLeftDecorator: Story = {
 export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-space-4">
-      <Link to="/example" variant="h1">
+      <Link href="/example" variant="h1">
         Heading 1 link
       </Link>
-      <Link to="/example" variant="h2">
+      <Link href="/example" variant="h2">
         Heading 2 link
       </Link>
-      <Link to="/example" variant="h3">
+      <Link href="/example" variant="h3">
         Heading 3 link
       </Link>
-      <Link to="/example" variant="h4">
+      <Link href="/example" variant="h4">
         Heading 4 link
       </Link>
-      <Link to="/example" variant="md">
+      <Link href="/example" variant="md">
         Medium link
       </Link>
-      <Link to="/example" variant="sm">
+      <Link href="/example" variant="sm">
         Small link
       </Link>
-      <Link to="/example" variant="xs">
+      <Link href="/example" variant="xs">
         Extra small link
       </Link>
-      <Link to="/example" variant="body">
+      <Link href="/example" variant="body">
         Body link
       </Link>
     </div>
@@ -129,7 +126,7 @@ export const WithDecoratorAllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-space-4">
       <Link
-        to="/example"
+        href="/example"
         variant="h1"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -137,7 +134,7 @@ export const WithDecoratorAllVariants: Story = {
         Heading 1 link
       </Link>
       <Link
-        to="/example"
+        href="/example"
         variant="h2"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -145,7 +142,7 @@ export const WithDecoratorAllVariants: Story = {
         Heading 2 link
       </Link>
       <Link
-        to="/example"
+        href="/example"
         variant="h3"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -153,7 +150,7 @@ export const WithDecoratorAllVariants: Story = {
         Heading 3 link
       </Link>
       <Link
-        to="/example"
+        href="/example"
         variant="md"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -161,7 +158,7 @@ export const WithDecoratorAllVariants: Story = {
         Medium link
       </Link>
       <Link
-        to="/example"
+        href="/example"
         variant="sm"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -169,7 +166,7 @@ export const WithDecoratorAllVariants: Story = {
         Small link
       </Link>
       <Link
-        to="/example"
+        href="/example"
         variant="xs"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -177,7 +174,7 @@ export const WithDecoratorAllVariants: Story = {
         Extra small link
       </Link>
       <Link
-        to="/example"
+        href="/example"
         variant="body"
         rightDecorator={ArrowUpRightIcon}
         iconWeight="bold"
@@ -191,13 +188,13 @@ export const WithDecoratorAllVariants: Story = {
 export const InlineWithText: Story = {
   render: () => (
     <div className="flex max-w-sm flex-col gap-space-3">
-      <Link to="/home" variant="h1">
+      <Link href="/home" variant="h1">
         Home
       </Link>
       <Text variant="body">
         For more information, visit the{' '}
         <Link
-          to="/docs"
+          href="/docs"
           variant="body"
           leftDecorator={FileTextIcon}
           iconWeight="bold"
@@ -217,11 +214,17 @@ export const InlineWithText: Story = {
       </Text>
       <Text variant="sm">
         Need help?{' '}
-        <Link to="/support" variant="sm">
+        <Link href="/support" variant="sm">
           Contact support
         </Link>
         .
       </Text>
     </div>
+  ),
+};
+
+export const WithReactRouter: Story = {
+  render: () => (
+    <Link as={<RouterLink to="/example" />}>React Router link</Link>
   ),
 };

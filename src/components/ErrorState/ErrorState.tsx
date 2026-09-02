@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 
-import { Link } from 'react-router-dom';
-
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { Text } from '../Text';
@@ -84,7 +82,7 @@ interface ErrorStateProps {
   message?: string;
   /** When `404`, renders the illustrated not-found background. */
   status?: number | null;
-  /** Route to navigate to via the default back button (ignored when `action` is set). */
+  /** URL for the default back button (ignored when `action` is set). */
   backTo?: string;
   /** Label for the default back button. Defaults to `'Return to home'`. */
   backLabel?: string;
@@ -139,11 +137,14 @@ export function ErrorState({
 
           {action}
           {!action && backTo && (
-            <Link to={backTo}>
-              <Button variant="normal" size="sm" color="secondary">
-                {backLabel ?? 'Return to home'}
-              </Button>
-            </Link>
+            <Button
+              as={<a href={backTo} />}
+              variant="normal"
+              size="sm"
+              color="secondary"
+            >
+              {backLabel ?? 'Return to home'}
+            </Button>
           )}
         </div>
       </div>

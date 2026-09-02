@@ -24,11 +24,11 @@ trees.
 Once the package is published:
 
 ```sh
-pnpm add @langchain/design-system react react-dom react-router-dom
+pnpm add @langchain/design-system react react-dom
 ```
 
-React 18 and 19 are supported. Components that use navigation expect a React
-Router 7 provider. Tailwind is optional for package consumers.
+React 18 and 19 are supported. Navigation styles can be composed with any
+routing framework. Tailwind is optional for package consumers.
 
 ## Use
 
@@ -71,6 +71,16 @@ may use `AppThemeProvider` from
 `@langchain/design-system/hooks/AppThemeProvider`, or manage that class through
 their existing theme provider.
 
+The `Link` component renders a native anchor by default. Pass a routing
+framework's anchor element through `as` for client-side navigation:
+
+```tsx
+import { Link } from '@langchain/design-system';
+import { Link as RouterLink } from 'react-router-dom';
+
+<Link as={<RouterLink to="/runs" />}>View runs</Link>;
+```
+
 ### Styling contracts
 
 - `@langchain/design-system/styles.css` is the recommended complete stylesheet.
@@ -86,7 +96,7 @@ See [docs/DESIGN.md](docs/DESIGN.md) for the system rules and
 
 ## Develop
 
-This repository uses Node 20+ and pnpm 10.27.0.
+This repository supports Node 22 and 24 and uses pnpm 10.27.0.
 
 ```sh
 pnpm install

@@ -1,5 +1,3 @@
-import { MemoryRouter } from 'react-router-dom';
-
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from '../components/Button';
@@ -24,11 +22,9 @@ const meta: Meta<typeof ErrorState> = {
   },
   decorators: [
     (Story) => (
-      <MemoryRouter>
-        <div className="h-[600px] w-full bg-surface-level-1">
-          <Story />
-        </div>
-      </MemoryRouter>
+      <div className="h-[600px] w-full bg-surface-level-1">
+        <Story />
+      </div>
     ),
   ],
 };
