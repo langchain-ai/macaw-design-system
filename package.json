@@ -302,6 +302,7 @@
   "scripts": {
     "clean": "node scripts/clean.mjs",
     "build": "pnpm clean && vite build && tsc -p tsconfig.build.json && node scripts/rewrite-declaration-specifiers.mjs && pnpm build:styles && node scripts/copy-assets.mjs",
+    "build:watch": "node scripts/watch-build.mjs",
     "build:styles": "tailwindcss -c tailwind.config.cjs -i ./src/styles/tailwind.css -o ./dist/utilities.css --minify",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build -o storybook-static",
