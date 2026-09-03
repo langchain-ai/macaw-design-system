@@ -1,0 +1,1655 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+import { ArrowBendDownLeftIcon } from '@phosphor-icons/react/dist/ssr/ArrowBendDownLeft';
+import { ArrowSquareOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareOut';
+import { ChartBarIcon } from '@phosphor-icons/react/dist/ssr/ChartBar';
+import { CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
+import { CommandIcon } from '@phosphor-icons/react/dist/ssr/Command';
+import { CopySimpleIcon } from '@phosphor-icons/react/dist/ssr/CopySimple';
+import { DatabaseIcon } from '@phosphor-icons/react/dist/ssr/Database';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
+import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
+import { StarIcon } from '@phosphor-icons/react/dist/ssr/Star';
+import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
+import { WarningIcon } from '@phosphor-icons/react/dist/ssr/Warning';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { linkTo } from '@storybook/addon-links';
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { MemoryRouter } from 'react-router-dom';
+
+import { Avatar } from '../components/Avatar';
+import { ArrowRightIcon, PlusIcon } from '../icons/PaddedPhosphorIcons';
+import { Badge } from '../components/Badge';
+import { Banner } from '../components/Banner/Banner';
+import { Button } from '../components/Button';
+import { ButtonGroup } from '../components/ButtonGroup';
+import { ChartLegend } from '../components/ChartLegend';
+import {
+  ChartTooltip,
+  ChartTooltipBody,
+  ChartTooltipHeader,
+  ChartTooltipRow,
+} from '../components/ChartTooltip';
+import { Checkbox } from '../components/Checkbox';
+import { CircularProgress } from '../components/CircularProgress';
+import { CodeLite } from '../components/Code/CodeLite';
+import { CommandMenu } from '../components/Command/CommandMenu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '../components/ContextMenu/ContextMenu';
+import { CopyButton } from '../components/CopyButton/CopyButton';
+import { Dialog, DialogContent } from '../components/Dialog';
+import { Divider } from '../components/Divider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../components/DropdownMenu';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { ErrorState } from '../components/ErrorState';
+import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '../components/HoverCard';
+import { Icon } from '../components/Icon';
+import { IconButton } from '../components/IconButton';
+import { Input } from '../components/Input';
+import { Kbd, KbdGroup } from '../components/Kbd';
+import { LinearProgress } from '../components/LinearProgress';
+import { Link } from '../components/Link';
+import { Logo } from '../components/Logo';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../components/Popover/Popover';
+import { ProgressBar } from '../components/ProgressBar';
+import { RadioButton } from '../components/RadioButton';
+import { RadioCard } from '../components/RadioCard/RadioCard';
+import { RadioGroup } from '../components/RadioGroup';
+import { Select } from '../components/Select';
+import { Skeleton } from '../components/Skeleton';
+import { Slider } from '../components/Slider';
+import { Spinner } from '../components/Spinner';
+import { Switch } from '../components/Switch';
+import {
+  TabGroup,
+  TabLabel,
+  TabList,
+  TabPanel,
+  TabPanels,
+} from '../components/Tabs';
+import { Text } from '../components/Text';
+import { Textarea } from '../components/Textarea';
+import { ToastProvider } from '../components/Toast';
+import useToast from '../components/Toast/useToast';
+import { Tooltip } from '../components/Tooltip';
+import { Typeahead } from '../components/Typeahead';
+import { cn } from '../utils/cn';
+import zIndices from '../utils/zIndices';
+
+<Meta title="Components/Overview" parameters={{ docs: { toc: false } }} />
+
+export const toTag = (name) =>
+  `@${name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`;
+
+export const STORYBOOK_CATEGORY_TITLES = {
+  buttons: 'Buttons',
+  inputs: 'Inputs',
+  overlays: 'Popovers',
+  navigation: 'Navigation',
+  layout: 'Layout',
+  display: 'Display',
+  status: 'Status',
+  charts: 'Charts',
+};
+
+export const toStorybookTitle = (name, category) =>
+  `Components/${STORYBOOK_CATEGORY_TITLES[category]}/${name}`;
+
+export const matchesAxisValues = (axes, values) =>
+  Object.entries(axes).every(([key, axis]) =>
+    axis.options.some((option) =>
+      typeof option === 'string'
+        ? option === values[key]
+        : option.value === values[key]
+    )
+  );
+
+{/* Builds a gallery card entry with its optional variant axes. */}
+
+{/* Card factory — same as Overview.stories.tsx minus TS generics. */}
+export const defineEntry = (entry) => {
+const baseEntry = {
+name: entry.name,
+tag: entry.tag ?? toTag(entry.name),
+category: entry.category,
+storybookTitle:
+entry.storybookTitle ?? toStorybookTitle(entry.name, entry.category),
+bodyClassName: entry.bodyClassName,
+};
+if (!('axes' in entry)) {
+return { ...baseEntry, axes: {}, render: entry.render };
+}
+return {
+...baseEntry,
+axes: entry.axes,
+render: (values) =>
+matchesAxisValues(entry.axes, values) ? entry.render(values) : null,
+};
+};
+
+export const normalizeOptions = (axis) =>
+  axis.options.map((option) =>
+    typeof option === 'string' ? { value: option, label: option } : option
+  );
+
+export const SEGMENTED_MAX_OPTIONS = 3;
+
+export const AxisControl = ({ axis, value, onChange, compact }) => {
+  const options = normalizeOptions(axis);
+  return (
+    <div className="flex shrink-0 items-center gap-space-2">
+      <Text as="span" variant="xs" color="tertiary">
+        {axis.label}
+      </Text>
+      {!compact && options.length <= SEGMENTED_MAX_OPTIONS ? (
+        <GroupedTabs
+          size="xs"
+          value={value}
+          onChange={onChange}
+          options={options.map((option) => ({
+            value: option.value,
+            display: option.label,
+          }))}
+        />
+      ) : (
+        <Select
+          size="xs"
+          value={value}
+          options={options}
+          onChange={(next) => next && onChange(next)}
+          aria-label={axis.label}
+          triggerClassName="w-[6.5rem]"
+        />
+      )}
+    </div>
+  );
+};
+
+export const OverviewCard = ({ entry }) => {
+  const axisKeys = Object.keys(entry.axes);
+  const [values, setValues] = useState(() =>
+    Object.fromEntries(
+      axisKeys.map((key) => {
+        const axis = entry.axes[key];
+        const [first] = normalizeOptions(axis);
+        return [key, axis.defaultValue ?? first?.value ?? ''];
+      })
+    )
+  );
+
+return (
+
+<article className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-default bg-surface-level-1 shadow-sm">
+<header className="flex items-center justify-between gap-space-3 border-b border-subtle bg-surface-level-2 px-space-4 py-space-3">
+<Text as="h3" variant="sm" weight="semibold">
+{entry.name}
+</Text>
+<Text as="span" variant="xs" color="quaternary" className="font-mono">
+{entry.tag}
+</Text>
+</header>
+
+      <div
+        className={cn(
+          'flex min-h-[8rem] flex-1 items-center justify-center p-space-6',
+          entry.bodyClassName
+        )}
+      >
+        {entry.render(values)}
+      </div>
+
+      <footer className="flex flex-wrap items-center justify-between gap-x-space-3 gap-y-space-2 border-t border-subtle bg-surface-level-2 px-space-4 py-space-2">
+        <Button
+          size="xs"
+          color="secondary"
+          variant="outlined"
+          rightDecorator={ArrowRightIcon}
+          onClick={linkTo(entry.storybookTitle)}
+        >
+          Component page
+        </Button>
+        {axisKeys.length > 0 && (
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-x-space-3 gap-y-space-2">
+            {axisKeys.map((key) => (
+              <AxisControl
+                key={key}
+                axis={entry.axes[key]}
+                value={values[key]}
+                compact={axisKeys.length > 1}
+                onChange={(next) =>
+                  setValues((previous) => ({ ...previous, [key]: next }))
+                }
+              />
+            ))}
+          </div>
+        )}
+      </footer>
+    </article>
+
+);
+};
+
+export const SIDES = ['top', 'right', 'bottom', 'left'];
+
+export const RESOURCE_OPTIONS = [
+  { value: 'traces', label: 'Traces' },
+  { value: 'datasets', label: 'Datasets' },
+  { value: 'experiments', label: 'Experiments' },
+  { value: 'prompts', label: 'Prompts' },
+  { value: 'annotation_queues', label: 'Annotation queues' },
+];
+
+export const SAMPLE_JSON = `{
+  "name": "support-triage",
+  "model": "claude-opus-5",
+  "tools": ["search", "escalate"]
+}`;
+
+export const SAMPLE_PYTHON = `@traceable
+def triage(ticket: str) -> str:
+    return agent.invoke(ticket)`;
+
+export const ButtonDemo = ({ variant, color }) => {
+  const [loading, setLoading] = useState(false);
+  const timeout = useRef(undefined);
+  useEffect(() => () => clearTimeout(timeout.current), []);
+  return (
+    <Button
+      variant={variant}
+      color={color}
+      leftDecorator={loading ? undefined : PlusIcon}
+      loading={loading}
+      onClick={() => {
+        setLoading(true);
+        timeout.current = setTimeout(() => setLoading(false), 1200);
+      }}
+    >
+      New experiment
+    </Button>
+  );
+};
+
+export const IconButtonDemo = ({ variant, size }) => {
+  const [starred, setStarred] = useState(false);
+  return (
+    <IconButton
+      icon={StarIcon}
+      label={starred ? 'Unstar this run' : 'Star this run'}
+      variant={variant}
+      size={size}
+      color={starred ? 'primary' : 'secondary'}
+      onClick={() => setStarred((previous) => !previous)}
+    />
+  );
+};
+
+export const ButtonGroupDemo = ({ size }) => {
+  const [range, setRange] = useState('7d');
+  return (
+    <ButtonGroup size={size} color="secondary" variant="outlined">
+      {['24h', '7d', '30d'].map((option) => (
+        <Button
+          key={option}
+          color={range === option ? 'primary' : 'secondary'}
+          onClick={() => setRange(option)}
+        >
+          {option}
+        </Button>
+      ))}
+    </ButtonGroup>
+  );
+};
+
+export const CopyButtonDemo = ({ variant }) => (
+  <CopyButton
+    copy="ls__run_9f2c41ab"
+    variant={variant}
+    copyText="Copy run ID"
+  />
+);
+
+export const InputDemo = ({ size, state }) => {
+  const [value, setValue] = useState('');
+  return (
+    <div className="w-full max-w-80">
+      <Input
+        size={size}
+        label="Dataset name"
+        value={value}
+        onChange={setValue}
+        placeholder="customer-support-eval"
+        leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+        disabled={state === 'disabled'}
+        isError={state === 'error'}
+        hintText={
+          state === 'error' ? 'A dataset with that name already exists.' : ''
+        }
+      />
+    </div>
+  );
+};
+
+export const TextareaDemo = ({ size, variant }) => {
+  const [value, setValue] = useState('');
+  return (
+    <div className="w-full max-w-80">
+      <Textarea
+        size={size}
+        variant={variant}
+        label="System prompt"
+        value={value}
+        onChange={setValue}
+        placeholder="You are a helpful support agent…"
+      />
+    </div>
+  );
+};
+
+export const CheckboxDemo = ({ size }) => {
+  const [checked, setChecked] = useState('indeterminate');
+  return (
+    <div className="flex flex-col gap-space-3">
+      <Checkbox
+        size={size}
+        checked={checked}
+        onCheckedChange={setChecked}
+        label="Include child runs"
+      />
+      <Checkbox
+        size={size}
+        checked={checked === true}
+        onCheckedChange={(next) => setChecked(next)}
+        label="Include metadata"
+      />
+    </div>
+  );
+};
+
+export const RadioButtonDemo = ({ size }) => {
+  const [value, setValue] = useState('all');
+  return (
+    <RadioGroup value={value} onValueChange={setValue}>
+      <RadioButton value="all" label="All runs" size={size} />
+      <RadioButton value="errors" label="Errors only" size={size} />
+      <RadioButton value="sampled" label="Sampled (10%)" size={size} />
+    </RadioGroup>
+  );
+};
+
+export const RadioCardDemo = ({ radioPosition }) => {
+  const [value, setValue] = useState('llm');
+  return (
+    <RadioGroup
+      value={value}
+      onValueChange={setValue}
+      className="w-full max-w-[22rem]"
+    >
+      <RadioCard value="llm" radioPosition={radioPosition} size="sm">
+        <Text variant="sm" weight="medium">
+          LLM-as-judge
+        </Text>
+        <Text variant="xs" color="tertiary">
+          Score each run against a rubric.
+        </Text>
+      </RadioCard>
+      <RadioCard value="code" radioPosition={radioPosition} size="sm">
+        <Text variant="sm" weight="medium">
+          Custom code
+        </Text>
+        <Text variant="xs" color="tertiary">
+          Run your own Python evaluator.
+        </Text>
+      </RadioCard>
+    </RadioGroup>
+  );
+};
+
+export const SwitchDemo = ({ size }) => {
+  const [checked, setChecked] = useState(true);
+  return (
+    <Switch
+      size={size}
+      checked={checked}
+      onChange={setChecked}
+      label="Auto-run on new traces"
+    />
+  );
+};
+
+export const SliderDemo = ({ mode }) => {
+  const [value, setValue] = useState(60);
+  return (
+    <div className="flex w-full max-w-72 flex-col gap-space-3">
+      <Text variant="xs" color="tertiary">
+        Sampling rate — {value}%
+      </Text>
+      <Slider
+        aria-label="Sampling rate"
+        value={value}
+        onChange={(next) => {
+          if (typeof next === 'number') setValue(next);
+        }}
+        min={0}
+        max={100}
+        step={mode === 'steps' ? 25 : 1}
+        stepLabels={
+          mode === 'steps'
+            ? [
+                { value: 0, label: '0%' },
+                { value: 50, label: '50%' },
+                { value: 100, label: '100%' },
+              ]
+            : undefined
+        }
+      />
+    </div>
+  );
+};
+
+export const SelectDemo = ({ size }) => {
+  const [value, setValue] = useState('traces');
+  return (
+    <div className="w-full max-w-72">
+      <Select
+        size={size}
+        value={value}
+        onChange={setValue}
+        options={RESOURCE_OPTIONS}
+        placeholder="Select a resource…"
+        aria-label="Resource"
+      />
+    </div>
+  );
+};
+
+export const TypeaheadDemo = ({ mode }) => {
+  const [single, setSingle] = useState();
+  const [many, setMany] = useState(['production']);
+  const options = ['production', 'staging', 'canary', 'eval-only', 'internal'];
+  return (
+    <div className="w-full max-w-80">
+      {mode === 'multiple' ? (
+        <Typeahead
+          multiple
+          size="sm"
+          options={options}
+          value={many}
+          onChange={setMany}
+          placeholder="Filter by tag…"
+          aria-label="Tags"
+        />
+      ) : (
+        <Typeahead
+          size="sm"
+          options={options}
+          value={single}
+          onChange={setSingle}
+          freeSolo={mode === 'create'}
+          placeholder={
+            mode === 'create' ? 'Pick or type a tag…' : 'Pick a tag…'
+          }
+          aria-label="Tag"
+        />
+      )}
+    </div>
+  );
+};
+
+export const MenuRow = ({ icon: RowIcon, label, tone = 'default' }) => (
+  <div className="flex items-center gap-space-2">
+    <RowIcon
+      className={cn(
+        'size-4',
+        tone === 'destructive' ? 'text-error-secondary' : 'text-icon-secondary'
+      )}
+    />
+    <Text
+      as="span"
+      variant="sm"
+      color={tone === 'destructive' ? 'error' : 'primary'}
+    >
+      {label}
+    </Text>
+  </div>
+);
+
+export const DropdownMenuDemo = () => {
+  const [last, setLast] = useState(null);
+  return (
+    <div className="flex flex-col items-center gap-space-3">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="sm" color="secondary" variant="outlined">
+            Run actions
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onSelect={() => setLast('Rename')}>
+            <MenuRow icon={PencilSimpleIcon} label="Rename" />
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setLast('Duplicate')}>
+            <MenuRow icon={CopySimpleIcon} label="Duplicate" />
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setLast('Delete')}>
+            <MenuRow icon={TrashIcon} label="Delete" tone="destructive" />
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Text variant="xs" color="tertiary">
+        {last ? `Selected: ${last}` : 'Nothing selected yet'}
+      </Text>
+    </div>
+  );
+};
+
+export const ContextMenuDemo = () => {
+  const [last, setLast] = useState(null);
+  return (
+    <div className="flex w-full flex-col items-center gap-space-3">
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className="flex h-[4.5rem] w-full max-w-72 items-center justify-center rounded-md border border-dashed border-default bg-surface-level-2">
+            <Text variant="sm" color="secondary">
+              Right-click this surface
+            </Text>
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onSelect={() => setLast('Copy run ID')}>
+            <MenuRow icon={CopySimpleIcon} label="Copy run ID" />
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={() => setLast('Open trace')}>
+            <MenuRow icon={ArrowSquareOutIcon} label="Open trace" />
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem onSelect={() => setLast('Delete')}>
+            <MenuRow icon={TrashIcon} label="Delete" tone="destructive" />
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+      <Text variant="xs" color="tertiary">
+        {last ? `Selected: ${last}` : 'Nothing selected yet'}
+      </Text>
+    </div>
+  );
+};
+
+export const CommandMenuDemo = ({ showSelectedIndicator }) => {
+  const [value, setValue] = useState('new_dataset');
+  const wrapperRef = useRef(null);
+  // cmdk schedules `scrollIntoView({ block: 'nearest' })` on the selected
+  // item after mount, which walks every scroll ancestor and pulls the outer
+  // page down to this demo. Patch scrollIntoView to a no-op on every cmdk
+  // element inside this wrapper so the scheduled call has no effect.
+  useLayoutEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const targets = wrapper.querySelectorAll(
+      '[cmdk-item], [cmdk-group-heading], [cmdk-list]'
+    );
+    const originals = new Map();
+    targets.forEach((el) => {
+      originals.set(el, el.scrollIntoView);
+      el.scrollIntoView = () => {};
+    });
+    return () => {
+      originals.forEach((fn, el) => {
+        el.scrollIntoView = fn;
+      });
+    };
+  }, []);
+  return (
+    <div
+      ref={wrapperRef}
+      className="max-h-64 w-full max-w-80 overflow-auto rounded-md border border-default bg-elevated"
+    >
+      <CommandMenu
+        value={value}
+        onSelect={setValue}
+        showSelectedIndicator={showSelectedIndicator === 'shown'}
+        placeholder="Search actions…"
+        items={[
+          { value: 'new_dataset', label: 'New dataset' },
+          { value: 'new_prompt', label: 'New prompt' },
+          { value: 'new_experiment', label: 'New experiment' },
+          { value: 'invite', label: 'Invite a teammate' },
+        ]}
+      />
+    </div>
+  );
+};
+
+export const DialogDemo = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button size="sm" onClick={() => setOpen(true)}>
+        Open dialog
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent title="Delete dataset">
+          <Text variant="sm" color="secondary">
+            This removes 1,284 examples and every experiment run against them.
+            This cannot be undone.
+          </Text>
+          <div className="flex justify-end gap-space-2">
+            <Button
+              size="sm"
+              color="secondary"
+              variant="outlined"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button size="sm" color="error" onClick={() => setOpen(false)}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+export const ToastDemo = ({ type }) => {
+  const { createToast } = useToast();
+  const copy = {
+    success: { title: 'Experiment queued.', description: '1,284 examples.' },
+    info: { title: 'Sharing is on.', description: 'Anyone with the link.' },
+    warning: { title: 'Approaching your trace limit.' },
+    error: { title: 'Could not start the run.', description: 'Rate limited.' },
+  }[type];
+  return (
+    <Button
+      size="sm"
+      color="secondary"
+      variant="outlined"
+      onClick={() => createToast({ type, ...copy })}
+    >
+      Show {type} toast
+    </Button>
+  );
+};
+
+export const TabsDemo = () => (
+  <div className="w-full max-w-[22rem]">
+    <TabGroup>
+      <TabList>
+        <TabLabel label="Runs" />
+        <TabLabel label="Charts" />
+        <TabLabel label="Settings" />
+      </TabList>
+      <TabPanels>
+        <TabPanel>
+          <Text variant="sm" color="secondary" className="block pt-space-3">
+            1,284 runs in the last 7 days.
+          </Text>
+        </TabPanel>
+        <TabPanel>
+          <Text variant="sm" color="secondary" className="block pt-space-3">
+            Latency p50 is down 12%.
+          </Text>
+        </TabPanel>
+        <TabPanel>
+          <Text variant="sm" color="secondary" className="block pt-space-3">
+            Retention: 30 days.
+          </Text>
+        </TabPanel>
+      </TabPanels>
+    </TabGroup>
+  </div>
+);
+
+export const GroupedTabsDemo = ({ size }) => {
+  const [value, setValue] = useState('overview');
+  return (
+    <GroupedTabs
+      size={size}
+      value={value}
+      onChange={setValue}
+      options={[
+        { value: 'overview', display: 'Overview' },
+        { value: 'traces', display: 'Traces' },
+        { value: 'cost', display: 'Cost' },
+      ]}
+    />
+  );
+};
+
+export const BannerDemo = ({ intent }) => {
+  const [dismissed, setDismissed] = useState(false);
+  return (
+    <div className="w-full max-w-96">
+      {dismissed ? (
+        <div className="flex justify-center">
+          <Button
+            size="xs"
+            variant="underlined"
+            color="secondary"
+            onClick={() => setDismissed(false)}
+          >
+            Bring the banner back
+          </Button>
+        </div>
+      ) : (
+        <Banner
+          intent={intent}
+          title="Trace retention changes on Sep 1"
+          dismissible
+          onDismiss={() => setDismissed(true)}
+          action={
+            <Button
+              size="xs"
+              variant="underlined"
+              rightDecorator={ArrowRightIcon}
+            >
+              Review plan
+            </Button>
+          }
+        >
+          Traces older than 30 days move to extended retention.
+        </Banner>
+      )}
+    </div>
+  );
+};
+
+export const ProgressBarDemo = ({ color, size }) => {
+  const [value, setValue] = useState(45);
+  return (
+    <div className="flex w-full max-w-72 flex-col gap-space-3">
+      <ProgressBar
+        aria-label="Examples evaluated"
+        value={value}
+        color={color}
+        size={size}
+        label={`${value}% evaluated`}
+        labelPosition="top"
+      />
+      <div className="flex justify-center">
+        <Button
+          size="xs"
+          color="secondary"
+          variant="outlined"
+          onClick={() =>
+            setValue((previous) => (previous + 15 > 100 ? 15 : previous + 15))
+          }
+        >
+          Advance
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export const ChartLegendDemo = ({ layout }) => {
+  const [hidden, setHidden] = useState([]);
+  const items = [
+    {
+      id: 'opus',
+      label: 'claude-opus-5',
+      markerColor: 'var(--viz-brand-200)',
+      value: '1.82s',
+    },
+    {
+      id: 'sonnet',
+      label: 'claude-sonnet-5',
+      markerColor: 'var(--viz-purple-200)',
+      value: '0.94s',
+    },
+    {
+      id: 'haiku',
+      label: 'claude-haiku-4-5',
+      markerColor: 'var(--viz-sky-200)',
+      value: '0.41s',
+    },
+  ].map((item) => ({ ...item, selected: !hidden.includes(item.id) }));
+  return (
+    <ChartLegend
+      className="w-full max-w-80"
+      items={items}
+      layout={layout}
+      onItemClick={(item) =>
+        setHidden((previous) =>
+          previous.includes(item.id)
+            ? previous.filter((id) => id !== item.id)
+            : [...previous, item.id]
+        )
+      }
+    />
+  );
+};
+
+export const CATALOG = [
+  defineEntry({
+    name: 'Button',
+    category: 'buttons',
+    axes: {
+      variant: {
+        label: 'Variant',
+        options: ['normal', 'outlined', 'plain', 'underlined'],
+      },
+      color: { label: 'Color', options: ['primary', 'secondary', 'error'] },
+    },
+    render: ({ variant, color }) => (
+      <ButtonDemo variant={variant} color={color} />
+    ),
+  }),
+  defineEntry({
+    name: 'IconButton',
+    category: 'buttons',
+    axes: {
+      variant: { label: 'Variant', options: ['normal', 'outlined', 'plain'] },
+      size: {
+        label: 'Size',
+        options: ['xxs', 'xs', 'sm', 'md'],
+        defaultValue: 'sm',
+      },
+    },
+    render: ({ variant, size }) => (
+      <IconButtonDemo variant={variant} size={size} />
+    ),
+  }),
+  defineEntry({
+    name: 'ButtonGroup',
+    category: 'buttons',
+    axes: { size: { label: 'Size', options: ['sm', 'md'] } },
+    render: ({ size }) => <ButtonGroupDemo size={size} />,
+  }),
+  defineEntry({
+    name: 'Link',
+    category: 'buttons',
+    axes: { variant: { label: 'Size', options: ['sm', 'md', 'body'] } },
+    render: ({ variant }) => (
+      <Link
+        href="https://docs.langchain.com/langsmith/home"
+        target="_blank"
+        rel="noreferrer"
+        variant={variant}
+        rightDecorator={ArrowSquareOutIcon}
+      >
+        Read the tracing docs
+      </Link>
+    ),
+  }),
+  defineEntry({
+    name: 'CopyButton',
+    category: 'buttons',
+    axes: { variant: { label: 'Variant', options: ['full', 'icon'] } },
+    render: ({ variant }) => <CopyButtonDemo variant={variant} />,
+  }),
+  defineEntry({
+    name: 'Input',
+    category: 'inputs',
+    axes: {
+      size: { label: 'Size', options: ['sm', 'md'] },
+      state: { label: 'State', options: ['default', 'error', 'disabled'] },
+    },
+    render: ({ size, state }) => <InputDemo size={size} state={state} />,
+  }),
+  defineEntry({
+    name: 'Textarea',
+    category: 'inputs',
+    axes: {
+      size: { label: 'Size', options: ['sm', 'md'] },
+      variant: { label: 'Variant', options: ['default', 'plain'] },
+    },
+    render: ({ size, variant }) => (
+      <TextareaDemo size={size} variant={variant} />
+    ),
+  }),
+  defineEntry({
+    name: 'Checkbox',
+    category: 'inputs',
+    axes: { size: { label: 'Size', options: ['sm', 'md'] } },
+    render: ({ size }) => <CheckboxDemo size={size} />,
+  }),
+  defineEntry({
+    name: 'RadioButton',
+    category: 'inputs',
+    axes: { size: { label: 'Size', options: ['sm', 'md'] } },
+    render: ({ size }) => <RadioButtonDemo size={size} />,
+  }),
+  defineEntry({
+    name: 'RadioCard',
+    category: 'inputs',
+    axes: { radioPosition: { label: 'Radio', options: ['left', 'right'] } },
+    render: ({ radioPosition }) => (
+      <RadioCardDemo radioPosition={radioPosition} />
+    ),
+  }),
+  defineEntry({
+    name: 'Switch',
+    category: 'inputs',
+    axes: { size: { label: 'Size', options: ['xs', 'sm', 'md'] } },
+    render: ({ size }) => <SwitchDemo size={size} />,
+  }),
+  defineEntry({
+    name: 'Slider',
+    category: 'inputs',
+    axes: {
+      mode: {
+        label: 'Steps',
+        options: [
+          { value: 'plain', label: 'Off' },
+          { value: 'steps', label: 'Labelled' },
+        ],
+      },
+    },
+    render: ({ mode }) => <SliderDemo mode={mode} />,
+  }),
+  defineEntry({
+    name: 'Select',
+    category: 'inputs',
+    axes: {
+      size: {
+        label: 'Size',
+        options: ['xs', 'sm', 'md', 'lg'],
+        defaultValue: 'md',
+      },
+    },
+    render: ({ size }) => <SelectDemo size={size} />,
+  }),
+  defineEntry({
+    name: 'Typeahead',
+    category: 'inputs',
+    axes: {
+      mode: {
+        label: 'Mode',
+        options: [
+          { value: 'single', label: 'Single' },
+          { value: 'multiple', label: 'Multi' },
+          { value: 'create', label: 'Free solo' },
+        ],
+      },
+    },
+    render: ({ mode }) => <TypeaheadDemo mode={mode} />,
+  }),
+  defineEntry({
+    name: 'Tooltip',
+    category: 'overlays',
+    axes: { side: { label: 'Side', options: SIDES } },
+    render: ({ side }) => (
+      <Tooltip
+        side={side}
+        title="Total tokens"
+        description="Prompt plus completion tokens across every child run."
+      >
+        <Button size="sm" color="secondary" variant="outlined">
+          Hover for help
+        </Button>
+      </Tooltip>
+    ),
+  }),
+  defineEntry({
+    name: 'HoverCard',
+    category: 'overlays',
+    axes: { side: { label: 'Side', options: SIDES } },
+    render: ({ side }) => (
+      <HoverCard>
+        <HoverCardTrigger asChild>
+          <Button size="sm" color="secondary" variant="outlined">
+            Hover for agent
+          </Button>
+        </HoverCardTrigger>
+        <HoverCardContent side={side}>
+          <div className="flex flex-col gap-space-2">
+            <Text variant="sm" weight="semibold">
+              support-triage
+            </Text>
+            <Text variant="xs" color="secondary">
+              Deployed 2 hours ago · 1,284 runs today · p50 1.8s
+            </Text>
+          </div>
+        </HoverCardContent>
+      </HoverCard>
+    ),
+  }),
+  defineEntry({
+    name: 'Popover',
+    category: 'overlays',
+    axes: { side: { label: 'Side', options: SIDES } },
+    render: ({ side }) => (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button size="sm" color="secondary" variant="outlined">
+            Open popover
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent side={side}>
+          <div className="flex flex-col gap-space-2">
+            <Text variant="sm" weight="semibold">
+              Filter runs
+            </Text>
+            <Text variant="xs" color="secondary">
+              Popovers hold focusable content. Tooltips do not.
+            </Text>
+          </div>
+        </PopoverContent>
+      </Popover>
+    ),
+  }),
+  defineEntry({
+    name: 'DropdownMenu',
+    category: 'overlays',
+    render: () => <DropdownMenuDemo />,
+  }),
+  defineEntry({
+    name: 'ContextMenu',
+    category: 'overlays',
+    render: () => <ContextMenuDemo />,
+  }),
+  defineEntry({
+    name: 'CommandMenu',
+    category: 'overlays',
+    axes: {
+      showSelectedIndicator: {
+        label: 'Indicator',
+        options: [
+          { value: 'shown', label: 'Shown' },
+          { value: 'hidden', label: 'Hidden' },
+        ],
+      },
+    },
+    render: ({ showSelectedIndicator }) => (
+      <CommandMenuDemo showSelectedIndicator={showSelectedIndicator} />
+    ),
+  }),
+  defineEntry({
+    name: 'Tabs',
+    category: 'navigation',
+    render: () => <TabsDemo />,
+  }),
+  defineEntry({
+    name: 'GroupedTabs',
+    category: 'navigation',
+    axes: {
+      size: { label: 'Size', options: ['xs', 'sm', 'md'], defaultValue: 'sm' },
+    },
+    render: ({ size }) => <GroupedTabsDemo size={size} />,
+  }),
+  defineEntry({
+    name: 'Divider',
+    category: 'layout',
+    axes: {
+      orientation: { label: 'Axis', options: ['horizontal', 'vertical'] },
+    },
+    render: ({ orientation }) =>
+      orientation === 'horizontal' ? (
+        <div className="flex w-full max-w-72 flex-col gap-space-3">
+          <Text variant="sm">Inputs</Text>
+          <Divider orientation="horizontal" />
+          <Text variant="sm" color="secondary">
+            Outputs
+          </Text>
+        </div>
+      ) : (
+        <div className="flex h-16 items-center gap-space-4">
+          <Text variant="sm">Inputs</Text>
+          <Divider orientation="vertical" />
+          <Text variant="sm" color="secondary">
+            Outputs
+          </Text>
+        </div>
+      ),
+  }),
+  defineEntry({
+    name: 'Dialog',
+    category: 'layout',
+    render: () => <DialogDemo />,
+  }),
+  defineEntry({
+    name: 'Avatar',
+    category: 'display',
+    axes: {
+      size: {
+        label: 'Size',
+        options: ['xs', 'sm', 'md', 'lg', 'xl'],
+        defaultValue: 'lg',
+      },
+      shape: { label: 'Shape', options: ['square', 'circle'] },
+    },
+    render: ({ size, shape }) => (
+      <div className="flex items-center gap-space-3">
+        <Avatar label="Ada Lovelace" size={size} shape={shape} />
+        <Avatar label="Grace Hopper" size={size} shape={shape} badge />
+        <Avatar label="Alan Turing" size={size} shape={shape} active />
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'Badge',
+    category: 'display',
+    axes: {
+      color: {
+        label: 'Color',
+        options: [
+          'primary',
+          'secondary',
+          'success',
+          'error',
+          'warning',
+          'special',
+          'plain',
+        ],
+      },
+      size: {
+        label: 'Size',
+        options: ['xxs', 'xs', 'sm', 'md'],
+        defaultValue: 'sm',
+      },
+    },
+    render: ({ color, size }) => (
+      <div className="flex flex-wrap items-center justify-center gap-space-2">
+        <Badge color={color} size={size}>
+          Ready
+        </Badge>
+        <Badge color={color} size={size} leftDecorator={CheckCircleIcon}>
+          Passed
+        </Badge>
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'Icon',
+    category: 'display',
+    axes: {
+      color: {
+        label: 'Color',
+        options: [
+          'neutral',
+          'brand',
+          'success',
+          'warning',
+          'info',
+          'error',
+          'special',
+        ],
+      },
+      size: {
+        label: 'Size',
+        options: ['xs', 'sm', 'md', 'lg', 'xl'],
+        defaultValue: 'lg',
+      },
+    },
+    render: ({ color, size }) => (
+      <div className="flex items-center gap-space-3">
+        <Icon icon={DatabaseIcon} color={color} size={size} rounded />
+        <Icon icon={ChartBarIcon} color={color} size={size} rounded />
+        <Icon icon={WarningIcon} color={color} size={size} rounded />
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'Logo',
+    category: 'display',
+    axes: {
+      brand: {
+        label: 'Brand',
+        options: ['langchain', 'langsmith', 'fleet', 'engine'],
+      },
+      variant: { label: 'Variant', options: ['full', 'wordmark', 'logomark'] },
+    },
+    render: ({ brand, variant }) => (
+      <Logo
+        brand={brand}
+        variant={variant}
+        size="lg"
+        className="text-primary"
+      />
+    ),
+  }),
+  defineEntry({
+    name: 'Kbd',
+    category: 'display',
+    render: () => (
+      <div className="flex items-center gap-space-4">
+        <KbdGroup>
+          <Kbd>
+            <CommandIcon size={12} weight="bold" />
+          </Kbd>
+          <Kbd>K</Kbd>
+        </KbdGroup>
+        <KbdGroup>
+          <Kbd>
+            <ArrowBendDownLeftIcon size={12} weight="bold" />
+          </Kbd>
+        </KbdGroup>
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'CodeLite',
+    category: 'display',
+    bodyClassName: 'p-space-4',
+    axes: {
+      language: {
+        label: 'Language',
+        options: [
+          { value: 'json', label: 'JSON' },
+          { value: 'python', label: 'Python' },
+        ],
+      },
+    },
+    render: ({ language }) => (
+      <div className="w-full overflow-hidden rounded-md border border-subtle">
+        <CodeLite
+          language={language}
+          value={language === 'json' ? SAMPLE_JSON : SAMPLE_PYTHON}
+        />
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'Text',
+    category: 'display',
+    storybookTitle: 'Foundations/Text',
+    axes: {
+      variant: {
+        label: 'Variant',
+        options: ['h1', 'h2', 'h3', 'md', 'sm', 'xs', 'body'],
+        defaultValue: 'h2',
+      },
+      color: {
+        label: 'Color',
+        options: ['primary', 'secondary', 'tertiary', 'quaternary'],
+      },
+    },
+    render: ({ variant, color }) => (
+      <div className="flex flex-col items-center gap-space-2 text-center">
+        <Text variant={variant} color={color}>
+          Agent engineering, in type.
+        </Text>
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'Banner',
+    category: 'status',
+    axes: {
+      intent: {
+        label: 'Intent',
+        options: ['info', 'success', 'warning', 'error', 'neutral'],
+        defaultValue: 'warning',
+      },
+    },
+    render: ({ intent }) => <BannerDemo intent={intent} />,
+  }),
+  defineEntry({
+    name: 'Toast',
+    category: 'status',
+    axes: {
+      type: {
+        label: 'Type',
+        options: ['success', 'info', 'warning', 'error'],
+      },
+    },
+    render: ({ type }) => <ToastDemo type={type} />,
+  }),
+  defineEntry({
+    name: 'Spinner',
+    category: 'status',
+    axes: {
+      size: {
+        label: 'Size',
+        options: ['xs', 'sm', 'md', 'lg'],
+        defaultValue: 'md',
+      },
+    },
+    render: ({ size }) => <Spinner size={size} className="text-icon-brand" />,
+  }),
+  defineEntry({
+    name: 'Skeleton',
+    category: 'status',
+    render: () => (
+      <div className="flex w-full max-w-72 flex-col gap-space-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'LinearProgress',
+    category: 'status',
+    render: () => (
+      <div className="w-full max-w-72">
+        <LinearProgress aria-label="Loading runs" />
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'ProgressBar',
+    category: 'status',
+    axes: {
+      color: {
+        label: 'Color',
+        options: ['brand', 'success', 'warning', 'error', 'neutral'],
+      },
+      size: { label: 'Size', options: ['sm', 'md', 'lg'], defaultValue: 'md' },
+    },
+    render: ({ color, size }) => <ProgressBarDemo color={color} size={size} />,
+  }),
+  defineEntry({
+    name: 'CircularProgress',
+    category: 'status',
+    axes: {
+      mode: {
+        label: 'Mode',
+        options: [
+          { value: 'value', label: 'Value' },
+          { value: 'segments', label: 'Segments' },
+        ],
+      },
+    },
+    render: ({ mode }) =>
+      mode === 'value' ? (
+        <CircularProgress
+          value={0.73}
+          size={72}
+          strokeWidth={8}
+          aria-label="73% complete"
+        />
+      ) : (
+        <CircularProgress
+          size={72}
+          strokeWidth={8}
+          aria-label="Run outcomes"
+          segments={[
+            { variant: 'success', percentage: 0.68 },
+            { variant: 'warning', percentage: 0.22 },
+            { variant: 'error', percentage: 0.1 },
+          ]}
+        />
+      ),
+  }),
+  defineEntry({
+    name: 'EmptyState',
+    category: 'status',
+    axes: {
+      size: { label: 'Size', options: ['sm', 'md', 'lg'], defaultValue: 'md' },
+      variant: { label: 'Variant', options: ['neutral', 'brand'] },
+    },
+    render: ({ size, variant }) => (
+      <EmptyState
+        size={size}
+        variant={variant}
+        icon={DatabaseIcon}
+        title="No datasets yet"
+        description="Create one to start evaluating your agent."
+        action={
+          <Button size="sm" leftDecorator={PlusIcon}>
+            New dataset
+          </Button>
+        }
+      />
+    ),
+  }),
+  defineEntry({
+    name: 'ErrorMessage',
+    category: 'status',
+    axes: { size: { label: 'Size', options: ['sm', 'md'] } },
+    render: ({ size }) => (
+      <div className="w-full max-w-80">
+        <ErrorMessage
+          size={size}
+          message="Run failed: the model returned a 429 before any tokens streamed."
+          details={
+            'Traceback (most recent call last):\n  File "agent.py", line 42, in invoke\n    return self.client.messages.create(**kwargs)\nRateLimitError: 429'
+          }
+          copyable
+        />
+      </div>
+    ),
+  }),
+  defineEntry({
+    name: 'ErrorState',
+    category: 'status',
+    bodyClassName: 'p-space-4',
+    axes: {
+      status: {
+        label: 'Status',
+        options: [
+          { value: '404', label: '404' },
+          { value: '500', label: '500' },
+        ],
+      },
+    },
+    render: ({ status }) => (
+      <ErrorState
+        withoutOverlay
+        status={Number(status)}
+        title={status === '404' ? 'Project not found' : 'Something broke'}
+        message={
+          status === '404'
+            ? "This project doesn't exist or has moved."
+            : 'We hit an unexpected error. Try again in a moment.'
+        }
+        backTo="/"
+        backLabel="Back to projects"
+      />
+    ),
+  }),
+  defineEntry({
+    name: 'ChartTooltip',
+    category: 'charts',
+    render: () => (
+      <ChartTooltip>
+        <ChartTooltipHeader title="Aug 11, 2026" />
+        <ChartTooltipBody>
+          <ChartTooltipRow label="Runs" value="1,284" />
+          <ChartTooltipRow label="Success" value="92%" />
+          <ChartTooltipRow label="Errors" value="8%" />
+        </ChartTooltipBody>
+      </ChartTooltip>
+    ),
+  }),
+  defineEntry({
+    name: 'ChartLegend',
+    category: 'charts',
+    axes: {
+      layout: {
+        label: 'Layout',
+        options: [
+          { value: 'list', label: 'List' },
+          { value: 'inline', label: 'Inline' },
+        ],
+      },
+    },
+    render: ({ layout }) => <ChartLegendDemo layout={layout} />,
+  }),
+];
+
+export const CATEGORIES = [
+  {
+    id: 'buttons',
+    label: 'Buttons',
+    blurb: 'Commit an action, or navigate away from one.',
+  },
+  {
+    id: 'inputs',
+    label: 'Inputs',
+    blurb: 'Collect a value, a choice, or a range.',
+  },
+  {
+    id: 'overlays',
+    label: 'Overlays',
+    blurb: 'Reveal detail or actions without leaving the page.',
+  },
+  {
+    id: 'navigation',
+    label: 'Navigation',
+    blurb: 'Move between views at the same altitude.',
+  },
+  {
+    id: 'layout',
+    label: 'Layout',
+    blurb: 'Separate and stack the surfaces themselves.',
+  },
+  {
+    id: 'display',
+    label: 'Display',
+    blurb: 'Render identity, state, and content as-is.',
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    blurb: 'Say what the system is doing, or what went wrong.',
+  },
+  {
+    id: 'charts',
+    label: 'Charts',
+    blurb: 'The shared chrome around a visualization.',
+  },
+];
+
+export const OverviewPage = () => {
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('all');
+  const normalizedQuery = query.trim().toLowerCase();
+  const matches = CATALOG.filter(
+    (entry) =>
+      (category === 'all' || entry.category === category) &&
+      (normalizedQuery === '' ||
+        entry.name.toLowerCase().includes(normalizedQuery) ||
+        entry.tag.includes(normalizedQuery))
+  );
+  const visibleCategories = CATEGORIES.filter((group) =>
+    matches.some((entry) => entry.category === group.id)
+  );
+  return (
+    <main className="min-h-screen bg-surface-level-1 text-primary">
+      <header className="border-b border-subtle bg-brand-subtle-gradient px-space-5 py-space-8 sm:px-space-8">
+        <div className="mx-auto flex max-w-[100rem] flex-col items-start gap-space-5">
+          <Logo
+            brand="langchain"
+            variant="full"
+            size="lg"
+            className="text-primary"
+          />
+          <div className="flex flex-col gap-space-3">
+            <Text as="h1" variant="h1">
+              Component overview
+            </Text>
+            <Text color="secondary" className="max-w-2xl">
+              All the components! Each card runs a real instance with its own
+              state — click it, type in it, open it, etc.
+            </Text>
+          </div>
+        </div>
+      </header>
+      <div
+        className="sticky top-0 border-b border-subtle bg-surface-level-1/95 px-space-5 py-space-4 backdrop-blur-sm sm:px-space-8"
+        style={{ zIndex: zIndices.stickyHeader }}
+      >
+        <div className="mx-auto flex max-w-[100rem] flex-wrap items-center gap-x-space-4 gap-y-space-3">
+          <div className="w-full max-w-64">
+            <Input
+              size="sm"
+              value={query}
+              onChange={setQuery}
+              debounceMs={0}
+              placeholder="Filter components…"
+              aria-label="Filter components"
+              leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-space-1">
+            <Button
+              size="xs"
+              color={category === 'all' ? 'primary' : 'secondary'}
+              variant={category === 'all' ? 'normal' : 'plain'}
+              onClick={() => setCategory('all')}
+            >
+              All
+            </Button>
+            {CATEGORIES.map((group) => (
+              <Button
+                key={group.id}
+                size="xs"
+                color={category === group.id ? 'primary' : 'secondary'}
+                variant={category === group.id ? 'normal' : 'plain'}
+                onClick={() => setCategory(group.id)}
+              >
+                {group.label}
+              </Button>
+            ))}
+          </div>
+          <Badge color="secondary" size="xs" className="ml-auto">
+            {`${matches.length} of ${CATALOG.length}`}
+          </Badge>
+        </div>
+      </div>
+      <div className="mx-auto flex max-w-[100rem] flex-col gap-space-8 px-space-5 py-space-8 sm:px-space-8">
+        {visibleCategories.map((group) => (
+          <section
+            key={group.id}
+            className="flex flex-col gap-space-4"
+            aria-labelledby={`overview-${group.id}`}
+          >
+            <div className="flex flex-wrap items-baseline gap-x-space-3 gap-y-space-1 border-b border-subtle pb-space-3">
+              <Text
+                as="h2"
+                id={`overview-${group.id}`}
+                variant="h2"
+                weight="semibold"
+              >
+                {group.label}
+              </Text>
+              <Text variant="sm" color="tertiary">
+                {group.blurb}
+              </Text>
+            </div>
+            <div className="grid grid-cols-1 gap-space-4 xl:grid-cols-2 2xl:grid-cols-3">
+              {matches
+                .filter((entry) => entry.category === group.id)
+                .map((entry) => (
+                  <OverviewCard key={entry.name} entry={entry} />
+                ))}
+            </div>
+          </section>
+        ))}
+        {matches.length === 0 && (
+          <div className="flex flex-col items-center gap-space-2 py-space-8">
+            <Text variant="h3">No components match “{query}”</Text>
+            <Text variant="sm" color="tertiary">
+              Try a component name like “input” or a tag like “@badge”.
+            </Text>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+};
+
+<Unstyled>
+  <MemoryRouter>
+    <TooltipProvider>
+      <ToastProvider>
+        <OverviewPage />
+      </ToastProvider>
+    </TooltipProvider>
+  </MemoryRouter>
+</Unstyled>
