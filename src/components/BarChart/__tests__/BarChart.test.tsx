@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type * as MantineHooks from '@mantine/hooks';
 import type * as VisxText from '@visx/text';
 
-import { act, fireEvent, render, screen } from '../../../test-utils';
+import { render, screen, within } from '../../../test-utils';
 import { Text } from '../../Text';
 import { BarChart } from '../BarChart';
 import type {
@@ -114,6 +114,82 @@ describe('BarChart', () => {
       'tabindex',
       '0'
     );
+  });
+
+  it('dims nonmatching series from built-in legend hover and focus', async () => {
+    const { user } = render(
+      <BarChart
+        aria-label="Legend emphasis"
+        series={series}
+        legendProps={{ layout: 'list' }}
+        getBarAriaLabel={(bar) => bar.id}
+        shouldAnimate={false}
+      />
+    );
+    const legend = screen.getByRole('group', {
+      name: 'Legend emphasis legend',
+    });
+    const requestsLegendItem = within(legend).getByRole('group', {
+      name: 'Requests',
+    });
+    const requestsBar = screen.getByLabelText('requests-mon');
+    const errorsBar = screen.getByLabelText('errors-mon');
+
+    await user.hover(requestsLegendItem);
+    expect(requestsBar).toHaveAttribute('opacity', '1');
+    expect(errorsBar).toHaveAttribute('opacity', '0.45');
+
+    await user.unhover(requestsLegendItem);
+    expect(requestsBar).toHaveAttribute('opacity', '1');
+    expect(errorsBar).toHaveAttribute('opacity', '1');
+  });
+
+  it('matches controlled external legends by datum', () => {
+    const datumLegendSeries: readonly BarChartSeries[] = series.map((item) => ({
+      ...item,
+      data: item.data.map((point) => ({
+        ...point,
+        legendItemId:
+          point.value === 0
+            ? 'empty'
+            : point.category === 'Mon'
+              ? 'east'
+              : 'west',
+      })),
+    }));
+    const { container, rerender } = render(
+      <BarChart
+        aria-label="Legend matching"
+        series={datumLegendSeries}
+        showLegend={false}
+        activeLegendItemId="east"
+        minimumBarSize={0}
+        shouldAnimate={false}
+      />
+    );
+    const getBar = (id: string) => {
+      const bar = container.querySelector(`[data-bar-id="${id}"]`);
+      if (bar == null) throw new Error(`Expected bar ${id}`);
+      return bar;
+    };
+    expect(getBar('requests-mon')).toHaveAttribute('opacity', '1');
+    expect(getBar('errors-mon')).toHaveAttribute('opacity', '1');
+    expect(getBar('requests-wed')).toHaveAttribute('opacity', '0.45');
+    expect(getBar('errors-tue')).toHaveAttribute('opacity', '0.45');
+
+    rerender(
+      <BarChart
+        aria-label="Legend matching"
+        series={datumLegendSeries}
+        showLegend={false}
+        activeLegendItemId="empty"
+        minimumBarSize={0}
+        shouldAnimate={false}
+      />
+    );
+    expect(container.querySelector('[data-bar-id="requests-tue"]')).toBeNull();
+    expect(getBar('requests-mon')).toHaveAttribute('opacity', '1');
+    expect(getBar('errors-tue')).toHaveAttribute('opacity', '1');
   });
 
   it('stays a plain image when nothing about it is interactive', () => {
@@ -243,8 +319,8 @@ describe('BarChart', () => {
     expect(screen.getByText('horizontal overlay: 3 bars')).toBeVisible();
   });
 
-  it('renders multiple value axes, threshold bands, fixed ticks, selection, and label tooltips', () => {
-    render(
+  it('renders multiple value axes, threshold bands, fixed ticks, selection, and label tooltips', async () => {
+    const { user } = render(
       <BarChart
         aria-label="Request volume and latency"
         showLegend={false}
@@ -288,17 +364,9 @@ describe('BarChart', () => {
       screen.getByRole('img', { name: 'Selected range from Mon to Tue' })
     ).toBeVisible();
 
-    vi.useFakeTimers();
-    try {
-      fireEvent.pointerMove(screen.getByText('Latency'));
-      act(() => vi.advanceTimersByTime(300));
+    await user.hover(screen.getByText('Latency'));
 
-      expect(document.querySelector('[role="tooltip"]')).toHaveTextContent(
-        'Latency'
-      );
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Latency');
   });
 
   it('positions outer value axes after the resolved thickness of inner axes', () => {

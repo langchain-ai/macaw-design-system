@@ -8,7 +8,7 @@ import { QuestionIcon } from '@phosphor-icons/react/dist/ssr/Question';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Icon } from '../Icon/Icon';
-import { Textarea } from '../Textarea/Textarea';
+import { Textarea } from './Textarea';
 
 const meta: Meta<typeof Textarea> = {
   title: 'Components/Inputs/Textarea',

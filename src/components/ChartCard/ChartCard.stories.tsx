@@ -6,12 +6,12 @@ import { useResizeObserver } from '@mantine/hooks';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Bar } from '@visx/shape';
 
+import { ChartCard, type ChartCardVariant } from '.';
 import {
   CHART_CATEGORICAL_FILL_COLORS,
   CHART_SINGLE_FILL_COLOR,
 } from '../../utils/chartColors';
 import { cn } from '../../utils/cn';
-import { ChartCard, type ChartCardVariant } from '../ChartCard';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
 import { DropdownMenuItem } from '../DropdownMenu';
 import { GroupedTabs } from '../GroupedTabs/GroupedTabs';

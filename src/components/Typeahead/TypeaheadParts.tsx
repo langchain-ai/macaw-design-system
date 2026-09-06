@@ -53,7 +53,6 @@ export function TypeaheadDefaultTag<TOption>({
   const label = getLabel(selected);
 
   return (
-    // TODO: Replace this clickable badge with a keyboard-accessible remove control.
     <Badge
       key={`${getValue(selected)}-${index}`}
       color="plain"
@@ -61,9 +60,18 @@ export function TypeaheadDefaultTag<TOption>({
       size="xs"
       textWeight="normal"
       rightDecorator={!disabled ? XIcon : undefined}
-      iconWeight="bold"
+      iconWeight="regular"
       aria-label={!disabled ? `Remove ${label}` : undefined}
+      role={!disabled ? 'button' : undefined}
+      tabIndex={!disabled ? 0 : undefined}
       onMouseDown={(event) => event.preventDefault()}
+      onKeyDown={(event) => {
+        if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          event.stopPropagation();
+          onRemove();
+        }
+      }}
       onClick={
         !disabled
           ? (event) => {
@@ -74,7 +82,8 @@ export function TypeaheadDefaultTag<TOption>({
       }
       className={cn(
         'min-w-0 max-w-full justify-start border-default bg-surface-level-2 px-space-1 text-primary [&>span]:min-w-0 [&>span]:truncate',
-        !disabled && 'cursor-pointer',
+        !disabled &&
+          'cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]',
         disabled && 'cursor-not-allowed'
       )}
     >
@@ -157,7 +166,7 @@ export function TypeaheadCreateOption({
         aria-hidden
         className="inline-flex size-4 shrink-0 text-icon-secondary"
       >
-        <PlusIcon size="100%" weight="bold" />
+        <PlusIcon size="100%" weight="regular" />
       </span>
       <span className="min-w-0 truncate">{inputValue || 'Add new'}</span>
     </>

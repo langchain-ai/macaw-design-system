@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { CircleSkeleton, Skeleton, SkeletonRows } from '../Skeleton/Skeleton';
+import { CircleSkeleton, Skeleton, SkeletonRows } from './Skeleton';
 
 const meta = {
   title: 'Components/Status/Skeleton',

@@ -339,7 +339,7 @@ export const InputDemo = ({ size, state }) => {
         value={value}
         onChange={setValue}
         placeholder="customer-support-eval"
-        leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+        leftDecorator={<MagnifyingGlassIcon size={16} weight="regular" />}
         disabled={state === 'disabled'}
         isError={state === 'error'}
         hintText={
@@ -1228,13 +1228,13 @@ export const CATALOG = [
       <div className="flex items-center gap-space-4">
         <KbdGroup>
           <Kbd>
-            <CommandIcon size={12} weight="bold" />
+            <CommandIcon size={12} weight="regular" />
           </Kbd>
           <Kbd>K</Kbd>
         </KbdGroup>
         <KbdGroup>
           <Kbd>
-            <ArrowBendDownLeftIcon size={12} weight="bold" />
+            <ArrowBendDownLeftIcon size={12} weight="regular" />
           </Kbd>
         </KbdGroup>
       </div>
@@ -1573,7 +1573,7 @@ export const OverviewPage = () => {
               debounceMs={0}
               placeholder="Filter components…"
               aria-label="Filter components"
-              leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+              leftDecorator={<MagnifyingGlassIcon size={16} weight="regular" />}
             />
           </div>
           <div className="flex flex-wrap items-center gap-space-1">

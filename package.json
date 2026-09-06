@@ -2,11 +2,20 @@
   "name": "@langchain/design-system",
   "version": "0.1.0",
   "description": "The shared UI foundation for the LangChain product suite.",
+  "keywords": [
+    "accessible",
+    "components",
+    "design-system",
+    "langchain",
+    "react",
+    "storybook",
+    "tailwindcss"
+  ],
   "homepage": "https://github.com/langchain-ai/langchain-design-system#readme",
   "bugs": {
     "url": "https://github.com/langchain-ai/langchain-design-system/issues"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/langchain-ai/langchain-design-system.git"
@@ -16,7 +25,10 @@
     "docs",
     "tailwind.preset.cjs",
     "tailwind.preset.d.cts",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "CHANGELOG.md"
   ],
   "type": "module",
   "sideEffects": [
@@ -315,10 +327,14 @@
     "verify:types:nodenext": "tsc --noEmit -p tests/consumer/tsconfig.nodenext.json",
     "verify:types": "pnpm verify:types:bundler && pnpm verify:types:nodenext",
     "verify:package": "node scripts/verify-package.mjs && pnpm verify:types",
-    "check": "pnpm typecheck && pnpm test && pnpm build && pnpm verify:package && pnpm build:storybook",
-    "pack:check": "pnpm build && pnpm verify:package && npm pack --dry-run --ignore-scripts",
-    "prepublishOnly": "node scripts/verify-license.mjs",
-    "prepack": "pnpm build && pnpm verify:package"
+    "check": "pnpm format:check && pnpm lint && pnpm verify:license && pnpm test:scripts && pnpm typecheck && pnpm test && pnpm build && pnpm verify:package && pnpm build:storybook && pnpm verify:storybook",
+    "pack:check": "pnpm build && pnpm verify:package && node scripts/verify-tarball.mjs",
+    "prepublishOnly": "pnpm check",
+    "prepack": "pnpm build && pnpm verify:package",
+    "test:scripts": "node --test scripts/__tests__/*.test.mjs",
+    "verify:license": "node scripts/verify-license.mjs",
+    "verify:storybook": "node scripts/verify-storybook.mjs",
+    "verify:upstream": "node scripts/verify-upstream.mjs"
   },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",
@@ -392,7 +408,7 @@
     "@types/react-dom": "19.2.4",
     "@visx/tooltip": "^4.0.0",
     "@vitejs/plugin-react": "^6.1.0",
-    "jsdom": "^24.1.3",
+    "jsdom": "^30.0.1",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
     "react": "19.2.8",

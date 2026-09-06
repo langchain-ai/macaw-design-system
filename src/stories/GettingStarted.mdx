@@ -1,0 +1,46 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Getting Started" />
+
+# Getting started
+
+`@langchain/design-system` is the standalone React UI library for LangChain
+products. It includes components, semantic tokens, precompiled styles, theme
+helpers, and Phosphor wrappers. The first npm release is in preparation.
+
+Once published, install it with React and React DOM:
+
+```sh
+pnpm add @langchain/design-system react react-dom
+```
+
+Import the stylesheet once, then add the providers your components use:
+
+```tsx
+import '@langchain/design-system/styles.css';
+import { Button, TooltipProvider } from '@langchain/design-system';
+import { AppThemeProvider } from '@langchain/design-system/hooks/AppThemeProvider';
+
+export function App() {
+  return (
+    <AppThemeProvider defaultMode="system">
+      <TooltipProvider>
+        <Button>Continue</Button>
+      </TooltipProvider>
+    </AppThemeProvider>
+  );
+}
+```
+
+React 18.2–19 is supported. The package is ESM-only; Tailwind is optional.
+Every component has an explicit entry such as
+`@langchain/design-system/components/Button`. Use component entries for charts,
+editors, menus, and other components with larger dependency graphs.
+
+Use the preview background control to inspect light and dark themes. Open
+individual stories to change props and inspect keyboard and responsive states.
+
+- [Integration guide](https://github.com/langchain-ai/langchain-design-system/blob/main/docs/INTEGRATION.md)
+- [Contributing](https://github.com/langchain-ai/langchain-design-system/blob/main/CONTRIBUTING.md)
+- [Release policy](https://github.com/langchain-ai/langchain-design-system/blob/main/docs/RELEASING.md)
+- [Storybook parity](https://github.com/langchain-ai/langchain-design-system/blob/main/docs/STORYBOOK.md)

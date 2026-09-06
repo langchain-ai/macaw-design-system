@@ -3,16 +3,22 @@ import { MemoryRouter, Link as RouterLink } from 'react-router-dom';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { ToastProvider } from '.';
+import type { ToastConfig } from '.';
 import { Button } from '../Button/Button';
-import { ToastProvider } from '../Toast';
-import type { ToastConfig } from '../Toast';
-import useToast from '../Toast/useToast';
+import useToast from './useToast';
 
 const meta = {
   title: 'Components/Status/Toast',
   component: ToastProvider,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Brief, non-blocking operation feedback. Use Banner when the message must remain visible and Dialog when a decision is required.',
+      },
+    },
   },
   tags: ['autodocs'],
   args: {

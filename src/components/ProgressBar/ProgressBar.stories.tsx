@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { ProgressBar, type ProgressBarProps } from '.';
 import { cn } from '../../utils/cn';
-import { ProgressBar, type ProgressBarProps } from '../ProgressBar';
 import { Text } from '../Text';
 
 type ProgressBarStoryArgs = Extract<ProgressBarProps, { 'aria-label': string }>;

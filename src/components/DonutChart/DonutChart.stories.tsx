@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { collateDonutSegments, DonutChart, type DonutChartSegment } from '.';
 import {
   CHART_CATEGORICAL_FILL_COLORS,
   CHART_OTHER_COLOR,
@@ -12,11 +13,6 @@ import {
   ChartTooltipHeader,
   ChartTooltipRow,
 } from '../ChartTooltip';
-import {
-  collateDonutSegments,
-  DonutChart,
-  type DonutChartSegment,
-} from '../DonutChart';
 import { DropdownMenuItem } from '../DropdownMenu';
 import { Text } from '../Text';
 

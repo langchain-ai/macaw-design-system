@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { QuestionIcon } from '@phosphor-icons/react/dist/ssr/Question';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Input } from '../Input/Input';
+import { Input } from './Input';
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Inputs/Input',
@@ -56,9 +56,9 @@ const meta: Meta<typeof Input> = {
       options: ['None', 'EnvelopeIcon', 'MagnifyingGlassIcon', 'EyeIcon'],
       mapping: {
         None: undefined,
-        EnvelopeIcon: <EnvelopeIcon size={16} weight="bold" />,
-        MagnifyingGlassIcon: <MagnifyingGlassIcon size={16} weight="bold" />,
-        EyeIcon: <EyeIcon size={16} weight="bold" />,
+        EnvelopeIcon: <EnvelopeIcon size={16} weight="regular" />,
+        MagnifyingGlassIcon: <MagnifyingGlassIcon size={16} weight="regular" />,
+        EyeIcon: <EyeIcon size={16} weight="regular" />,
       },
     },
     rightDecorator: {
@@ -66,8 +66,8 @@ const meta: Meta<typeof Input> = {
       options: ['None', 'QuestionIcon', 'EyeSlashIcon'],
       mapping: {
         None: undefined,
-        QuestionIcon: <QuestionIcon size={16} weight="bold" />,
-        EyeSlashIcon: <EyeSlashIcon size={16} weight="bold" />,
+        QuestionIcon: <QuestionIcon size={16} weight="regular" />,
+        EyeSlashIcon: <EyeSlashIcon size={16} weight="regular" />,
       },
     },
   },
@@ -90,7 +90,7 @@ export const Default: Story = {
 export const SmallSize: Story = {
   args: {
     placeholder: 'Small size search',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="bold" />,
+    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
     size: 'sm',
     onChange: () => {},
     debounceMs: 300,
@@ -112,8 +112,8 @@ export const WithBothDecorators: Story = {
     label: 'Email',
     placeholder: 'Enter your email',
     hintText: 'This is a hint text to help user.',
-    leftDecorator: <EnvelopeIcon size={16} weight="bold" />,
-    rightDecorator: <QuestionIcon size={16} weight="bold" />,
+    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
+    rightDecorator: <QuestionIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -127,8 +127,8 @@ export const ErrorState: Story = {
     placeholder: 'Enter your email',
     hintText: 'Please enter a valid email address.',
     isError: true,
-    leftDecorator: <EnvelopeIcon size={16} weight="bold" />,
-    rightDecorator: <QuestionIcon size={16} weight="bold" />,
+    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
+    rightDecorator: <QuestionIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -141,8 +141,8 @@ export const DisabledState: Story = {
     placeholder: 'Enter your email',
     hintText: 'This field is disabled.',
     disabled: true,
-    leftDecorator: <EnvelopeIcon size={16} weight="bold" />,
-    rightDecorator: <QuestionIcon size={16} weight="bold" />,
+    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
+    rightDecorator: <QuestionIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -154,8 +154,8 @@ export const RequiredField: Story = {
     placeholder: 'Enter your email',
     hintText: 'This field is required.',
     required: true,
-    leftDecorator: <EnvelopeIcon size={16} weight="bold" />,
-    rightDecorator: <QuestionIcon size={16} weight="bold" />,
+    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
+    rightDecorator: <QuestionIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -228,7 +228,7 @@ export const SearchInput: Story = {
     label: 'Search',
     type: 'text',
     placeholder: 'Search...',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="bold" />,
+    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -240,13 +240,13 @@ export const CustomLabelNode: Story = {
       <div className="flex items-center gap-space-2">
         <span>Custom Label</span>
         <span className="inline-flex text-tertiary">
-          <QuestionIcon size={16} weight="bold" />
+          <QuestionIcon size={16} weight="regular" />
         </span>
       </div>
     ),
     placeholder: 'Enter text',
     hintText: 'This input has a custom label with an icon',
-    leftDecorator: <EnvelopeIcon size={16} weight="bold" />,
+    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -260,8 +260,8 @@ export const AllStates: Story = {
         label="Default State"
         placeholder="Enter text"
         hintText="This is a normal input"
-        leftDecorator={<EnvelopeIcon size={16} weight="bold" />}
-        rightDecorator={<QuestionIcon size={16} weight="bold" />}
+        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
+        rightDecorator={<QuestionIcon size={16} weight="regular" />}
         onChange={() => {}}
         debounceMs={300}
         required
@@ -273,8 +273,8 @@ export const AllStates: Story = {
         placeholder="Enter text"
         hintText="This is an error message"
         isError
-        leftDecorator={<EnvelopeIcon size={16} weight="bold" />}
-        rightDecorator={<QuestionIcon size={16} weight="bold" />}
+        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
+        rightDecorator={<QuestionIcon size={16} weight="regular" />}
         onChange={() => {}}
         debounceMs={300}
       />
@@ -285,15 +285,15 @@ export const AllStates: Story = {
         placeholder="Enter text"
         hintText="This input is disabled"
         disabled
-        leftDecorator={<EnvelopeIcon size={16} weight="bold" />}
-        rightDecorator={<QuestionIcon size={16} weight="bold" />}
+        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
+        rightDecorator={<QuestionIcon size={16} weight="regular" />}
         onChange={() => {}}
         debounceMs={300}
       />
       <Input
         placeholder="Small size"
-        leftDecorator={<EnvelopeIcon size={16} weight="bold" />}
-        rightDecorator={<QuestionIcon size={16} weight="bold" />}
+        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
+        rightDecorator={<QuestionIcon size={16} weight="regular" />}
         onChange={() => {}}
         debounceMs={300}
         size="sm"
@@ -319,7 +319,7 @@ export const PlainWithDecorators: Story = {
     variant: 'plain',
     label: 'Search',
     placeholder: 'Search...',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="bold" />,
+    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -330,7 +330,7 @@ export const PlainSmallSize: Story = {
     variant: 'plain',
     placeholder: 'Small plain input',
     size: 'sm',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="bold" />,
+    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
     onChange: () => {},
     debounceMs: 300,
   },
@@ -349,7 +349,7 @@ export const VariantComparison: Story = {
           label="Email"
           placeholder="Enter your email"
           hintText="Standard outlined input with border"
-          leftDecorator={<EnvelopeIcon size={16} weight="bold" />}
+          leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
           onChange={() => {}}
           debounceMs={300}
         />
@@ -362,7 +362,7 @@ export const VariantComparison: Story = {
           label="Email"
           placeholder="Enter your email"
           hintText="Plain input with no border and secondary background"
-          leftDecorator={<EnvelopeIcon size={16} weight="bold" />}
+          leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
           onChange={() => {}}
           debounceMs={300}
         />
@@ -373,7 +373,7 @@ export const VariantComparison: Story = {
         <Input
           variant="plain"
           placeholder="Search..."
-          leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+          leftDecorator={<MagnifyingGlassIcon size={16} weight="regular" />}
           onChange={() => {}}
           debounceMs={300}
         />

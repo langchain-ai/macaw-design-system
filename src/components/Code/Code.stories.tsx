@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Code } from '../Code';
+import { Code } from '.';
 
 const SAMPLE_CODE = `type Greeting = {
   message: string;

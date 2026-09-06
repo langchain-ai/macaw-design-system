@@ -189,6 +189,11 @@ such as `gap-space-4` and `px-space-5`. Pick spacing by relationship: small gaps
 bind a cluster, while larger gaps separate sections. Prefer flex or grid `gap`
 over sibling margins.
 
+Component size families are defined in `src/utils/componentSizes.ts` and shown
+in **Foundations → Component Sizes**. Reuse the appropriate control, selection,
+option-row, or visual-element scale when extending an existing family. The
+reference also identifies components still being migrated to those dimensions.
+
 ### Radius and elevation
 
 Use named `rounded-*` and `shadow-*` utilities. Choose the smallest radius and

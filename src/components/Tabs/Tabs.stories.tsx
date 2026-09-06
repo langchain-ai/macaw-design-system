@@ -1,12 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import {
-  TabGroup,
-  TabLabel,
-  TabList,
-  TabPanel,
-  TabPanels,
-} from '../Tabs/index';
+import { TabGroup, TabLabel, TabList, TabPanel, TabPanels } from './index';
 
 const meta: Meta<typeof TabList> = {
   title: 'Components/Navigation/Tabs',

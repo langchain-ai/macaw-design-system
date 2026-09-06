@@ -15,8 +15,10 @@ accessible React components, semantic styling tokens, precompiled utilities,
 theme helpers, chart primitives, and Phosphor icon wrappers shared by LangChain
 products.
 
-The package is currently versioned at `0.1.0` but is not published yet. It does
-not include `@langchain/untitled-ui-icons` or the legacy Untitled-compatible icon
+The package is preparing its first npm release under the [MIT license](LICENSE).
+The hosted Storybook above currently builds from LangChainPlus; see
+[Storybook parity and hosting](docs/STORYBOOK.md) for the standalone setup.
+This package does not include `@langchain/untitled-ui-icons` or the legacy Untitled-compatible icon
 trees.
 
 ## Install
@@ -27,7 +29,7 @@ Once the package is published:
 pnpm add @langchain/design-system react react-dom
 ```
 
-React 18 and 19 are supported. Navigation styles can be composed with any
+React 18.2–19 and TypeScript 5.4+ are supported. The package is ESM-only. Navigation styles can be composed with any
 routing framework. Tailwind is optional for package consumers.
 
 ## Use
@@ -39,14 +41,16 @@ precompiled utility classes used by the components.
 ```tsx
 import '@langchain/design-system/styles.css';
 
-import { Button, Card, Text } from '@langchain/design-system';
+import { Button, Card, Text, TooltipProvider } from '@langchain/design-system';
 
 export function Example() {
   return (
-    <Card>
-      <Text>Shared product UI</Text>
-      <Button>Continue</Button>
-    </Card>
+    <TooltipProvider>
+      <Card>
+        <Text>Shared product UI</Text>
+        <Button>Continue</Button>
+      </Card>
+    </TooltipProvider>
   );
 }
 ```
@@ -67,9 +71,10 @@ for example `@langchain/design-system/utils/cn` and
 `@langchain/design-system/hooks/useColorScheme`.
 
 Add the `dark` class to the document root to activate dark tokens. Applications
-may use `AppThemeProvider` from
-`@langchain/design-system/hooks/AppThemeProvider`, or manage that class through
-their existing theme provider.
+should use `AppThemeProvider` from
+`@langchain/design-system/hooks/AppThemeProvider`, or synchronize the class and color-scheme context through
+their existing theme provider. See [integration](docs/INTEGRATION.md) for the
+required providers, including tooltips and toasts.
 
 The `Link` component renders a native anchor by default. Pass a routing
 framework's anchor element through `as` for client-side navigation:
@@ -99,7 +104,7 @@ and treats those documents as the source of truth.
 
 ## Develop
 
-This repository supports Node 22 and 24 and uses pnpm 10.27.0.
+For development, use Node 22.22.2+ or 24.15.0+ and pnpm 10.27.0.
 
 ```sh
 pnpm install
@@ -147,31 +152,32 @@ pnpm build:storybook
 npm pack --dry-run --ignore-scripts
 ```
 
-`pnpm check` runs the typecheck, tests, package build and verification, and a
-production Storybook build.
+`pnpm check` runs formatting, lint, license and release-script checks,
+typechecking, component tests, package validation, and the Storybook build.
+`pnpm pack:check` also imports every runtime module from an extracted tarball
+with only production dependencies and peers available.
 
 ## Version and release
 
-Releases are manual, not periodic. The release owner:
+This single-package repository uses npm's built-in semver command and a
+reviewed [changelog](CHANGELOG.md). Nx is not needed for the current structure.
+A GitHub release triggers validation and npm trusted publishing; prereleases
+publish to `next`, stable versions to `latest`.
 
-1. Chooses the semantic-version bump and updates `version` in `package.json`.
-2. Merges the validated change.
-3. Publishes a GitHub release tagged with that version, for example `v0.2.0`.
+See [RELEASING.md](docs/RELEASING.md) for the version policy, release steps, and
+first-publication setup. Publishing does not update LangChainPlus: its package
+dependency and imports need a separate consumer PR.
 
-The release workflow checks that the tag matches `package.json`, runs the full
-package checks, and publishes to npm with provenance. It does not choose or
-create the next version.
+## Documentation and contributing
 
-`langchainplus` does not receive a release automatically. After publication,
-its `@langchain/design-system` dependency and lockfile must be updated in a
-separate PR. The existing monthly Dependabot run may propose that PR once the
-dependency is present; a maintainer can also update it immediately when a
-product change needs the new version.
+- [Integration](docs/INTEGRATION.md): providers, imports, CSS, frameworks, and local linking.
+- [Design rules](docs/DESIGN.md) and [tokens](docs/STYLES.md).
+- [Storybook](docs/STORYBOOK.md): shared stories, parity, and hosting.
+- [Contributing](CONTRIBUTING.md), [changelog](CHANGELOG.md), and [security](SECURITY.md).
+- [Third-party notices](THIRD_PARTY_NOTICES.md).
 
-Before the first public release, repository owners must choose an approved
-license, replace the current `UNLICENSED` package declaration, and configure
-npm trusted publishing for the GitHub `npm` environment. No license is inferred
-from the source repository.
+Use [GitHub issues](https://github.com/langchain-ai/langchain-design-system/issues)
+for public questions, bug reports, and proposals.
 
 ## Scope and ownership
 

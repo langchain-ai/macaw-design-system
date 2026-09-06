@@ -36,6 +36,7 @@ function TypeaheadInner<TOption = string>(
     value,
     onChange,
     placeholder = 'Search...',
+    leftDecorator,
     showPlaceholderWithValues = false,
     emptyText = 'No results found.',
     size = 'md',
@@ -45,6 +46,7 @@ function TypeaheadInner<TOption = string>(
     multiple,
     disableClearable = false,
     disableCloseOnSelect = false,
+    filterOptions,
     forcePopupIcon = true,
     clearOnBlur,
     clearValueOnInputClear = false,
@@ -100,13 +102,11 @@ function TypeaheadInner<TOption = string>(
   }, [autoFocus, disabled]);
 
   const inputValue = controlledInputValue ?? uncontrolledInputValue;
-
   const getLabel = useCallback(
     (option: TypeaheadSelectedValue<TOption>) =>
       getOptionLabel ? getOptionLabel(option) : defaultOptionLabel(option),
     [getOptionLabel]
   );
-
   const getValue = useCallback(
     (option: TypeaheadSelectedValue<TOption>) =>
       getOptionValue ? getOptionValue(option) : defaultOptionValue(option),
@@ -152,6 +152,7 @@ function TypeaheadInner<TOption = string>(
     inputValue,
     getLabel,
     getValue,
+    filterOptions,
     maxVisibleOptions,
     includeSelectedValues: multiple,
   });
@@ -188,7 +189,6 @@ function TypeaheadInner<TOption = string>(
     listFooter != null ||
     !hideEmptyList;
   const popupOpen = open && hasPopupContent;
-
   const focusInput = useCallback(() => {
     requestAnimationFrame(() => internalInputRef.current?.focus());
   }, []);
@@ -199,7 +199,6 @@ function TypeaheadInner<TOption = string>(
       (onChange as (value: typeof next) => void)(next),
     [onChange]
   );
-
   const selectValue = useCallback(
     (selected: TypeaheadSelectedValue<TOption>) => {
       if (disabled) return;
@@ -455,6 +454,7 @@ function TypeaheadInner<TOption = string>(
         onValueChange: handleInputValueChange,
         onKeyDown: handleKeyDown,
         placeholder,
+        leftDecorator,
         showPlaceholderWithValues,
         autoFocus,
         autoComplete,

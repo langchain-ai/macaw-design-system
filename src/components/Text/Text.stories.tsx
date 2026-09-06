@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Text } from '../Text/Text';
+import { Text } from './Text';
 
 const meta = {
   title: 'Foundations/Text',

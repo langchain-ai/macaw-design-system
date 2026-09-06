@@ -25,7 +25,7 @@ function SingleTypeaheadHarness({
 
   return (
     <>
-      <Typeahead<string>
+      <Typeahead
         data-testid="typeahead"
         value={value}
         onChange={(nextValue) => {
@@ -47,7 +47,7 @@ function MultipleTypeaheadHarness() {
 
   return (
     <>
-      <Typeahead<string>
+      <Typeahead
         multiple
         freeSolo
         disableCloseOnSelect
@@ -80,6 +80,40 @@ describe('Typeahead', () => {
     expect(onChange).toHaveBeenCalledWith('Latency');
     expect(screen.getByTestId('value')).toHaveTextContent('Latency');
     expect(input).toHaveValue('Latency');
+  });
+
+  it('supports custom option filtering', async () => {
+    const user = userEvent.setup();
+    const options = ['server-ranked-first', 'server-ranked-second'];
+    const filterOptions = vi.fn((availableOptions: string[]) =>
+      [...availableOptions].reverse()
+    );
+
+    render(
+      <Typeahead
+        value={null}
+        onChange={() => {}}
+        options={options}
+        filterOptions={filterOptions}
+        placeholder="Search server results"
+      />
+    );
+
+    const input = screen.getByRole('combobox', {
+      name: 'Search server results',
+    });
+    await user.type(input, 'query-not-in-labels');
+
+    expect(filterOptions).toHaveBeenLastCalledWith(
+      options,
+      expect.objectContaining({
+        inputValue: 'query-not-in-labels',
+        getOptionLabel: expect.any(Function),
+      })
+    );
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent)
+    ).toEqual(['server-ranked-second', 'server-ranked-first']);
   });
 
   it('uses semantic Tailwind token classes for the control shell', () => {
@@ -473,7 +507,7 @@ describe('Typeahead', () => {
       const [query, setQuery] = useState('');
       return (
         <>
-          <Typeahead<string>
+          <Typeahead
             multiple
             freeSolo
             hideEmptyList
@@ -521,7 +555,7 @@ describe('Typeahead', () => {
       const [query, setQuery] = useState('');
       return (
         <>
-          <Typeahead<string>
+          <Typeahead
             multiple
             disableClearable
             hideEmptyList
@@ -554,7 +588,7 @@ describe('Typeahead', () => {
       const [value, setValue] = useState<string[]>(['staging']);
       return (
         <>
-          <Typeahead<string>
+          <Typeahead
             multiple
             disableClearable
             value={value}
@@ -608,7 +642,7 @@ describe('Typeahead', () => {
       return (
         <Dialog open onOpenChange={() => {}}>
           <DialogContent title="Copy examples" showClose={false}>
-            <Typeahead<string>
+            <Typeahead
               multiple
               freeSolo
               disableCloseOnSelect
@@ -650,7 +684,7 @@ describe('Typeahead', () => {
           onClose={() => {}}
           title="Configure previews"
         >
-          <Typeahead<string>
+          <Typeahead
             value={value}
             onChange={(nextValue) => setValue(nextValue ?? null)}
             options={['main', 'worker']}
@@ -680,7 +714,7 @@ describe('Typeahead', () => {
 
       return (
         <>
-          <Typeahead<string>
+          <Typeahead
             multiple
             value={value}
             onChange={setValue}
@@ -780,7 +814,7 @@ describe('Typeahead', () => {
       const [value, setValue] = useState<string[]>(['input']);
       return (
         <>
-          <Typeahead<string>
+          <Typeahead
             multiple
             value={value}
             onChange={setValue}
@@ -845,7 +879,7 @@ describe('Typeahead', () => {
       const [query, setQuery] = useState('');
 
       return (
-        <Typeahead<string>
+        <Typeahead
           multiple
           value={value}
           onChange={setValue}

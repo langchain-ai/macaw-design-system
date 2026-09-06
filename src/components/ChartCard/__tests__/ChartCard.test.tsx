@@ -143,7 +143,9 @@ describe('ChartCard', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders feature-owned items in the overflow menu', () => {
+  it('renders feature-owned items in the overflow menu', async () => {
+    const user = userEvent.setup();
+
     render(
       <ChartCard
         title="Trace count"
@@ -159,14 +161,13 @@ describe('ChartCard', () => {
       </ChartCard>
     );
 
-    fireEvent.keyDown(
-      screen.getByRole('button', { name: 'More chart actions' }),
-      { key: 'Enter' }
+    await user.click(
+      screen.getByRole('button', { name: 'More chart actions' })
     );
 
-    expect(document.querySelector('[role="menuitem"]')).toHaveTextContent(
-      'Duplicate chart'
-    );
+    expect(
+      screen.getByRole('menuitem', { name: 'Duplicate chart' })
+    ).toBeInTheDocument();
   });
 
   it('renders loading content and hides header actions', () => {

@@ -8,11 +8,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22, 24]
     steps:
@@ -28,11 +33,12 @@ jobs:
       - run: corepack enable
       - run: corepack prepare pnpm@10.27.0 --activate
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
-      - run: pnpm verify:package
-      - run: pnpm build:storybook
-      - run: npm pack --dry-run --ignore-scripts
+      - run: pnpm check
+      - run: node scripts/verify-tarball.mjs
+      - name: Upload Storybook for review
+        if: matrix.node-version == 24
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: storybook
+          path: storybook-static
+          retention-days: 14

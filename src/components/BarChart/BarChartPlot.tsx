@@ -30,7 +30,9 @@ import type {
 } from './BarChart.types';
 import {
   getBarAnimationRanges,
+  getBarChartIsBarDimmed,
   getBarChartRenderedBars,
+  getCategoryKey,
   toBarChartInteractionBar,
 } from './BarChart.utils';
 import { BarChartAxes } from './BarChartAxes';
@@ -41,9 +43,6 @@ import {
 } from './constants';
 
 const defaultFormatCategory = (value: BarChartCategory) => String(value);
-const getCategoryKey = (category: BarChartCategory) =>
-  `${typeof category}:${category}`;
-
 const groupBy = <Item,>(
   items: readonly Item[],
   getKey: (item: Item) => string
@@ -80,6 +79,8 @@ export type BarChartPlotProps = BarChartInteractionProps & {
   activeCategory?: BarChartCategory | null;
   activeGuideBarId?: string | null;
   activeBarId?: string | null;
+  activeBuiltInLegendItemId?: string | null;
+  activeLegendItemId?: string | null;
   selectionRange?: BarChartSelectionRange;
   slots?: BarChartSlots;
   isRendering: boolean;
@@ -109,6 +110,8 @@ export const BarChartPlot = ({
   activeCategory,
   activeGuideBarId,
   activeBarId,
+  activeBuiltInLegendItemId,
+  activeLegendItemId,
   selectionRange,
   slots,
   isRendering,
@@ -157,6 +160,12 @@ export const BarChartPlot = ({
         })
       : [];
   const renderedBarsBySeriesId = groupBy(renderedBars, (bar) => bar.seriesId);
+  const isBarDimmed = getBarChartIsBarDimmed({
+    bars: renderedBars,
+    activeBuiltInLegendItemId,
+    activeLegendItemId,
+    activeBarId,
+  });
   const animationRanges = getBarAnimationRanges(renderedBars, orientation);
   const hasRenderedBars = renderedBars.length > 0;
   const barAnimationKey = JSON.stringify([
@@ -441,7 +450,7 @@ export const BarChartPlot = ({
                     animationStart={animationRange.start}
                     animationEnd={animationRange.end}
                     ariaLabel={getBarAriaLabel?.(toBarChartInteractionBar(bar))}
-                    isDimmed={activeBarId != null && activeBarId !== bar.id}
+                    isDimmed={isBarDimmed(bar)}
                     onPointerMove={onBarPointerMove}
                     onPointerOut={onBarPointerOut}
                     onActivate={onBarActivate}

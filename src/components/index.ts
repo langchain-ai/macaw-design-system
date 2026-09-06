@@ -75,7 +75,7 @@ export type { LinkProps } from './Link';
 export { Text } from './Text';
 export type { TextProps } from './Text';
 
-export { Tooltip } from './Tooltip';
+export { Tooltip, TooltipProvider } from './Tooltip';
 export type { TooltipProps } from './Tooltip';
 
 export { GroupedTabs } from './GroupedTabs/GroupedTabs';

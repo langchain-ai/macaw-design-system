@@ -4,8 +4,8 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ArrowRightIcon } from '../../icons/PaddedPhosphorIcons';
-import { Banner } from '../Banner/Banner';
 import { Button } from '../Button/Button';
+import { Banner } from './Banner';
 
 const meta = {
   title: 'Components/Status/Banner',
@@ -14,11 +14,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: `
-- Keep banner copy concise and action-oriented. State important info in one short sentence and use the \`action\` prop for a clear, specific CTA.
-- We recommend full-page (\`flush\`) banners to remain on single-line at standard widths. Avoid forced line breaks and block children.
-- Avoid spamming or stacking multiple banners in a single page. Consider a single banner with a list of items or a link to a dedicated page.
-        `,
+        component:
+          'Persistent page- or section-level information. Keep copy concise, avoid stacking banners, and add status or alert semantics when dynamically inserted content must be announced. Avoid forced line breaks and block children.',
       },
     },
   },

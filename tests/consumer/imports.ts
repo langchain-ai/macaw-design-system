@@ -1,4 +1,5 @@
-import { Button, Card, Text } from '@langchain/design-system';
+import './components.js';
+import { Button, Card, Text, TooltipProvider } from '@langchain/design-system';
 import { BarChart } from '@langchain/design-system/components/BarChart';
 import type { ButtonProps } from '@langchain/design-system/components/Button';
 import { Code } from '@langchain/design-system/components/Code';
@@ -21,6 +22,7 @@ void [
   Code,
   CodeLite,
   Text,
+  TooltipProvider,
   buttonProps,
   language,
   tailwindPreset,

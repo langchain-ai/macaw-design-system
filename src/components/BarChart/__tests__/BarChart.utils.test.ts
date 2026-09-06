@@ -19,8 +19,6 @@ const displaySeries: readonly BarChartDisplaySeries[] = [
     color: 'var(--chart-categorical-fill-1)',
     valueAxisId: 'count',
     opacity: 1,
-    cornerRadius: 3,
-    cornerStyle: 'end',
   },
   {
     id: 'errors',
@@ -32,8 +30,6 @@ const displaySeries: readonly BarChartDisplaySeries[] = [
     color: 'var(--chart-categorical-fill-2)',
     valueAxisId: 'count',
     opacity: 1,
-    cornerRadius: 3,
-    cornerStyle: 'end',
   },
 ];
 
@@ -76,7 +72,6 @@ describe('BarChart utilities', () => {
           endValue: 4,
           groupIndex: 0,
           groupCount: 2,
-          isStackEnd: true,
         }),
         expect.objectContaining({
           seriesId: 'errors',
@@ -105,26 +100,16 @@ describe('BarChart utilities', () => {
 
     expect(
       bars.find((bar) => bar.category === 'Mon' && bar.seriesId === 'errors')
-    ).toMatchObject({ startValue: 4, endValue: 7, isStackEnd: true });
+    ).toMatchObject({ startValue: 4, endValue: 7 });
     expect(
       bars.find((bar) => bar.category === 'Tue' && bar.seriesId === 'errors')
-    ).toMatchObject({ startValue: -2, endValue: -3, isStackEnd: true });
+    ).toMatchObject({ startValue: -2, endValue: -3 });
     expect(bars.find((bar) => bar.seriesId === 'latency')).toMatchObject({
       startValue: 0,
       endValue: 10,
       groupIndex: 1,
       groupCount: 2,
-      isStackEnd: true,
     });
-  });
-
-  it('rounds only the outermost segment of each signed stack half', () => {
-    const bars = getBarChartLayout(displaySeries, ['Mon'], 'stacked');
-
-    expect(bars.map((bar) => [bar.seriesId, bar.isStackEnd])).toEqual([
-      ['requests', false],
-      ['errors', true],
-    ]);
   });
 
   it('lets a data point override its series color', () => {

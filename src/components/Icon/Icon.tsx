@@ -1,11 +1,23 @@
 import { forwardRef } from 'react';
 
 import { cn } from '../../utils/cn';
+import type { VisualElementSize } from '../../utils/componentSizes';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import type { TooltipProps } from '../Tooltip';
 import { Tooltip } from '../Tooltip';
 
 export type { IconComponent } from '../../utils/icon-types';
+
+type IconSize = VisualElementSize | 'lg' | 'xl';
+
+const ICON_GLYPH_SIZE: Record<IconSize, string> = {
+  xxs: 'size-3',
+  xs: 'size-3',
+  sm: 'size-3',
+  md: 'size-4',
+  lg: 'size-5',
+  xl: 'size-6',
+};
 
 export interface IconProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Icon component to display */
@@ -23,8 +35,8 @@ export interface IconProps extends React.HTMLAttributes<HTMLDivElement> {
   rounded?: boolean;
   /** Optional label - renders a tooltip when provided */
   label?: React.ReactNode;
-  /** Size of the icon container */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Intrinsic glyph size. Decorated icons also receive the corresponding presentation box. */
+  size?: IconSize;
   /** Class name for the icon */
   iconClassName?: string;
   /** Phosphor weight used to render the icon */
@@ -83,22 +95,6 @@ const Icon = forwardRef<HTMLDivElement, IconProps>(
       }
     };
 
-    const getIconSize = () => {
-      switch (size) {
-        case 'xs':
-          return 'h-3 w-3';
-        case 'sm':
-          return 'h-3 w-3';
-        case 'lg':
-          return 'h-5 w-5';
-        case 'xl':
-          return 'h-6 w-6';
-        case 'md':
-        default:
-          return 'h-4 w-4';
-      }
-    };
-
     const content = (
       <span
         ref={ref}
@@ -106,7 +102,7 @@ const Icon = forwardRef<HTMLDivElement, IconProps>(
         {...props}
       >
         <IconElement
-          className={cn(getIconSize(), 'flex-shrink-0', iconClassName)}
+          className={cn(ICON_GLYPH_SIZE[size], 'flex-shrink-0', iconClassName)}
           weight={weight}
         />
       </span>

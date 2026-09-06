@@ -62,6 +62,7 @@ interface TypeaheadViewInputProps {
   onValueChange: (value: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
   placeholder: string;
+  leftDecorator?: ReactNode;
   showPlaceholderWithValues: boolean;
   autoFocus?: boolean;
   autoComplete?: string;
@@ -168,13 +169,7 @@ export function TypeaheadView<TOption>({
       event.preventDefault();
     }
   };
-  const {
-    ref: rootRef,
-    props: rootProps,
-    handleBlur,
-    dataTestId,
-    className,
-  } = root;
+  const { ref: rootRef, handleBlur, dataTestId, className } = root;
   const { size, disabled, isError, multiple, open, setOpen } = state;
   const {
     commandLabel,
@@ -188,6 +183,7 @@ export function TypeaheadView<TOption>({
     onValueChange: handleInputValueChange,
     onKeyDown: handleKeyDown,
     placeholder,
+    leftDecorator,
     showPlaceholderWithValues,
     autoFocus,
     autoComplete,
@@ -256,11 +252,15 @@ export function TypeaheadView<TOption>({
         !multiple && (size === 'xs' ? 'min-w-12' : 'min-w-16')
       )}
     >
-      {!multiple && !hasValue && (
-        <div className="flex items-center text-icon-tertiary">
-          <MagnifyingGlassIcon aria-hidden size={16} weight="bold" />
+      {leftDecorator != null ? (
+        <div className="flex min-w-0 shrink items-center text-icon-tertiary">
+          {leftDecorator}
         </div>
-      )}
+      ) : !multiple && !hasValue ? (
+        <div className="flex items-center text-icon-tertiary">
+          <MagnifyingGlassIcon aria-hidden size={16} weight="regular" />
+        </div>
+      ) : null}
       {/*
         cmdk rewrites some of these combobox attributes as the query changes, so
         useTypeaheadDomSync re-asserts them imperatively. Keep the two attribute
@@ -326,7 +326,7 @@ export function TypeaheadView<TOption>({
             open && 'rotate-180'
           )}
         >
-          <CaretDownIcon size="100%" weight="bold" />
+          <CaretDownIcon size="100%" weight="regular" />
         </span>
       )}
     </div>
@@ -343,7 +343,7 @@ export function TypeaheadView<TOption>({
         <PopoverAnchor asChild>
           <div
             ref={controlRef}
-            {...rootProps}
+            {...root.props}
             data-testid={dataTestId}
             onBlur={handleBlur}
             className={cn(
@@ -363,7 +363,7 @@ export function TypeaheadView<TOption>({
               className
             )}
             onClick={(event) => {
-              rootProps.onClick?.(event);
+              root.props.onClick?.(event);
               if (!disabled) {
                 focusInput();
                 setOpen(true);

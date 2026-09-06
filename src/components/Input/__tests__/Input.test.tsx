@@ -160,7 +160,7 @@ describe('Input', () => {
             aria-hidden
             data-testid="right-decorator"
             size={24}
-            weight="bold"
+            weight="regular"
           />
         }
       />

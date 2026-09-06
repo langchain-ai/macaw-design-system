@@ -6,10 +6,10 @@ import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle'
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Select } from '.';
+import type { SelectGroup, SelectOption } from '.';
 import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
 import { Icon } from '../Icon/Icon';
-import { Select } from '../Select';
-import type { SelectGroup, SelectOption } from '../Select';
 import { Text } from '../Text/Text';
 
 const metricOptions: SelectOption[] = [
@@ -57,6 +57,12 @@ const meta = {
   component: SelectStory,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Selects one value from a known set. Use RadioGroup for a small visible set and Typeahead for multiple or user-created values.',
+      },
+    },
   },
   tags: ['autodocs'],
   args: {
@@ -229,7 +235,7 @@ export const WithRightDecorators: Story = {
         label: 'Production',
         rightDecorator: (
           <span className="inline-flex text-success-secondary">
-            <RocketLaunchIcon size={16} weight="bold" />
+            <RocketLaunchIcon size={16} weight="regular" />
           </span>
         ),
       },
@@ -238,7 +244,7 @@ export const WithRightDecorators: Story = {
         label: 'Staging',
         rightDecorator: (
           <span className="inline-flex text-warning-secondary">
-            <LightningIcon size={16} weight="bold" />
+            <LightningIcon size={16} weight="regular" />
           </span>
         ),
       },
@@ -247,7 +253,7 @@ export const WithRightDecorators: Story = {
         label: 'Development',
         rightDecorator: (
           <span className="inline-flex text-tertiary">
-            <WarningCircleIcon size={16} weight="bold" />
+            <WarningCircleIcon size={16} weight="regular" />
           </span>
         ),
       },

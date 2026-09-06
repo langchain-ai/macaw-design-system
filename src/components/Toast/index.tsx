@@ -89,13 +89,18 @@ const SURFACE_BY_TYPE = {
 function renderToastIcon(isError: boolean, type: ToastConfig['type']) {
   if (isError)
     return (
-      <Icon icon={ExclamationMarkIcon} weight="bold" rounded color="error" />
+      <Icon icon={ExclamationMarkIcon} weight="regular" rounded color="error" />
     );
   if (type === 'success')
     return <Icon icon={CheckIcon} rounded color="success" />;
   if (type === 'warning')
     return (
-      <Icon icon={ExclamationMarkIcon} weight="bold" rounded color="warning" />
+      <Icon
+        icon={ExclamationMarkIcon}
+        weight="regular"
+        rounded
+        color="warning"
+      />
     );
   if (type === 'info')
     return <Icon icon={InfoIcon} weight="fill" rounded color="info" />;

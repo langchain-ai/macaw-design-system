@@ -2,6 +2,12 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import {
+  LineChart,
+  type LineChartInteractionDatum,
+  type LineChartSelectionRange,
+  type LineChartSeries,
+} from '.';
 import { ChartCard } from '../ChartCard';
 import {
   ChartTooltip,
@@ -9,12 +15,6 @@ import {
   ChartTooltipHeader,
   ChartTooltipRow,
 } from '../ChartTooltip';
-import {
-  LineChart,
-  type LineChartInteractionDatum,
-  type LineChartSelectionRange,
-  type LineChartSeries,
-} from '../LineChart';
 import { Text } from '../Text';
 
 const DAY = 24 * 60 * 60 * 1_000;

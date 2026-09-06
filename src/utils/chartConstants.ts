@@ -6,3 +6,5 @@ export const CHART_AXIS_LABEL_THICKNESS = 20;
 export const CHART_VALUE_AXIS_TICK_LENGTH = 8;
 /** Dash pattern shared by chart grid and active guide lines. */
 export const CHART_DASHED_STROKE_DASHARRAY = '4 2';
+/** Opacity for chart marks that do not match the active legend item. */
+export const CHART_DIMMED_OPACITY = 0.45;

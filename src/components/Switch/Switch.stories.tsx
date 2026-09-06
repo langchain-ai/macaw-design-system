@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Switch } from '../Switch/Switch';
+import { Switch } from './Switch';
 
 const meta = {
   title: 'Components/Inputs/Switch',

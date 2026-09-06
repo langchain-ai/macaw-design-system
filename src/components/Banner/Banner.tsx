@@ -77,7 +77,7 @@ export const Banner = ({
         return (
           <Icon
             icon={ExclamationMarkIcon}
-            weight="bold"
+            weight="regular"
             size="md"
             className="text-error-secondary"
           />

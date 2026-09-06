@@ -6,18 +6,27 @@ on:
 
 permissions:
   contents: read
-  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: npm
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
           ref: ${{ github.event.release.tag_name }}
+      - name: Verify release came from main
+        run: git merge-base --is-ancestor HEAD origin/main
       - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f
         with:
           mode: firewall-free
@@ -25,9 +34,18 @@ jobs:
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      - run: node scripts/verify-release-tag.mjs "${{ github.event.release.tag_name }}"
+      - name: Verify release metadata and license
+        id: release
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: node scripts/verify-release-tag.mjs "$RELEASE_TAG" "$RELEASE_PRERELEASE"
       - run: corepack enable
       - run: corepack prepare pnpm@10.27.0 --activate
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - run: npm publish --access public --provenance --ignore-scripts
+      - run: node scripts/verify-tarball.mjs
+      - name: Publish with provenance
+        env:
+          RELEASE_DIST_TAG: ${{ steps.release.outputs.dist-tag }}
+        run: npm publish --access public --provenance --ignore-scripts --tag "$RELEASE_DIST_TAG"

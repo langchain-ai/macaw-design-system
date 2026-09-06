@@ -4,7 +4,7 @@ import { XCircleIcon } from '@phosphor-icons/react/dist/ssr/XCircle';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ErrorMessage } from '../ErrorMessage';
+import { ErrorMessage } from '.';
 
 const meta: Meta<typeof ErrorMessage> = {
   title: 'Components/Status/ErrorMessage',

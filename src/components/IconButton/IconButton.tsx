@@ -40,14 +40,18 @@ interface IconButtonProps extends Omit<
   asChild?: boolean;
 }
 
-const IconButtonSpinnerIcon = (props: SVGProps<SVGSVGElement>) => (
-  <SpinnerGapIcon {...props} weight="bold" />
+const IconButtonSpinnerIcon = ({
+  weight = 'regular',
+  ...props
+}: SVGProps<SVGSVGElement> & { weight?: IconWeight }) => (
+  <SpinnerGapIcon {...props} weight={weight} />
 );
 
 const Spinner = ({ size }: { size: NonNullable<IconButtonProps['size']> }) => {
   return (
     <IconButtonSpinnerIcon
       aria-hidden
+      weight={size === 'xxs' ? 'bold' : 'regular'}
       className={cn(
         size === 'xxs' && 'size-3',
         size === 'xs' && 'size-3.5',

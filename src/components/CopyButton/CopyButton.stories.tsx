@@ -4,8 +4,8 @@ import { fn } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { CopyButton, CopyIconButton } from '../CopyButton/CopyButton';
 import { Text } from '../Text/Text';
+import { CopyButton, CopyIconButton } from './CopyButton';
 
 const CopyExample = ({
   value,

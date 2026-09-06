@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Slider } from '../Slider/Slider';
 import { Text } from '../Text';
+import { Slider } from './Slider';
 
 const meta = {
   title: 'Components/Inputs/Slider',

@@ -197,7 +197,7 @@ export function CommandMenu({
           size={inputSize}
           variant={inputVariant}
           leftDecorator={
-            <MagnifyingGlassIcon aria-hidden size={16} weight="bold" />
+            <MagnifyingGlassIcon aria-hidden size={16} weight="regular" />
           }
           onValueChange={onSearchChange}
         />

@@ -4,9 +4,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { cn } from '../../utils/cn';
 import { RadioButton } from '../RadioButton/RadioButton';
-import { RadioGroup } from '../RadioGroup/RadioGroup';
-import { RadioGroupItem } from '../RadioGroup/RadioGroupItem';
 import { Text } from '../Text';
+import { RadioGroup } from './RadioGroup';
+import { RadioGroupItem } from './RadioGroupItem';
 
 const meta: Meta<typeof RadioGroup> = {
   title: 'Components/Inputs/RadioGroup',

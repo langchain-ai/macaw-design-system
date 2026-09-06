@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useResizeObserver } from '@mantine/hooks';
 import { scaleLinear } from '@visx/scale';
@@ -38,7 +38,6 @@ import {
   BAR_CHART_DEFAULT_AXIS_ID,
   BAR_CHART_DEFAULT_CATEGORY_PADDING_INNER,
   BAR_CHART_DEFAULT_CATEGORY_PADDING_OUTER,
-  BAR_CHART_DEFAULT_CORNER_RADIUS,
   BAR_CHART_DEFAULT_GROUP_PADDING,
   BAR_CHART_DEFAULT_MINIMUM_BAR_SIZE,
   BAR_CHART_DEFAULT_TICK_COUNT,
@@ -144,7 +143,8 @@ const resolveAxes = (
  * Responsive, presentational bars for categorical and time-bucket data. Supports
  * vertical or horizontal orientation, grouped or signed stacks, multiple value
  * axes, threshold bands, controlled legend filtering, selection and active
- * states, keyboard targets, and consumer-owned SVG slots.
+ * states, keyboard targets, and consumer-owned SVG slots. Bars always use
+ * square corners in every orientation and mode.
  *
  * The component is deliberately presentational: consumers retain fetching,
  * sorting, Top-K/Other aggregation, formatting, tooltip content, links, frozen
@@ -174,6 +174,7 @@ export const BarChart = ({
   activeCategory,
   activeGuideBarId,
   activeBarId,
+  activeLegendItemId,
   selectionRange,
   categoryPadding,
   plotPadding,
@@ -205,6 +206,9 @@ export const BarChart = ({
   ...rest
 }: BarChartProps) => {
   const [containerRef, dimensions] = useResizeObserver();
+  const [activeBuiltInLegendItemId, setActiveBuiltInLegendItemId] = useState<
+    string | null
+  >(null);
   const isVertical = orientation === 'vertical';
 
   // The data half of the pipeline is independent of the measured size, and the
@@ -226,11 +230,6 @@ export const BarChart = ({
             item.opacity == null || !Number.isFinite(item.opacity)
               ? 1
               : clamp(item.opacity, 0, 1),
-          cornerRadius:
-            item.cornerRadius == null || !Number.isFinite(item.cornerRadius)
-              ? BAR_CHART_DEFAULT_CORNER_RADIUS
-              : Math.max(0, item.cornerRadius),
-          cornerStyle: item.cornerStyle ?? 'end',
         })
       );
       const visible =
@@ -412,6 +411,10 @@ export const BarChart = ({
           activeCategory={activeCategory}
           activeGuideBarId={activeGuideBarId}
           activeBarId={activeBarId}
+          activeBuiltInLegendItemId={
+            hasLegend ? activeBuiltInLegendItemId : null
+          }
+          activeLegendItemId={activeLegendItemId}
           selectionRange={selectionRange}
           slots={slots}
           isRendering={isRendering}
@@ -442,6 +445,10 @@ export const BarChart = ({
       {...legendProps}
       layout={legendLayout}
       items={legendItems}
+      onItemActiveChange={(item) => {
+        setActiveBuiltInLegendItemId(item?.id ?? null);
+        legendProps?.onItemActiveChange?.(item);
+      }}
     />
   );
 

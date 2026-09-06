@@ -3,7 +3,7 @@ import type { ComponentType } from 'react';
 // NOTE: Tabs are intentionally NOT re-exported from the design-system barrel
 // (components/index.ts). Importing @headlessui/react through the barrel pulls
 // ~297KB into every chunk that touches the barrel, bloating the initial load.
-// Import directly from '@langchain/design-system/components/Tabs' instead.
+// Import directly from '.' instead.
 import {
   TabGroup as HeadlessTabGroup,
   TabList as HeadlessTabList,

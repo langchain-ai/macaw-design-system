@@ -1,8 +1,8 @@
 import { UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Avatar } from '../Avatar';
-import type { AvatarSize } from '../Avatar';
+import { Avatar } from '.';
+import type { AvatarSize } from '.';
 import { Text } from '../Text/Text';
 
 interface AvatarStoryArgs {
@@ -19,7 +19,7 @@ const meta: Meta<AvatarStoryArgs> = {
     docs: {
       description: {
         component: [
-          "Identity marker for a person or organization: shows an image, the first initial of `label` or a `fallbackIcon`. Creates background gradient based from the label. Shares `Icon`'s padded-box scale: `xs`/`sm`/`md`/`lg`/`xl` render at 16/20/24/36/48px, identical to an `Icon` with a color background.",
+          "Identity marker for a person or organization: shows an image, the first initial of `label` or a `fallbackIcon`. Creates background gradient based from the label. Shares `Icon`'s outer-box scale: `xs`/`sm`/`md`/`lg`/`xl` render at 16/20/24/36/48px.",
           '',
           '**Use for** members, reviewers, feedback/comment authors, and organizations (via `OrganizationAvatar`).',
           '',
@@ -65,7 +65,7 @@ export const Default: Story = {
 };
 
 /**
- * Sizes share Icon's padded-box scale: xs (16px), sm (20px), md (24px),
+ * Sizes share Icon's outer-box scale: xs (16px), sm (20px), md (24px),
  * lg (36px), xl (48px).
  */
 export const Sizes: Story = {
@@ -143,7 +143,7 @@ export const WithFallbackIcon: Story = {
       size="md"
       fallbackIcon={
         <span className="inline-flex shrink-0 text-brand-on-fill">
-          <UserIcon size={16} weight="bold" />
+          <UserIcon size={16} weight="regular" />
         </span>
       }
     />

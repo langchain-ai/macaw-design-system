@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { render, screen } from '../../test-utils';
+import { render, screen } from '@/test-utils';
+
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -51,7 +52,7 @@ describe('PaddedPhosphorIcons', () => {
           aria-label={name}
           className="custom-icon"
           size={20}
-          weight="bold"
+          weight="regular"
         />
       );
 
@@ -63,4 +64,86 @@ describe('PaddedPhosphorIcons', () => {
       expect(icon).toHaveClass('custom-icon');
     }
   );
+
+  it('adds the extra-bold optical treatment only to compact bold glyphs', () => {
+    render(
+      <>
+        <CaretRightIcon aria-label="Bold caret" weight="bold" />
+        <CaretRightIcon aria-label="Regular caret" weight="regular" />
+        <XCloseIcon aria-label="Bold close" weight="bold" />
+      </>
+    );
+
+    expect(screen.getByLabelText('Bold caret')).toHaveAttribute(
+      'stroke-width',
+      '8'
+    );
+    expect(screen.getByLabelText('Bold caret')).toHaveAttribute(
+      'stroke',
+      'currentColor'
+    );
+    expect(screen.getByLabelText('Regular caret')).not.toHaveAttribute(
+      'stroke-width'
+    );
+    expect(screen.getByLabelText('Bold close')).toHaveAttribute(
+      'stroke-width',
+      '8'
+    );
+  });
+
+  it('forwards custom stroke props for ordinary and extra-bold padded icons', () => {
+    render(
+      <>
+        <ArrowDownIcon
+          aria-label="Custom arrow"
+          stroke="purple"
+          strokeWidth={3}
+          strokeLinecap="butt"
+          strokeLinejoin="bevel"
+          weight="regular"
+        />
+        <CaretRightIcon
+          aria-label="Custom bold caret"
+          stroke="orange"
+          strokeWidth={2}
+          strokeLinecap="square"
+          strokeLinejoin="miter"
+          weight="bold"
+        />
+      </>
+    );
+
+    expect(screen.getByLabelText('Custom arrow')).toHaveAttribute(
+      'stroke',
+      'purple'
+    );
+    expect(screen.getByLabelText('Custom arrow')).toHaveAttribute(
+      'stroke-width',
+      '3'
+    );
+    expect(screen.getByLabelText('Custom arrow')).toHaveAttribute(
+      'stroke-linecap',
+      'butt'
+    );
+    expect(screen.getByLabelText('Custom arrow')).toHaveAttribute(
+      'stroke-linejoin',
+      'bevel'
+    );
+    expect(screen.getByLabelText('Custom bold caret')).toHaveAttribute(
+      'stroke',
+      'orange'
+    );
+    expect(screen.getByLabelText('Custom bold caret')).toHaveAttribute(
+      'stroke-width',
+      '2'
+    );
+    expect(screen.getByLabelText('Custom bold caret')).toHaveAttribute(
+      'stroke-linecap',
+      'square'
+    );
+    expect(screen.getByLabelText('Custom bold caret')).toHaveAttribute(
+      'stroke-linejoin',
+      'miter'
+    );
+  });
 });

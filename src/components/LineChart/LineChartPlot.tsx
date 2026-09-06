@@ -13,6 +13,7 @@ import {
   getSecondaryChartAxisOffset,
 } from '../../utils/chartAxisLayout';
 import {
+  CHART_DIMMED_OPACITY,
   CHART_DASHED_STROKE_DASHARRAY,
   CHART_TICK_FONT_SIZE,
   CHART_VALUE_AXIS_TICK_LENGTH,
@@ -30,7 +31,7 @@ import type {
   LineChartInteractionDatum,
   LineChartSelectionRange,
   LineChartYBand,
-} from './LineChart';
+} from './LineChart.types';
 import { getLineSegments, getSelectionBounds } from './LineChart.utils';
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
@@ -79,6 +80,7 @@ type LineChartPlotProps = {
   showGridRows: boolean;
   showGridColumns: boolean;
   activeX?: number;
+  activeLegendItemId?: string | null;
   selectionRange?: LineChartSelectionRange;
   yBands: readonly LineChartYBand[];
   shouldAnimate: boolean;
@@ -121,6 +123,7 @@ export const LineChartPlot = ({
   showGridRows,
   showGridColumns,
   activeX,
+  activeLegendItemId,
   selectionRange,
   yBands,
   shouldAnimate,
@@ -152,6 +155,11 @@ export const LineChartPlot = ({
   const canRender = isRendering && innerWidth > 0 && innerHeight > 0;
   const isReducedMotion = (useReducedMotion() ?? false) || !shouldAnimate;
   const hasRenderedSeries = canRender && series.length > 0;
+  const getSeriesOpacity = (item: LineChartDisplaySeries) =>
+    item.opacity *
+    (activeLegendItemId != null && activeLegendItemId !== item.id
+      ? CHART_DIMMED_OPACITY
+      : 1);
   const visibleSeriesKey = JSON.stringify(series.map((item) => item.id));
   const [animation] = useSpring(
     () => ({
@@ -361,7 +369,8 @@ export const LineChartPlot = ({
                           stroke={item.color}
                           strokeWidth={item.strokeWidth}
                           strokeDasharray={item.strokeDasharray}
-                          opacity={item.opacity}
+                          opacity={getSeriesOpacity(item)}
+                          className="transition-opacity duration-fast motion-reduce:transition-none"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           x={(point) => getXPosition(point.x)}
@@ -386,7 +395,8 @@ export const LineChartPlot = ({
                             cy={axis.scale(point.y)}
                             r={2.5}
                             fill={item.color}
-                            opacity={item.opacity}
+                            opacity={getSeriesOpacity(item)}
+                            className="transition-opacity duration-fast motion-reduce:transition-none"
                           />,
                         ]
                   );
@@ -440,7 +450,8 @@ export const LineChartPlot = ({
                       cy={axis.scale(point.y)}
                       r={3}
                       fill={item.color}
-                      opacity={item.opacity}
+                      opacity={getSeriesOpacity(item)}
+                      className="transition-opacity duration-fast motion-reduce:transition-none"
                       stroke="var(--bg-surface-level-1)"
                       strokeWidth={1.5}
                     />,

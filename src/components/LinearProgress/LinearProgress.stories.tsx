@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { LinearProgress } from '../LinearProgress';
+import { LinearProgress } from '.';
 
 const meta = {
   title: 'Components/Status/LinearProgress',

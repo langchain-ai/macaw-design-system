@@ -1,5 +1,5 @@
+import { Card } from '../..';
 import { render, screen, within } from '../../../test-utils';
-import { Card } from '../Card';
 
 describe('Card', () => {
   it('renders its content and forwards accessible attributes', () => {

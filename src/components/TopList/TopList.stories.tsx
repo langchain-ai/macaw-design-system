@@ -2,12 +2,12 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { TopList, type TopListItem } from '.';
 import {
   CHART_OTHER_COLOR,
   getCategoricalFillChartColor,
 } from '../../utils/chartColors';
 import { Text } from '../Text';
-import { TopList, type TopListItem } from '../TopList';
 
 const items: readonly TopListItem[] = [
   {

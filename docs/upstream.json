@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/langchain-ai/langchainplus",
+  "revision": "ad9ceb7af1a53ff4bb2c40b7834572fb8a0496a0",
+  "paths": [
+    "smith-frontend/src/design-system/components",
+    "smith-frontend/src/design-system/hooks",
+    "smith-frontend/src/design-system/utils",
+    "smith-frontend/src/design-system/stories",
+    "smith-frontend/src/design-system/.storybook",
+    "smith-frontend/src/design-system/icons/PaddedPhosphorIcons.tsx",
+    "smith-frontend/src/design-system/icons/WeightedPhosphorIcons.tsx",
+    "smith-frontend/src/design-system/icons/LongTailPhosphorIcons.tsx",
+    "smith-frontend/src/index.css",
+    "smith-frontend/tailwind.config.js"
+  ]
+}

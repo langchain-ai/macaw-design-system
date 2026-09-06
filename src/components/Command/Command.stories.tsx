@@ -3,15 +3,10 @@ import { useState } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import {
-  Command,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '../Command/Command';
-import type { CommandMenuItem } from '../Command/CommandMenu';
-import { CommandMenu } from '../Command/CommandMenu';
 import { Text } from '../Text/Text';
+import { Command, CommandInput, CommandItem, CommandList } from './Command';
+import type { CommandMenuItem } from './CommandMenu';
+import { CommandMenu } from './CommandMenu';
 
 const meta = {
   title: 'Components/Popovers/CommandMenu',

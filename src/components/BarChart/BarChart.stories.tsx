@@ -3,18 +3,18 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
-  CHART_CATEGORICAL_FILL_COLORS,
-  CHART_SINGLE_FILL_COLOR,
-  CHART_STATUS_FILL_COLORS,
-  getCategoricalFillChartColor,
-} from '../../utils/chartColors';
-import {
   BarChart,
   type BarChartCategory,
   type BarChartInteractionDatum,
   type BarChartSelectionRange,
   type BarChartSeries,
-} from '../BarChart';
+} from '.';
+import {
+  CHART_CATEGORICAL_FILL_COLORS,
+  CHART_SINGLE_FILL_COLOR,
+  CHART_STATUS_FILL_COLORS,
+  getCategoricalFillChartColor,
+} from '../../utils/chartColors';
 import { ChartCard } from '../ChartCard';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
 import {

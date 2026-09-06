@@ -4,7 +4,7 @@ import type {
   LineChartPoint,
   LineChartSeries,
   LineChartXScale,
-} from './LineChart';
+} from './LineChart.types';
 
 export type NormalizedLineChartSeries = Omit<LineChartSeries, 'points'> & {
   points: readonly LineChartPoint[];

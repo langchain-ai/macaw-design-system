@@ -5,9 +5,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Badge } from '../Badge';
 import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox';
-import { RadioCard } from '../RadioCard/RadioCard';
 import { RadioGroup } from '../RadioGroup/RadioGroup';
 import { Text } from '../Text';
+import { RadioCard } from './RadioCard';
 
 const meta: Meta<typeof RadioCard> = {
   title: 'Components/Inputs/RadioCard',

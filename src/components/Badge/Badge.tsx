@@ -118,7 +118,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     };
 
     return (
-      <div
+      <span
+        ref={ref}
         className={cn(
           baseStyles,
           getColorStyles(),
@@ -138,7 +139,6 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         )}
         {isString ? (
           <Text
-            ref={ref}
             as="span"
             variant={SIZE_TEXT_VARIANT[resolvedSize]}
             weight={resolvedTextWeight}
@@ -155,7 +155,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
             weight={iconWeight}
           />
         )}
-      </div>
+      </span>
     );
   }
 );

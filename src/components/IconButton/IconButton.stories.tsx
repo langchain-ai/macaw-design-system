@@ -13,7 +13,7 @@ import {
   PlusIcon,
   XIcon,
 } from '../../icons/PaddedPhosphorIcons';
-import { IconButton } from '../IconButton/IconButton';
+import { IconButton } from './IconButton';
 
 const meta = {
   title: 'Components/Buttons/IconButton',
