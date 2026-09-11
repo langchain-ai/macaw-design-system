@@ -1,0 +1,14 @@
+README.md
+  h_a27749d4737027 13,19,59,143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0a3fd9005367bb819f5e55d9331c6d3ce0d3d7c4",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
