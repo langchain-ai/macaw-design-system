@@ -1,40 +1,39 @@
-<div align="center">
-
 # LangChain Design System
 
 **The shared UI foundation for the LangChain product suite.**
 
-[Explore Storybook](https://langsmith-design-system.vercel.app/) ·
-[Browse components](https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs) ·
-[Browse icons](https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs)
+[Storybook](https://langsmith-design-system.vercel.app/) ·
+[Component Overview](https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs) ·
+[Icon Overview](https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs)
 
-</div>
 
-This repository contains the standalone `@langchain/design-system` package:
-accessible React components, semantic styling tokens, precompiled utilities,
-theme helpers, chart primitives, and Phosphor icon wrappers shared by LangChain
-products.
 
-The package is currently versioned at `0.1.0` but is not published yet. It does
-not include `@langchain/untitled-ui-icons` or the legacy Untitled-compatible icon
-trees.
+<!-- Update with DS name -->
+Welcome to Langchain's design-system package! This repo, `@langchain/design-system`, contains LangChain's:
+
+1. Component Library
+2. Tokens
+3. Helpers & Utiltiies
+4. Icons
+
+<!-- Needs to be updated -->
+For feedback, contact LangChain! 
+
 
 ## Install
 
-Once the package is published:
+To install, run
 
 ```sh
-pnpm add @langchain/design-system react react-dom
+pnpm add @langchain/design-system
 ```
 
-React 18 and 19 are supported. Navigation styles can be composed with any
-routing framework. Tailwind is optional for package consumers.
+React 18+ is supported.
 
 ## Use
 
-Import the package stylesheet once at the application entry point. It includes
-Inter and Fira Code, light and dark semantic tokens, base styles, and the
-precompiled utility classes used by the components.
+The default CSS imports uses the `styles.css` which includs our default fonts,
+Inter and Fira Code. Both light and dark semantic tokens are supported.
 
 ```tsx
 import '@langchain/design-system/styles.css';
@@ -51,9 +50,7 @@ export function Example() {
 }
 ```
 
-The root export stays deliberately lightweight. Import components with heavier
-dependency graphs from their explicit subpaths so applications only load what
-they use:
+Components are imported in this:
 
 ```tsx
 import { BarChart } from '@langchain/design-system/components/BarChart';
