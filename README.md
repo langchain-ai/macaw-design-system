@@ -10,12 +10,13 @@
 
 ## Welcome
 <!-- Update with DS name -->
-Welcome to Langchain's design-system package! This repo, `@langchain/design-system`, contains LangChain's:
+Welcome to LangChain's design-system package! This repo, `@langchain/design-system`, contains LangChain's:
 
 1. Component Library
 2. Tokens
 3. Helpers & Utiltiies
 4. Icons
+5. Agent Documentation
 
 Contributions are welcome, please raise PRs directly in Github. We take code quality very seriously, so slop will not be accepted. PR authors should be able to defend their code.
 
@@ -55,6 +56,7 @@ export function Example() {
 Components are imported in this way:
 
 ```tsx
+import { Button } from '@langchain/design-system';
 import { BarChart } from '@langchain/design-system/components/BarChart';
 import { Code } from '@langchain/design-system/components/Code'; 
 ```
@@ -138,15 +140,7 @@ Releases are manual, not automatic. NX will be added soon.
 
 ## Scope and ownership
 
-The component library owns domain-free UI, but can have some overlap if components are reused accross multiple pages or applications. If that is true, business logic should not be mixed in, and the component should cover multiple use cases.
-
-For LangChain team members, you can reach Frontend Platform in Slack with these channels:
-
-
-- [#ask-frontend-platform](https://langchain.slack.com/app_redirect?channel=ask-frontend-platform) focused on questions
-- [#team-frontend-platform](https://langchain.slack.com/app_redirect?channel=team-frontend-platform) focused on discussion, PR review requests, announcements
-
-
+The component library owns domain-free UI, but can have some overlap if components are reused accross multiple pages or applications. If that is true, business logic should not be mixed in, and the component should be flexible, scalable, and reusable.
 
 <!-- This might be moved to Link component's JSDocs -->
 <!-- The `Link` component renders a native anchor by default. Pass a routing
