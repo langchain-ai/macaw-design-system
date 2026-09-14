@@ -185,8 +185,7 @@ export const WithPagination: Story = {
     ];
     const [index, setIndex] = useState(0);
     const current = items[index];
-    const goPrev = () =>
-      setIndex((i) => (i === 0 ? items.length - 1 : i - 1));
+    const goPrev = () => setIndex((i) => (i === 0 ? items.length - 1 : i - 1));
     const goNext = () => setIndex((i) => (i + 1) % items.length);
 
     return (

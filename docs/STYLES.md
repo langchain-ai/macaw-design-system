@@ -44,6 +44,7 @@ module.exports = {
   presets: [require('@langchain/design-system/tailwind-preset')],
 };
 ```
+
 Or preferably if `"type": "module"`:
 
 ```js
