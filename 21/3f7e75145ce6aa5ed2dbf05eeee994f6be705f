@@ -1,0 +1,26 @@
+src/icons/PaddedPhosphorIcons.tsx
+  s_20a39618f86256::t_45320ed8ecde1b 6
+  s_20a39618f86256::t_42a150ad68b8d1 59-63
+src/components/Banner/Banner.stories.tsx
+  s_20a39618f86256::t_fd18428420ba93 1-2,8-12,15-16
+  s_20a39618f86256::t_c61e14b03df99b 162-240
+src/icons/__tests__/PaddedPhosphorIcons.test.tsx
+  s_20a39618f86256::t_657eb49766cae4 10
+  s_20a39618f86256::t_21d05df41b966b 31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "213f7e75145ce6aa5ed2dbf05eeee994f6be705f",
+  "prompts": {},
+  "sessions": {
+    "s_20a39618f86256": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b86e765e-6ff5-4afa-a763-c1b60cee185e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
