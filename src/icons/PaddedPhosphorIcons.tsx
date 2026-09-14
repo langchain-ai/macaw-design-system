@@ -3,6 +3,7 @@ import { ArrowRightIcon as PhosphorArrowRightIcon } from '@phosphor-icons/react/
 import { ArrowUpIcon as PhosphorArrowUpIcon } from '@phosphor-icons/react/dist/ssr/ArrowUp';
 import { CaretDoubleRightIcon as PhosphorCaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight';
 import { CaretDownIcon as PhosphorCaretDownIcon } from '@phosphor-icons/react/dist/ssr/CaretDown';
+import { CaretLeftIcon as PhosphorCaretLeftIcon } from '@phosphor-icons/react/dist/ssr/CaretLeft';
 import { CaretRightIcon as PhosphorCaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 import { CaretUpIcon as PhosphorCaretUpIcon } from '@phosphor-icons/react/dist/ssr/CaretUp';
 import { CheckIcon as PhosphorCheckIcon } from '@phosphor-icons/react/dist/ssr/Check';
@@ -54,6 +55,11 @@ export const CaretDownIcon = /* @__PURE__ */ createPaddedIcon(
   PhosphorCaretDownIcon,
   64,
   'CaretDownIcon'
+);
+export const CaretLeftIcon = /* @__PURE__ */ createPaddedIcon(
+  PhosphorCaretLeftIcon,
+  64,
+  'CaretLeftIcon'
 );
 export const CaretRightIcon = /* @__PURE__ */ createPaddedIcon(
   PhosphorCaretRightIcon,

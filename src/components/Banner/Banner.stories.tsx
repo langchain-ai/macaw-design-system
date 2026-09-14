@@ -1,11 +1,19 @@
+import { useState } from 'react';
+
 import { fn } from 'storybook/test';
 
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ArrowRightIcon } from '../../icons/PaddedPhosphorIcons';
+import {
+  ArrowRightIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+} from '../../icons/PaddedPhosphorIcons';
 import { Banner } from '../Banner/Banner';
 import { Button } from '../Button/Button';
+import { IconButton } from '../IconButton/IconButton';
+import { Text } from '../Text/Text';
 
 const meta = {
   title: 'Components/Status/Banner',
@@ -149,6 +157,84 @@ export const Flush: Story = {
       </div>
     </div>
   ),
+};
+
+export const WithPagination: Story = {
+  parameters: {
+    layout: 'padded',
+  },
+  args: {
+    flush: true,
+    intent: 'warning',
+    dismissible: true,
+  },
+  render: (args) => {
+    const items = [
+      {
+        title: 'Legacy API usage detected',
+        body: 'We detected calls to 3 deprecated API endpoints. Migrate them before January 31, 2027 to avoid disruption.',
+      },
+      {
+        title: 'Deprecated SDK version',
+        body: 'Two services are still pinned to SDK v1. Upgrade to v2 before the end of the quarter.',
+      },
+      {
+        title: 'Retired auth flow in use',
+        body: 'Password-only sign-ins will be removed on March 1. Enable SSO for affected users.',
+      },
+    ];
+    const [index, setIndex] = useState(0);
+    const current = items[index];
+    const goPrev = () => setIndex((i) => (i === 0 ? items.length - 1 : i - 1));
+    const goNext = () => setIndex((i) => (i + 1) % items.length);
+
+    return (
+      <div className="flex h-[17.5rem] w-[52rem] flex-col overflow-hidden border border-subtle">
+        <Banner
+          {...args}
+          title={current.title}
+          action={
+            <div className="flex items-center gap-space-2">
+              <Button
+                variant="plain"
+                size="xs"
+                color="secondary"
+                onClick={fn()}
+              >
+                View migration guide
+              </Button>
+              <div className="flex items-center gap-space-1 pl-space-2">
+                <IconButton
+                  color="secondary"
+                  variant="plain"
+                  size="sm"
+                  icon={CaretLeftIcon}
+                  label="Previous notice"
+                  onClick={goPrev}
+                />
+                <Text as="span" variant="xs" color="tertiary">
+                  {index + 1} / {items.length}
+                </Text>
+                <IconButton
+                  color="secondary"
+                  variant="plain"
+                  size="sm"
+                  icon={CaretRightIcon}
+                  label="Next notice"
+                  onClick={goNext}
+                />
+              </div>
+            </div>
+          }
+        >
+          {current.body}
+        </Banner>
+        <div className="flex-1 bg-surface-level-1 p-space-4 text-sm text-tertiary">
+          main content
+        </div>
+      </div>
+    );
+  },
 };
 
 export const WithoutTitle: Story = {

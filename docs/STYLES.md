@@ -4,9 +4,9 @@ Tokens flow in one direction: **Primitives → Semantics → Components**.
 
 - **Primitives** (`--neutral-50`, `--brand-400`, …) — raw scale values in `src/styles/tokens.css`. Never reference these in component code.
 - **Semantic tokens** (`--bg-surface-level-1`, `--text-secondary`, …) — purpose-driven aliases that switch between light and dark mode automatically. Always use these.
-- **Component tokens** (`--button-primary-bg`, …) — owned by a single component. Some live in `src/styles/base.css` for Tailwind utility compatibility, but consuming code should treat them as private.
+- **Component tokens** (`--button-primary-bg`, …) — owned by a single component. Some live in `src/styles/base.css` for Tailwind utility compatibility, but consuming code should treat them as private. Not all components have component-level tokens.
 
-Tailwind maps semantic tokens to utility classes through `tailwind.preset.cjs`. Always reach for the Tailwind class, not the CSS variable directly:
+Tailwind maps semantic tokens to utility classes through `tailwind.preset.cjs`. Always prefer to reach for the Tailwind class, not the CSS variable directly:
 
 ```tsx
 // Good
@@ -24,7 +24,7 @@ Import the all-in-one stylesheet once in the application entry point:
 import '@langchain/design-system/styles.css';
 ```
 
-It loads Inter and Fira Code, the light and dark token values, base and
+It loads Inter and Fira Code typefaces, the light and dark token values, base and
 component-support rules, and the precompiled utilities needed by the shipped
 components. Its internal `utilities.css` import is generated during the package
 build and is not a public entry point.
@@ -45,13 +45,25 @@ module.exports = {
 };
 ```
 
-The precompiled stylesheet already covers classes used inside the package, so
+Or preferably if `"type": "module"`:
+
+```js
+// tailwind.config.js
+import preset from '@langchain/design-system/tailwind-preset';
+
+export default {
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
+  presets: [preset],
+};
+```
+
+The stylesheet already covers classes used inside the package, so
 consumers only need to scan their own source. Add or remove `html.dark` to
 switch the token values and Tailwind dark variants together.
 
 ## Agent Rules
 
-- Use semantic Tailwind classes from this file for UI code; do not hardcode hex/HSL/RGB values, primitive CSS variables, or primitive palette utilities in component code.
+- Use semantic Tailwind classes from this file for UI code; do not hardcode any color values (e.g. hex, OKLCH, RGB, RGBA, etc.), primitive CSS variables, or primitive palette utilities.
 - Use the design-system component first (`Button`, `IconButton`, `Badge`, `Input`, etc.); do not rebuild component styling with private tokens.
 - Treat Button tokens as private: `--button-*`, `.button-primary-*`, and `.button-secondary-*` are only for the design-system Button implementation.
 - Use `text-*` tokens for readable copy and `text-icon-*` tokens for standalone icons. Component tokens are implementation details unless explicitly documented as compatibility aliases.
@@ -65,11 +77,10 @@ switch the token values and Tailwind dark variants together.
 Use **Title Case** for the names of things — field labels, section headings, tab
 names, column headers, menu items, and enumerated values shown in a column or
 picker (`Account Settings`, `Sampling Rate`, `Data Retention`, `API Keys`). Minor
-words stay lowercase in the middle of a label but are capitalized when they lead
+words (`a`, `an`, `the`, `and`, `or`, `for`, `to`, `of`, `in`, `on`, `at`, `by`,
+`with`, `from`, `as`) stay lowercase in the middle of a label but are capitalized when they lead
 or end it, so `Apply to Past Items` keeps `to` lowercase while `Import From`
-capitalizes the trailing `From`. The minor words
-are `a`, `an`, `the`, `and`, `or`, `for`, `to`, `of`, `in`, `on`, `at`, `by`,
-`with`, `from`, `as`.
+capitalizes the trailing `From`.
 
 Use **sentence case** for anything that reads as prose — button text, empty
 states, error and validation messages, tooltips, helper text, and placeholders
@@ -131,10 +142,9 @@ Use `Banner` from `@langchain/design-system/components/Banner` for page-level no
 warnings, and announcements.
 
 - Keep banner copy concise and action-oriented. State the important information
-  in one short sentence and provide a clear, specific CTA through the `action`
-  prop when the user has a next step.
+  in one short sentence and provide a clear, specific CTA through the `action` prop when the user has a next step.
 - Full-page (`flush`) banners should especially maintain short copy to ensure it's shown as single-line.
-- Avoid spamming/stacking multiple banners in a single page. Reserve banner use for important actions or announcements with real action items.
+- Ideally, there should be a single banner per page. Don't spam/stack multiple banners in a single page. Implement next/prev arrow buttons on the banner itself, if you must have multiple banners.
 
 See `src/components/Banner/Banner.stories.tsx` for examples.
 
@@ -149,7 +159,7 @@ content and internal layout.
 ## Chart Cards
 
 Use `ChartCard` from `@langchain/design-system/components/ChartCard` for consistent
-dashboard visualization shells.
+dashboard visualization, and only under chart components.
 
 - Consumers own charts, legends, data interactions, and empty states. Use the
   `state` prop for standard loading and known data-fetching error states; it
