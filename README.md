@@ -1,40 +1,42 @@
-<div align="center">
-
 # LangChain Design System
 
 **The shared UI foundation for the LangChain product suite.**
 
-[Explore Storybook](https://langsmith-design-system.vercel.app/) ·
-[Browse components](https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs) ·
-[Browse icons](https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs)
+* [Storybook](https://langsmith-design-system.vercel.app/)
+* [Component Overview](https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs)
+* [Icon Overview](https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs)
 
-</div>
 
-This repository contains the standalone `@langchain/design-system` package:
-accessible React components, semantic styling tokens, precompiled utilities,
-theme helpers, chart primitives, and Phosphor icon wrappers shared by LangChain
-products.
 
-The package is currently versioned at `0.1.0` but is not published yet. It does
-not include `@langchain/untitled-ui-icons` or the legacy Untitled-compatible icon
-trees.
+## Welcome
+<!-- Update with DS name -->
+Welcome to LangChain's design-system package! This repo, `@langchain/design-system`, contains LangChain's:
+
+1. Component Library
+2. Tokens
+3. Helpers & Utiltiies
+4. Icons
+5. Agent Documentation
+
+Contributions are welcome, please raise PRs directly in Github. We take code quality very seriously, so slop will not be accepted. PR authors should be able to defend their code.
+
 
 ## Install
 
-Once the package is published:
+To install, run
 
 ```sh
-pnpm add @langchain/design-system react react-dom
+pnpm add @langchain/design-system
 ```
 
-React 18 and 19 are supported. Navigation styles can be composed with any
-routing framework. Tailwind is optional for package consumers.
+React 18+ is supported.
 
 ## Use
+Apps should use `AppThemeProvider` from
+`@langchain/design-system/hooks/AppThemeProvider`, to wrap the entire application.
 
-Import the package stylesheet once at the application entry point. It includes
-Inter and Fira Code, light and dark semantic tokens, base styles, and the
-precompiled utility classes used by the components.
+The default CSS imports uses the `styles.css` which includs our default fonts,
+Inter and Fira Code. Both light and dark semantic tokens are supported.
 
 ```tsx
 import '@langchain/design-system/styles.css';
@@ -51,67 +53,49 @@ export function Example() {
 }
 ```
 
-The root export stays deliberately lightweight. Import components with heavier
-dependency graphs from their explicit subpaths so applications only load what
-they use:
+Components are imported in this way:
 
 ```tsx
+import { Button } from '@langchain/design-system';
 import { BarChart } from '@langchain/design-system/components/BarChart';
-import { Code } from '@langchain/design-system/components/Code';
-import { TabGroup } from '@langchain/design-system/components/Tabs';
-import { CheckIcon } from '@langchain/design-system/icons';
+import { Code } from '@langchain/design-system/components/Code'; 
 ```
+
 
 Utilities, hooks, and contexts are also available through explicit subpaths,
 for example `@langchain/design-system/utils/cn` and
-`@langchain/design-system/hooks/useColorScheme`.
+`@langchain/design-system/hooks/useColorScheme`. 
 
-Add the `dark` class to the document root to activate dark tokens. Applications
-may use `AppThemeProvider` from
-`@langchain/design-system/hooks/AppThemeProvider`, or manage that class through
-their existing theme provider.
+Add the `dark` class to the document root to activate dark tokens. 
 
-The `Link` component renders a native anchor by default. Pass a routing
-framework's anchor element through `as` for client-side navigation:
-
-```tsx
-import { Link } from '@langchain/design-system';
-import { Link as RouterLink } from 'react-router-dom';
-
-<Link as={<RouterLink to="/runs" />}>View runs</Link>;
-```
 
 ### Styling contracts
 
-- `@langchain/design-system/styles.css` is the recommended complete stylesheet.
-- `@langchain/design-system/tokens.css` exposes only the semantic token layers
-  for applications that own their reset, fonts, and utilities.
-- `@langchain/design-system/tailwind-preset` exposes the system's Tailwind 3
-  theme and plugins. It intentionally has no `content` paths; consumers remain
-  responsible for scanning their own source. The published package already
-  includes compiled classes required by its components.
+- `@langchain/design-system/styles.css` main stylesheet.
+- `@langchain/design-system/tokens.css` semantic tokens for your own components, or composite components.
+- `@langchain/design-system/tailwind-preset` our TW customizations, themes, and plugins.
 
-See [docs/DESIGN.md](docs/DESIGN.md) for the system rules and
-[docs/STYLES.md](docs/STYLES.md) for the token catalog. Repository-local agent
-guidance lives in
-[`.agents/skills/design-system/SKILL.md`](.agents/skills/design-system/SKILL.md)
-and treats those documents as the source of truth.
 
-## Develop
+### Agentic Contracts
+- [docs/DESIGN.md](docs/DESIGN.md) for philosophy and overall structure
+- [docs/STYLES.md](docs/STYLES.md) for the token catalog
+- [`.agents/skills/design-system/SKILL.md`](.agents/skills/design-system/SKILL.md) for general LLM guidance
 
-This repository supports Node 22 and 24 and uses pnpm 10.27.0.
+## Contributing
+
+This repository supports Node 22 and 24 and uses pnpm.
 
 ```sh
 pnpm install
 pnpm storybook
 ```
 
-`pnpm storybook` is the fastest loop for component work. To build the package
-output in `dist/`, run `pnpm build`. Use `pnpm build:watch` when another local
-application is consuming the package; it rebuilds JavaScript, types, styles,
-and assets after changes under `src/`.
 
-### Use this checkout in `langchainplus`
+To build the package run `pnpm build`, which outputs in `./dist`. 
+
+
+<!-- This section might be better in Storybook -->
+#### For linking to `langchainplus`
 
 Once `smith-frontend` has `@langchain/design-system` as a dependency, link the
 local checkout instead of publishing a test version. With the repositories as
@@ -152,35 +136,19 @@ production Storybook build.
 
 ## Version and release
 
-Releases are manual, not periodic. The release owner:
-
-1. Chooses the semantic-version bump and updates `version` in `package.json`.
-2. Merges the validated change.
-3. Publishes a GitHub release tagged with that version, for example `v0.2.0`.
-
-The release workflow checks that the tag matches `package.json`, runs the full
-package checks, and publishes to npm with provenance. It does not choose or
-create the next version.
-
-`langchainplus` does not receive a release automatically. After publication,
-its `@langchain/design-system` dependency and lockfile must be updated in a
-separate PR. The existing monthly Dependabot run may propose that PR once the
-dependency is present; a maintainer can also update it immediately when a
-product change needs the new version.
-
-Before the first public release, repository owners must choose an approved
-license, replace the current `UNLICENSED` package declaration, and configure
-npm trusted publishing for the GitHub `npm` environment. No license is inferred
-from the source repository.
+Releases are manual, not automatic. NX will be added soon.
 
 ## Scope and ownership
 
-The library owns domain-free UI: semantic tokens and reusable components whose
-behavior does not depend on a particular product. Product navigation,
-permissions, analytics, data fetching, and feature workflows remain in their
-applications.
+The component library owns domain-free UI, but can have some overlap if components are reused accross multiple pages or applications. If that is true, business logic should not be mixed in, and the component should be flexible, scalable, and reusable.
 
-LangChain team members can reach Frontend Platform in Slack:
+<!-- This might be moved to Link component's JSDocs -->
+<!-- The `Link` component renders a native anchor by default. Pass a routing
+framework's anchor element through `as` for client-side navigation:
 
-- [#team-frontend-platform](https://langchain.slack.com/app_redirect?channel=team-frontend-platform) for ownership and platform work
-- [#ask-frontend-platform](https://langchain.slack.com/app_redirect?channel=ask-frontend-platform) for usage questions
+```tsx
+import { Link } from '@langchain/design-system';
+import { Link as RouterLink } from 'react-router-dom';
+
+<Link as={<RouterLink to="/runs" />}>View runs</Link>;
+``` -->
