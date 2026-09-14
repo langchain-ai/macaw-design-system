@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/langchain-ai/langchain-design-system/issues"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/langchain-ai/langchain-design-system.git"

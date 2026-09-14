@@ -1,25 +1,37 @@
-# LangChain Design System
-
-**The shared UI foundation for the LangChain product suite.**
-
-* [Storybook](https://langsmith-design-system.vercel.app/)
-* [Component Overview](https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs)
-* [Icon Overview](https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs)
-
-
+<div align="center">
+  <a href="https://www.langchain.com/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/langchain-logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="docs/assets/langchain-logo-light.svg">
+      <img alt="LangChain" src="docs/assets/langchain-logo-light.svg" width="400">
+    </picture>
+  </a>
+  <h1>LangChain Design System</h1>
+  <p><strong>The shared UI foundation for the LangChain product suite.</strong></p>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
+  <!-- Keep the version badge aligned with package.json until the package is published to npm. -->
+  <a href="package.json"><img src="https://img.shields.io/badge/version-0.1.0-orange" alt="Package version: 0.1.0"></a>
+  <a href="https://x.com/langchain_oss"><img src="https://img.shields.io/twitter/url/https/twitter.com/langchain_oss.svg?style=social&amp;label=Follow%20%40LangChain" alt="Follow LangChain on X"></a>
+  <p>
+    <a href="https://langsmith-design-system.vercel.app/">Storybook</a> ·
+    <a href="https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs">Component Overview</a> ·
+    <a href="https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs">Icon Overview</a>
+  </p>
+</div>
 
 ## Welcome
+
 <!-- Update with DS name -->
+
 Welcome to LangChain's design-system package! This repo, `@langchain/design-system`, contains LangChain's:
 
 1. Component Library
 2. Tokens
-3. Helpers & Utiltiies
+3. Helpers & Utilities
 4. Icons
 5. Agent Documentation
 
-Contributions are welcome, please raise PRs directly in Github. We take code quality very seriously, so slop will not be accepted. PR authors should be able to defend their code.
-
+Contributions are welcome. See the [contributing guide](CONTRIBUTING.md) for local setup and pull request guidelines. We take code quality very seriously, so slop will not be accepted. PR authors should be able to defend their code.
 
 ## Install
 
@@ -32,10 +44,11 @@ pnpm add @langchain/design-system
 React 18+ is supported.
 
 ## Use
+
 Apps should use `AppThemeProvider` from
 `@langchain/design-system/hooks/AppThemeProvider`, to wrap the entire application.
 
-The default CSS imports uses the `styles.css` which includs our default fonts,
+The default CSS imports uses the `styles.css` which includes our default fonts,
 Inter and Fira Code. Both light and dark semantic tokens are supported.
 
 ```tsx
@@ -58,16 +71,14 @@ Components are imported in this way:
 ```tsx
 import { Button } from '@langchain/design-system';
 import { BarChart } from '@langchain/design-system/components/BarChart';
-import { Code } from '@langchain/design-system/components/Code'; 
+import { Code } from '@langchain/design-system/components/Code';
 ```
-
 
 Utilities, hooks, and contexts are also available through explicit subpaths,
 for example `@langchain/design-system/utils/cn` and
-`@langchain/design-system/hooks/useColorScheme`. 
+`@langchain/design-system/hooks/useColorScheme`.
 
-Add the `dark` class to the document root to activate dark tokens. 
-
+Add the `dark` class to the document root to activate dark tokens.
 
 ### Styling contracts
 
@@ -75,64 +86,26 @@ Add the `dark` class to the document root to activate dark tokens.
 - `@langchain/design-system/tokens.css` semantic tokens for your own components, or composite components.
 - `@langchain/design-system/tailwind-preset` our TW customizations, themes, and plugins.
 
-
 ### Agentic Contracts
+
 - [docs/DESIGN.md](docs/DESIGN.md) for philosophy and overall structure
 - [docs/STYLES.md](docs/STYLES.md) for the token catalog
 - [`.agents/skills/design-system/SKILL.md`](.agents/skills/design-system/SKILL.md) for general LLM guidance
 
 ## Contributing
 
-This repository supports Node 22 and 24 and uses pnpm.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) to develop locally, link the package to
+LangChainPlus, and run checks before opening a pull request. All contributors
+must follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-```sh
-pnpm install
-pnpm storybook
-```
+## Security
 
+Please report vulnerabilities privately using the instructions in
+[SECURITY.md](SECURITY.md).
 
-To build the package run `pnpm build`, which outputs in `./dist`. 
+## License
 
-
-<!-- This section might be better in Storybook -->
-#### For linking to `langchainplus`
-
-Once `smith-frontend` has `@langchain/design-system` as a dependency, link the
-local checkout instead of publishing a test version. With the repositories as
-sibling directories:
-
-```sh
-# Terminal 1: langchain-design-system
-pnpm build:watch
-
-# Terminal 2: langchainplus/smith-frontend
-pnpm link ../../langchain-design-system
-pnpm dev
-```
-
-Use an absolute path in `pnpm link` if the repositories are not siblings. To
-return to the version in `package.json` and the lockfile:
-
-```sh
-pnpm unlink @langchain/design-system
-```
-
-The current extraction does not yet migrate `smith-frontend` imports to the
-package, so linking it alone will not change existing design-system screens.
-
-Useful checks:
-
-```sh
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm verify:package
-pnpm build:storybook
-npm pack --dry-run --ignore-scripts
-```
-
-`pnpm check` runs the typecheck, tests, package build and verification, and a
-production Storybook build.
+[MIT](LICENSE).
 
 ## Version and release
 
