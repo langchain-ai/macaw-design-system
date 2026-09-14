@@ -1,0 +1,19 @@
+docs/STYLES.md
+  s_f387670cecfd8f::t_ef4976661c17ae 80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "bbf082b6b74fa20afd55a182f2c64997c090bea9",
+  "prompts": {},
+  "sessions": {
+    "s_f387670cecfd8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "02094dcd-161c-4488-ba2e-e13433612b4b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
