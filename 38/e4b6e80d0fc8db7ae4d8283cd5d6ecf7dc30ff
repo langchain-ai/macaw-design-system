@@ -1,0 +1,16 @@
+docs/STYLES.md
+  h_a27749d4737027 47
+src/components/Banner/Banner.stories.tsx
+  h_a27749d4737027 188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "38e4b6e80d0fc8db7ae4d8283cd5d6ecf7dc30ff",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
