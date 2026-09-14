@@ -1,0 +1,14 @@
+docs/STYLES.md
+  h_a27749d4737027 27,47,146,161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "de1a3b6921167108f615682fe0b554b473ce79ab",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
