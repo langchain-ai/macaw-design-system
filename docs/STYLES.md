@@ -24,7 +24,7 @@ Import the all-in-one stylesheet once in the application entry point:
 import '@langchain/design-system/styles.css';
 ```
 
-It loads Inter and Fira Code font, the light and dark token values, base and
+It loads Inter and Fira Code fonts, the light and dark token values, base and
 component-support rules, and the precompiled utilities needed by the shipped
 components. Its internal `utilities.css` import is generated during the package
 build and is not a public entry point.
@@ -44,7 +44,7 @@ module.exports = {
   presets: [require('@langchain/design-system/tailwind-preset')],
 };
 ```
-Or preferabbly if `"type": "module"`:
+Or preferably if `"type": "module"`:
 
 ```js
 // tailwind.config.js
@@ -143,7 +143,7 @@ warnings, and announcements.
 - Keep banner copy concise and action-oriented. State the important information
   in one short sentence and provide a clear, specific CTA through the `action` prop when the user has a next step.
 - Full-page (`flush`) banners should especially maintain short copy to ensure it's shown as single-line.
-- Ideally, there should be a single banner per page. Don' spam/stack multiple banners in a single page. Implement next/prev arrow buttons on the banner itself, if you must have multiple banners.
+- Ideally, there should be a single banner per page. Don't spam/stack multiple banners in a single page. Implement next/prev arrow buttons on the banner itself, if you must have multiple banners.
 
 See `src/components/Banner/Banner.stories.tsx` for examples.
 
@@ -158,7 +158,7 @@ content and internal layout.
 ## Chart Cards
 
 Use `ChartCard` from `@langchain/design-system/components/ChartCard` for consistent
-dashboard visualization shells.
+dashboard visualization, and only under chart components.
 
 - Consumers own charts, legends, data interactions, and empty states. Use the
   `state` prop for standard loading and known data-fetching error states; it
