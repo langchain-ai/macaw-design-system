@@ -24,7 +24,7 @@ Import the all-in-one stylesheet once in the application entry point:
 import '@langchain/design-system/styles.css';
 ```
 
-It loads Inter and Fira Code fonts, the light and dark token values, base and
+It loads Inter and Fira Code typefaces, the light and dark token values, base and
 component-support rules, and the precompiled utilities needed by the shipped
 components. Its internal `utilities.css` import is generated during the package
 build and is not a public entry point.
@@ -77,7 +77,7 @@ Use **Title Case** for the names of things — field labels, section headings, t
 names, column headers, menu items, and enumerated values shown in a column or
 picker (`Account Settings`, `Sampling Rate`, `Data Retention`, `API Keys`). Minor
 words (`a`, `an`, `the`, `and`, `or`, `for`, `to`, `of`, `in`, `on`, `at`, `by`,
-`with`, `from`, `as`) styay lowercase in the middle of a label but are capitalized when they lead
+`with`, `from`, `as`) stay lowercase in the middle of a label but are capitalized when they lead
 or end it, so `Apply to Past Items` keeps `to` lowercase while `Import From`
 capitalizes the trailing `From`.
 
