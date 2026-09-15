@@ -9,21 +9,21 @@ import {
   useState,
 } from 'react';
 
-import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
-
 import { cn } from '../../utils/cn';
 import { SPACE_SCALE_PX } from '../../utils/spacing';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
-import { Icon } from '../Icon';
 import { Popover, PopoverAnchor, PopoverContent } from '../Popover';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
+import { ChartLegendItemRenderer } from './ChartLegendItemRenderer';
 import {
-  getChartLegendAriaLabel,
+  type ChartLegendItemActiveChangeHandler,
+  useChartLegendActiveItem,
+} from './useChartLegendActiveItem';
+import {
   getChartLegendListColumns,
   getChartLegendListGridTemplate,
-  type ChartLegendListColumns,
   widthsMatch,
 } from './utils';
 
@@ -48,141 +48,21 @@ export type ChartLegendProps = Omit<
   items: readonly ChartLegendItem[];
   layout?: 'inline' | 'list';
   onItemClick?: (item: ChartLegendItem) => void;
+  /** Reports the legend item under the pointer or keyboard focus. */
+  onItemActiveChange?: (item: ChartLegendItem | null) => void;
 };
 
-type ChartLegendLabelProps = {
-  item: ChartLegendItem;
-  onClick?: () => void;
-  className?: string;
-  tabIndex?: number;
-  layout?: ChartLegendProps['layout'];
-  listColumns?: ChartLegendListColumns;
+type ChartLegendBaseProps = Omit<
+  ChartLegendProps,
+  'layout' | 'onItemActiveChange'
+> & {
+  onItemActiveChange?: ChartLegendItemActiveChangeHandler<ChartLegendItem>;
 };
-
-const ChartLegendLabel = ({
-  item,
-  onClick,
-  className,
-  tabIndex,
-  layout = 'inline',
-  listColumns,
-}: ChartLegendLabelProps) => {
-  const isList = layout === 'list';
-  const defaultAriaLabel = getChartLegendAriaLabel(
-    item.label,
-    isList ? item.value : undefined,
-    isList ? item.secondaryValue : undefined
-  );
-  const marker =
-    item.marker ??
-    (item.markerColor != null ? (
-      <div
-        aria-hidden
-        className="size-2 shrink-0 rounded-full"
-        style={{ backgroundColor: item.markerColor }}
-      />
-    ) : null);
-  const action =
-    onClick != null || item.selected ? (
-      <Icon
-        aria-hidden="true"
-        icon={FunnelIcon}
-        weight={item.selected ? 'fill' : undefined}
-        size="xs"
-        className={cn(
-          'size-3 shrink-0 text-icon-tertiary transition-opacity duration-fast',
-          item.selected
-            ? 'opacity-100'
-            : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
-        )}
-      />
-    ) : null;
-  const content = (
-    <>
-      {isList && listColumns?.marker ? (marker ?? <div aria-hidden />) : marker}
-      <Text
-        as="span"
-        variant="xs"
-        className={cn(
-          'min-w-0 flex-1 text-left',
-          isList ? 'whitespace-normal break-words' : 'truncate'
-        )}
-      >
-        {item.label}
-      </Text>
-      {isList &&
-        listColumns?.value &&
-        (item.value != null ? (
-          <Text
-            as="span"
-            variant="xs"
-            className="shrink-0 text-right tabular-nums"
-          >
-            {item.value}
-          </Text>
-        ) : (
-          <div aria-hidden />
-        ))}
-      {isList &&
-        listColumns?.secondaryValue &&
-        (item.secondaryValue != null ? (
-          <Text
-            as="span"
-            variant="xs"
-            color="tertiary"
-            className="shrink-0 text-right tabular-nums"
-          >
-            {item.secondaryValue}
-          </Text>
-        ) : (
-          <div aria-hidden />
-        ))}
-      {isList && listColumns?.action ? (action ?? <div aria-hidden />) : action}
-    </>
-  );
-
-  const styles = cn(
-    'group relative min-w-0 items-center rounded-xs py-space-1 text-primary transition-colors duration-fast',
-    isList
-      ? 'col-span-full grid w-full grid-cols-subgrid gap-space-2 px-space-2'
-      : 'flex max-w-full shrink-0 gap-space-1 px-space-1',
-    item.selected
-      ? 'bg-surface-level-2 hover:bg-surface-level-2'
-      : onClick != null && 'hover:bg-surface-level-1-hover',
-    className
-  );
-
-  if (onClick == null) {
-    return <div className={styles}>{content}</div>;
-  }
-
-  return (
-    <Button
-      type="button"
-      size="xs"
-      color="secondary"
-      variant="plain"
-      className={cn(
-        styles,
-        'focus-visible:ring-focus border-transparent shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
-        isList && 'justify-start',
-        !item.selected && 'bg-transparent'
-      )}
-      aria-label={item['aria-label'] ?? defaultAriaLabel}
-      aria-pressed={item.selected ?? false}
-      tabIndex={tabIndex}
-      onClick={onClick}
-    >
-      {content}
-    </Button>
-  );
-};
-
-type ChartLegendBaseProps = Omit<ChartLegendProps, 'layout'>;
 
 const ChartLegendList = ({
   items,
   onItemClick,
+  onItemActiveChange,
   className,
   role = 'group',
   'aria-label': ariaLabel = 'Chart legend',
@@ -201,11 +81,12 @@ const ChartLegendList = ({
       {...props}
     >
       {items.map((item) => (
-        <ChartLegendLabel
+        <ChartLegendItemRenderer
           key={item.id}
           item={item}
           layout="list"
           listColumns={listColumns}
+          onActiveChange={onItemActiveChange}
           onClick={
             onItemClick == null
               ? undefined
@@ -222,6 +103,7 @@ const ChartLegendList = ({
 const ChartLegendInline = ({
   items,
   onItemClick,
+  onItemActiveChange,
   className,
   role = 'group',
   'aria-label': ariaLabel = 'Chart legend',
@@ -236,7 +118,7 @@ const ChartLegendInline = ({
   const measurementBadgeRefs = useRef<Record<string, HTMLDivElement | null>>(
     {}
   );
-  const isInteractive = onItemClick != null;
+  const isInteractive = onItemClick != null || onItemActiveChange != null;
 
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
 
@@ -352,9 +234,10 @@ const ChartLegendInline = ({
   }, [hasOverflow]);
 
   const renderItem = (item: ChartLegendItem) => (
-    <ChartLegendLabel
+    <ChartLegendItemRenderer
       key={item.id}
       item={item}
+      onActiveChange={onItemActiveChange}
       onClick={
         onItemClick == null
           ? undefined
@@ -435,7 +318,7 @@ const ChartLegendInline = ({
                 ref={(node) => setMeasurementItemRef(item.id, node)}
                 className="shrink-0"
               >
-                <ChartLegendLabel
+                <ChartLegendItemRenderer
                   item={item}
                   onClick={onItemClick == null ? undefined : () => undefined}
                   tabIndex={-1}
@@ -486,10 +369,25 @@ const ChartLegendInline = ({
 
 export const ChartLegend = ({
   layout = 'inline',
+  items,
+  onItemActiveChange,
   ...props
-}: ChartLegendProps) =>
-  layout === 'list' ? (
-    <ChartLegendList {...props} />
-  ) : (
-    <ChartLegendInline {...props} />
+}: ChartLegendProps) => {
+  const handleItemActiveChange = useChartLegendActiveItem(
+    items,
+    onItemActiveChange
   );
+  const activeChangeHandler =
+    onItemActiveChange == null ? undefined : handleItemActiveChange;
+  const legendProps = {
+    ...props,
+    items,
+    onItemActiveChange: activeChangeHandler,
+  };
+
+  return layout === 'list' ? (
+    <ChartLegendList {...legendProps} />
+  ) : (
+    <ChartLegendInline {...legendProps} />
+  );
+};

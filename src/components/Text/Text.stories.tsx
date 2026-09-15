@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Text } from '../Text/Text';
+import { Text } from './Text';
 
 const meta = {
   title: 'Foundations/Text',
@@ -8,7 +8,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'typography', 'label', 'paragraph', 'heading'],
   argTypes: {
     variant: {
       control: { type: 'select' },

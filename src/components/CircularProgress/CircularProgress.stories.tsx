@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { CircularProgress } from '../CircularProgress';
+import { CircularProgress } from '.';
 
 const meta = {
   title: 'Components/Status/CircularProgress',
@@ -8,7 +8,14 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: [
+    'autodocs',
+    'loading',
+    'completion',
+    'percentage',
+    'progress indicator',
+    'ring',
+  ],
   argTypes: {
     value: {
       control: { type: 'range', min: 0, max: 1, step: 0.01 },

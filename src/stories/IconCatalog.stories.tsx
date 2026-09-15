@@ -42,7 +42,7 @@ function IconCatalog() {
               onChange={setQuery}
               placeholder="Try arrow, chart, or search"
               leftDecorator={
-                <MagnifyingGlassIcon aria-hidden size={16} weight="bold" />
+                <MagnifyingGlassIcon aria-hidden size={16} weight="regular" />
               }
             />
           </div>

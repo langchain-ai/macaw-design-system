@@ -1,10 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ArrowDownIcon, ArrowUpIcon } from '../../icons/PaddedPhosphorIcons';
-import { cn } from '../../utils/cn';
-import { Badge } from '../Badge';
-import { ChartCard } from '../ChartCard';
-import { Icon } from '../Icon';
 import {
   formatMetricCurrency,
   formatMetricDate,
@@ -12,7 +7,12 @@ import {
   formatMetricNumber,
   formatMetricTime,
   MetricChart,
-} from '../MetricChart';
+} from '.';
+import { ArrowDownIcon, ArrowUpIcon } from '../../icons/PaddedPhosphorIcons';
+import { cn } from '../../utils/cn';
+import { Badge } from '../Badge';
+import { ChartCard } from '../ChartCard';
+import { Icon } from '../Icon';
 import { Text } from '../Text';
 
 const meta: Meta<typeof MetricChart> = {
@@ -27,7 +27,7 @@ const meta: Meta<typeof MetricChart> = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'statistic', 'metric', 'number', 'trend'],
   argTypes: {
     layout: {
       control: 'select',

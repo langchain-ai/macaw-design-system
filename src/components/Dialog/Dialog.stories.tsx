@@ -5,14 +5,14 @@ import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Button } from '../Button/Button';
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from '../Dialog';
+} from '.';
+import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { Text } from '../Text/Text';
 
@@ -21,8 +21,14 @@ const meta = {
   component: Dialog,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Use for a short, focused modal task or decision. Prefer Popover for lightweight disclosure and Pane for larger workflows.',
+      },
+    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'modal', 'overlay', 'confirmation'],
   args: {
     open: false,
     onOpenChange: () => {},

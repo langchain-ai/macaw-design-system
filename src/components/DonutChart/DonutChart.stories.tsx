@@ -1,7 +1,10 @@
 import { useState } from 'react';
 
+import { expect, userEvent, waitFor } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { collateDonutSegments, DonutChart, type DonutChartSegment } from '.';
 import {
   CHART_CATEGORICAL_FILL_COLORS,
   CHART_OTHER_COLOR,
@@ -12,11 +15,6 @@ import {
   ChartTooltipHeader,
   ChartTooltipRow,
 } from '../ChartTooltip';
-import {
-  collateDonutSegments,
-  DonutChart,
-  type DonutChartSegment,
-} from '../DonutChart';
 import { DropdownMenuItem } from '../DropdownMenu';
 import { Text } from '../Text';
 
@@ -95,7 +93,7 @@ const meta = {
   title: 'Components/Charts/DonutChart',
   component: DonutChart,
   parameters: { layout: 'padded' },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pie', 'donut', 'graph', 'proportions', 'breakdown'],
   args: { segments: modelSegments },
 } satisfies Meta<typeof DonutChart>;
 
@@ -258,6 +256,22 @@ export const WithoutLegend: Story = {
   ),
 };
 
+export const SingleArc: Story = {
+  args: {
+    segments: modelSegments.slice(0, 2).map((segment, index) => ({
+      ...segment,
+      value: index === 0 ? segment.value : 0,
+    })),
+    getSegmentAriaLabel: (segment) => `${String(segment.label)} slice`,
+    showLegend: false,
+  },
+  render: (args) => (
+    <div className="mx-auto size-80">
+      <DonutChart {...args} />
+    </div>
+  ),
+};
+
 export const InChartCard: Story = {
   name: 'In ChartCard',
   render: () => {
@@ -335,5 +349,35 @@ export const InChartCard: Story = {
         </ChartCard>
       </div>
     );
+  },
+  play: async ({ canvas }) => {
+    const first = canvas.getByLabelText('gpt-5.6-sol: 3,820 traces');
+    const second = canvas.getByLabelText('gpt-5.6-luna: 2,015 traces');
+    const third = canvas.getByLabelText('claude-opus-5: 1,804 traces');
+    const legend = canvas.getByRole('button', { name: /^claude-opus-5,/ });
+
+    await userEvent.click(first);
+    await expect(first).not.toHaveFocus();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(first).toHaveFocus();
+
+    await userEvent.hover(second);
+    await expect(first).toHaveFocus();
+    await waitFor(() => expect(first).toHaveStyle({ opacity: '0.45' }));
+    await expect(second).toHaveStyle({ opacity: '1' });
+    await expect(canvas.getByRole('tooltip')).toHaveTextContent('gpt-5.6-luna');
+
+    await userEvent.unhover(second);
+    await waitFor(() => expect(first).toHaveStyle({ opacity: '1' }));
+    await userEvent.hover(legend);
+    await expect(first).toHaveFocus();
+    await waitFor(() => expect(third).toHaveStyle({ opacity: '1' }));
+    await expect(first).toHaveStyle({ opacity: '0.45' });
+
+    await userEvent.unhover(legend);
+    await userEvent.click(canvas.getByRole('heading'));
   },
 };

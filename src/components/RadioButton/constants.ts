@@ -1,3 +1,8 @@
+import {
+  SELECTION_CONTROL_SIZES,
+  type SelectionControlSize,
+} from '../../utils/componentSizes';
+
 /**
  * RadioButton style constants following the Button pattern.
  * Styles are organized by category for maintainability.
@@ -13,15 +18,15 @@ export const radioButtonFocusStyles =
 
 /** Size variant styles for the radio button */
 export const radioButtonSizeStyles = {
-  sm: 'size-[16px]',
-  md: 'size-[20px]',
-} as const;
+  sm: SELECTION_CONTROL_SIZES.sm.className,
+  md: SELECTION_CONTROL_SIZES.md.className,
+} as const satisfies Record<SelectionControlSize, string>;
 
 /** Size variant styles for the indicator dot */
 export const radioButtonDotSizeStyles = {
-  sm: 'size-[6px]',
-  md: 'size-[8px]',
-} as const;
+  sm: 'size-1.5',
+  md: 'size-2',
+} as const satisfies Record<SelectionControlSize, string>;
 
 /**
  * State styles using Radix data attributes.

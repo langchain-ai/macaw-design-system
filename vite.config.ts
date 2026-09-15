@@ -58,13 +58,17 @@ export default defineConfig({
     lib: {
       entry: entries,
       formats: ['es'],
+      cssFileName: 'components',
     },
     rolldownOptions: {
       external: isExternal,
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: '_chunks/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
+        assetFileNames: (asset) =>
+          asset.names.includes('components.css')
+            ? '[name][extname]'
+            : 'assets/[name]-[hash][extname]',
       },
     },
   },

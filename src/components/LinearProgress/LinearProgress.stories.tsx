@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { LinearProgress } from '../LinearProgress';
+import { LinearProgress } from '.';
 
 const meta = {
   title: 'Components/Status/LinearProgress',
@@ -8,7 +8,14 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: [
+    'autodocs',
+    'loading',
+    'completion',
+    'percentage',
+    'progress indicator',
+    'bar',
+  ],
   argTypes: {
     value: { control: { type: 'number' } },
     min: { control: { type: 'number' } },

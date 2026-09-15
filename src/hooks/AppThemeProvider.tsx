@@ -26,7 +26,7 @@ import {
 const useIsomorphicLayoutEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-interface AppThemeProviderProps {
+export interface AppThemeProviderProps {
   children?: ReactNode;
   defaultMode?: ThemeMode;
   storageKey?: string | null;

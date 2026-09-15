@@ -3,18 +3,18 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
-  CHART_CATEGORICAL_FILL_COLORS,
-  CHART_SINGLE_FILL_COLOR,
-  CHART_STATUS_FILL_COLORS,
-  getCategoricalFillChartColor,
-} from '../../utils/chartColors';
-import {
   BarChart,
   type BarChartCategory,
   type BarChartInteractionDatum,
   type BarChartSelectionRange,
   type BarChartSeries,
-} from '../BarChart';
+} from '.';
+import {
+  CHART_CATEGORICAL_FILL_COLORS,
+  CHART_SINGLE_FILL_COLOR,
+  CHART_STATUS_FILL_COLORS,
+  getCategoricalFillChartColor,
+} from '../../utils/chartColors';
 import { ChartCard } from '../ChartCard';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
 import {
@@ -148,15 +148,12 @@ const meta = {
       description:
         'Generic SVG render slots for custom category/value axes, backgrounds drawn beneath the bars, bar labels, and plot overlays.',
     },
-    activeGuideBarId: {
-      description:
-        'Draws the interaction guide through a specific bar instead of the category center.',
-    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'bar graph', 'categories', 'comparison'],
   args: {
     'aria-label': 'Requests by environment',
     series: requestSeries,
+    grid: { value: false, category: false },
   },
 } satisfies Meta<typeof BarChart>;
 
@@ -168,9 +165,7 @@ export const Grouped: Story = {
     const [hovered, setHovered] = useState<BarChartInteractionDatum | null>(
       null
     );
-    const [activeGuideBarId, setActiveGuideBarId] = useState<string | null>(
-      null
-    );
+    const [activeBarId, setActiveBarId] = useState<string | null>(null);
 
     return (
       <div className="mx-auto flex h-80 w-full max-w-3xl flex-col gap-space-2">
@@ -182,20 +177,16 @@ export const Grouped: Story = {
           <BarChart
             {...args}
             showLegend={false}
-            activeGuideBarId={activeGuideBarId}
             onDatumPointerMove={setHovered}
             onDatumPointerOut={() => {
               setHovered(null);
-              setActiveGuideBarId(null);
+              setActiveBarId(null);
             }}
-            onBarPointerMove={(bar) => setActiveGuideBarId(bar.id)}
-            onBarPointerOut={() => setActiveGuideBarId(null)}
+            onBarPointerMove={(bar) => setActiveBarId(bar.id)}
+            onBarPointerOut={() => setActiveBarId(null)}
           />
           {hovered != null && (
-            <BarChartStoryTooltip
-              datum={hovered}
-              activeBarId={activeGuideBarId}
-            />
+            <BarChartStoryTooltip datum={hovered} activeBarId={activeBarId} />
           )}
         </div>
       </div>
@@ -259,7 +250,7 @@ export const StackedWithConsumerTooltip: Story = {
                 series={requestSeries}
                 mode="stacked"
                 showLegend={false}
-                activeCategory={visibleTooltip?.category}
+                grid={{ value: false, category: false }}
                 onDatumPointerMove={(datum) => {
                   if (pinnedCategory == null) setHovered(datum);
                 }}
@@ -299,6 +290,7 @@ export const SignedValuesAndThreshold: Story = {
     <div className="mx-auto h-80 w-full max-w-3xl">
       <BarChart
         aria-label="Daily net spend"
+        grid={{ value: false, category: false }}
         series={[
           {
             id: 'spend',
@@ -372,6 +364,7 @@ export const MultipleAxes: Story = {
             aria-label="Daily spend and request count"
             series={series}
             showLegend={false}
+            grid={{ value: false, category: false }}
             valueAxes={[
               {
                 id: 'currency',
@@ -404,6 +397,7 @@ export const CustomCategoryAxisAndSelection: Story = {
       <div className="mx-auto h-80 w-full max-w-3xl">
         <BarChart
           aria-label="Experiment comparison scores"
+          grid={{ value: false, category: false }}
           series={[
             {
               id: 'score',

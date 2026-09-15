@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { HeaderTitleActionSlot, SplitViewPane } from '.';
 import { Button } from '../Button';
-import { HeaderTitleActionSlot, SplitViewPane } from '../SplitViewPane';
 import { Text } from '../Text';
 
 const meta = {
@@ -26,7 +26,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'resizable', 'split', 'side panels', 'layout'],
   args: {
     open: false,
     children: null,

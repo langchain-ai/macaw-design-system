@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from '../Button/Button';
-import { Popover, PopoverContent, PopoverTrigger } from '../Popover/Popover';
 import { Text } from '../Text/Text';
+import { Popover, PopoverContent, PopoverTrigger } from './Popover';
 
 const meta = {
   title: 'Components/Popovers/Popover',
@@ -21,7 +21,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'floating', 'content', 'anchored', 'overlay'],
   decorators: [
     (Story) => (
       <div className="p-20">

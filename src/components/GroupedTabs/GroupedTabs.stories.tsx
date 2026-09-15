@@ -9,7 +9,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { CaretRightIcon } from '../../icons/PaddedPhosphorIcons';
-import { GroupedTabs } from '../GroupedTabs/GroupedTabs';
+import { GroupedTabs } from './GroupedTabs';
 
 const meta: Meta<typeof GroupedTabs> = {
   title: 'Components/Navigation/GroupedTabs',
@@ -17,7 +17,7 @@ const meta: Meta<typeof GroupedTabs> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'segmented control', 'view switcher', 'compact tabs'],
   decorators: [
     (Story) => (
       <TooltipProvider>
@@ -94,19 +94,19 @@ export const TabsWithIcons: Story = {
         value: 'profile' as const,
         display: 'Profile',
         icon: UserIcon,
-        iconWeight: 'bold' as const,
+        iconWeight: 'regular' as const,
       },
       {
         value: 'search' as const,
         display: 'Search',
         icon: MagnifyingGlassIcon,
-        iconWeight: 'bold' as const,
+        iconWeight: 'regular' as const,
       },
       {
         value: 'settings' as const,
         display: 'Settings',
         icon: GearIcon,
-        iconWeight: 'bold' as const,
+        iconWeight: 'regular' as const,
       },
     ];
 
@@ -178,19 +178,19 @@ export const IconOnlyTabs: Story = {
       {
         value: 'chart' as const,
         icon: ChartBarIcon,
-        iconWeight: 'bold' as const,
+        iconWeight: 'regular' as const,
         tooltip: 'Chart View',
       },
       {
         value: 'search' as const,
         icon: MagnifyingGlassIcon,
-        iconWeight: 'bold' as const,
+        iconWeight: 'regular' as const,
         tooltip: 'Search',
       },
       {
         value: 'info' as const,
         icon: InfoIcon,
-        iconWeight: 'bold' as const,
+        iconWeight: 'regular' as const,
         tooltip: 'Information',
       },
     ];
@@ -256,7 +256,7 @@ export const CustomStyling: Story = {
           {
             value: 'secondary',
             display: 'Secondary',
-            leftDecorator: <CaretRightIcon size={16} weight="bold" />,
+            leftDecorator: <CaretRightIcon size={16} weight="regular" />,
           },
           {
             value: 'tertiary',
@@ -287,7 +287,7 @@ export const LongTextTabs: Story = {
           {
             value: 'second',
             display: 'Another Long Name',
-            leftDecorator: <ChartBarIcon size={16} weight="bold" />,
+            leftDecorator: <ChartBarIcon size={16} weight="regular" />,
           },
           {
             value: 'third',

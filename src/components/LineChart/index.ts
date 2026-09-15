@@ -10,4 +10,4 @@ export type {
   LineChartXScale,
   LineChartYBand,
   LineChartYAxis,
-} from './LineChart';
+} from './LineChart.types';

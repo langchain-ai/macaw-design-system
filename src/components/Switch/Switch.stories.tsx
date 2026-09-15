@@ -2,15 +2,21 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Switch } from '../Switch/Switch';
+import { Switch } from './Switch';
 
 const meta = {
   title: 'Components/Inputs/Switch',
   component: Switch,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'The size prop sets the 16/20px track height. Track width remains component-owned, and every tier keeps at least a 24px pointer target.',
+      },
+    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'toggle', 'boolean', 'setting'],
   argTypes: {
     checked: {
       control: { type: 'boolean' },
@@ -23,7 +29,7 @@ const meta = {
     },
     size: {
       control: { type: 'select' },
-      options: ['xs', 'sm', 'md'],
+      options: ['sm', 'md'],
     },
     labelPosition: {
       control: { type: 'select' },
@@ -72,25 +78,12 @@ export const Sizes: Story = {
     label: 'Size demo',
   },
   render: function SizesShowcase() {
-    const [xs, setXs] = useState(true);
     const [sm, setSm] = useState(true);
     const [md, setMd] = useState(true);
     return (
       <div className="flex flex-col gap-space-5">
         <div className="space-y-space-2">
-          <h4 className="text-sm font-medium">Extra small (xs)</h4>
-          <div className="flex items-center gap-space-5">
-            <Switch
-              checked={false}
-              onChange={() => {}}
-              label="Unchecked"
-              size="xs"
-            />
-            <Switch checked={xs} onChange={setXs} label="Checked" size="xs" />
-          </div>
-        </div>
-        <div className="space-y-space-2">
-          <h4 className="text-sm font-medium">Small (sm)</h4>
+          <h4 className="text-sm font-medium">Small (sm, default)</h4>
           <div className="flex items-center gap-space-5">
             <Switch
               checked={false}
@@ -173,7 +166,6 @@ export const AllVariants: Story = {
   render: function AllVariantsShowcase() {
     const [states, setStates] = useState({
       basic: false,
-      xs: true,
       sm: true,
       md: true,
       leftLabel: true,
@@ -201,15 +193,9 @@ export const AllVariants: Story = {
           <h3 className="text-lg font-semibold">Sizes</h3>
           <div className="flex flex-col gap-space-3">
             <Switch
-              checked={states.xs}
-              onChange={set('xs')}
-              label="Extra small (xs)"
-              size="xs"
-            />
-            <Switch
               checked={states.sm}
               onChange={set('sm')}
-              label="Small (sm)"
+              label="Small (sm, default)"
               size="sm"
             />
             <Switch

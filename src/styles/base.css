@@ -26,8 +26,13 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  html.dark {
+  html.dark,
+  .dark[data-theme-scope] {
     color-scheme: dark;
+  }
+
+  .dark[data-theme-scope] {
+    color: var(--text-primary);
   }
 
   /* Default page typography and theme surface. */
@@ -92,7 +97,8 @@
     --button-error-disabled-border: var(--red-100);
   }
 
-  html.dark .lc-button {
+  html.dark .lc-button,
+  .dark[data-theme-scope] .lc-button {
     --button-primary-foreground: var(--black);
     --button-primary-foreground-hover: var(--black);
     --button-primary-bg: var(--brand-400);

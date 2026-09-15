@@ -22,6 +22,7 @@ import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
 import { createPortalSlot } from '../PortalSlot';
 import UnsavedChangesDialog from '../UnsavedChangesDialog';
+import { registerOpenPane } from './openPaneRegistry';
 import {
   HeaderTitleActionSlot,
   SplitViewPaneHeader,
@@ -39,61 +40,6 @@ const MINIMUM_PANE_WIDTH_PX = 500;
 
 const MAX_INITIAL_PANE_WIDTH_PX = 1280;
 const INITIAL_PANE_WIDTH_RATIO = 2 / 3;
-
-type OpenSplitViewPane = {
-  id: string;
-  zIndex: number;
-  order: number;
-  onEscape: (event: KeyboardEvent) => void;
-};
-
-const openSplitViewPanes = new Map<string, OpenSplitViewPane>();
-let nextOpenPaneOrder = 0;
-
-function handleEscapeKeyDown(event: KeyboardEvent) {
-  if (event.key !== 'Escape') return;
-
-  queueMicrotask(() => {
-    if (event.defaultPrevented) return;
-
-    let topmostPane: OpenSplitViewPane | undefined;
-    for (const pane of openSplitViewPanes.values()) {
-      if (
-        !topmostPane ||
-        pane.zIndex > topmostPane.zIndex ||
-        (pane.zIndex === topmostPane.zIndex && pane.order > topmostPane.order)
-      ) {
-        topmostPane = pane;
-      }
-    }
-
-    topmostPane?.onEscape(event);
-  });
-}
-
-function registerOpenPane(
-  id: string,
-  zIndex: number,
-  onEscape: (event: KeyboardEvent) => void
-) {
-  openSplitViewPanes.set(id, {
-    id,
-    zIndex,
-    order: nextOpenPaneOrder++,
-    onEscape,
-  });
-
-  if (openSplitViewPanes.size === 1) {
-    document.addEventListener('keydown', handleEscapeKeyDown);
-  }
-
-  return () => {
-    openSplitViewPanes.delete(id);
-    if (openSplitViewPanes.size === 0) {
-      document.removeEventListener('keydown', handleEscapeKeyDown);
-    }
-  };
-}
 
 const getClientWidth = () => {
   if (typeof document === 'undefined' || typeof window === 'undefined') {
@@ -288,6 +234,7 @@ export type SplitViewPaneProps = {
   minWidthPx?: number;
   useCustomHeaderSlot?: boolean;
   requireConfirmationOnClose?: boolean;
+  dismissOnOutsideClick?: boolean;
   scrollContainer?: 'outer' | 'inner';
   headerClassName?: string;
 } & (
@@ -324,6 +271,7 @@ export function SplitViewPane({
   overrideWidthPx,
   minWidthPx,
   requireConfirmationOnClose = false,
+  dismissOnOutsideClick = false,
   scrollContainer = 'outer',
   headerClassName,
 }: SplitViewPaneProps) {
@@ -365,10 +313,16 @@ export function SplitViewPane({
 
   useEffect(() => {
     if (!open) return;
-    return registerOpenPane(paneId, paneZIndex, (event) =>
-      handleCloseClickRef.current(event)
+    return registerOpenPane(
+      paneId,
+      paneZIndex,
+      container,
+      (event) => handleCloseClickRef.current(event),
+      dismissOnOutsideClick
+        ? (event) => handleCloseClickRef.current(event)
+        : undefined
     );
-  }, [open, paneId, paneZIndex]);
+  }, [container, dismissOnOutsideClick, open, paneId, paneZIndex]);
 
   const nextRef = useRef(onNext);
   nextRef.current = onNext;
@@ -403,6 +357,7 @@ export function SplitViewPane({
     return (
       <SplitViewPaneHeader
         title={title}
+        open={open}
         onClose={handleCloseClick}
         onExpand={onExpand}
         onNext={onNext}
@@ -434,6 +389,7 @@ export function SplitViewPane({
                   style={{ left, right: `var(--polly-chat-width, 0px)` }}
                   className={cn(
                     'fixed inset-0 shadow-lg',
+                    !open && 'pointer-events-none',
                     scrollContainer === 'outer'
                       ? 'overflow-y-auto overscroll-y-none'
                       : 'overflow-hidden'

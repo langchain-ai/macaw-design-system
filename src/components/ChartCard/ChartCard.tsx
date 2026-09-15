@@ -184,7 +184,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
               <IconButton
                 {...dragButtonProps}
                 icon={DotsSixVerticalIcon}
-                iconWeight="bold"
+                iconWeight="regular"
                 label={dragHandleLabel}
                 size="xs"
                 variant="plain"
@@ -255,7 +255,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
                   <DropdownMenuTrigger asChild>
                     <IconButton
                       icon={DotsThreeVerticalIcon}
-                      iconWeight="bold"
+                      iconWeight="regular"
                       label="More chart actions"
                       size="xs"
                       variant="plain"

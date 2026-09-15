@@ -5,10 +5,9 @@ import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import type * as VisxText from '@visx/text';
 
 import {
-  act,
-  fireEvent,
   render as renderWithProviders,
   screen,
+  within,
 } from '../../../test-utils';
 import { Text } from '../../Text';
 import {
@@ -53,6 +52,22 @@ const series: readonly LineChartSeries[] = [
       { x: 10, y: null },
       { x: 20, y: 12 },
     ],
+  },
+];
+
+const legendHighlightSeries: readonly LineChartSeries[] = [
+  {
+    ...series[0],
+    color: 'var(--chart-categorical-line-1)',
+  },
+  {
+    ...series[1],
+    color: 'var(--chart-categorical-line-2)',
+  },
+  {
+    id: 'empty',
+    label: 'No data',
+    points: [{ x: 10, y: null }],
   },
 ];
 
@@ -121,6 +136,64 @@ describe('LineChart', () => {
     expect(screen.getByText('Latency')).toBeVisible();
   });
 
+  it('dims nonmatching series from built-in legend hover and focus', async () => {
+    const requestsColor = 'var(--chart-categorical-line-1)';
+    const latencyColor = 'var(--chart-categorical-line-2)';
+    const { user } = render(
+      <LineChart
+        aria-label="Legend emphasis"
+        series={legendHighlightSeries}
+        xDomain={[0, 20]}
+        legendProps={{ layout: 'list' }}
+        activeX={20}
+        showPoints
+        shouldAnimate={false}
+      />
+    );
+    const legend = screen.getByRole('group', {
+      name: 'Legend emphasis legend',
+    });
+    const requestsLegendItem = within(legend).getByRole('group', {
+      name: 'Requests',
+    });
+    const emptyLegendItem = within(legend).getByRole('group', {
+      name: 'No data',
+    });
+    const chart = screen.getByRole('img', { name: 'Legend emphasis' });
+    const getSeriesMarks = (name: string, color: string) => {
+      const seriesGroup = screen.getByRole('group', { name });
+      const line = seriesGroup.getElementsByTagName('path')[0];
+      if (line == null) throw new Error(`Expected ${name} to render a line`);
+      return [
+        line,
+        ...Array.from(chart.getElementsByTagName('circle')).filter(
+          (circle) => circle.getAttribute('fill') === color
+        ),
+      ];
+    };
+    const requestsMarks = getSeriesMarks('requests series', requestsColor);
+    const latencyMarks = getSeriesMarks('latency series', latencyColor);
+    const expectOpacity = (marks: readonly Element[], opacity: string) => {
+      for (const mark of marks)
+        expect(mark).toHaveAttribute('opacity', opacity);
+    };
+
+    expect(requestsMarks.length).toBeGreaterThan(1);
+    expect(latencyMarks.length).toBeGreaterThan(1);
+
+    await user.hover(requestsLegendItem);
+    expectOpacity(requestsMarks, '1');
+    expectOpacity(latencyMarks, '0.45');
+
+    await user.unhover(requestsLegendItem);
+    expectOpacity(requestsMarks, '1');
+    expectOpacity(latencyMarks, '1');
+
+    await user.hover(emptyLegendItem);
+    expectOpacity(requestsMarks, '1');
+    expectOpacity(latencyMarks, '1');
+  });
+
   it('uses the kebab-case series aria-label as its accessible name', () => {
     render(
       <LineChart
@@ -168,8 +241,8 @@ describe('LineChart', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders multiple labeled and formatted y axes with label tooltips', () => {
-    render(
+  it('renders multiple labeled and formatted y axes with label tooltips', async () => {
+    const { user } = render(
       <LineChart
         aria-label="Request metrics"
         showLegend={false}
@@ -197,17 +270,11 @@ describe('LineChart', () => {
     expect(screen.getAllByText(/req$/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/ms$/).length).toBeGreaterThan(0);
 
-    vi.useFakeTimers();
-    try {
-      fireEvent.pointerMove(screen.getByText('Latency (ms)'));
-      act(() => vi.advanceTimersByTime(300));
+    await user.hover(screen.getByText('Latency (ms)'));
 
-      expect(document.querySelector('[role="tooltip"]')).toHaveTextContent(
-        'Latency (ms)'
-      );
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Latency (ms)'
+    );
   });
 
   it('reserves measured gutters for wide value-axis tick labels', () => {

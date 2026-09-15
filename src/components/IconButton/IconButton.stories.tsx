@@ -13,7 +13,7 @@ import {
   PlusIcon,
   XIcon,
 } from '../../icons/PaddedPhosphorIcons';
-import { IconButton } from '../IconButton/IconButton';
+import { IconButton } from './IconButton';
 
 const meta = {
   title: 'Components/Buttons/IconButton',
@@ -21,7 +21,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'icon only', 'action', 'accessible action'],
   argTypes: {
     color: {
       control: { type: 'select' },

@@ -3,7 +3,6 @@ import type { scaleBand } from '@visx/scale';
 import { clamp } from '../../utils/clamp';
 import type {
   BarChartCategory,
-  BarChartCornerStyle,
   BarChartDataPoint,
   BarChartDisplayAxis,
   BarChartDisplaySeries,
@@ -19,6 +18,20 @@ const VALUE_FORMATTER = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
+export const groupBarChartItemsBy = <Item>(
+  items: readonly Item[],
+  getKey: (item: Item) => string
+): ReadonlyMap<string, Item[]> => {
+  const groups = new Map<string, Item[]>();
+  for (const item of items) {
+    const key = getKey(item);
+    const group = groups.get(key);
+    if (group == null) groups.set(key, [item]);
+    else group.push(item);
+  }
+  return groups;
+};
+
 /** Default value-axis tick text. Consumers localize via `formatValue`. */
 export const formatBarChartValue = (value: number): string =>
   VALUE_FORMATTER.format(value);
@@ -27,7 +40,7 @@ const isValidCategory = (category: BarChartCategory): boolean =>
   typeof category === 'string' || Number.isFinite(category);
 
 /** Categories are compared across types, so the key carries the type too. */
-const getCategoryKey = (category: BarChartCategory): string =>
+export const getCategoryKey = (category: BarChartCategory): string =>
   `${typeof category}:${category}`;
 
 const getPointId = (seriesId: string, point: BarChartDataPoint): string =>
@@ -102,8 +115,6 @@ export const getBarChartLayout = (
   );
   const groupCount = Math.max(1, groupIds.length);
   const bars: BarChartLayoutBar[] = [];
-  // Each signed half of a stack rounds its own outermost segment.
-  const lastBarByStack = new Map<string, BarChartLayoutBar>();
 
   for (const category of categories) {
     const positiveTotals = new Map<string, number>();
@@ -132,30 +143,17 @@ export const getBarChartLayout = (
         endValue,
         seriesId: item.id,
         seriesLabel: item.label,
+        legendItemId: point.legendItemId ?? item.id,
         color: point.color ?? item.color,
         valueAxisId: item.valueAxisId,
         opacity: item.opacity,
-        cornerRadius: item.cornerRadius,
-        cornerStyle: item.cornerStyle,
         groupIndex: groupIndexById.get(groupId) ?? 0,
         groupCount,
-        isStackEnd: !isStacked,
       };
       bars.push(bar);
-
-      // A zero-height segment would otherwise take the rounded cap away from
-      // the segment that actually ends the stack.
-      if (isStacked && point.value !== 0) {
-        const direction = point.value < 0 ? 'negative' : 'positive';
-        lastBarByStack.set(
-          `${getCategoryKey(category)}:${item.valueAxisId}:${direction}`,
-          bar
-        );
-      }
     }
   }
 
-  for (const bar of lastBarByStack.values()) bar.isStackEnd = true;
   return bars;
 };
 
@@ -191,61 +189,18 @@ export const getBarChartValueDomain = (
   return minimum === maximum ? expandFlatDomain(minimum) : [minimum, maximum];
 };
 
-/** Builds the bar outline, rounding whichever corners the series asks for. */
-export const getRoundedBarPath = ({
+/** Builds a square-cornered SVG bar outline. */
+export const getBarPath = ({
   x,
   y,
   width,
   height,
-  radius,
-  orientation,
-  isNegative,
-  roundEnd,
-  cornerStyle,
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
-  radius: number;
-  orientation: BarChartOrientation;
-  isNegative: boolean;
-  roundEnd: boolean;
-  cornerStyle: BarChartCornerStyle;
-}) => {
-  const resolvedRadius = roundEnd ? Math.min(radius, width / 2, height / 2) : 0;
-  if (resolvedRadius <= 0) {
-    return `M ${x} ${y} H ${x + width} V ${y + height} H ${x} Z`;
-  }
-  const roundAll = cornerStyle === 'all';
-  const roundTop = roundAll || (orientation === 'vertical' && !isNegative);
-  const roundBottom = roundAll || (orientation === 'vertical' && isNegative);
-  const roundLeft = roundAll || (orientation === 'horizontal' && isNegative);
-  const roundRight = roundAll || (orientation === 'horizontal' && !isNegative);
-  const topLeft = roundTop || roundLeft ? resolvedRadius : 0;
-  const topRight = roundTop || roundRight ? resolvedRadius : 0;
-  const bottomRight = roundBottom || roundRight ? resolvedRadius : 0;
-  const bottomLeft = roundBottom || roundLeft ? resolvedRadius : 0;
-
-  return [
-    `M ${x + topLeft} ${y}`,
-    `H ${x + width - topRight}`,
-    topRight > 0 ? `Q ${x + width} ${y} ${x + width} ${y + topRight}` : '',
-    `V ${y + height - bottomRight}`,
-    bottomRight > 0
-      ? `Q ${x + width} ${y + height} ${x + width - bottomRight} ${y + height}`
-      : '',
-    `H ${x + bottomLeft}`,
-    bottomLeft > 0
-      ? `Q ${x} ${y + height} ${x} ${y + height - bottomLeft}`
-      : '',
-    `V ${y + topLeft}`,
-    topLeft > 0 ? `Q ${x} ${y} ${x + topLeft} ${y}` : '',
-    'Z',
-  ]
-    .filter(Boolean)
-    .join(' ');
-};
+}) => `M ${x} ${y} H ${x + width} V ${y + height} H ${x} Z`;
 
 export const toBarChartInteractionBar = (
   bar: BarChartLayoutBar
@@ -345,6 +300,36 @@ export const getBarChartRenderedBars = ({
       },
     ];
   });
+};
+
+export const getBarChartIsBarDimmed = ({
+  bars,
+  activeBuiltInLegendItemId,
+  activeLegendItemId,
+  activeBarId,
+}: {
+  bars: readonly BarChartRenderedBar[];
+  activeBuiltInLegendItemId?: string | null;
+  activeLegendItemId?: string | null;
+  activeBarId?: string | null;
+}) => {
+  const activeSeriesId = bars.some(
+    (bar) => bar.seriesId === activeBuiltInLegendItemId
+  )
+    ? activeBuiltInLegendItemId
+    : null;
+  const activeDatumLegendItemId =
+    activeBuiltInLegendItemId == null &&
+    bars.some((bar) => bar.legendItemId === activeLegendItemId)
+      ? activeLegendItemId
+      : null;
+
+  return (bar: BarChartRenderedBar): boolean =>
+    activeSeriesId != null
+      ? activeSeriesId !== bar.seriesId
+      : activeDatumLegendItemId != null
+        ? activeDatumLegendItemId !== bar.legendItemId
+        : activeBarId != null && activeBarId !== bar.id;
 };
 
 type BarAnimationRange = { start: number; end: number };

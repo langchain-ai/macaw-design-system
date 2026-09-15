@@ -4,10 +4,10 @@ import { LockIcon } from '@phosphor-icons/react/dist/ssr/Lock';
 import { UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { EmptyState } from '.';
+import type { EmptyStateSize, EmptyStateVariant } from '.';
 import { PlusIcon } from '../../icons/PaddedPhosphorIcons';
 import { Button } from '../Button';
-import { EmptyState } from '../EmptyState';
-import type { EmptyStateSize, EmptyStateVariant } from '../EmptyState';
 
 const emptyStateSizes: EmptyStateSize[] = ['sm', 'md', 'lg'];
 const emptyStateVariants: EmptyStateVariant[] = ['neutral', 'brand'];
@@ -18,7 +18,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'no data', 'zero results', 'blank state'],
   argTypes: {
     title: { control: 'text' },
     description: { control: 'text' },

@@ -8,3 +8,8 @@ for (const file of styleFiles) {
     new URL(`../dist/${file}`, import.meta.url)
   );
 }
+
+copyFileSync(
+  new URL('../src/components/ThinkingState/NOTICE', import.meta.url),
+  new URL('../dist/components/ThinkingState/NOTICE', import.meta.url)
+);

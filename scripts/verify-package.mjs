@@ -134,6 +134,16 @@ const utilities = readFileSync(
   'utf8'
 );
 
+if (
+  !styles.includes("@import './components.css'") ||
+  !existsSync(resolve(repositoryRoot, 'dist/components.css'))
+)
+  fail('styles.css must load compiled component styles');
+if (
+  !existsSync(resolve(repositoryRoot, 'dist/components/ThinkingState/NOTICE'))
+)
+  fail('ThinkingState attribution is missing from the package');
+
 if (!styles.includes("@import './tokens.css'"))
   fail('styles.css does not load tokens.css');
 if (!tokens.includes('--bg-surface-level-1'))
@@ -148,6 +158,7 @@ await Promise.all([
   import('@langchain/design-system/components/BarChart'),
   import('@langchain/design-system/components/Code'),
   import('@langchain/design-system/components/Logo'),
+  import('@langchain/design-system/components/ThinkingState'),
   import('@langchain/design-system/components/SplitViewPane'),
 ]);
 

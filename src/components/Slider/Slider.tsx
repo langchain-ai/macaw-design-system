@@ -1,6 +1,10 @@
 import * as SliderPrimitive from '@radix-ui/react-slider';
 
 import { cn } from '../../utils/cn';
+import {
+  SELECTION_CONTROL_HIT_AREA_STYLES,
+  SELECTION_CONTROL_SIZES,
+} from '../../utils/componentSizes';
 import { Text } from '../Text';
 
 export interface SliderStepLabel {
@@ -105,8 +109,10 @@ export const Slider = ({
         <SliderPrimitive.Thumb
           key={i}
           className={cn(
-            'block h-4 w-4 rounded-full border-2 shadow transition',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-1',
+            'block rounded-full border-2 shadow transition',
+            SELECTION_CONTROL_SIZES.sm.className,
+            SELECTION_CONTROL_HIT_AREA_STYLES,
+            'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
             disabled
               ? 'border-muted bg-surface-level-3'
               : 'cursor-pointer border-brand-300 bg-control-thumb hover:border-brand-400 dark:border-brand-500 dark:hover:border-brand-600'

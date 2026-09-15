@@ -3,6 +3,7 @@ import { forwardRef, useId } from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 import { cn } from '../../utils/cn';
+import type { SelectionControlSize } from '../../utils/componentSizes';
 import {
   radioButtonBaseStyles,
   radioButtonDotSizeStyles,
@@ -24,7 +25,8 @@ export interface RadioCardProps {
   className?: string;
   disabled?: boolean;
   radioPosition?: 'left' | 'right';
-  size?: 'sm' | 'md';
+  /** Indicator size. The card height remains content-driven. */
+  size?: SelectionControlSize;
   /**
    * Hides the visible radio indicator while keeping it in the DOM so that
    * the selection state (border highlight, collapsible reveal) still works.
@@ -45,7 +47,7 @@ export const RadioCard = forwardRef<HTMLButtonElement, RadioCardProps>(
       className,
       disabled,
       radioPosition = 'left',
-      size = 'md',
+      size = 'sm',
       hideIndicator = false,
       'data-testid': dataTestId,
       'aria-label': ariaLabel,

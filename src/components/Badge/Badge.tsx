@@ -19,7 +19,7 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
     | 'warning'
     | 'special'
     | 'plain';
-  /** Badge size variant */
+  /** Text-label height. */
   size?: 'xxs' | 'xs' | 'sm' | 'md';
   /** Left decorator icon */
   leftDecorator?: IconComponent;
@@ -39,11 +39,12 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 type BadgeSize = NonNullable<BadgeProps['size']>;
 
+/** Exact outer heights: xxs/xs=16px, sm=20px, md=24px. */
 const SIZE_BOX_CLASSES: Record<BadgeSize, string> = {
-  xxs: 'gap-0.5 px-space-1 py-px',
-  xs: 'gap-space-1 px-1.5 py-0.5',
-  sm: 'gap-space-1 px-1.5 py-0.5',
-  md: 'gap-space-1 px-space-2 py-space-1',
+  xxs: 'h-4 gap-space-1 px-space-1',
+  xs: 'h-4 gap-space-1 px-space-1',
+  sm: 'h-5 gap-space-1 px-space-1',
+  md: 'h-6 gap-space-1 px-space-2',
 };
 
 const SIZE_TEXT_VARIANT: Record<BadgeSize, 'xs' | 'sm'> = {
@@ -61,6 +62,13 @@ const SIZE_DEFAULT_WEIGHT: Record<
   xs: 'medium',
   sm: 'medium',
   md: 'medium',
+};
+
+const SIZE_ICON_CLASSES: Record<BadgeSize, string> = {
+  xxs: 'size-3',
+  xs: 'size-3',
+  sm: 'size-3',
+  md: 'size-4',
 };
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
@@ -86,7 +94,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     const resolvedSize = size ?? (isManifestPreview ? 'sm' : 'md');
     const resolvedTextWeight = textWeight ?? SIZE_DEFAULT_WEIGHT[resolvedSize];
     const baseStyles = cn(
-      'inline-flex items-center justify-center border border-transparent',
+      'box-border inline-flex items-center justify-center border border-transparent',
       SIZE_BOX_CLASSES[resolvedSize],
       {
         // TODO: we're only going to have 2 variants for the rounded prop. need to remove/rename the rounded prop
@@ -118,7 +126,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     };
 
     return (
-      <div
+      <span
+        ref={ref}
         className={cn(
           baseStyles,
           getColorStyles(),
@@ -132,16 +141,16 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         {LeftIcon && (
           <LeftIcon
             aria-hidden
-            className={cn('size-3 flex-shrink-0')}
+            className={cn(SIZE_ICON_CLASSES[resolvedSize], 'flex-shrink-0')}
             weight={iconWeight}
           />
         )}
         {isString ? (
           <Text
-            ref={ref}
             as="span"
             variant={SIZE_TEXT_VARIANT[resolvedSize]}
             weight={resolvedTextWeight}
+            className="tracking-tight"
           >
             {children}
           </Text>
@@ -151,11 +160,11 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         {RightIcon && (
           <RightIcon
             aria-hidden
-            className={cn('size-3 flex-shrink-0')}
+            className={cn(SIZE_ICON_CLASSES[resolvedSize], 'flex-shrink-0')}
             weight={iconWeight}
           />
         )}
-      </div>
+      </span>
     );
   }
 );

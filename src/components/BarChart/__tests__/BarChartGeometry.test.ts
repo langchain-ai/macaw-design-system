@@ -7,7 +7,7 @@ import type {
   BarChartDisplayAxis,
   BarChartLayoutBar,
 } from '../BarChart.types';
-import { getBarChartRenderedBars, getRoundedBarPath } from '../BarChart.utils';
+import { getBarChartRenderedBars, getBarPath } from '../BarChart.utils';
 
 const INNER_SIZE = 100;
 
@@ -30,15 +30,13 @@ const buildBar = (bar: Partial<BarChartLayoutBar>): BarChartLayoutBar => ({
   startValue: 0,
   endValue: 0,
   seriesId: 'series',
+  legendItemId: 'series',
   seriesLabel: 'Series',
   color: 'var(--chart-single-fill)',
   valueAxisId: 'value',
   opacity: 1,
-  cornerRadius: 3,
   groupIndex: 0,
   groupCount: 1,
-  isStackEnd: true,
-  cornerStyle: 'end',
   ...bar,
 });
 
@@ -177,78 +175,13 @@ describe('getBarChartRenderedBars', () => {
   });
 });
 
-describe('getRoundedBarPath', () => {
-  const base = {
-    x: 0,
-    y: 0,
-    width: 20,
-    height: 40,
-    radius: 3,
-    isNegative: false,
-    roundEnd: true,
-  } as const;
-  const countCorners = (path: string) => path.split('Q').length - 1;
-
-  it('rounds the two corners at the value end of a vertical bar', () => {
-    const path = getRoundedBarPath({
-      ...base,
-      orientation: 'vertical',
-      cornerStyle: 'end',
-    });
-
-    expect(countCorners(path)).toBe(2);
-    expect(path.startsWith('M 3 0')).toBe(true);
-  });
-
-  it('rounds the bottom corners when the vertical bar is negative', () => {
-    const path = getRoundedBarPath({
-      ...base,
-      orientation: 'vertical',
-      isNegative: true,
-      cornerStyle: 'end',
-    });
-
-    expect(countCorners(path)).toBe(2);
-    expect(path.startsWith('M 0 0')).toBe(true);
-  });
-
-  it('rounds every corner when the series asks for it', () => {
-    expect(
-      countCorners(
-        getRoundedBarPath({
-          ...base,
-          orientation: 'vertical',
-          cornerStyle: 'all',
-        })
-      )
-    ).toBe(4);
-    expect(
-      countCorners(
-        getRoundedBarPath({
-          ...base,
-          orientation: 'horizontal',
-          cornerStyle: 'all',
-        })
-      )
-    ).toBe(4);
-  });
-
-  it('falls back to a plain rectangle for a stack segment or a flat bar', () => {
-    expect(
-      getRoundedBarPath({
-        ...base,
-        orientation: 'vertical',
-        roundEnd: false,
-        cornerStyle: 'all',
-      })
-    ).toBe('M 0 0 H 20 V 40 H 0 Z');
-    expect(
-      getRoundedBarPath({
-        ...base,
-        orientation: 'vertical',
-        height: 0,
-        cornerStyle: 'end',
-      })
-    ).toBe('M 0 0 H 20 V 0 H 0 Z');
+describe('getBarPath', () => {
+  it('builds square-cornered bars, including flat bars', () => {
+    expect(getBarPath({ x: 0, y: 0, width: 20, height: 40 })).toBe(
+      'M 0 0 H 20 V 40 H 0 Z'
+    );
+    expect(getBarPath({ x: 0, y: 0, width: 20, height: 0 })).toBe(
+      'M 0 0 H 20 V 0 H 0 Z'
+    );
   });
 });

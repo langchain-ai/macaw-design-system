@@ -1,5 +1,6 @@
 export { Typeahead } from './Typeahead';
 export type {
+  TypeaheadFilterOptionsState,
   TypeaheadOption,
   TypeaheadProps,
   TypeaheadRenderOptionState,

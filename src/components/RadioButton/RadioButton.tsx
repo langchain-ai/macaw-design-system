@@ -3,6 +3,10 @@ import { forwardRef, useId } from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 import { cn } from '../../utils/cn';
+import {
+  SELECTION_CONTROL_HIT_AREA_STYLES,
+  type SelectionControlSize,
+} from '../../utils/componentSizes';
 import { Text } from '../Text';
 import {
   radioButtonBaseStyles,
@@ -23,8 +27,8 @@ interface RadioButtonBaseProps {
   className?: string;
   /** Whether the radio button is disabled */
   disabled?: boolean;
-  /** Size of the radio button */
-  size?: 'sm' | 'md';
+  /** Visual indicator size. The pointer target remains at least 24px. */
+  size?: SelectionControlSize;
   /** Test ID for testing purposes */
   'data-testid'?: string;
 }
@@ -88,7 +92,7 @@ export const RadioButton = forwardRef<HTMLButtonElement, RadioButtonProps>(
       className,
       labelClassName,
       disabled,
-      size = 'md',
+      size = 'sm',
       'data-testid': dataTestId,
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledBy,
@@ -105,6 +109,7 @@ export const RadioButton = forwardRef<HTMLButtonElement, RadioButtonProps>(
             'peer',
             radioButtonBaseStyles,
             radioButtonFocusStyles,
+            SELECTION_CONTROL_HIT_AREA_STYLES,
             radioButtonSizeStyles[size],
             radioButtonRootStateStyles
           )}

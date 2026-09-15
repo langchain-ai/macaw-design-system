@@ -5,17 +5,23 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Badge } from '../Badge';
 import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox';
-import { RadioCard } from '../RadioCard/RadioCard';
 import { RadioGroup } from '../RadioGroup/RadioGroup';
 import { Text } from '../Text';
+import { RadioCard } from './RadioCard';
 
 const meta: Meta<typeof RadioCard> = {
   title: 'Components/Inputs/RadioCard',
   component: RadioCard,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'RadioCard remains content-driven. Its sm/md size changes only the radio indicator and the gap to content.',
+      },
+    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'single select', 'selectable card', 'details'],
   argTypes: {
     disabled: { control: { type: 'boolean' } },
     radioPosition: {
@@ -377,7 +383,7 @@ export const Sizes: Story = {
       <div className="flex flex-col gap-space-5">
         <div>
           <Text variant="sm" color="tertiary" className="mb-space-2">
-            Small (sm)
+            Small (sm, default)
           </Text>
           <RadioGroup defaultValue="opt" className="flex flex-col gap-space-1">
             <RadioCard value="opt" size="sm">
@@ -389,7 +395,7 @@ export const Sizes: Story = {
         </div>
         <div>
           <Text variant="sm" color="tertiary" className="mb-space-2">
-            Medium (md, default)
+            Medium (md)
           </Text>
           <RadioGroup defaultValue="opt" className="flex flex-col gap-space-1">
             <RadioCard value="opt" size="md">

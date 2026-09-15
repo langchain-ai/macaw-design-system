@@ -1,0 +1,87 @@
+/* Adapted from TurboKach/ai-native-react-components (MIT). See NOTICE. */
+.grid {
+  display: inline-grid;
+  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
+  gap: 10%;
+}
+
+.pixel {
+  border-radius: 1px;
+  opacity: 0.15;
+  animation: pixel-on var(--loading-cycle) ease-in-out infinite;
+}
+
+.dot {
+  @apply rounded-full;
+}
+
+.inactive {
+  opacity: 0.07;
+  animation: none;
+}
+
+.grid[data-animated='false'] .pixel {
+  animation: none;
+}
+
+.grid[data-animated='false'] .pixel:not(.inactive) {
+  opacity: 0.5;
+}
+
+.shimmer {
+  @apply bg-gradient-to-r from-text-tertiary from-35% via-text-primary via-50% to-text-tertiary to-65% bg-clip-text text-transparent;
+  background-size: 200% 100%;
+  animation: shimmer-text 1.4s linear infinite;
+}
+
+.brandShimmer {
+  @apply via-text-brand-primary to-text-tertiary;
+}
+
+@keyframes pixel-on {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  18%,
+  42% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes shimmer-text {
+  from {
+    background-position: 150% 50%;
+  }
+  to {
+    background-position: -50% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel,
+  .shimmer {
+    animation: none;
+  }
+
+  .pixel:not(.inactive) {
+    opacity: 0.5;
+  }
+  .shimmer {
+    @apply text-secondary;
+    background: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .shimmer {
+    background: none;
+    color: CanvasText;
+  }
+  .pixel {
+    background: CanvasText;
+  }
+}

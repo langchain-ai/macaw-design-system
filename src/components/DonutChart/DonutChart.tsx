@@ -1,11 +1,12 @@
-import type {
-  AriaAttributes,
-  FocusEvent,
-  FocusEventHandler,
-  HTMLAttributes,
-  PointerEvent,
-  PointerEventHandler,
-  ReactNode,
+import {
+  useState,
+  type AriaAttributes,
+  type FocusEvent,
+  type FocusEventHandler,
+  type HTMLAttributes,
+  type PointerEvent,
+  type PointerEventHandler,
+  type ReactNode,
 } from 'react';
 
 import {
@@ -17,6 +18,7 @@ import {
 import { Group } from '@visx/group';
 import { Pie as Donut } from '@visx/shape';
 
+import { CHART_DIMMED_OPACITY } from '../../utils/chartConstants';
 import { cn } from '../../utils/cn';
 import { ChartLegend, type ChartLegendProps } from '../ChartLegend';
 import { Text } from '../Text';
@@ -122,6 +124,8 @@ export type DonutChartProps = Omit<
     scaleCenterNumberSize?: boolean;
     /** Emphasizes one segment and dims the rest. */
     activeSegmentId?: string | null;
+    /** Emphasizes the segment represented by one external legend item. Built-in legends set this automatically. */
+    activeLegendItemId?: string | null;
     /** Animates segments when they are drawn. Defaults to true. */
     shouldAnimate?: boolean;
     /** Names segments and makes them focusable. */
@@ -192,12 +196,26 @@ const AnimatedDonutArc = ({
 }: AnimatedDonutArcProps) => {
   const isInteractive =
     onPointerMove != null || onPointerOut != null || onPointerUp != null;
+  const handlePointerDown = (event: PointerEvent<SVGPathElement>) => {
+    // Chromium can match :focus-visible when a focusable SVG path is clicked.
+    // Keep the focus indicator for keyboard navigation without showing it for
+    // pointer interaction.
+    if (
+      (event.pointerType === 'mouse' || event.pointerType === 'pen') &&
+      event.currentTarget.hasAttribute('tabindex')
+    ) {
+      event.preventDefault();
+    }
+  };
 
   return (
     <animated.path
       fill={arc.data.color}
-      opacity={isDimmed ? 0.45 : 1}
-      className={cn(isInteractive && 'cursor-pointer')}
+      opacity={isDimmed ? CHART_DIMMED_OPACITY : 1}
+      className={cn(
+        'transition-opacity duration-fast focus:outline-none focus-visible:stroke-focus focus-visible:stroke-2 motion-reduce:transition-none',
+        isInteractive && 'cursor-pointer'
+      )}
       d={animationProgress.to((progress) => {
         const revealAngle =
           animationStartAngle +
@@ -211,6 +229,7 @@ const AnimatedDonutArc = ({
       tabIndex={ariaProps['aria-label'] == null ? undefined : 0}
       {...ariaProps}
       onPointerMove={onPointerMove}
+      onPointerDown={handlePointerDown}
       onPointerOut={onPointerOut}
       onPointerUp={onPointerUp}
       onFocus={onFocus}
@@ -239,6 +258,7 @@ export const DonutChart = ({
   centerDescriptor,
   scaleCenterNumberSize = false,
   activeSegmentId,
+  activeLegendItemId,
   shouldAnimate = true,
   getSegmentAriaLabel,
   isRendering = true,
@@ -254,6 +274,9 @@ export const DonutChart = ({
   className,
   ...rest
 }: DonutChartProps) => {
+  const [activeBuiltInLegendItemId, setActiveBuiltInLegendItemId] = useState<
+    string | null
+  >(null);
   const isReducedMotion = (useReducedMotion() ?? false) || !shouldAnimate;
   const ariaProps = { 'aria-label': rest['aria-label'] };
   const rootProps: HTMLAttributes<HTMLDivElement> = { ...rest };
@@ -266,11 +289,13 @@ export const DonutChart = ({
     otherCollationThreshold
   );
   const drawnSegments = getDrawnSegments(collatedSegments, selectedIds);
+  const renderedSegments = drawnSegments.filter((segment) => segment.value > 0);
   const drawnTotal = sumSegmentValues(drawnSegments);
   const drawnIds = new Set(drawnSegments.map((segment) => segment.id));
+  const drawnArcIds = new Set(renderedSegments.map((segment) => segment.id));
   const hasDrawnSegments = isRendering && drawnTotal > 0;
   const segmentAnimationKey = JSON.stringify(
-    drawnSegments.map((segment) => [segment.id, segment.value])
+    renderedSegments.map((segment) => [segment.id, segment.value])
   );
   // A single sweep angle reveals the arcs in sequence, leaving only one moving
   // boundary regardless of how many colored segments the donut contains.
@@ -293,6 +318,18 @@ export const DonutChart = ({
   });
   const hasLegend = showLegend && collatedSegments.length > 0;
   const legendLayout = legendProps?.layout ?? 'list';
+  const requestedActiveLegendItemId =
+    (hasLegend ? activeBuiltInLegendItemId : null) ?? activeLegendItemId;
+  const renderedActiveLegendItemId =
+    requestedActiveLegendItemId != null &&
+    drawnArcIds.has(requestedActiveLegendItemId)
+      ? requestedActiveLegendItemId
+      : null;
+  const renderedActiveSegmentId =
+    activeSegmentId != null && drawnArcIds.has(activeSegmentId)
+      ? activeSegmentId
+      : null;
+  const activeId = renderedActiveLegendItemId ?? renderedActiveSegmentId;
 
   const donut = (
     <div className="relative flex size-full min-h-0 min-w-0 items-center justify-center [&>svg]:max-h-[22.5rem] [&>svg]:max-w-[22.5rem]">
@@ -306,9 +343,16 @@ export const DonutChart = ({
         {isRendering && (
           <>
             {drawnTotal > 0 && (
-              <Group top={DONUT_CENTER} left={DONUT_CENTER}>
+              <Group
+                top={DONUT_CENTER}
+                left={DONUT_CENTER}
+                className={cn(
+                  activeId == null &&
+                    '[&:focus-within>path:not(:focus)]:opacity-[0.45] [&>path:focus]:opacity-100'
+                )}
+              >
                 <Donut
-                  data={drawnSegments}
+                  data={renderedSegments}
                   pieValue={(segment) => segment.value}
                   pieSort={null}
                   pieSortValues={null}
@@ -328,10 +372,7 @@ export const DonutChart = ({
                         animationStartAngle={animationStartAngle}
                         animationEndAngle={animationEndAngle}
                         aria-label={getSegmentAriaLabel?.(arc.data)}
-                        isDimmed={
-                          activeSegmentId != null &&
-                          activeSegmentId !== arc.data.id
-                        }
+                        isDimmed={activeId != null && activeId !== arc.data.id}
                         onPointerMove={
                           onSegmentPointerMove == null
                             ? undefined
@@ -408,6 +449,10 @@ export const DonutChart = ({
       {...legendProps}
       layout={legendLayout}
       items={legendItems}
+      onItemActiveChange={(item) => {
+        setActiveBuiltInLegendItemId(item?.id ?? null);
+        legendProps?.onItemActiveChange?.(item);
+      }}
     />
   );
 

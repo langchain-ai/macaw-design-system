@@ -11,6 +11,7 @@ import { AppThemeProvider } from './hooks/AppThemeProvider';
 
 export {
   act,
+  createEvent,
   fireEvent,
   screen,
   waitFor,

@@ -5,12 +5,12 @@ import { LightningIcon } from '@phosphor-icons/react/dist/ssr/Lightning';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Typeahead } from '.';
+import type { TypeaheadOption, TypeaheadSize } from '.';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { Input } from '../Input';
 import { Text } from '../Text';
-import { Typeahead } from '../Typeahead';
-import type { TypeaheadOption, TypeaheadSize } from '../Typeahead';
 
 const metricOptions: TypeaheadOption[] = [
   { value: 'run_count', label: 'Run count' },
@@ -39,7 +39,7 @@ function SingleTypeaheadStory(props: {
   >(null);
 
   return (
-    <Typeahead<TypeaheadOption>
+    <Typeahead
       value={value}
       onChange={setValue}
       options={props.options}
@@ -61,11 +61,18 @@ const meta = {
     docs: {
       description: {
         component:
-          'Canonical searchable selection input built on the design-system Popover and cmdk primitives. Use the `multiple` mode for searchable multi-selects with removable chips, and add `freeSolo` only when values outside the provided options are valid.',
+          'Searches large option sets, selects multiple values, or accepts user-created values. Use Select for one known value; default tags support removal with Enter or Space.',
       },
     },
   },
-  tags: ['autodocs'],
+  tags: [
+    'autodocs',
+    'autocomplete',
+    'searchable',
+    'select',
+    'multi select',
+    'free solo',
+  ],
   args: {
     options: metricOptions,
     placeholder: 'Search metrics...',
@@ -130,7 +137,7 @@ export const Sizes: Story = {
         <Button size="xs" variant="outlined" color="secondary">
           Action
         </Button>
-        <Typeahead<TypeaheadOption>
+        <Typeahead
           size="xs"
           value={xsValue}
           onChange={setXsValue}
@@ -144,7 +151,7 @@ export const Sizes: Story = {
         <Button size="sm" variant="outlined" color="secondary">
           Action
         </Button>
-        <Typeahead<TypeaheadOption>
+        <Typeahead
           size="sm"
           value={smValue}
           onChange={setSmValue}
@@ -158,7 +165,7 @@ export const Sizes: Story = {
         <Button size="md" variant="outlined" color="secondary">
           Action
         </Button>
-        <Typeahead<TypeaheadOption>
+        <Typeahead
           size="md"
           value={mdValue}
           onChange={setMdValue}
@@ -174,7 +181,7 @@ export const Sizes: Story = {
           onChange={setInputValue}
           placeholder="Input"
         />
-        <Typeahead<TypeaheadOption>
+        <Typeahead
           size="lg"
           value={lgValue}
           onChange={setLgValue}
@@ -182,6 +189,57 @@ export const Sizes: Story = {
           placeholder="Large..."
         />
       </div>
+    );
+  },
+};
+
+export const WithLeftDecorator: Story = {
+  render: () => {
+    const [value, setValue] = useState<
+      string | TypeaheadOption | null | undefined
+    >(null);
+
+    return (
+      <Typeahead
+        freeSolo
+        value={value}
+        onChange={setValue}
+        options={metricOptions}
+        placeholder="repository:tag"
+        leftDecorator={
+          <Text
+            as="span"
+            variant="sm"
+            color="tertiary"
+            className="min-w-0 truncate"
+          >
+            registry.example.com/
+          </Text>
+        }
+      />
+    );
+  },
+};
+
+export const WithCustomFiltering: Story = {
+  render: () => {
+    const [value, setValue] = useState<
+      string | TypeaheadOption | null | undefined
+    >(null);
+
+    return (
+      <Typeahead
+        value={value}
+        onChange={setValue}
+        options={metricOptions}
+        placeholder="Search metrics by prefix..."
+        filterOptions={(options, { inputValue, getOptionLabel }) => {
+          const query = inputValue.trim().toLowerCase();
+          return options.filter((option) =>
+            getOptionLabel(option).toLowerCase().startsWith(query)
+          );
+        }}
+      />
     );
   },
 };
@@ -195,7 +253,7 @@ export const SearchableMultiSelect: Story = {
     const [value, setValue] = useState<string[]>(['production']);
 
     return (
-      <Typeahead<string>
+      <Typeahead
         multiple
         disableCloseOnSelect
         value={value}
@@ -222,7 +280,7 @@ export const MultipleFreeSolo: Story = {
     );
 
     return (
-      <Typeahead<string>
+      <Typeahead
         multiple
         freeSolo
         disableCloseOnSelect
@@ -257,7 +315,7 @@ export const WrappedMultiple: Story = {
     );
 
     return (
-      <Typeahead<string>
+      <Typeahead
         multiple
         freeSolo
         disableCloseOnSelect
@@ -282,7 +340,7 @@ export const MultipleWithCustomCreate: Story = {
     );
 
     return (
-      <Typeahead<string>
+      <Typeahead
         multiple
         disableCloseOnSelect
         value={value}
@@ -333,7 +391,7 @@ const environmentOptions: TypeaheadOption[] = [
     description: 'Traffic-facing environment',
     rightDecorator: (
       <span className="inline-flex text-icon-success">
-        <CheckCircleIcon size={16} weight="bold" />
+        <CheckCircleIcon size={16} weight="regular" />
       </span>
     ),
   },
@@ -343,7 +401,7 @@ const environmentOptions: TypeaheadOption[] = [
     description: 'Release validation',
     rightDecorator: (
       <span className="inline-flex text-icon-warning">
-        <LightningIcon size={16} weight="bold" />
+        <LightningIcon size={16} weight="regular" />
       </span>
     ),
   },
@@ -354,7 +412,7 @@ const environmentOptions: TypeaheadOption[] = [
     disabled: true,
     rightDecorator: (
       <span className="inline-flex text-icon-disabled">
-        <WarningCircleIcon size={16} weight="bold" />
+        <WarningCircleIcon size={16} weight="regular" />
       </span>
     ),
   },
@@ -367,7 +425,7 @@ export const CustomRendering: Story = {
     ]);
 
     return (
-      <Typeahead<TypeaheadOption>
+      <Typeahead
         multiple
         value={value}
         onChange={(nextValue) =>

@@ -1,12 +1,9 @@
+import { useState } from 'react';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import {
-  TabGroup,
-  TabLabel,
-  TabList,
-  TabPanel,
-  TabPanels,
-} from '../Tabs/index';
+import { Text } from '../Text';
+import { TabGroup, TabLabel, TabList, TabPanel, TabPanels } from './index';
 
 const meta: Meta<typeof TabList> = {
   title: 'Components/Navigation/Tabs',
@@ -16,7 +13,7 @@ const meta: Meta<typeof TabList> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'navigation', 'tabs', 'sections', 'panels'],
   decorators: [
     (Story) => (
       <div className="w-[600px]">
@@ -28,6 +25,37 @@ const meta: Meta<typeof TabList> = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const RemountedTabGroup: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Recreates the tab group on selection, as navigation through a redirect can recreate a page header. The selected indicator should animate after each navigation.',
+      },
+    },
+  },
+  render: () => {
+    const [selectedIndex, setSelectedIndex] = useState(1);
+
+    return (
+      <TabGroup
+        key={selectedIndex}
+        selectedIndex={selectedIndex}
+        onChange={setSelectedIndex}
+      >
+        <TabList>
+          <TabLabel label="Dashboards" />
+          <TabLabel label="Alerts" />
+        </TabList>
+        <TabPanels>
+          <TabPanel className="p-space-4">Dashboard content</TabPanel>
+          <TabPanel className="p-space-4">Alerts content</TabPanel>
+        </TabPanels>
+      </TabGroup>
+    );
+  },
+};
 
 // Basic Tabs
 export const BasicTabs: Story = {
@@ -59,6 +87,73 @@ export const BasicTabs: Story = {
         </TabPanel>
       </TabPanels>
     </TabGroup>
+  ),
+};
+
+export const ScrollableTabs: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Scrollable lists with the chart, deployment, and code example layouts. Selected indicators should remain visible when switching tabs and scrolling horizontally.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-space-5">
+      {[
+        {
+          name: 'Chart Runs',
+          listClassName: 'max-w-full overflow-x-auto',
+          labelClassName: '',
+        },
+        {
+          name: 'Chart Breakdown',
+          listClassName:
+            'scroll-mask-l scroll-mask-r mx-0 mb-0 overflow-x-auto px-space-4 no-scrollbar',
+          labelClassName: 'pb-space-3 pt-space-4',
+        },
+        {
+          name: 'Table Chart',
+          listClassName:
+            'scroll-mask-l scroll-mask-r overflow-x-auto px-space-4 no-scrollbar',
+          labelClassName: 'pb-space-3',
+        },
+        {
+          name: 'Deployment',
+          listClassName: 'min-h-10 overflow-x-auto',
+          labelClassName: '',
+        },
+        {
+          name: 'Code Examples',
+          listClassName:
+            'max-w-full overflow-x-auto rounded-md border border-subtle p-space-1',
+          labelClassName:
+            'shrink-0 px-space-3 py-space-2 data-[selected]:bg-surface-level-2',
+        },
+      ].map(({ name, listClassName, labelClassName }) => (
+        <div key={name}>
+          <Text as="h3" variant="sm" color="secondary" className="mb-space-2">
+            {name}
+          </Text>
+          <TabGroup className="w-80">
+            <TabList className={listClassName}>
+              {Array.from({ length: 6 }, (_, index) => (
+                <TabLabel
+                  key={index}
+                  className={labelClassName}
+                  label={
+                    <span className="whitespace-nowrap">
+                      Series {index + 1}
+                    </span>
+                  }
+                />
+              ))}
+            </TabList>
+          </TabGroup>
+        </div>
+      ))}
+    </div>
   ),
 };
 

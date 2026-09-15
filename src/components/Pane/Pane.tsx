@@ -87,6 +87,7 @@ function PlainPane({
       >
         <RadixDialog.Portal>
           <RadixDialog.Overlay
+            data-pane-interaction-boundary
             className={cn(
               'fixed inset-0 bg-overlay',
               animation &&

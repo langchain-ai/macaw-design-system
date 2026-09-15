@@ -271,7 +271,7 @@ export const Input = forwardRef<
     const effectiveLeftDecorator =
       leftDecorator ??
       (isFileInput ? (
-        <PaperclipIcon aria-hidden size={16} weight="bold" />
+        <PaperclipIcon aria-hidden size={16} weight="regular" />
       ) : null);
 
     const showPasswordToggle = isPasswordInput;

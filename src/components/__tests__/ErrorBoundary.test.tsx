@@ -33,7 +33,8 @@ describe('ErrorBoundary', () => {
       expect.objectContaining({ message: 'render failed' }),
       expect.objectContaining({
         componentStack: expect.stringContaining('BrokenComponent'),
-      })
+      }),
+      { ux_impact: 'blocking' }
     );
     expect(consoleError).not.toHaveBeenCalledWith(
       'ErrorBoundary caught',

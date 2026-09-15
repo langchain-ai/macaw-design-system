@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Divider } from '../Divider';
+import { Divider } from '.';
 
 const meta: Meta<typeof Divider> = {
   title: 'Components/Layout/Divider',
@@ -8,7 +8,7 @@ const meta: Meta<typeof Divider> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'separator', 'rule'],
   argTypes: {
     orientation: {
       control: 'select',

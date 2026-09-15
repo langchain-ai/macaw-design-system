@@ -1,3 +1,8 @@
+import {
+  SELECTION_CONTROL_SIZES,
+  type SelectionControlSize,
+} from '../../utils/componentSizes';
+
 /**
  * Checkbox style constants following the Button pattern.
  * Styles are organized by category for maintainability.
@@ -13,9 +18,15 @@ export const checkboxFocusStyles =
 
 /** Size variant styles */
 export const checkboxSizeStyles = {
-  sm: 'size-[14px]',
-  md: 'size-[18px]',
-} as const;
+  sm: SELECTION_CONTROL_SIZES.sm.className,
+  md: SELECTION_CONTROL_SIZES.md.className,
+} as const satisfies Record<SelectionControlSize, string>;
+
+/** Checkmark and indeterminate glyph canvases within each outer box. */
+export const checkboxIconSizes = {
+  sm: 12,
+  md: 16,
+} as const satisfies Record<SelectionControlSize, number>;
 
 /**
  * State styles using Radix data attributes.

@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
 import { CornersOutIcon } from '@phosphor-icons/react/dist/ssr/CornersOut';
 
@@ -25,6 +26,7 @@ export function SplitViewPaneHeader({
   hideArrows,
   headerClassName,
   titleId,
+  open,
 }: {
   title: ReactNode;
   onClose?: () => void;
@@ -34,7 +36,17 @@ export function SplitViewPaneHeader({
   hideArrows?: boolean;
   headerClassName?: string;
   titleId?: string;
+  open?: boolean;
 }) {
+  const [retainedOnExpand, setRetainedOnExpand] = useState<
+    ((event: MouseEvent<HTMLButtonElement>) => void) | undefined
+  >(() => onExpand);
+
+  useLayoutEffect(() => {
+    if (open !== false) setRetainedOnExpand(() => onExpand);
+  }, [onExpand, open]);
+
+  const visibleOnExpand = open === false ? retainedOnExpand : onExpand;
   return (
     <header
       className={cn(
@@ -55,11 +67,11 @@ export function SplitViewPaneHeader({
         className="bg-transparent"
       />
 
-      {onExpand && (
+      {visibleOnExpand && (
         <IconButton
           label="Expand"
           icon={CornersOutIcon}
-          onClick={onExpand}
+          onClick={visibleOnExpand}
           variant="plain"
           color="secondary"
           size="sm"

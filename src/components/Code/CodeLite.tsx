@@ -102,7 +102,7 @@ export const CodeLite = memo((props: CodeLiteProps) => {
                 onClick={() => toggleFold(line.n)}
                 className="-rotate-90 transition-transform aria-expanded:rotate-0"
               >
-                <CaretDownIcon aria-hidden size={16} weight="bold" />
+                <CaretDownIcon aria-hidden size={16} weight="regular" />
               </button>
             ) : (
               <span className="size-4" />

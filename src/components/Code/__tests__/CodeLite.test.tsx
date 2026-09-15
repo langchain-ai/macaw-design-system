@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { render, screen } from '@testing-library/react';
-
+import { render, screen } from '../../../test-utils';
 import { CodeLite } from '../CodeLite';
 
 describe('CodeLite', () => {
@@ -13,13 +12,13 @@ describe('CodeLite', () => {
     expect(screen.getByText('b')).toBeInTheDocument();
   });
 
-  it('hides gutter when showGutter is false', () => {
+  it('hides gutter when showGutter is false', async () => {
     render(<CodeLite value={'hello'} language="python" showGutter={false} />);
-    expect(screen.getByText('hello')).toBeInTheDocument();
+    expect(await screen.findByText('hello')).toBeVisible();
     expect(screen.queryByText('1')).not.toBeInTheDocument();
   });
 
-  it('highlights matching code text', () => {
+  it('highlights matching code text', async () => {
     render(
       <CodeLite
         value={'model: "openai/gpt-4"'}
@@ -28,17 +27,17 @@ describe('CodeLite', () => {
       />
     );
 
-    expect(screen.getByText('openai/gpt-4')).toHaveAttribute(
+    expect(await screen.findByText('openai/gpt-4')).toHaveAttribute(
       'data-code-highlight'
     );
   });
 
-  it('renders children alongside the table', () => {
+  it('renders children alongside the table', async () => {
     render(
       <CodeLite value={'x'} language="python">
         <div data-testid="child">extra</div>
       </CodeLite>
     );
-    expect(screen.getByTestId('child')).toBeInTheDocument();
+    expect(await screen.findByTestId('child')).toBeVisible();
   });
 });

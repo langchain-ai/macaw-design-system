@@ -1,4 +1,4 @@
-import { useId, type KeyboardEvent, type PointerEvent } from 'react';
+import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react';
 
 import { useReducedMotion, useSpring } from '@react-spring/web';
 import { Group } from '@visx/group';
@@ -30,7 +30,10 @@ import type {
 } from './BarChart.types';
 import {
   getBarAnimationRanges,
+  getBarChartIsBarDimmed,
   getBarChartRenderedBars,
+  getCategoryKey,
+  groupBarChartItemsBy,
   toBarChartInteractionBar,
 } from './BarChart.utils';
 import { BarChartAxes } from './BarChartAxes';
@@ -41,23 +44,6 @@ import {
 } from './constants';
 
 const defaultFormatCategory = (value: BarChartCategory) => String(value);
-const getCategoryKey = (category: BarChartCategory) =>
-  `${typeof category}:${category}`;
-
-const groupBy = <Item,>(
-  items: readonly Item[],
-  getKey: (item: Item) => string
-): ReadonlyMap<string, Item[]> => {
-  const groups = new Map<string, Item[]>();
-  for (const item of items) {
-    const key = getKey(item);
-    const group = groups.get(key);
-    if (group == null) groups.set(key, [item]);
-    else group.push(item);
-  }
-  return groups;
-};
-
 export type BarChartPlotProps = BarChartInteractionProps & {
   width: number;
   height: number;
@@ -80,6 +66,8 @@ export type BarChartPlotProps = BarChartInteractionProps & {
   activeCategory?: BarChartCategory | null;
   activeGuideBarId?: string | null;
   activeBarId?: string | null;
+  activeBuiltInLegendItemId?: string | null;
+  activeLegendItemId?: string | null;
   selectionRange?: BarChartSelectionRange;
   slots?: BarChartSlots;
   isRendering: boolean;
@@ -109,6 +97,8 @@ export const BarChartPlot = ({
   activeCategory,
   activeGuideBarId,
   activeBarId,
+  activeBuiltInLegendItemId,
+  activeLegendItemId,
   selectionRange,
   slots,
   isRendering,
@@ -129,6 +119,8 @@ export const BarChartPlot = ({
   onBarFocus,
   onBarBlur,
 }: BarChartPlotProps) => {
+  const [hoveredCategory, setHoveredCategory] =
+    useState<BarChartCategory | null>(null);
   const isVertical = orientation === 'vertical';
   // useId can emit characters that are not valid in a CSS identifier.
   const clipPathId = `bar-chart-${useId().replace(/[^\w-]/g, '')}`;
@@ -156,7 +148,16 @@ export const BarChartPlot = ({
           innerHeight,
         })
       : [];
-  const renderedBarsBySeriesId = groupBy(renderedBars, (bar) => bar.seriesId);
+  const renderedBarsBySeriesId = groupBarChartItemsBy(
+    renderedBars,
+    (bar) => bar.seriesId
+  );
+  const isBarDimmed = getBarChartIsBarDimmed({
+    bars: renderedBars,
+    activeBuiltInLegendItemId,
+    activeLegendItemId,
+    activeBarId,
+  });
   const animationRanges = getBarAnimationRanges(renderedBars, orientation);
   const hasRenderedBars = renderedBars.length > 0;
   const barAnimationKey = JSON.stringify([
@@ -208,7 +209,7 @@ export const BarChartPlot = ({
     onDatumBlur != null;
   // One pass over the bars, rather than one scan of every bar per category.
   const interactionBarsByCategory = hasCategoryTarget
-    ? groupBy(bars.map(toBarChartInteractionBar), (bar) =>
+    ? groupBarChartItemsBy(bars.map(toBarChartInteractionBar), (bar) =>
         getCategoryKey(bar.category)
       )
     : undefined;
@@ -259,15 +260,22 @@ export const BarChartPlot = ({
             : chartMargin.top + (getCategoryPosition(category) ?? plotY),
         });
   };
-  const handlePointerMove =
-    onDatumPointerMove == null && onDatumPointerOut == null
-      ? undefined
-      : (event: PointerEvent<SVGSVGElement>) => {
-          const datum = getDatumFromPointer(event);
-          // Leaving the plot for an axis gutter must clear consumer tooltips.
-          if (datum == null) onDatumPointerOut?.();
-          else onDatumPointerMove?.(datum, event);
-        };
+  const handlePointerMove = (event: PointerEvent<SVGSVGElement>) => {
+    const datum = getDatumFromPointer(event);
+    // Leaving the plot for an axis gutter must clear hover state and consumer
+    // tooltips even though the pointer remains inside the chart SVG.
+    if (datum == null) {
+      setHoveredCategory(null);
+      onDatumPointerOut?.();
+      return;
+    }
+    setHoveredCategory(datum.category);
+    onDatumPointerMove?.(datum, event);
+  };
+  const handlePointerLeave = () => {
+    setHoveredCategory(null);
+    onDatumPointerOut?.();
+  };
   const handlePointerDown =
     onDatumPointerDown == null
       ? undefined
@@ -339,7 +347,7 @@ export const BarChartPlot = ({
       )}
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
-      onPointerLeave={onDatumPointerOut}
+      onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
     >
       {canDraw && (
@@ -359,6 +367,7 @@ export const BarChartPlot = ({
               grid={grid}
               valueBands={valueBands}
               selectionRange={selectionRange}
+              activeCategory={activeCategory ?? hoveredCategory}
               innerWidth={innerWidth}
               innerHeight={innerHeight}
               formatCategory={formatCategory}
@@ -441,7 +450,7 @@ export const BarChartPlot = ({
                     animationStart={animationRange.start}
                     animationEnd={animationRange.end}
                     ariaLabel={getBarAriaLabel?.(toBarChartInteractionBar(bar))}
-                    isDimmed={activeBarId != null && activeBarId !== bar.id}
+                    isDimmed={isBarDimmed(bar)}
                     onPointerMove={onBarPointerMove}
                     onPointerOut={onBarPointerOut}
                     onActivate={onBarActivate}

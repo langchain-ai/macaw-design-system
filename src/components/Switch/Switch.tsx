@@ -4,6 +4,11 @@ import { useId } from 'react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
 
 import { cn } from '../../utils/cn';
+import {
+  SELECTION_CONTROL_HIT_AREA_STYLES,
+  SELECTION_CONTROL_SIZES,
+  type SelectionControlSize,
+} from '../../utils/componentSizes';
 import { Text } from '../Text';
 
 interface SwitchBaseProps {
@@ -11,7 +16,8 @@ interface SwitchBaseProps {
   onChange: (checked: boolean) => void;
   id?: string;
   className?: string;
-  size?: 'xs' | 'sm' | 'md';
+  /** Track height. The pointer target remains at least 24px. */
+  size?: SelectionControlSize;
   disabled?: boolean;
   onClick?: (e: React.MouseEvent) => void;
 }
@@ -49,16 +55,14 @@ const ROOT_SIZE_CLASSES: Record<
   NonNullable<SwitchBaseProps['size']>,
   string
 > = {
-  xs: 'h-3 w-6',
-  sm: 'h-4 w-8',
-  md: 'h-5 w-10',
+  sm: `${SELECTION_CONTROL_SIZES.sm.heightClassName} w-8`,
+  md: `${SELECTION_CONTROL_SIZES.md.heightClassName} w-10`,
 };
 
 const THUMB_SIZE_CLASSES: Record<
   NonNullable<SwitchBaseProps['size']>,
   string
 > = {
-  xs: 'size-2 data-[state=checked]:translate-x-[14px]',
   sm: 'size-3 data-[state=checked]:translate-x-[18px]',
   md: 'size-4 data-[state=checked]:translate-x-[22px]',
 };
@@ -80,7 +84,7 @@ const SwitchLabel = ({
   children: ReactNode;
 }) => (
   <label htmlFor={htmlFor} className="flex items-center">
-    <Text as="span" variant={size ?? 'md'} className={labelClassName}>
+    <Text as="span" variant={size ?? 'sm'} className={labelClassName}>
       {children}
     </Text>
   </label>
@@ -117,10 +121,12 @@ export const Switch = ({
       <SwitchPrimitive.Root
         className={cn(
           'inline-flex items-center rounded-full bg-surface-level-4 transition',
+          'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
+          SELECTION_CONTROL_HIT_AREA_STYLES,
           disabled
             ? 'cursor-not-allowed data-[state=checked]:bg-brand-subtle'
             : 'data-[state=checked]:bg-control-active hover:data-[state=checked]:bg-control-active-hover',
-          ROOT_SIZE_CLASSES[size ?? 'md']
+          ROOT_SIZE_CLASSES[size ?? 'sm']
         )}
         id={switchId}
         checked={checked}
@@ -132,7 +138,7 @@ export const Switch = ({
         <SwitchPrimitive.Thumb
           className={cn(
             'translate-x-[2px] rounded-full bg-control-thumb transition',
-            THUMB_SIZE_CLASSES[size ?? 'md'],
+            THUMB_SIZE_CLASSES[size ?? 'sm'],
             disabled &&
               'bg-disabled data-[state=checked]:bg-control-thumb dark:data-[state=checked]:bg-disabled'
           )}

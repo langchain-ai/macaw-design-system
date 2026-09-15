@@ -58,7 +58,7 @@ export function CopyButton(props: CopyButtonProps) {
           aria-hidden
         >
           <span aria-hidden className="inline-flex size-4 shrink-0">
-            <CopySimpleIcon size="100%" weight="bold" />
+            <CopySimpleIcon size="100%" weight="regular" />
           </span>
           {props.copyText ?? 'Copy'}
         </Text>
@@ -70,7 +70,7 @@ export function CopyButton(props: CopyButtonProps) {
           aria-hidden
         >
           <span aria-hidden className="inline-flex size-4 shrink-0">
-            <CheckIcon size="100%" weight="bold" />
+            <CheckIcon size="100%" weight="regular" />
           </span>
           Copied
         </Text>
@@ -81,7 +81,7 @@ export function CopyButton(props: CopyButtonProps) {
           className="col-start-1 row-start-1 flex items-center justify-center gap-1 whitespace-nowrap"
         >
           <span aria-hidden className="inline-flex size-4 shrink-0">
-            <CopyStatusIcon size="100%" weight="bold" />
+            <CopyStatusIcon size="100%" weight="regular" />
           </span>
           {copied ? 'Copied' : (props.copyText ?? 'Copy')}
         </Text>

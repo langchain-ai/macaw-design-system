@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { CodeLite } from '../Code/CodeLite';
+import { CodeLite } from './CodeLite';
 
 const SAMPLE_CODE = `{
   "name": "example-agent",
@@ -26,7 +26,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'read only', 'code', 'syntax highlighting', 'json'],
   args: {
     language: 'json',
     value: SAMPLE_CODE,

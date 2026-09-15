@@ -3,8 +3,8 @@ import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
 import { LinkIcon } from '@phosphor-icons/react/dist/ssr/Link';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Badge } from '.';
 import { CaretDownIcon, PlusIcon } from '../../icons/PaddedPhosphorIcons';
-import { Badge } from '../Badge';
 
 const meta: Meta<typeof Badge> = {
   title: 'Components/Display/Badge',
@@ -12,7 +12,7 @@ const meta: Meta<typeof Badge> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'status', 'label', 'metadata', 'chip'],
   argTypes: {
     variant: {
       control: 'select',
@@ -77,14 +77,14 @@ export const WithDecorators: Story = {
     color: 'success',
     leftDecorator: PlusIcon,
     rightDecorator: CaretDownIcon,
-    iconWeight: 'bold',
+    iconWeight: 'regular',
   },
 };
 
 export const WithSvgOnly: Story = {
   render: () => (
     <Badge color="primary">
-      <LinkIcon size={12} weight="bold" />
+      <LinkIcon size={12} weight="regular" />
     </Badge>
   ),
 };
@@ -104,7 +104,7 @@ export const Rounded: Story = {
       <Badge
         size="md"
         leftDecorator={CheckCircleIcon}
-        iconWeight="bold"
+        iconWeight="regular"
         color="primary"
         rounded="full"
       >
@@ -122,7 +122,7 @@ export const Sizes: Story = {
         <Badge
           size="xxs"
           leftDecorator={CheckCircleIcon}
-          iconWeight="bold"
+          iconWeight="regular"
           color="primary"
         >
           Icon
@@ -136,7 +136,7 @@ export const Sizes: Story = {
         <Badge
           size="xs"
           leftDecorator={CheckCircleIcon}
-          iconWeight="bold"
+          iconWeight="regular"
           color="primary"
         >
           Icon
@@ -150,7 +150,7 @@ export const Sizes: Story = {
         <Badge
           size="sm"
           leftDecorator={CheckCircleIcon}
-          iconWeight="bold"
+          iconWeight="regular"
           color="primary"
         >
           Icon
@@ -164,7 +164,7 @@ export const Sizes: Story = {
         <Badge
           size="md"
           leftDecorator={CheckCircleIcon}
-          iconWeight="bold"
+          iconWeight="regular"
           color="primary"
         >
           Icon
@@ -187,7 +187,11 @@ export const AllColors: Story = {
       <Badge color="warning">Warning</Badge>
       <Badge color="special">Special</Badge>
       <Badge color="plain">plain</Badge>
-      <Badge color="success" leftDecorator={CheckCircleIcon} iconWeight="bold">
+      <Badge
+        color="success"
+        leftDecorator={CheckCircleIcon}
+        iconWeight="regular"
+      >
         Success w/ Icon
       </Badge>
     </div>
