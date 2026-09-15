@@ -90,7 +90,6 @@ Add the `dark` class to the document root to activate dark tokens.
 
 - [docs/DESIGN.md](docs/DESIGN.md) for philosophy and overall structure
 - [docs/STYLES.md](docs/STYLES.md) for the token catalog
-- [docs/UPSTREAM.md](docs/UPSTREAM.md) for sync history and updating from LangChainPlus
 - [`.agents/skills/design-system/SKILL.md`](.agents/skills/design-system/SKILL.md) for general LLM guidance
 
 ## Contributing

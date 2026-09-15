@@ -132,5 +132,3 @@ For visible changes, run the affected page or Storybook story and inspect the re
 | Spacing scale                    | `src/utils/spacing.ts`                         |
 | Z-index values                   | `src/utils/zIndices.ts`                        |
 | Class merge helper               | `src/utils/cn.tsx`                             |
-
-See [UPSTREAM.md](./UPSTREAM.md) for the reviewed LangChainPlus revision and the sync workflow.

@@ -323,8 +323,7 @@
     "pack:check": "pnpm build && pnpm verify:package && npm pack --dry-run --ignore-scripts",
     "prepublishOnly": "node scripts/verify-license.mjs",
     "prepack": "pnpm build && pnpm verify:package",
-    "design-system": "node src/cli.mts",
-    "verify:upstream": "node scripts/verify-upstream.mjs"
+    "design-system": "node src/cli.mts"
   },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",
