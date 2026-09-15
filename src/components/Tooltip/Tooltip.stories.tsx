@@ -110,16 +110,6 @@ export const WithJSXTitle: Story = {
   },
 };
 
-// Long content
-export const LongContent: Story = {
-  args: {
-    title:
-      'This is a very long tooltip title that might wrap to multiple lines',
-    description:
-      'This is an extremely long description that demonstrates how the tooltip handles longer content. It should wrap appropriately and maintain good readability even with substantial amounts of text. The max-width constraint should keep it from becoming too wide.',
-    children: <Button>Long content</Button>,
-  },
-};
 
 // Advanced positioning example
 export const AdvancedPositioning: Story = {
