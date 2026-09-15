@@ -1,0 +1,14 @@
+src/components/Command/CommandMenu.stories.tsx
+  h_a27749d4737027 1-303
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d95581f41ab0061c34a3c2f47464ffddfc330e0f",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
