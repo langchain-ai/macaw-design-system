@@ -29,6 +29,15 @@ Keep product routing, data fetching, authentication, analytics, and business
 logic in the consuming application. Use named exports and update the package
 export map and consumer examples when changing the public API.
 
+## Find and sync components
+
+Use `pnpm design-system search <capability>` and
+`pnpm --silent design-system inspect <name> --json` to find exact imports and
+colocated stories. The CLI runs from the checkout on Node 22.18+ or Node 24.
+
+See [UPSTREAM.md](docs/UPSTREAM.md) for the last LangChainPlus sync and the
+read-only `pnpm verify:upstream ../langchainplus` check.
+
 ## Link to LangChainPlus
 
 Once `smith-frontend` has `@langchain/design-system` as a dependency, link the

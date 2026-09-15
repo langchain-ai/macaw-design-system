@@ -7,8 +7,6 @@ import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { CaretDownIcon, CaretRightIcon } from '../../icons/PaddedPhosphorIcons';
-import { Button } from '../Button/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +18,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '../DropdownMenu';
+} from '.';
+import { CaretDownIcon, CaretRightIcon } from '../../icons/PaddedPhosphorIcons';
+import { Button } from '../Button/Button';
 import { Text } from '../Text/Text';
 
 const meta = {
@@ -29,7 +29,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'actions', 'menu', 'overflow', 'kebab'],
   decorators: [
     (Story) => (
       <div className="p-space-9">

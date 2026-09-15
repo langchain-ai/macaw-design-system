@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { RadioButton } from '../RadioButton/RadioButton';
 import { RadioGroup } from '../RadioGroup/RadioGroup';
+import { RadioButton } from './RadioButton';
 
 const meta: Meta<typeof RadioButton> = {
   title: 'Components/Inputs/RadioButton',
@@ -11,7 +11,7 @@ const meta: Meta<typeof RadioButton> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'single choice', 'form control'],
   argTypes: {
     disabled: {
       control: { type: 'boolean' },
@@ -51,17 +51,17 @@ export const Sizes: Story = {
         <div className="flex items-center gap-space-4">
           <span className="w-20 text-sm text-tertiary">Small:</span>
           <RadioGroup value={value1} onValueChange={setValue1}>
-            <RadioButton value="small" label="Small radio" size="sm" />
+            <RadioButton
+              value="small"
+              label="Small radio (default)"
+              size="sm"
+            />
           </RadioGroup>
         </div>
         <div className="flex items-center gap-space-4">
           <span className="w-20 text-sm text-tertiary">Medium:</span>
           <RadioGroup value={value2} onValueChange={setValue2}>
-            <RadioButton
-              value="medium"
-              label="Medium radio (default)"
-              size="md"
-            />
+            <RadioButton value="medium" label="Medium radio" size="md" />
           </RadioGroup>
         </div>
       </div>
@@ -165,17 +165,17 @@ export const AllVariants: Story = {
             <div className="flex items-center gap-space-4">
               <span className="w-20 text-sm text-tertiary">Small:</span>
               <RadioGroup defaultValue="small">
-                <RadioButton value="small" label="Small radio" size="sm" />
+                <RadioButton
+                  value="small"
+                  label="Small radio (default)"
+                  size="sm"
+                />
               </RadioGroup>
             </div>
             <div className="flex items-center gap-space-4">
               <span className="w-20 text-sm text-tertiary">Medium:</span>
               <RadioGroup defaultValue="medium">
-                <RadioButton
-                  value="medium"
-                  label="Medium radio (default)"
-                  size="md"
-                />
+                <RadioButton value="medium" label="Medium radio" size="md" />
               </RadioGroup>
             </div>
           </div>

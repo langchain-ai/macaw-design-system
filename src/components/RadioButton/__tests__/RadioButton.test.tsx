@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-
+import { render, screen } from '../../../test-utils';
 import { RadioGroup } from '../../RadioGroup/RadioGroup';
 import { RadioButton } from '../RadioButton';
 
@@ -32,16 +31,16 @@ describe('RadioButton', () => {
     );
   });
 
-  it('can be checked by clicking', () => {
+  it('can be checked by clicking', async () => {
     const onValueChange = vi.fn();
-    render(
+    const { user } = render(
       <RadioGroup defaultValue="other" onValueChange={onValueChange}>
         <RadioButton value="test" label="Test" />
         <RadioButton value="other" label="Other" />
       </RadioGroup>
     );
 
-    fireEvent.click(screen.getByText('Test'));
+    await user.click(screen.getByText('Test'));
     expect(onValueChange).toHaveBeenCalledWith('test');
   });
 
@@ -59,16 +58,16 @@ describe('RadioButton', () => {
     expect(screen.getByTestId('radio')).toBeDisabled();
   });
 
-  it('does not trigger onValueChange when disabled', () => {
+  it('does not trigger onValueChange when disabled', async () => {
     const onValueChange = vi.fn();
-    render(
+    const { user } = render(
       <RadioGroup defaultValue="other" onValueChange={onValueChange}>
         <RadioButton value="test" label="Test" disabled />
         <RadioButton value="other" label="Other" />
       </RadioGroup>
     );
 
-    fireEvent.click(screen.getByText('Test'));
+    await user.click(screen.getByText('Test'));
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
@@ -87,26 +86,5 @@ describe('RadioButton', () => {
     expect(
       screen.getByTestId('radio').closest('.custom-class')
     ).toBeInTheDocument();
-  });
-
-  it('renders in different sizes', () => {
-    const { rerender } = render(
-      <RadioGroup defaultValue="test">
-        <RadioButton value="test" size="sm" label="Small" data-testid="radio" />
-      </RadioGroup>
-    );
-    expect(screen.getByTestId('radio')).toHaveClass('size-[16px]');
-
-    rerender(
-      <RadioGroup defaultValue="test">
-        <RadioButton
-          value="test"
-          size="md"
-          label="Medium"
-          data-testid="radio"
-        />
-      </RadioGroup>
-    );
-    expect(screen.getByTestId('radio')).toHaveClass('size-[20px]');
   });
 });

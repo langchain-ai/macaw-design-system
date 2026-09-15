@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Checkbox } from '../Checkbox/Checkbox';
+import { Checkbox } from './Checkbox';
 
 const meta = {
   title: 'Components/Inputs/Checkbox',
@@ -10,7 +10,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'multi select', 'boolean', 'form control'],
   argTypes: {
     checked: {
       control: { type: 'select' },
@@ -46,7 +46,7 @@ export const Sizes: Story = {
       <div className="flex flex-col gap-space-5">
         {/* Small size - all states */}
         <div className="space-y-space-2">
-          <h4 className="text-sm font-medium">Small (sm)</h4>
+          <h4 className="text-sm font-medium">Small (sm, default)</h4>
           <div className="flex items-center gap-space-5">
             <Checkbox
               checked={false}
@@ -180,7 +180,9 @@ export const AllVariants: Story = {
           <h3 className="text-lg font-semibold">Sizes</h3>
           <div className="flex flex-col gap-space-3">
             <div className="flex items-center gap-space-4">
-              <span className="w-20 text-sm text-tertiary">Small:</span>
+              <span className="w-20 text-sm text-tertiary">
+                Small (default):
+              </span>
               <Checkbox
                 checked={false}
                 onCheckedChange={() => {}}

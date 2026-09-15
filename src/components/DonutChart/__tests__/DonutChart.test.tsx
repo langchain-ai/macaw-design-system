@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { render, screen, within } from '../../../test-utils';
+import {
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../../../test-utils';
 import { DONUT_OTHER_SEGMENT_ID } from '../constants';
 import {
   DonutChart,
@@ -36,20 +42,16 @@ const segments: readonly DonutChartSegment[] = [
   },
 ];
 
-type DonutChartWithLegendProps = Extract<
-  DonutChartProps,
-  { showLegend?: true }
->;
-
-/** Legend rows are only focusable, and so only queryable, when clickable. */
-const renderDonut = (props: Partial<DonutChartWithLegendProps> = {}) =>
+/** Most selection tests exercise the clickable legend-row variant. */
+const renderDonut = (props: Partial<DonutChartProps> = {}) =>
   render(
     <DonutChart
       segments={segments}
-      aria-label="Runs by type"
       getSegmentAriaLabel={(segment) => `${String(segment.label)} slice`}
       legendProps={{ onItemClick: vi.fn() }}
       {...props}
+      showLegend
+      aria-label={props['aria-label'] ?? 'Runs by type'}
     />
   );
 
@@ -107,6 +109,48 @@ describe('DonutChart', () => {
     expect(getLegendRow(/^Other,/)).toHaveAccessibleName(/100.*10%/);
   });
 
+  it('does not render zero-value segments as focusable arcs', () => {
+    renderDonut({
+      segments: [
+        ...segments,
+        {
+          id: 'empty',
+          label: 'empty',
+          value: 0,
+          color: 'var(--chart-categorical-fill-3)',
+        },
+      ],
+    });
+
+    expect(getLegendRow(/^empty,/)).toBeVisible();
+    expect(screen.queryByLabelText('empty slice')).not.toBeInTheDocument();
+  });
+
+  it('focuses slices by keyboard but not mouse or pen', async () => {
+    const { user } = renderDonut({
+      showLegend: false,
+      legendProps: undefined,
+    });
+    const chainSlice = screen.getByLabelText('chain slice');
+
+    await user.click(chainSlice);
+    expect(chainSlice).not.toHaveFocus();
+
+    // user-event cannot initialize a pen pointer in this version; dispatch the
+    // low-level event and model the browser's focus default when not canceled.
+    const penPointerDown = createEvent.pointerDown(chainSlice, {
+      pointerType: 'pen',
+    });
+    // jsdom's PointerEvent constructor does not preserve pointerType.
+    Object.defineProperty(penPointerDown, 'pointerType', { value: 'pen' });
+    fireEvent(chainSlice, penPointerDown);
+    if (!penPointerDown.defaultPrevented) chainSlice.focus();
+    expect(chainSlice).not.toHaveFocus();
+
+    await user.tab();
+    expect(chainSlice).toHaveFocus();
+  });
+
   it('selects the collated slice from its legend row', () => {
     renderDonut({
       otherCollationThreshold: COLLATION_THRESHOLD,
@@ -129,5 +173,38 @@ describe('DonutChart', () => {
 
     expect(screen.getByText('1,000')).toBeVisible();
     expect(screen.getByText('runs')).toBeVisible();
+  });
+
+  it('dims nonmatching segments from built-in legend hover and focus', async () => {
+    const { user } = renderDonut({
+      getSegmentAriaLabel: undefined,
+      legendProps: {},
+      shouldAnimate: false,
+    });
+    const legend = screen.getByRole('group', { name: 'Runs by type legend' });
+    const chainLegendItem = within(legend).getByRole('group', {
+      name: /^chain,/,
+    });
+    const chart = screen.getByRole('img', { name: 'Runs by type' });
+    const getArc = (color: string) => {
+      const arc = Array.from(chart.getElementsByTagName('path')).find(
+        (path) => path.getAttribute('fill') === color
+      );
+      if (arc == null) throw new Error(`Expected an arc with fill ${color}`);
+      return arc;
+    };
+    const chainArc = getArc('var(--chart-categorical-fill-1)');
+    const retrieverArc = getArc('var(--chart-categorical-fill-2)');
+    const otherArc = getArc('var(--chart-other)');
+
+    await user.hover(chainLegendItem);
+    expect(chainArc).toHaveAttribute('opacity', '1');
+    expect(retrieverArc).toHaveAttribute('opacity', '0.45');
+    expect(otherArc).toHaveAttribute('opacity', '0.45');
+
+    await user.unhover(chainLegendItem);
+    expect(chainArc).toHaveAttribute('opacity', '1');
+    expect(retrieverArc).toHaveAttribute('opacity', '1');
+    expect(otherArc).toHaveAttribute('opacity', '1');
   });
 });

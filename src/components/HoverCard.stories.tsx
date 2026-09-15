@@ -24,7 +24,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'preview', 'hover', 'details'],
   decorators: [
     (Story) => (
       <div className="p-space-9">

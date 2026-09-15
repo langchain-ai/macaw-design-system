@@ -4,13 +4,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Bar } from '@visx/shape';
 import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
 
-import zIndices from '../../utils/zIndices';
 import {
   ChartTooltip,
   ChartTooltipBody,
   ChartTooltipHeader,
   ChartTooltipRow,
-} from '../ChartTooltip';
+} from '.';
+import zIndices from '../../utils/zIndices';
 import { Text, textVariantClasses } from '../Text';
 
 const CHART_WIDTH = 640;
@@ -231,7 +231,7 @@ const meta = {
   title: 'Components/Charts/ChartTooltip',
   component: ChartTooltip,
   parameters: { layout: 'centered' },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'visualization', 'hover', 'data point'],
 } satisfies Meta<typeof ChartTooltip>;
 
 export default meta;

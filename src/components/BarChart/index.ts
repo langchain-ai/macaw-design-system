@@ -3,7 +3,6 @@ export type {
   BarChartCategory,
   BarChartCategoryAxis,
   BarChartCategoryAxisSlotProps,
-  BarChartCornerStyle,
   BarChartDataPoint,
   BarChartGrid,
   BarChartInteractionBar,

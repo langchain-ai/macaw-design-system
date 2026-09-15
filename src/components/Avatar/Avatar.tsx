@@ -4,14 +4,18 @@ import { forwardRef } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { cn } from '../../utils/cn';
+import {
+  VISUAL_ELEMENT_SIZES,
+  type VisualElementSize,
+} from '../../utils/componentSizes';
 import { getColorByString } from '../../utils/get-color-by-string';
 import { Tooltip } from '../Tooltip';
 
-type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type AvatarSize = Exclude<VisualElementSize, 'xxs'> | 'lg' | 'xl';
 type AvatarShape = 'circle' | 'square';
 
 interface AvatarProps {
-  /** Box size, matching Icon's padded box scale: xs=16px, sm=20px, md=24px, lg=36px, xl=48px. */
+  /** Outer box size: xs=16px, sm=20px, md=24px, lg=36px, xl=48px. */
   size?: AvatarSize;
   shape?: AvatarShape;
   /** Show a small notification dot in the top-right corner. */
@@ -32,12 +36,12 @@ interface AvatarProps {
   active?: boolean;
 }
 
-// Box sizes mirror Icon's padded box scale (glyph + padding) so the two
-// primitives line up at each size name: 16 / 20 / 24 / 36 / 48px.
+// The shared tiers use the visual-element scale. Identity-specific lg/xl tiers
+// remain larger so existing Avatar presentations retain their geometry.
 const BOX_SIZE: Record<AvatarSize, string> = {
-  xs: 'size-4',
-  sm: 'size-5',
-  md: 'size-6',
+  xs: VISUAL_ELEMENT_SIZES.xs.className,
+  sm: VISUAL_ELEMENT_SIZES.sm.className,
+  md: VISUAL_ELEMENT_SIZES.md.className,
   lg: 'size-9',
   xl: 'size-12',
 };

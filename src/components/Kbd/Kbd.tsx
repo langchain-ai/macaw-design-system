@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, isValidElement } from 'react';
 
 import { cn } from '../../utils/cn';
 
@@ -15,19 +15,26 @@ const VARIANT_CLASSES: Record<NonNullable<KbdProps['variant']>, string> = {
 };
 
 const Kbd = forwardRef<HTMLElement, KbdProps>(
-  ({ variant = 'default', className, children, ...props }, ref) => (
-    <kbd
-      ref={ref}
-      className={cn(
-        'inline-flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded border px-0.5 font-sans text-[0.625rem] font-medium leading-none',
-        VARIANT_CLASSES[variant],
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </kbd>
-  )
+  ({ variant = 'default', className, children, ...props }, ref) => {
+    const isSingleGlyph =
+      isValidElement(children) ||
+      (typeof children === 'string' && Array.from(children).length === 1);
+
+    return (
+      <kbd
+        ref={ref}
+        className={cn(
+          'box-border inline-flex items-center justify-center rounded-xs border font-sans text-[0.625rem] font-medium leading-none',
+          isSingleGlyph ? 'size-4 px-0' : 'h-4 min-w-4 px-space-1',
+          VARIANT_CLASSES[variant],
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </kbd>
+    );
+  }
 );
 
 Kbd.displayName = 'Kbd';

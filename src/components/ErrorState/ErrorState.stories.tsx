@@ -9,7 +9,7 @@ const meta: Meta<typeof ErrorState> = {
   parameters: {
     layout: 'fullscreen',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'not found', 'failed', 'page', 'full surface', 'error'],
   argTypes: {
     status: {
       control: 'select',

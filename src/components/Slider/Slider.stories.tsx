@@ -2,16 +2,22 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Slider } from '../Slider/Slider';
 import { Text } from '../Text';
+import { Slider } from './Slider';
 
 const meta = {
   title: 'Components/Inputs/Slider',
   component: Slider,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Slider keeps one default density: a 16px thumb with component-owned track width and thickness. The thumb retains at least a 24px pointer target.',
+      },
+    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'range', 'control', 'numeric', 'input'],
   argTypes: {
     min: { control: { type: 'number' } },
     max: { control: { type: 'number' } },

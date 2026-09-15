@@ -4,10 +4,15 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 
 import { CheckIcon, MinusIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  SELECTION_CONTROL_HIT_AREA_STYLES,
+  type SelectionControlSize,
+} from '../../utils/componentSizes';
 import { Text } from '../Text';
 import {
   checkboxBaseStyles,
   checkboxFocusStyles,
+  checkboxIconSizes,
   checkboxIndicatorStyles,
   checkboxRootStateStyles,
   checkboxSizeStyles,
@@ -21,8 +26,8 @@ interface CheckboxBaseProps extends Omit<
   CheckboxPrimitive.CheckboxProps,
   'asChild'
 > {
-  /** Size of the checkbox */
-  size?: 'sm' | 'md';
+  /** Visual indicator size. The pointer target remains at least 24px. */
+  size?: SelectionControlSize;
   /** Additional CSS classes for the container wrapper */
   containerClassName?: string;
 }
@@ -87,7 +92,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
       containerClassName,
       labelClassName,
       disabled,
-      size = 'md',
+      size = 'sm',
       id,
       ...rest
     },
@@ -103,6 +108,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
           className={cn(
             checkboxBaseStyles,
             checkboxFocusStyles,
+            SELECTION_CONTROL_HIT_AREA_STYLES,
             checkboxSizeStyles[size],
             checkboxRootStateStyles,
             className
@@ -123,14 +129,14 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             {checked === 'indeterminate' ? (
               <MinusIcon
                 aria-hidden
-                size={size === 'sm' ? 10 : 14}
-                weight="bold"
+                size={checkboxIconSizes[size]}
+                weight="regular"
               />
             ) : (
               <CheckIcon
                 aria-hidden
-                size={size === 'sm' ? 10 : 14}
-                weight="bold"
+                size={checkboxIconSizes[size]}
+                weight="regular"
               />
             )}
           </CheckboxPrimitive.Indicator>

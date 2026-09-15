@@ -1,4 +1,5 @@
 import type {
+  TypeaheadFilterOptionsState,
   TypeaheadListItem,
   TypeaheadMultipleValue,
   TypeaheadOption,
@@ -37,8 +38,7 @@ export const normalize = (value: string) => value.trim().toLowerCase();
 export function filterTypeaheadOptions<TOption>(
   options: TOption[],
   inputValue: string,
-  getLabel: (option: TOption) => string,
-  maxVisibleOptions?: number
+  getLabel: (option: TOption) => string
 ) {
   const query = normalize(inputValue);
   const filteredOptions = query
@@ -56,9 +56,7 @@ export function filterTypeaheadOptions<TOption>(
       })
     : options;
 
-  return maxVisibleOptions == null
-    ? filteredOptions
-    : filteredOptions.slice(0, maxVisibleOptions);
+  return filteredOptions;
 }
 
 export function getTypeaheadListItems<TOption>({
@@ -67,6 +65,7 @@ export function getTypeaheadListItems<TOption>({
   inputValue,
   getLabel,
   getValue,
+  filterOptions,
   maxVisibleOptions,
   includeSelectedValues,
 }: {
@@ -75,18 +74,26 @@ export function getTypeaheadListItems<TOption>({
   inputValue: string;
   getLabel: (option: TypeaheadSelectedValue<TOption>) => string;
   getValue: (option: TypeaheadSelectedValue<TOption>) => string;
+  filterOptions?: (
+    options: TOption[],
+    state: TypeaheadFilterOptionsState<TOption>
+  ) => TOption[];
   maxVisibleOptions?: number;
   includeSelectedValues?: boolean;
 }): TypeaheadListItem<TOption>[] {
-  const filteredItems = filterTypeaheadOptions(
-    options,
-    inputValue,
-    getLabel,
-    maxVisibleOptions
-  ).map<TypeaheadListItem<TOption>>((option) => ({
-    option,
-    source: 'option',
-  }));
+  const filteredOptions = filterOptions
+    ? filterOptions(options, { inputValue, getOptionLabel: getLabel })
+    : filterTypeaheadOptions(options, inputValue, getLabel);
+  const visibleOptions =
+    maxVisibleOptions == null
+      ? filteredOptions
+      : filteredOptions.slice(0, maxVisibleOptions);
+  const filteredItems = visibleOptions.map<TypeaheadListItem<TOption>>(
+    (option) => ({
+      option,
+      source: 'option',
+    })
+  );
 
   const query = normalize(inputValue);
   if (!includeSelectedValues || query.length === 0) return filteredItems;

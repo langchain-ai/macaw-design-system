@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { CircleSkeleton, Skeleton, SkeletonRows } from '../Skeleton/Skeleton';
+import { CircleSkeleton, Skeleton, SkeletonRows } from './Skeleton';
 
 const meta = {
   title: 'Components/Status/Skeleton',
@@ -8,7 +8,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'loading', 'placeholder', 'layout shift'],
   argTypes: {
     as: {
       control: { type: 'select' },

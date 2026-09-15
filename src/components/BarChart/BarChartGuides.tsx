@@ -25,6 +25,7 @@ type BarChartGuidesProps = {
   grid?: BarChartGrid;
   valueBands: readonly BarChartValueBand[];
   selectionRange?: BarChartSelectionRange;
+  activeCategory?: BarChartCategory | null;
   innerWidth: number;
   innerHeight: number;
   formatCategory: (category: BarChartCategory) => string;
@@ -43,6 +44,7 @@ export const BarChartGuides = ({
   grid,
   valueBands,
   selectionRange,
+  activeCategory,
   innerWidth,
   innerHeight,
   formatCategory,
@@ -52,6 +54,8 @@ export const BarChartGuides = ({
     selectionRange == null ? undefined : categoryScale(selectionRange.from);
   const selectionEnd =
     selectionRange == null ? undefined : categoryScale(selectionRange.to);
+  const activeCategoryStart =
+    activeCategory == null ? undefined : categoryScale(activeCategory);
   const selectionBounds =
     selectionRange == null || selectionStart == null || selectionEnd == null
       ? null
@@ -128,6 +132,16 @@ export const BarChartGuides = ({
           aria-label={`Selected range from ${formatCategory(
             selectionRange.from
           )} to ${formatCategory(selectionRange.to)}`}
+        />
+      )}
+      {activeCategoryStart != null && (
+        <rect
+          x={isVertical ? activeCategoryStart : 0}
+          y={isVertical ? 0 : activeCategoryStart}
+          width={isVertical ? categoryScale.bandwidth() : innerWidth}
+          height={isVertical ? innerHeight : categoryScale.bandwidth()}
+          fill="var(--bg-surface-level-2-hover)"
+          pointerEvents="none"
         />
       )}
       {(grid?.value ?? true) &&

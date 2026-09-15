@@ -2,11 +2,11 @@ import { fn } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { SparkLineChart } from '.';
+import type { SparkLineChartColor } from '.';
 import { ChartCard } from '../ChartCard';
 import { DropdownMenuItem } from '../DropdownMenu';
 import { MetricChart } from '../MetricChart';
-import { SparkLineChart } from '../SparkLineChart';
-import type { SparkLineChartColor } from '../SparkLineChart';
 import { Text } from '../Text';
 
 const standardData = [
@@ -117,7 +117,7 @@ const meta: Meta<typeof SparkLineChart> = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'small', 'inline line graph', 'trend'],
   argTypes: {
     shouldAnimate: {
       control: 'boolean',

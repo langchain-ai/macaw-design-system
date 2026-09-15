@@ -2,6 +2,7 @@ import type { FocusEvent, KeyboardEvent, PointerEvent } from 'react';
 
 import { animated, type SpringValue } from '@react-spring/web';
 
+import { CHART_DIMMED_OPACITY } from '../../utils/chartConstants';
 import { clamp } from '../../utils/clamp';
 import { cn } from '../../utils/cn';
 import type {
@@ -9,7 +10,7 @@ import type {
   BarChartOrientation,
   BarChartRenderedBar,
 } from './BarChart.types';
-import { getRoundedBarPath, toBarChartInteractionBar } from './BarChart.utils';
+import { getBarPath, toBarChartInteractionBar } from './BarChart.utils';
 
 type AnimatedBarProps = {
   bar: BarChartRenderedBar;
@@ -109,22 +110,12 @@ export const AnimatedBar = ({
           width = clamp(revealPosition, x, x + width) - x;
         }
 
-        return getRoundedBarPath({
-          x,
-          y,
-          width,
-          height,
-          radius: bar.cornerRadius,
-          orientation,
-          isNegative: bar.value < 0,
-          roundEnd: bar.isStackEnd,
-          cornerStyle: bar.cornerStyle,
-        });
+        return getBarPath({ x, y, width, height });
       })}
       fill={bar.color}
-      opacity={isDimmed ? bar.opacity * 0.45 : bar.opacity}
+      opacity={isDimmed ? bar.opacity * CHART_DIMMED_OPACITY : bar.opacity}
       className={cn(
-        'focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:outline-none',
+        'transition-opacity duration-fast focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:outline-none motion-reduce:transition-none',
         isInteractive && 'cursor-pointer'
       )}
       data-bar-id={bar.id}

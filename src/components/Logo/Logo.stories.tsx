@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Logo } from '../Logo';
-import type { LogoBrand, LogoSize, LogoVariant } from '../Logo';
+import { Logo } from '.';
+import type { LogoBrand, LogoSize, LogoVariant } from '.';
 import { Text } from '../Text';
 
 const logoBrands: LogoBrand[] = ['langsmith', 'langchain', 'fleet', 'engine'];

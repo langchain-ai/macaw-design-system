@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Pane, TopBarPaneSlot } from '.';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
-import { Pane, TopBarPaneSlot } from '../Pane';
 import { Text } from '../Text/Text';
 
 const meta = {
@@ -26,7 +26,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'sheet', 'drawer', 'side panel'],
   // Stories drive state via `render`; these satisfy Pane's required props.
   args: {
     open: false,

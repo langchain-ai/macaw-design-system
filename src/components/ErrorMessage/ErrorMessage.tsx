@@ -135,7 +135,7 @@ function ErrorMessage({
             color="error"
             size="xs"
             rounded
-            weight={icon == null ? 'bold' : undefined}
+            weight={icon == null ? 'regular' : undefined}
           />
         </span>
         <div className={cn('flex min-w-0 flex-1 flex-row gap-space-1')}>

@@ -11,7 +11,7 @@ const meta: Meta<typeof ButtonGroup> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'actions', 'toolbar', 'grouped', 'controls'],
   argTypes: {
     color: {
       control: 'select',

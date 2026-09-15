@@ -8,7 +8,7 @@ import { XCircleIcon } from '@phosphor-icons/react/dist/ssr/XCircle';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Icon } from '../Icon/Icon';
+import { Icon } from './Icon';
 
 const meta: Meta<typeof Icon> = {
   title: 'Components/Display/Icon',
@@ -18,11 +18,11 @@ const meta: Meta<typeof Icon> = {
     docs: {
       description: {
         component:
-          'Icon is a presentation wrapper around a glyph from Foundations → Icon Library. The library owns the available SVGs; this component adds consistent sizing, semantic color and background treatments, rounded containers, and optional tooltip labels. Choose a glyph in the Icon Library, then pass its export to the icon prop.',
+          'Icon is a presentation wrapper around a glyph from Foundations → Icon Library. Named sizes are intrinsic for plain icons. Decorated icons use corresponding outer boxes: xxs=12px, xs=16px, sm=20px, md=24px, lg=36px, and xl=48px.',
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'glyph', 'symbol', 'tooltip', 'icon'],
   argTypes: {
     color: {
       control: 'select',
@@ -39,7 +39,7 @@ const meta: Meta<typeof Icon> = {
     },
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      options: ['xxs', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     rounded: {
       control: 'boolean',
@@ -84,6 +84,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     icon: InfoIcon,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Legacy intrinsic presentation retained for existing consumers.',
+      },
+    },
   },
 };
 
@@ -154,27 +161,13 @@ export const Rounded: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div className="flex items-center gap-space-6">
-      <div className="flex flex-col gap-space-4">
-        <span className="text-xs text-secondary">Default (no bg)</span>
-        <div className="flex items-center gap-space-4">
-          <Icon icon={InfoIcon} size="xs" />
-          <Icon icon={InfoIcon} size="sm" />
-          <Icon icon={InfoIcon} size="md" />
-          <Icon icon={InfoIcon} size="lg" />
-          <Icon icon={InfoIcon} size="xl" />
-        </div>
-      </div>
-      <div className="flex flex-col gap-space-4">
-        <span className="text-xs text-secondary">With background</span>
-        <div className="flex items-center gap-space-4">
-          <Icon icon={InfoIcon} color="info" size="xs" />
-          <Icon icon={InfoIcon} color="info" size="sm" />
-          <Icon icon={InfoIcon} color="info" size="md" />
-          <Icon icon={InfoIcon} color="info" size="lg" />
-          <Icon icon={InfoIcon} color="info" size="xl" />
-        </div>
-      </div>
+    <div className="flex items-center gap-space-4">
+      <Icon icon={InfoIcon} color="info" size="xxs" />
+      <Icon icon={InfoIcon} color="info" size="xs" />
+      <Icon icon={InfoIcon} color="info" size="sm" />
+      <Icon icon={InfoIcon} color="info" size="md" />
+      <Icon icon={InfoIcon} color="info" size="lg" />
+      <Icon icon={InfoIcon} color="info" size="xl" />
     </div>
   ),
 };
@@ -277,6 +270,7 @@ export const AllVariants: Story = {
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Sizes Comparison</h3>
         <div className="flex flex-wrap items-center gap-space-4">
+          <Icon icon={GearIcon} color="neutral" size="xxs" />
           <Icon icon={GearIcon} color="neutral" size="xs" />
           <Icon icon={GearIcon} color="neutral" size="sm" />
           <Icon icon={GearIcon} color="neutral" size="md" />

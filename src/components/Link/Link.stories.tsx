@@ -28,7 +28,7 @@ const meta: Meta<LinkStoryArgs> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'anchor', 'navigation', 'router link'],
   decorators: [
     (Story) => (
       <MemoryRouter>

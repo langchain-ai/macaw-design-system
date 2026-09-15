@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<
     };
 
     if (this.context) {
-      this.context(error, errorInfo);
+      this.context(error, errorInfo, { ux_impact: 'blocking' });
     } else {
       console.error('ErrorBoundary caught', error, context);
     }

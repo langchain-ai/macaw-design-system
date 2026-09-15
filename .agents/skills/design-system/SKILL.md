@@ -10,6 +10,21 @@ Maintain the shared, domain-free UI package. Read
 visual rules. Read [`docs/STYLES.md`](../../../docs/STYLES.md) when working with
 tokens, CSS, Tailwind, spacing, or z-index.
 
+## Find components and guidance
+
+- Run `pnpm design-system search "<capability>"`, then
+  `pnpm --silent design-system inspect <name> --json` for exact imports, source,
+  and stories. Family names group exports; they are not always importable names.
+- Keep capability keywords in the static component-level `tags` array of the
+  colocated story. The CLI reads this metadata directly.
+- Read long docs in bounded sections. For styling, read **Usage Rules** in
+  `docs/STYLES.md` and the sections relevant to the change.
+- Use `ThinkingState` for active AI work and `LoadingIndicator` for its decorative
+  animation. Use `Spinner` for routine loading, `Skeleton` for known content
+  shapes, and `ProgressBar` for measurable completion.
+- Component sizes are family-specific. Check `src/utils/componentSizes.ts` and
+  the component's actual supported tiers.
+
 ## Work from the package contract
 
 - Search `src/components`, colocated stories, and `src/stories` before adding a

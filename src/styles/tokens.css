@@ -276,6 +276,20 @@
   --scrollbar-thumb: rgba(0, 0, 0, 0.3);
   --scrollbar-thumb-hover: rgba(0, 0, 0, 0.5);
 
+  /* Syntax colors for code blocks. */
+  --syntax-plain: #1e293b;
+  --syntax-keyword: #1d4ed8;
+  --syntax-string: #15803d;
+  --syntax-number: #c2410c;
+  --syntax-comment: #64748b;
+  --syntax-function: #7e22ce;
+  --syntax-type: #0e7490;
+  --syntax-property: #1e40af;
+  --syntax-constant: #b45309;
+  --syntax-operator: #475569;
+  --syntax-tag: #1d4ed8;
+  --syntax-decorator: #be185d;
+
   /* DEPRECATED ALIASES — remove after consuming code is updated */
   --bg-primary: var(--bg-surface-level-1);
   --bg-primary-hover: var(--bg-surface-level-1-hover);
@@ -587,7 +601,8 @@
   );
   --table-heatmap-positive-5: var(--bg-success-subtle);
 }
-html.dark {
+html.dark,
+.dark[data-theme-scope] {
   --popover: 240 7.32% 8.04%; /* gray-iron-950 */
   --background: 240 7.32% 8.04%; /* --gray-25 */
 
@@ -839,6 +854,20 @@ html.dark {
   /* SCROLLBAR */
   --scrollbar-thumb: rgba(255, 255, 255, 0.3);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.5);
+
+  /* Syntax colors for code blocks. */
+  --syntax-plain: #cbd5e1;
+  --syntax-keyword: #60a5fa;
+  --syntax-string: #4ade80;
+  --syntax-number: #fb923c;
+  --syntax-comment: #64748b;
+  --syntax-function: #c4b5fd;
+  --syntax-type: #67e8f9;
+  --syntax-property: #93c5fd;
+  --syntax-constant: #fcd34d;
+  --syntax-operator: #94a3b8;
+  --syntax-tag: #60a5fa;
+  --syntax-decorator: #f472b6;
 
   /* DEPRECATED ALIASES — remove after consuming code is updated */
   --bg-primary: var(--bg-surface-level-1);

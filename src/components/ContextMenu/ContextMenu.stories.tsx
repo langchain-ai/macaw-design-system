@@ -8,14 +8,14 @@ import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { cn } from '../../utils/cn';
+import { Text } from '../Text/Text';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from '../ContextMenu/ContextMenu';
-import { Text } from '../Text/Text';
+} from './ContextMenu';
 
 const meta = {
   title: 'Components/Popovers/ContextMenu',
@@ -25,11 +25,11 @@ const meta = {
     docs: {
       description: {
         component:
-          'Right-click or control-click the trigger area in the canvas to open this menu.',
+          'Secondary actions for a specific target. Keep an equivalent visible or keyboard-accessible path for essential actions; right-click or control-click the canvas trigger to preview it.',
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'right click', 'actions', 'menu'],
   decorators: [
     (Story) => (
       <div className="p-space-9">

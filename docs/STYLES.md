@@ -6,7 +6,7 @@ Tokens flow in one direction: **Primitives → Semantics → Components**.
 - **Semantic tokens** (`--bg-surface-level-1`, `--text-secondary`, …) — purpose-driven aliases that switch between light and dark mode automatically. Always use these.
 - **Component tokens** (`--button-primary-bg`, …) — owned by a single component. Some live in `src/styles/base.css` for Tailwind utility compatibility, but consuming code should treat them as private.
 
-Tailwind maps semantic tokens to utility classes through `tailwind.preset.cjs`. Always reach for the Tailwind class, not the CSS variable directly:
+Tailwind maps semantic tokens to utility classes via `tailwind.preset.cjs`. Always reach for the Tailwind class, not the CSS variable directly:
 
 ```tsx
 // Good
@@ -47,44 +47,60 @@ module.exports = {
 
 The precompiled stylesheet already covers classes used inside the package, so
 consumers only need to scan their own source. Add or remove `html.dark` to
-switch the token values and Tailwind dark variants together.
+switch the token values and Tailwind dark variants together. A nested
+`.dark[data-theme-scope]` region can also opt into dark tokens and button styles.
 
-## Agent Rules
+## Usage Rules
 
-- Use semantic Tailwind classes from this file for UI code; do not hardcode hex/HSL/RGB values, primitive CSS variables, or primitive palette utilities in component code.
-- Use the design-system component first (`Button`, `IconButton`, `Badge`, `Input`, etc.); do not rebuild component styling with private tokens.
-- Treat Button tokens as private: `--button-*`, `.button-primary-*`, and `.button-secondary-*` are only for the design-system Button implementation.
-- Use `text-*` tokens for readable copy and `text-icon-*` tokens for standalone icons. Component tokens are implementation details unless explicitly documented as compatibility aliases.
-- Use `cn` from `@langchain/design-system/utils/cn` for conditional classes so token conflicts merge predictably.
-- Preserve Tailwind object shapes where semantic names overlap primitive palettes: `brand.DEFAULT` plus numeric `brandPalette` keeps both `bg-brand` and `bg-brand-10` working.
+- Use semantic Tailwind classes from this file; do not hardcode colors or use primitive tokens in component code.
+- Prefer the design-system component to recreating its styles or private tokens. `--button-*`, `.button-primary-*`, and `.button-secondary-*` are private to the Button implementation; use `Button` or `IconButton`.
+- Use `text-*` for copy and `text-icon-*` for standalone icons.
+- Merge conditional classes with `cn` from `@langchain/design-system/utils/cn`.
 
----
+When editing `tailwind.preset.cjs`, preserve `brand.DEFAULT` alongside the numeric
+`brandPalette` entries so both `bg-brand` and existing `bg-brand-10` utilities
+resolve. New component code still uses semantic classes.
+
+## Component Sizes
+
+`src/utils/componentSizes.ts` defines the target outer-size families
+and exact rem values for new or migrated components. Existing components may
+still differ; check their source and `Foundations/Component Sizes` in Storybook.
+The same tier name is meaningful only within its family.
+
+| Family                                                                                                                                            | Tiers                   | Guidance                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
+| Visual elements — `VISUAL_ELEMENT_SIZES` (decorated `Icon`, `Avatar`, `Spinner`)                                                                  | `xxs`, `xs`, `sm`, `md` | Choose `md` for standard UI, smaller tiers for dense/inline UI; expose `xxs` only when needed.      |
+| Controls — `CONTROL_SIZES` (`Button`, `Input`, `Select`, `Typeahead`, etc.)                                                                       | `xs`, `sm`, `md`, `lg`  | Choose `md` for standard UI, `sm` for dense UI, `xs` for compact UI; retain `lg` for compatibility. |
+| Selection controls — `SELECTION_CONTROL_SIZES` (`Checkbox`, `RadioButton`, `RadioCard`, `Switch`; `RadioGroupItem` and `Slider` remain intrinsic) | `sm`, `md`              | The tier controls indicator geometry, not labeled-row or card height.                               |
+| Option rows — `OPTION_ROW_SIZES` (menu, select, and typeahead rows)                                                                               | `sm`, `md`              | Use `md` unless the menu is dense; multiline rows may grow.                                         |
+
+- Family dimensions measure the **outer border box**. Use `box-sizing: border-box`
+  and fit padding, borders, typography, icons, and loading indicators inside it.
+- Visual elements and square selection indicators set width and height. Controls
+  set exact height with intrinsic/container width; `Switch` and `Slider` own their widths.
+- Selection indicators retain at least a 24px interactive hit area independent
+  of their visual geometry. This hit area does not set row or card height.
+- Option rows and multi-value `Typeahead` use `min-height` and grow with content.
+  Plain `Icon`, textareas, labeled selection rows, and cards retain intrinsic total height.
+- Keep component-owned text-label geometry (`Badge`, `Kbd`), intrinsic density
+  APIs, typography, chart geometry, progress thickness, and brand assets outside
+  the shared outer-box families.
+- Derive supported tiers from the component's family mapping. Some components
+  retain additional compatibility tiers; do not create a universal `Size` type.
 
 ## Label Casing
 
-Use **Title Case** for the names of things — field labels, section headings, tab
-names, column headers, menu items, and enumerated values shown in a column or
-picker (`Account Settings`, `Sampling Rate`, `Data Retention`, `API Keys`). Minor
-words stay lowercase in the middle of a label but are capitalized when they lead
-or end it, so `Apply to Past Items` keeps `to` lowercase while `Import From`
-capitalizes the trailing `From`. The minor words
-are `a`, `an`, `the`, `and`, `or`, `for`, `to`, `of`, `in`, `on`, `at`, `by`,
-`with`, `from`, `as`.
+Use **Title Case** for names of things: field labels, section headings, tabs,
+column headers, menu items, and enumerated values (`Run Filters`, `Sampling
+Rate`, `LLM-as-a-Judge`). Keep minor words lowercase in the middle: `a`, `an`,
+`the`, `and`, `or`, `for`, `to`, `of`, `in`, `on`, `at`, `by`, `with`, `from`,
+`as`.
 
-Use **sentence case** for anything that reads as prose — button text, empty
-states, error and validation messages, tooltips, helper text, and placeholders
-(`Load more`, `No results found`, `Name is required`).
-
-Option text that states a behavior rather than naming one is prose, even inside
-a radio group or checkbox list: `Only apply to new items` and `Apply to existing
-items from date...` stay sentence case, while the setting they sit under
-(`Usage Limit`, `Automatic Updates`) is Title Case.
-
-Peer items must agree. A group of sibling labels — the actions in one form, the
-values of one table column, the toggles in one section — that mixes both styles
-is a bug regardless of which one you would have picked. Match the surrounding
-group; when a sentence names a UI control, spell the control exactly as it is
-labelled.
+Use **sentence case** for prose: button text, empty states, validation, tooltips,
+helper text, and placeholders (`Load more`, `No evaluators found`, `Rule name is
+required`). Behavioral options are prose even inside a picker. Keep sibling
+labels consistent, and spell named controls exactly as they appear in the UI.
 
 ---
 
@@ -96,7 +112,7 @@ rename classes.
 
 | Situation                                                 | Class                                                                                 |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Root surface                                              | `bg-surface-level-1`                                                                  |
+| Page / app shell background                               | `bg-surface-level-1`                                                                  |
 | Card, panel, sidebar                                      | `bg-surface-level-2`                                                                  |
 | Popover, tooltip, dropdown                                | `bg-elevated`                                                                         |
 | Modal scrim / backdrop                                    | `bg-overlay` for new overlays; some current overlays still use opacity classes        |
@@ -118,7 +134,7 @@ rename classes.
 | Focus border token                                        | `border-focus`; many current controls still use `border-brand` / `ring-brand`         |
 | Error state border                                        | `border-error`                                                                        |
 | Disabled border                                           | `border-disabled`                                                                     |
-| Domain status text                                        | `text-status-green` / `text-status-orange` / `text-status-yellow` / `text-status-red` |
+| Run/system status text                                    | `text-status-green` / `text-status-orange` / `text-status-yellow` / `text-status-red` |
 | Low elevation for floating controls or interaction states | `shadow-sm`                                                                           |
 | Dropdown / popover shadow                                 | `shadow-md`                                                                           |
 | Modal / dialog shadow                                     | `shadow-lg`                                                                           |
@@ -130,11 +146,9 @@ rename classes.
 Use `Banner` from `@langchain/design-system/components/Banner` for page-level notices,
 warnings, and announcements.
 
-- Keep banner copy concise and action-oriented. State the important information
-  in one short sentence and provide a clear, specific CTA through the `action`
-  prop when the user has a next step.
-- Full-page (`flush`) banners should especially maintain short copy to ensure it's shown as single-line.
-- Avoid spamming/stacking multiple banners in a single page. Reserve banner use for important actions or announcements with real action items.
+- State the important information in one short sentence. Add a specific `action`
+  when the user has a next step.
+- Keep `flush` banners to one line and avoid stacking banners on one page.
 
 See `src/components/Banner/Banner.stories.tsx` for examples.
 
@@ -189,7 +203,7 @@ its tooltip state and collision-aware positioning utilities, such as
 `ChartTooltip` inside the positioned layer. The generic design-system `Tooltip`
 is intended for trigger-based explanatory copy, not chart coordinates.
 
-- Use `ChartTooltipHeader` for the hovered date, bucket, category, or other
+- Use `ChartTooltipHeader` for the hovered date, bucket, experiment, or other
   primary context.
 - Wrap multiple rows in `ChartTooltipBody`.
 - Use one `ChartTooltipRow` per series and pass `markerColor` when the row maps
@@ -214,7 +228,7 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 
 | Class                      | When to use                                      |
 | -------------------------- | ------------------------------------------------ |
-| `bg-surface-level-1`       | Root application surface                         |
+| `bg-surface-level-1`       | Root page / app shell background                 |
 | `bg-surface-level-1-hover` | Hover state on level 1 surface                   |
 | `bg-surface-level-2`       | Cards, panels, sidebars, table header groups     |
 | `bg-surface-level-2-hover` | Hover state on level 2 surface                   |
@@ -296,15 +310,14 @@ Used internally by Checkbox, RadioButton, Switch, and Slider. Prefer those compo
 
 ### Status Borders — `border-status-*`
 
-Use status border tokens for domain-specific state accents. Do not use them for
-generic form validation; use intent tokens for that.
+Use status border tokens for run-state and system-state accents. Do not use them for generic form validation; use intent tokens for that.
 
-| Class                  | When to use                          |
-| ---------------------- | ------------------------------------ |
-| `border-status-green`  | Successful or positive status border |
-| `border-status-orange` | Intermediate status border           |
-| `border-status-yellow` | Warning-adjacent status border       |
-| `border-status-red`    | Failed or negative status border     |
+| Class                  | When to use                                  |
+| ---------------------- | -------------------------------------------- |
+| `border-status-green`  | Successful run or positive status border     |
+| `border-status-orange` | Orange run or intermediate status border     |
+| `border-status-yellow` | Yellow run or warning-adjacent status border |
+| `border-status-red`    | Failed run or negative status border         |
 
 ---
 
@@ -338,32 +351,20 @@ generic form validation; use intent tokens for that.
 | `text-link`              | Hyperlink text                                    |
 | `text-link-hover`        | Hover state for link text                         |
 
-#### Intent text — error / warning / success
-
-The `text-{error,warning,success}-{primary,secondary,tertiary}` tokens encode emphasis, not
-distinct meanings. Pick the level by how prominent the message should be within
-its surrounding text, then stay on that intent's scale.
-
-| Level     | Class                                                                        | When to use                                                                              |
-| --------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Primary   | `text-error-primary` / `text-warning-primary` / `text-success-primary`       | High-emphasis intent copy                                                                |
-| Secondary | `text-error-secondary` / `text-warning-secondary` / `text-success-secondary` | Default intent copy alongside other text                                                 |
-| Tertiary  | `text-error-tertiary` / `text-warning-tertiary` / `text-success-tertiary`    | Lower-emphasis intent copy such as secondary annotations, captions, or supporting detail |
-
-For domain-specific status copy, use the `text-status-*` tokens below instead.
+Intent text suffixes express emphasis, not severity: `primary` for prominent
+messages, `secondary` for default inline copy, and `tertiary` for supporting detail.
+Stay within the chosen `text-{error,warning,success}-*` scale.
 
 ### Status Text — `text-status-*`
 
-Use status text tokens for domain-specific state copy. For generic success,
-warning, and error messages, use `text-success-secondary`,
-`text-warning-secondary`, and `text-error-secondary`.
+Use status text tokens for run-state and system-state copy. For generic success, warning, and error messages, use `text-success-secondary`, `text-warning-secondary`, and `text-error-secondary`.
 
-| Class                | When to use                        |
-| -------------------- | ---------------------------------- |
-| `text-status-green`  | Successful or positive status text |
-| `text-status-orange` | Intermediate status text           |
-| `text-status-yellow` | Warning-adjacent status text       |
-| `text-status-red`    | Failed or negative status text     |
+| Class                | When to use                                |
+| -------------------- | ------------------------------------------ |
+| `text-status-green`  | Successful run or positive status text     |
+| `text-status-orange` | Orange run or intermediate status text     |
+| `text-status-yellow` | Yellow run or warning-adjacent status text |
+| `text-status-red`    | Failed run or negative status text         |
 
 ### Data visualization — `--chart-*`
 
@@ -377,7 +378,7 @@ write hex, RGB, or HSL colors in chart code.
 | `CHART_SINGLE_FILL_COLOR`                                        | A single-series bar or other ordinary filled chart                                                                                   |
 | `CHART_CATEGORICAL_LINE_COLORS` / `getCategoricalLineChartColor` | Unrelated line series; stronger colors keep thin strokes legible                                                                     |
 | `CHART_CATEGORICAL_FILL_COLORS` / `getCategoricalFillChartColor` | Bars, areas, donuts, waterfalls, and other filled marks; hue-matched and softer than the line set, with lower luminance in dark mode |
-| `CHART_COMPARISON_COLORS`                                        | Paired comparison series; paired shades of blue, orange, magenta, acid, and purple                                                   |
+| `CHART_COMPARISON_COLORS`                                        | Dataset and Experiment comparison charts; paired shades of blue, orange, magenta, acid, and purple                                   |
 | `CHART_OTHER_COLOR`                                              | Aggregated “Other” data only                                                                                                         |
 | `CHART_STATUS_COLORS`                                            | Positive, warning, or negative data with that real semantic meaning; `negativeSubtle` is for low-emphasis negative regions           |
 | `CHART_STATUS_FILL_COLORS`                                       | Positive, warning, or negative bars, areas, donuts, and other large filled marks; lower luminance in dark mode                       |
@@ -385,20 +386,20 @@ write hex, RGB, or HSL colors in chart code.
 
 Assignment rules:
 
-- Use the line palette only for line strokes. Use the fill palette for every other categorical mark, including bars, areas, donuts, waterfalls, and table markers.
+- Use the line palette only for line strokes. Use the fill palette for every other categorical mark, including bars, areas, donuts, waterfalls, table markers, and run-type fills.
 - Use either palette in index order so adjacent series receive deliberately distant hues. Use `getLineChartColorForKey` or `getFillChartColorForKey` only when a stable standalone assignment is needed without the full series list.
 - Use solid fill colors for stacked bars and areas; gradients reduce color consistency between marks and legends.
 - Use `CHART_STATUS_FILL_COLORS` instead of `CHART_STATUS_COLORS` when semantic status occupies a large filled area.
 - Chart tokens are theme-responsive: define light aliases in `:root` and dark overrides in `html.dark`; never cache their resolved literal values across theme changes.
 - Reserve neutral gray for “Other,” missing, or disabled data.
 - Reserve positive, warning, and negative colors for semantic status. Do not assign them based on series position.
-- Paired comparison charts use `CHART_COMPARISON_COLORS`, ordered as two shades per hue with consistent separation between each pair.
+- Dataset and Experiment comparison charts use `CHART_COMPARISON_COLORS`, ordered as two shades per hue with consistent separation between each pair.
 - Twenty categorical tokens support current high-cardinality usage charts, but prefer grouping, filtering, or small multiples once a chart becomes difficult to read.
 
 ### Table heatmaps — `--table-heatmap-*`
 
-Use `bg-table-heatmap-{negative,positive}-1..5` for diverging table cells, with
-`bg-table-heatmap-neutral` at the midpoint. These
+Use `bg-table-heatmap-{negative,positive}-1..5` for diverging Dataset and
+Experiment table cells, with `bg-table-heatmap-neutral` at the midpoint. These
 tokens use muted semantic intent backgrounds so text remains comfortable to
 read across large cell areas; they are not chart-series colors.
 
@@ -406,14 +407,7 @@ read across large cell areas; they are not chart-series colors.
 
 Icons have a separate color namespace so icon and label colors can diverge independently. Apply to `<Icon>` wrappers or SVG elements directly.
 
-Source general-purpose icon glyphs from server-safe Phosphor leaf modules such
-as `@phosphor-icons/react/dist/ssr/Check`; do not import from the Phosphor
-package root. Use `<IconButton>` for interactive icons and `<Icon>` from
-`@langchain/design-system/components/Icon` when standardized sizing, semantic
-treatments, or tooltip labels are needed. Direct Phosphor glyphs must set `size`
-and `weight` explicitly: regular for outline glyphs, fill for intentionally
-filled states, and bold only where an established direct-rendered glyph must
-preserve a 2px visual weight.
+Source general-purpose icon glyphs from server-safe Phosphor leaf modules such as `@phosphor-icons/react/dist/ssr/Check`; do not import from the package root or the legacy local icon tree. Use `<IconButton>` for interactive icons and `<Icon>` from `@langchain/design-system/components/Icon` when standardized sizing, semantic treatments, or tooltip labels are needed. Direct Phosphor glyphs must set `size` and `weight` explicitly: regular for outline glyphs, fill for intentionally filled states, and bold only where an established direct-rendered glyph must preserve a 2px visual weight.
 
 | Class                      | When to use                           |
 | -------------------------- | ------------------------------------- |
@@ -438,8 +432,8 @@ preserve a 2px visual weight.
 | `shadow-md` | Dropdown, popover shadow                                  |
 | `shadow-lg` | Modal / dialog shadow                                     |
 
-Shadow values are defined as CSS variables so they adapt to dark mode automatically.
-Use `var(--shadow-color-subtle)` only when composing a custom shadow layer that cannot be expressed with one of the named shadow classes.
+Shadows adapt to dark mode. Use `var(--shadow-color-subtle)` only when no named
+shadow can express the required layer.
 
 ---
 
@@ -460,7 +454,7 @@ Prefer these named values over Tailwind's built-in `rounded-*` scale (e.g. `roun
 
 ### Motion — `duration-*`
 
-Use duration tokens for named motion timing decisions. Do not mix these with Tailwind's built-in `duration-{ms}` scale.
+Use these instead of Tailwind's built-in `duration-{ms}` scale.
 
 | Duration class    | Value | When to use                                 |
 | ----------------- | ----- | ------------------------------------------- |
@@ -469,18 +463,16 @@ Use duration tokens for named motion timing decisions. Do not mix these with Tai
 | `duration-slow`   | 300ms | larger layout shifts                        |
 | `duration-slower` | 500ms | Entrance animations                         |
 
-```tsx
-// Example
-<div className="transition-colors duration-normal hover:bg-surface-level-2" />
-```
-
 ---
 
 ### Spacing — `space-*`
 
-4-point scale (`space-1` … `space-9`), with `src/utils/spacing.ts` as the source
-of truth. Use it through Tailwind property prefixes: `gap-space-4`,
-`px-space-6`, `mt-space-2`, `p-space-5`, etc. Do not use off-scale spacing.
+4-point scale (`space-1` … `space-9`), the single source of truth is
+`src/utils/spacing.ts`. Use it through Tailwind property prefixes:
+`gap-space-4`, `px-space-6`, `mt-space-2`, `p-space-5`, etc. Do not use
+off-scale spacing — `custom/require-spacing-tokens` suggests exact token
+replacements for raw Tailwind values that map to the scale, and
+`custom/no-off-scale-spacing` warns on values outside it.
 
 | Step      | Value |
 | --------- | ----- |
@@ -496,57 +488,26 @@ of truth. Use it through Tailwind property prefixes: `gap-space-4`,
 
 #### Relationship defaults
 
-Pick spacing by the relationship between the two things, not by eyeballing a
-gap. Tighter steps bind elements into a single unit; larger steps separate
-distinct regions. Modals run one step denser than full pages.
+Choose spacing by relationship, not by eye. Small gaps bind one cluster; larger
+gaps separate regions. Modals are one step denser than pages.
 
-**Intra-cluster** (elements that read as a single unit):
-
-| Relationship                       | Utility       | When                                                     |
-| ---------------------------------- | ------------- | -------------------------------------------------------- |
-| Title ↔ description (header block) | `gap-space-1` | Inside page and section heading groups.                  |
-| Label ↔ control (within a field)   | `gap-space-1` | Keep field labels close to their controls.               |
-| Control ↔ helper/error text        | `gap-space-1` | Helper and validation text belongs to the field cluster. |
-| Inline icon ↔ label                | `gap-space-2` | Default inline gap for icon plus text labels.            |
-| Action buttons ↔ each other        | `gap-space-2` | Gap between buttons in an action or footer row.          |
-
-**Within a section:**
-
-| Relationship                                   | Utility       | When                                                                  |
-| ---------------------------------------------- | ------------- | --------------------------------------------------------------------- |
-| Section header ↔ section body                  | `gap-space-3` | Separates the section explanation from the content it introduces.     |
-| Field / card ↔ field / card (within a section) | `gap-space-4` | Default rhythm for related fields, cards, or controls.                |
-| Header copy ↔ action area                      | `gap-space-4` | Between heading copy and the action group before responsive wrapping. |
-| Header block ↔ tabs / filter bar               | `gap-space-4` | Between a page header block and the tab or filter bar below it.       |
-
-**Region-level (page):**
-
-| Relationship                   | Utility       | When                                                      |
-| ------------------------------ | ------------- | --------------------------------------------------------- |
-| Section ↔ section              | `gap-space-6` | Default distance between major content groups.            |
-| Page header ↔ content          | `gap-space-6` | Between the top page heading and the first major section. |
-| Form body ↔ actions row (page) | `gap-space-6` | Separate a page-level form body from its footer actions.  |
-
-**Region-level (modal — one step denser than a page):**
-
-| Relationship                              | Utility       | When                                                          |
-| ----------------------------------------- | ------------- | ------------------------------------------------------------- |
-| Modal region gap (header / body / footer) | `gap-space-5` | Tighter region rhythm for modals and dialogs than full pages. |
-
-**Insets & container padding:**
-
-| Relationship                 | Utility                 | When                                                            |
-| ---------------------------- | ----------------------- | --------------------------------------------------------------- |
-| Page horizontal inset        | `px-space-5`            | Default horizontal inset for settings-style content panels.     |
-| Page top inset               | `pt-space-5`            | Default top inset between the page chrome and content.          |
-| Card / panel / modal padding | `p-space-5`             | Padding inside cards, panels, dialogs, and bordered containers. |
-| List / table row padding     | `px-space-5 py-space-4` | 24px horizontal, 16px vertical inside list and table rows.      |
+| Relationship                                                    | Utility                     |
+| --------------------------------------------------------------- | --------------------------- |
+| Title, label, or control ↔ its description, field, or hint      | `gap-space-1`               |
+| Inline icon ↔ label; action ↔ adjacent action                   | `gap-space-2`               |
+| Section header ↔ body                                           | `gap-space-3`               |
+| Related fields/cards; header copy ↔ actions/tabs                | `gap-space-4`               |
+| Modal header ↔ body ↔ footer                                    | `gap-space-5`               |
+| Page section ↔ section; page header/form body ↔ content/actions | `gap-space-6`               |
+| Default page horizontal/top inset                               | `px-space-5` / `pt-space-5` |
+| Card, panel, or modal padding                                   | `p-space-5`                 |
+| List or table row padding                                       | `px-space-5 py-space-4`     |
 
 ---
 
 ## Deprecated Aliases
 
-These class names remain in the Tailwind config for backwards compatibility but must not be used in new code.
+These aliases remain for compatibility; do not use them in new code.
 
 | Deprecated                 | Use instead                |
 | -------------------------- | -------------------------- |
@@ -575,23 +536,27 @@ These class names remain in the Tailwind config for backwards compatibility but 
 | `border-tertiary`          | `border-muted`             |
 | `border-quaternary`        | `border-faint`             |
 
-When migrating existing code, use the table above. The compatibility aliases in
-`src/styles/tokens.css` preserve the token values during migration.
+Use the replacement table only for affected classes; do not churn unrelated call sites.
 
 ---
 
-## Component-Owned Tokens
+## Progress indicators
 
-- Button color variables live in `src/styles/base.css` for Tailwind utility compatibility, but they are still Button-owned implementation tokens.
-- Use `<Button />` or `<IconButton />` instead of applying `.button-primary-*` or `.button-secondary-*` utilities yourself.
+- Use `LinearProgress` for indeterminate loading and `ProgressBar` for a known
+  completion, quota, or usage value.
+- `ProgressBar` represents one value. Keep segmented and categorical displays in
+  feature components.
+- Use `sm` in dense tables, `md` by default, and `lg` for emphasis.
+- Choose `color` by meaning; thresholds remain feature-owned.
+- `labelPosition` is `bottom` by default or `top` when the value should precede
+  the bar. Compose richer labels outside the component.
+- Provide `aria-label` or `aria-labelledby`. Pair semantic color with visible or
+  accessible text.
 
-### Progress indicators
+---
 
-- Use `<LinearProgress />` for indeterminate loading states.
-- Use `<ProgressBar />` for determinate completion, quota, or usage values.
-- Keep layered, segmented, and categorical distribution visualizations in feature-specific components; `ProgressBar` represents one determinate value.
-- Use `size="sm"` in dense table layouts; `md` is the default and `lg` is reserved for emphasized displays.
-- Choose a semantic `color` based on meaning. Each color renders as a gradient derived from the visualization palette; there is no separate solid/gradient appearance prop.
-- Thresholds belong to the consuming feature; `ProgressBar` only renders the selected state.
-- Pass `label` to render a string using the fixed tertiary treatment. Label typography scales with the bar: `xs` text for `sm`, `sm` text for `md`, and `md` text for `lg`. Use `labelPosition="top"` when the value should precede the bar; it defaults to `bottom`. Compose labels outside the component when richer content or horizontal placement is required.
-- Always provide `aria-label` or `aria-labelledby`. Pair warning, error, and success colors with visible text or an accessible value description so color is not the only signal.
+## Validation
+
+Run `pnpm lint` and `pnpm format:check`. Check the affected stories in both themes
+and at narrow widths. The usage rules above also apply where automated lint does
+not enforce them.

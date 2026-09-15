@@ -70,7 +70,7 @@ export const SelectTrigger = React.forwardRef<
           aria-hidden
           className={cn('inline-flex h-4 w-4 text-icon-primary', iconClassName)}
         >
-          <CaretDownIcon size="100%" weight="bold" />
+          <CaretDownIcon size="100%" weight="regular" />
         </span>
       </RadixSelect.Icon>
     </RadixSelect.Trigger>
@@ -90,7 +90,7 @@ const SelectScrollUpButton = React.forwardRef<
     )}
     {...props}
   >
-    <CaretUpIcon aria-hidden size={16} weight="bold" />
+    <CaretUpIcon aria-hidden size={16} weight="regular" />
   </RadixSelect.ScrollUpButton>
 ));
 SelectScrollUpButton.displayName = RadixSelect.ScrollUpButton.displayName;
@@ -107,7 +107,7 @@ const SelectScrollDownButton = React.forwardRef<
     )}
     {...props}
   >
-    <CaretDownIcon aria-hidden size={16} weight="bold" />
+    <CaretDownIcon aria-hidden size={16} weight="regular" />
   </RadixSelect.ScrollDownButton>
 ));
 SelectScrollDownButton.displayName = RadixSelect.ScrollDownButton.displayName;
@@ -204,7 +204,7 @@ export const SelectItem = React.forwardRef<
           )}
         >
           <RadixSelect.ItemIndicator>
-            <CheckIcon aria-hidden size={16} weight="bold" />
+            <CheckIcon aria-hidden size={16} weight="regular" />
           </RadixSelect.ItemIndicator>
         </span>
       )}

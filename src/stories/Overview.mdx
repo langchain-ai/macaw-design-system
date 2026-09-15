@@ -80,6 +80,7 @@ import { Select } from '../components/Select';
 import { Skeleton } from '../components/Skeleton';
 import { Slider } from '../components/Slider';
 import { Spinner } from '../components/Spinner';
+import { ThinkingState } from '../components/ThinkingState';
 import { Switch } from '../components/Switch';
 import {
   TabGroup,
@@ -339,7 +340,7 @@ export const InputDemo = ({ size, state }) => {
         value={value}
         onChange={setValue}
         placeholder="customer-support-eval"
-        leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+        leftDecorator={<MagnifyingGlassIcon size={16} weight="regular" />}
         disabled={state === 'disabled'}
         isError={state === 'error'}
         hintText={
@@ -943,7 +944,7 @@ export const CATALOG = [
   defineEntry({
     name: 'Switch',
     category: 'inputs',
-    axes: { size: { label: 'Size', options: ['xs', 'sm', 'md'] } },
+    axes: { size: { label: 'Size', options: ['sm', 'md'] } },
     render: ({ size }) => <SwitchDemo size={size} />,
   }),
   defineEntry({
@@ -1228,13 +1229,13 @@ export const CATALOG = [
       <div className="flex items-center gap-space-4">
         <KbdGroup>
           <Kbd>
-            <CommandIcon size={12} weight="bold" />
+            <CommandIcon size={12} weight="regular" />
           </Kbd>
           <Kbd>K</Kbd>
         </KbdGroup>
         <KbdGroup>
           <Kbd>
-            <ArrowBendDownLeftIcon size={12} weight="bold" />
+            <ArrowBendDownLeftIcon size={12} weight="regular" />
           </Kbd>
         </KbdGroup>
       </div>
@@ -1307,6 +1308,17 @@ export const CATALOG = [
       },
     },
     render: ({ type }) => <ToastDemo type={type} />,
+  }),
+  defineEntry({
+    name: 'ThinkingState',
+    category: 'status',
+    axes: {
+      variant: { label: 'Variant', options: ['drive', 'dots', 'orbit'] },
+      tone: { label: 'Tone', options: ['neutral', 'brand'] },
+    },
+    render: ({ variant, tone }) => (
+      <ThinkingState variant={variant} tone={tone} />
+    ),
   }),
   defineEntry({
     name: 'Spinner',
@@ -1573,7 +1585,7 @@ export const OverviewPage = () => {
               debounceMs={0}
               placeholder="Filter components…"
               aria-label="Filter components"
-              leftDecorator={<MagnifyingGlassIcon size={16} weight="bold" />}
+              leftDecorator={<MagnifyingGlassIcon size={16} weight="regular" />}
             />
           </div>
           <div className="flex flex-wrap items-center gap-space-1">

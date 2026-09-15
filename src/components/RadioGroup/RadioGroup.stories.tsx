@@ -4,17 +4,23 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { cn } from '../../utils/cn';
 import { RadioButton } from '../RadioButton/RadioButton';
-import { RadioGroup } from '../RadioGroup/RadioGroup';
-import { RadioGroupItem } from '../RadioGroup/RadioGroupItem';
 import { Text } from '../Text';
+import { RadioGroup } from './RadioGroup';
+import { RadioGroupItem } from './RadioGroupItem';
 
 const meta: Meta<typeof RadioGroup> = {
   title: 'Components/Inputs/RadioGroup',
   component: RadioGroup,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'RadioButton follows the named selection-control scale. RadioGroupItem remains an intrinsic primitive whose consumer owns its outer pill geometry.',
+      },
+    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'single select', 'exclusive', 'choices'],
   argTypes: {
     disabled: { control: { type: 'boolean' } },
   },

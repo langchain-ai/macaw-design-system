@@ -33,6 +33,11 @@ export interface TypeaheadRenderOptionState {
   inputValue: string;
 }
 
+export interface TypeaheadFilterOptionsState<TOption> {
+  inputValue: string;
+  getOptionLabel: (option: TypeaheadSelectedValue<TOption>) => string;
+}
+
 export interface TypeaheadListItem<TOption> {
   option: TypeaheadSelectedValue<TOption>;
   source: 'option' | 'selected';
@@ -44,6 +49,8 @@ interface TypeaheadBaseProps<TOption> extends Omit<
 > {
   options: TOption[];
   placeholder?: string;
+  /** Static content rendered before the editable input. */
+  leftDecorator?: ReactNode;
   /** Keeps the placeholder visible after values have been selected in multiple mode. */
   showPlaceholderWithValues?: boolean;
   emptyText?: string;
@@ -54,6 +61,11 @@ interface TypeaheadBaseProps<TOption> extends Omit<
   freeSolo?: boolean;
   disableClearable?: boolean;
   disableCloseOnSelect?: boolean;
+  /** Override the default client-side option filtering. */
+  filterOptions?: (
+    options: TOption[],
+    state: TypeaheadFilterOptionsState<TOption>
+  ) => TOption[];
   forcePopupIcon?: boolean;
   clearOnBlur?: boolean;
   clearValueOnInputClear?: boolean;
@@ -84,8 +96,8 @@ interface TypeaheadBaseProps<TOption> extends Omit<
 interface TypeaheadSingleProps<TOption> extends TypeaheadBaseProps<TOption> {
   /** Searchable single-select mode. */
   multiple?: false;
-  value?: TypeaheadSingleValue<TOption>;
-  onChange: (value: TypeaheadSingleValue<TOption>) => void;
+  value?: TypeaheadSingleValue<NoInfer<TOption>>;
+  onChange: (value: TypeaheadSingleValue<NoInfer<TOption>>) => void;
   renderTags?: never;
 }
 
@@ -95,8 +107,8 @@ interface TypeaheadMultipleProps<TOption> extends TypeaheadBaseProps<TOption> {
    * rendered as removable tags and the option list stays searchable.
    */
   multiple: true;
-  value?: TypeaheadMultipleValue<TOption>;
-  onChange: (value: TypeaheadMultipleValue<TOption>) => void;
+  value?: TypeaheadMultipleValue<NoInfer<TOption>>;
+  onChange: (value: TypeaheadMultipleValue<NoInfer<TOption>>) => void;
   renderTags?: (
     value: TypeaheadMultipleValue<TOption>,
     getTagProps: (params: { index: number }) => TypeaheadTagProps

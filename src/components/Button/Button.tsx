@@ -43,7 +43,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const ButtonSpinnerIcon = (props: SVGProps<SVGSVGElement>) => (
-  <SpinnerGapIcon {...props} weight="bold" />
+  <SpinnerGapIcon {...props} weight="regular" />
 );
 
 const Spinner = () => {

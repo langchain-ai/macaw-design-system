@@ -148,6 +148,9 @@ module.exports = {
       // surface, and `from-[var(--bg-surface-level-1)]` is the raw form the
       // color lint rule exists to prevent.
       gradientColorStops: {
+        'text-primary': withAlpha('var(--text-primary)'),
+        'text-brand-primary': withAlpha('var(--text-brand-primary)'),
+        'text-tertiary': withAlpha('var(--text-tertiary)'),
         'surface-level-1': withAlpha('var(--bg-surface-level-1)'),
         'surface-level-2': withAlpha('var(--bg-surface-level-2)'),
         elevated: withAlpha('var(--bg-elevated)'),
@@ -504,6 +507,10 @@ module.exports = {
         },
       },
       keyframes: {
+        'tab-indicator-expand': {
+          from: { width: '2px' },
+          to: { width: '100%' },
+        },
         hide: {
           from: { opacity: 1 },
           to: { opacity: 0 },
@@ -525,6 +532,8 @@ module.exports = {
         },
       },
       animation: {
+        'tab-indicator-expand':
+          'tab-indicator-expand var(--duration-slower) cubic-bezier(0.22, 1, 0.36, 1) both',
         hide: 'hide 100ms ease-in',
         slideIn: 'slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1)',
         swipeOut: 'swipeOut 100ms ease-out',

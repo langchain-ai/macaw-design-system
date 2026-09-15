@@ -8,15 +8,21 @@ import {
   CaretDownIcon,
   PlusIcon,
 } from '../../icons/PaddedPhosphorIcons';
-import { Button } from '../Button/Button';
+import { Button } from './Button';
 
 const meta = {
   title: 'Components/Buttons/Button',
   component: Button,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Triggers an immediate action. Use Link for navigation and IconButton for icon-only actions.',
+      },
+    },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'action', 'submit', 'click', 'cta'],
   argTypes: {
     size: {
       control: { type: 'select' },

@@ -86,7 +86,7 @@ export const GroupedTabs = <T extends string | number>({
       <div
         ref={containerRef}
         className={cn(
-          'relative flex w-fit border border-subtle p-0.5 dark:border-muted',
+          'relative flex w-fit border border-subtle bg-surface-level-1 p-0.5 dark:border-muted',
           size === 'xs' ? 'gap-px' : 'gap-0.5',
           size === 'xs'
             ? 'rounded-[2px]'

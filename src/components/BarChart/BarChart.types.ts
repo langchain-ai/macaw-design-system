@@ -20,6 +20,8 @@ export type BarChartDataPoint = {
   value: number | null;
   /** Overrides the series color for this bar. Use a design-system CSS chart color token. */
   color?: string;
+  /** Legend item that represents this bar. Defaults to the containing series ID. */
+  legendItemId?: string;
 };
 
 export type BarChartSeries = {
@@ -33,13 +35,8 @@ export type BarChartSeries = {
   valueAxisId?: string;
   /** Series opacity from 0 to 1. Defaults to 1. */
   opacity?: number;
-  /** Outer-corner radius in SVG pixels. Defaults to 3. */
-  cornerRadius?: number;
-  /** Rounds the value end only, or the whole bar. Defaults to end. */
-  cornerStyle?: BarChartCornerStyle;
 };
 
-export type BarChartCornerStyle = 'end' | 'all';
 export type BarChartMode = 'grouped' | 'stacked';
 export type BarChartOrientation = 'vertical' | 'horizontal';
 
@@ -104,8 +101,6 @@ export type BarChartDisplaySeries = BarChartSeries & {
   color: string;
   valueAxisId: string;
   opacity: number;
-  cornerRadius: number;
-  cornerStyle: BarChartCornerStyle;
 };
 
 export type BarChartLayoutBar = {
@@ -116,14 +111,12 @@ export type BarChartLayoutBar = {
   endValue: number;
   seriesId: string;
   seriesLabel: ReactNode;
+  legendItemId: string;
   color: string;
   valueAxisId: string;
   opacity: number;
-  cornerRadius: number;
-  cornerStyle: BarChartCornerStyle;
   groupIndex: number;
   groupCount: number;
-  isStackEnd: boolean;
 };
 
 export type BarChartDisplayAxis = Omit<BarChartValueAxis, 'thickness'> & {
@@ -286,12 +279,14 @@ export type BarChartProps = Omit<
     selectedIds?: ReadonlySet<string>;
     grid?: BarChartGrid;
     valueBands?: readonly BarChartValueBand[];
-    /** Draws a guide through one category. */
+    /** Highlights one category band and draws a guide through its center. */
     activeCategory?: BarChartCategory | null;
     /** Draws a guide through the center of one bar. Takes precedence over `activeCategory`. */
     activeGuideBarId?: string | null;
     /** Emphasizes one bar and dims the rest. */
     activeBarId?: string | null;
+    /** Emphasizes marks represented by one external legend item. Built-in legends set this automatically. */
+    activeLegendItemId?: string | null;
     selectionRange?: BarChartSelectionRange;
     /** Band-scale padding from 0 to 1. */
     categoryPadding?: {

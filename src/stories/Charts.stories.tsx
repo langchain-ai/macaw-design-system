@@ -19,7 +19,7 @@ import { MetricChart } from '../components/MetricChart';
 import { SparkLineChart } from '../components/SparkLineChart';
 import { Text } from '../components/Text';
 import { TopList, type TopListItem } from '../components/TopList';
-import { ArrowRightIcon } from '../icons/PaddedPhosphorIcons';
+import { ArrowRightRegularIcon } from '../icons/WeightedPhosphorIcons';
 import {
   CHART_CATEGORICAL_FILL_COLORS,
   CHART_CATEGORICAL_LINE_COLORS,
@@ -138,7 +138,7 @@ const ChartOverviewCard = ({
         size="xs"
         color="secondary"
         variant="outlined"
-        rightDecorator={ArrowRightIcon}
+        rightDecorator={ArrowRightRegularIcon}
         onClick={linkTo(`Components/Charts/${title}`)}
       >
         Component page
@@ -299,6 +299,74 @@ export const Overview: Story = {
             </ChartTooltipBody>
           </ChartTooltip>
         </ChartOverviewCard>
+      </div>
+    </div>
+  ),
+};
+
+export const LegendHoverAndFocus: Story = {
+  name: 'Legend hover and focus',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Hover a legend item or focus it with the keyboard to emphasize its category and dim the other chart marks. Move the pointer away or move focus out of the item to restore every category.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex max-w-7xl flex-col gap-space-6">
+      <div className="flex max-w-3xl flex-col gap-space-2">
+        <Text variant="h2" weight="semibold">
+          Legend hover and focus
+        </Text>
+        <Text variant="body" color="secondary">
+          Hover a legend item or use Tab to focus it. The matching category
+          stays at full color while the other categories dim.
+        </Text>
+      </div>
+      <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2 xl:grid-cols-3">
+        <ChartCard
+          title="Line chart"
+          description="Requests by environment"
+          className="h-96"
+          contentClassName="min-h-0"
+        >
+          <LineChart
+            aria-label="Line chart requests by environment"
+            series={lineSeries}
+            xScale="band"
+            formatXValue={(value) => categories[value] ?? ''}
+            showPoints
+            shouldAnimate={false}
+          />
+        </ChartCard>
+        <ChartCard
+          title="Bar chart"
+          description="Requests by environment"
+          className="h-96"
+          contentClassName="min-h-0"
+        >
+          <BarChart
+            aria-label="Bar chart requests by environment"
+            series={barSeries}
+            shouldAnimate={false}
+          />
+        </ChartCard>
+        <ChartCard
+          title="Donut chart"
+          description="Requests by environment"
+          className="h-96"
+          contentClassName="min-h-0"
+        >
+          <DonutChart
+            aria-label="Donut chart requests by environment"
+            segments={donutSegments}
+            centerNumber="100"
+            centerDescriptor="requests"
+            shouldAnimate={false}
+          />
+        </ChartCard>
       </div>
     </div>
   ),

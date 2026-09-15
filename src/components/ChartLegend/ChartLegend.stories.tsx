@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
+import { ChartLegend, type ChartLegendItem } from '.';
 import { Text } from '../Text';
 
 const legendItems: readonly ChartLegendItem[] = [
@@ -101,7 +101,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'visualization', 'key', 'series', 'labels'],
 } satisfies Meta<typeof ChartLegend>;
 
 export default meta;

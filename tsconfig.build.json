@@ -17,6 +17,7 @@
     "src/**/*.stories.tsx",
     "src/**/__tests__/**",
     "src/stories",
-    "src/test-utils.tsx"
+    "src/test-utils.tsx",
+    "src/cli*.mts"
   ]
 }

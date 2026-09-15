@@ -2,8 +2,8 @@ import { ArrowBendDownLeftIcon } from '@phosphor-icons/react/dist/ssr/ArrowBendD
 import { CommandIcon } from '@phosphor-icons/react/dist/ssr/Command';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Kbd, KbdGroup } from '.';
 import { Banner } from '../Banner/Banner';
-import { Kbd, KbdGroup } from '../Kbd';
 
 const meta: Meta<typeof Kbd> = {
   title: 'Components/Display/Kbd',
@@ -11,7 +11,7 @@ const meta: Meta<typeof Kbd> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'keyboard shortcut', 'hotkey', 'keycap'],
   argTypes: {
     variant: {
       control: 'select',
@@ -47,10 +47,10 @@ export const GroupWithIcon: Story = {
   render: () => (
     <KbdGroup>
       <Kbd>
-        <CommandIcon size={12} weight="bold" />
+        <CommandIcon size={12} weight="regular" />
       </Kbd>
       <Kbd>
-        <ArrowBendDownLeftIcon size={12} weight="bold" />
+        <ArrowBendDownLeftIcon size={12} weight="regular" />
       </Kbd>
     </KbdGroup>
   ),

@@ -3,7 +3,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from '../Button/Button';
-import { Tooltip } from '../Tooltip/Tooltip';
+import { Tooltip } from './Tooltip';
 
 const meta = {
   title: 'Components/Popovers/Tooltip',
@@ -11,7 +11,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'hover', 'help', 'explanation'],
   argTypes: {
     title: {
       control: { type: 'text' },
@@ -100,7 +100,7 @@ export const WithJSXTitle: Story = {
   args: {
     title: (
       <div className="flex items-center gap-space-2">
-        <InfoIcon size={12} weight="bold" />
+        <InfoIcon size={12} weight="regular" />
         <span>Custom Title</span>
       </div>
     ),
