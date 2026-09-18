@@ -21,7 +21,7 @@
 
 ## Welcome
 
-Welcome to LangChain's Design System package, Macaw! The Macaw parrot is inspired from our original logo, the parrot and chain emojis ("Lang" = Parrot, "Chain" = "Chain"). The varied colors of the Macaw represent all the different components and patterns our Design System supports, and the intelligence of the Macaw speaks to how we aim for our Design System to be intelligent itself, providing a CLI and documentation for coding agents and developers alike.
+Welcome to Macaw, LangChain’s design system! The name is a nod to our original 🦜🔗 logo. The macaw’s varied colors reflect the range of components and patterns in the system, while its intelligence reflects our focus on helping developers and coding agents build with them through a CLI and clear documentation.
 
 This repo, [`langchain-ai/macaw-design-system`](https://github.com/langchain-ai/macaw-design-system), contains LangChain's:
 
