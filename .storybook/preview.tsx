@@ -59,7 +59,7 @@ const preview: Preview = {
       storySort: {
         method: 'alphabetical',
         order: [
-          'Welcome to LangChain Design System',
+          'Welcome to Macaw Design System',
           'Foundations',
           'Components',
           [

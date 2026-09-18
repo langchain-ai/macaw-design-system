@@ -12,6 +12,7 @@ export interface ColorScheme {
   isLightMode: boolean;
 }
 
+// Keep the original key so the Macaw rename preserves saved theme preferences.
 export const THEME_MODE_STORAGE_KEY = 'langchain-design-system-theme-mode';
 export const PREFERS_DARK_QUERY = '(prefers-color-scheme: dark)';
 

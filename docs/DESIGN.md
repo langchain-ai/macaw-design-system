@@ -1,4 +1,4 @@
-# LangChain Design System
+# Macaw Design System
 
 Use existing components and semantic tokens. Compose or extend components to support new behavior.
 

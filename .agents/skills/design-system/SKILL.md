@@ -3,7 +3,7 @@ name: design-system
 description: Build or change @langchain/design-system components, tokens, styles, icons, stories, package exports, or documentation in this repository. Use for package work, not product-specific UI in a consuming application.
 ---
 
-# LangChain Design System
+# Macaw Design System
 
 Maintain the shared, domain-free UI package. Read
 [`docs/DESIGN.md`](../../../docs/DESIGN.md) before changing component behavior or

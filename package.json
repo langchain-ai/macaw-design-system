@@ -2,14 +2,14 @@
   "name": "@langchain/design-system",
   "version": "0.1.0",
   "description": "The shared UI foundation for the LangChain product suite.",
-  "homepage": "https://github.com/langchain-ai/langchain-design-system#readme",
+  "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
   "bugs": {
-    "url": "https://github.com/langchain-ai/langchain-design-system/issues"
+    "url": "https://github.com/langchain-ai/macaw-design-system/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/langchain-ai/langchain-design-system.git"
+    "url": "git+https://github.com/langchain-ai/macaw-design-system.git"
   },
   "files": [
     "dist",

@@ -1,7 +1,7 @@
-# Contributing to LangChain Design System
+# Contributing to Macaw Design System
 
 Bug reports, component fixes, and documentation improvements are welcome.
-Use [GitHub issues](https://github.com/langchain-ai/langchain-design-system/issues)
+Use [GitHub issues](https://github.com/langchain-ai/macaw-design-system/issues)
 for bugs and proposals. Include a small reproduction, package and React
 versions, browser, and screenshots when relevant. Report vulnerabilities
 privately through [SECURITY.md](SECURITY.md).
@@ -42,11 +42,11 @@ local checkout instead of publishing a test version. With the repositories as
 sibling directories:
 
 ```sh
-# Terminal 1: langchain-design-system
+# Terminal 1: macaw-design-system
 pnpm build:watch
 
 # Terminal 2: langchainplus/smith-frontend
-pnpm link ../../langchain-design-system
+pnpm link ../../macaw-design-system
 pnpm dev
 ```
 

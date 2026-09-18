@@ -6,8 +6,8 @@
       <img alt="LangChain" src="docs/assets/langchain-logo-light.svg" width="400">
     </picture>
   </a>
-  <h1>LangChain Design System</h1>
-  <p><strong>The shared UI foundation for the LangChain product suite.</strong></p>
+  <h1>Macaw Design System</h1>
+  <p><strong>The shared UI & Design foundation for the LangChain product suite.</strong></p>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
   <!-- Keep the version badge aligned with package.json until the package is published to npm. -->
   <a href="package.json"><img src="https://img.shields.io/badge/version-0.1.0-orange" alt="Package version: 0.1.0"></a>
@@ -21,9 +21,9 @@
 
 ## Welcome
 
-<!-- Update with DS name -->
+Welcome to LangChain's Design System package, Macaw! The Macaw parrot is inspired from our original logo, the parrot and chain emojis ("Lang" = Parrot, "Chain" = "Chain"). The varied colors of the Macaw represent all the different components and patterns our Design System supports, and the intelligence of the Macaw speaks to how we aim for our Design System to be intelligent itself, providing a CLI and documentation for coding agents and developers alike.
 
-Welcome to LangChain's design-system package! This repo, `@langchain/design-system`, contains LangChain's:
+This repo, [`langchain-ai/macaw-design-system`](https://github.com/langchain-ai/macaw-design-system), contains LangChain's:
 
 1. Component Library
 2. Tokens
@@ -35,7 +35,7 @@ Contributions are welcome. See the [contributing guide](CONTRIBUTING.md) for loc
 
 ## Install
 
-To install, run
+Macaw's npm package name is `@langchain/design-system`. To install, run
 
 ```sh
 pnpm add @langchain/design-system
