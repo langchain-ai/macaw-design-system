@@ -1,0 +1,20 @@
+package.json
+  s_38c6e9a7471eba::t_a85977de50641e 311-312
+  s_38c6e9a7471eba::t_6b65a43edff7c4 308,313-314,318-319,379,388-392,406,408,436-437
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6e543a484cc06e55d0b37b5147f511ec5aa98665",
+  "prompts": {},
+  "sessions": {
+    "s_38c6e9a7471eba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4607dd03-9202-4e5f-a02f-8e446a27ab3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
