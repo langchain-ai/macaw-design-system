@@ -305,18 +305,18 @@
   },
   "scripts": {
     "clean": "node scripts/clean.mjs",
-    "build": "pnpm clean && vite build && tsc -p tsconfig.build.json && node scripts/rewrite-declaration-specifiers.mjs && pnpm build:styles && node scripts/copy-assets.mjs",
+    "build": "pnpm clean && nx vite:build && tsc -p tsconfig.build.json && node scripts/rewrite-declaration-specifiers.mjs && pnpm build:styles && node scripts/copy-assets.mjs",
     "build:watch": "node scripts/watch-build.mjs",
     "build:styles": "tailwindcss -c tailwind.config.cjs -i ./src/styles/tailwind.css -o ./dist/utilities.css --minify",
-    "storybook": "storybook dev -p 6006",
-    "build:storybook": "storybook build -o storybook-static",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run",
+    "storybook": "nx serve:storybook -p 6006",
+    "build:storybook": "nx build-storybook -o storybook-static",
+    "typecheck": "nx vite:typecheck",
+    "test": "nx vitest:test run",
     "lint": "oxlint src scripts vite.config.ts vitest.config.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "verify:types:bundler": "tsc --noEmit -p tests/consumer/tsconfig.bundler.json",
-    "verify:types:nodenext": "tsc --noEmit -p tests/consumer/tsconfig.nodenext.json",
+    "verify:types:bundler": "nx vite:typecheck --noEmit -p tests/consumer/tsconfig.bundler.json",
+    "verify:types:nodenext": "nx vite:typecheck --noEmit -p tests/consumer/tsconfig.nodenext.json",
     "verify:types": "pnpm verify:types:bundler && pnpm verify:types:nodenext",
     "verify:package": "node scripts/verify-package.mjs && pnpm verify:types",
     "check": "pnpm typecheck && pnpm test && pnpm build && pnpm verify:package && pnpm build:storybook",
@@ -376,6 +376,7 @@
     "cmdk": "^1.1.1",
     "d3-scale-chromatic": "^3.0.0",
     "linkify-it": "^5.0.2",
+    "nx": "^23.2.1",
     "react-hotkeys-hook": "^4.5.0",
     "react-virtuoso": "^4.18.6",
     "tailwind-merge": "^2.6",
@@ -384,6 +385,11 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
+    "@nx/oxlint": "23.2.1",
+    "@nx/storybook": "23.2.1",
+    "@nx/vite": "23.2.1",
+    "@nx/vitest": "23.2.1",
+    "@nx/web": "23.2.1",
     "@storybook/addon-docs": "^10.2.8",
     "@storybook/addon-links": "^10.2.8",
     "@storybook/react-vite": "^10.2.8",
@@ -397,7 +403,9 @@
     "@types/react-dom": "19.2.4",
     "@visx/tooltip": "^4.0.0",
     "@vitejs/plugin-react": "^6.1.0",
+    "jiti": "2.4.2",
     "jsdom": "30.0.1",
+    "nx": "23.2.1",
     "oxc-parser": "0.137.0",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
@@ -425,5 +433,6 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@10.27.0"
+  "packageManager": "pnpm@10.27.0",
+  "nx": {}
 }
