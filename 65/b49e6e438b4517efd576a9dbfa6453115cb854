@@ -1,0 +1,29 @@
+nx.json
+  s_38c6e9a7471eba::t_a85977de50641e 7,10,17,19,21-23,25,34-36,38,42-56
+  s_38c6e9a7471eba::t_ed0d4026057abd 4-6
+  s_38c6e9a7471eba::t_ccf2864c590ebe 8-9
+  s_38c6e9a7471eba::t_dafd6c8660f53b 11-16
+  s_38c6e9a7471eba::t_836caafe4e4cc1 18
+  s_38c6e9a7471eba::t_df1261787d7a0e 20
+  s_38c6e9a7471eba::t_5b9f1869b68a2c 24
+  s_38c6e9a7471eba::t_5a043fc8eed3f6 26-28,31-33
+  s_38c6e9a7471eba::t_bd484c402d9e1d 37
+  s_38c6e9a7471eba::t_9e1fe3ace93ae6 39-41
+  s_38c6e9a7471eba::t_f3c95eccb5ea3f 57-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "65b49e6e438b4517efd576a9dbfa6453115cb854",
+  "prompts": {},
+  "sessions": {
+    "s_38c6e9a7471eba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4607dd03-9202-4e5f-a02f-8e446a27ab3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
