@@ -139,7 +139,7 @@ test('handles missing sources and discovers components without keyword entries',
     expect(JSON.parse(discovered.stdout)).toEqual([
       expect.objectContaining({
         name: 'NewControl',
-        importPath: '@langchain/design-system/components/NewControl',
+        importPath: '@langchain/macaw-design-system/components/NewControl',
         stories: [],
       }),
     ]);
@@ -171,7 +171,7 @@ test('handles missing sources and discovers components without keyword entries',
         expect.objectContaining({
           name: 'DefaultOnly',
           importStatement:
-            "import { DefaultOnly } from '@langchain/design-system/components/DefaultOnly';",
+            "import { DefaultOnly } from '@langchain/macaw-design-system/components/DefaultOnly';",
         }),
       ])
     );
@@ -295,8 +295,8 @@ test.each([
     expect(JSON.parse(result.stdout)).toMatchObject({
       name,
       family,
-      importPath: `@langchain/design-system/components/${family}`,
-      importStatement: `import { ${name} } from '@langchain/design-system/components/${family}';`,
+      importPath: `@langchain/macaw-design-system/components/${family}`,
+      importStatement: `import { ${name} } from '@langchain/macaw-design-system/components/${family}';`,
       sourceFiles: expect.arrayContaining([`src/components/${source}`]),
       stories: [
         family === 'HoverCard'
@@ -325,7 +325,7 @@ test('discovers current components and returns usable imports and source paths',
   for (const component of components) {
     const modulePath = path.join(
       root,
-      component.importPath.replace('@langchain/design-system/', 'src/')
+      component.importPath.replace('@langchain/macaw-design-system/', 'src/')
     );
     expect(
       ['.ts', '.tsx', '/index.ts', '/index.tsx'].some((suffix) =>
@@ -346,7 +346,7 @@ test('provides the correct default import for UnsavedChangesDialog', () => {
   expect(result.status, result.stderr).toBe(0);
   expect(JSON.parse(result.stdout)).toMatchObject({
     importStatement:
-      "import UnsavedChangesDialog from '@langchain/design-system/components/UnsavedChangesDialog';",
+      "import UnsavedChangesDialog from '@langchain/macaw-design-system/components/UnsavedChangesDialog';",
   });
 });
 
@@ -355,7 +355,7 @@ test('keeps component as a compatible alias for inspect', () => {
   expect(result.status, result.stderr).toBe(0);
   expect(JSON.parse(result.stdout)).toMatchObject({
     name: 'Typeahead',
-    importPath: '@langchain/design-system/components/Typeahead',
+    importPath: '@langchain/macaw-design-system/components/Typeahead',
   });
   const help = invoke('--help');
   expect(help.stdout).toContain('inspect <name>');
@@ -444,7 +444,7 @@ test('handles unquoted queries, empty results, and text output', () => {
   );
   expect(search.status, search.stderr).toBe(0);
   expect(search.stdout).toContain(
-    '@langchain/design-system/components/Typeahead'
+    '@langchain/macaw-design-system/components/Typeahead'
   );
   const empty = invoke('search', 'zzzzzzzzzz', '--json');
   expect(empty.status).toBe(0);
@@ -462,7 +462,7 @@ test('looks up components case-insensitively without unrelated stories', () => {
   expect(result.status, result.stderr).toBe(0);
   expect(JSON.parse(result.stdout)).toMatchObject({
     name: 'Button',
-    importPath: '@langchain/design-system/components/Button',
+    importPath: '@langchain/macaw-design-system/components/Button',
     stories: ['src/components/Button/Button.stories.tsx'],
   });
   const failure = invoke('inspect', 'Buttn', '--json');

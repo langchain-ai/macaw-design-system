@@ -154,16 +154,16 @@ if (!utilities.includes('.bg-surface-level-1'))
   fail('utilities.css is missing component utility classes');
 
 await Promise.all([
-  import('@langchain/design-system'),
-  import('@langchain/design-system/components/BarChart'),
-  import('@langchain/design-system/components/Code'),
-  import('@langchain/design-system/components/Logo'),
-  import('@langchain/design-system/components/ThinkingState'),
-  import('@langchain/design-system/components/SplitViewPane'),
+  import('@langchain/macaw-design-system'),
+  import('@langchain/macaw-design-system/components/BarChart'),
+  import('@langchain/macaw-design-system/components/Code'),
+  import('@langchain/macaw-design-system/components/Logo'),
+  import('@langchain/macaw-design-system/components/ThinkingState'),
+  import('@langchain/macaw-design-system/components/SplitViewPane'),
 ]);
 
 const require = createRequire(import.meta.url);
-const preset = require('@langchain/design-system/tailwind-preset');
+const preset = require('@langchain/macaw-design-system/tailwind-preset');
 if (preset.darkMode !== 'class' || preset.content.length !== 0) {
   fail(
     'Tailwind preset must be consumer-scanned and class-based for dark mode'

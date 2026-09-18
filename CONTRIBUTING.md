@@ -37,7 +37,7 @@ colocated stories. The CLI runs from the checkout on Node 22.18+ or Node 24.
 
 ## Link to LangChainPlus
 
-Once `smith-frontend` has `@langchain/design-system` as a dependency, link the
+Once `smith-frontend` has `@langchain/macaw-design-system` as a dependency, link the
 local checkout instead of publishing a test version. With the repositories as
 sibling directories:
 
@@ -54,7 +54,7 @@ Use an absolute path in `pnpm link` if the repositories are not siblings. To
 return to the version in `package.json` and the lockfile:
 
 ```sh
-pnpm unlink @langchain/design-system
+pnpm unlink @langchain/macaw-design-system
 ```
 
 The current extraction does not yet migrate `smith-frontend` imports to the

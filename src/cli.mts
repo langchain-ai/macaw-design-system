@@ -93,7 +93,7 @@ function catalog() {
   return entries
     .flatMap(({ name: family, entrypoint, sourceFiles }) => {
       const importPath = relative(entrypoint)
-        .replace(/^src\//, '@langchain/design-system/')
+        .replace(/^src\//, '@langchain/macaw-design-system/')
         .replace(/\.tsx?$/, '')
         .replace(/\/index$/, '');
       return componentExports(entrypoint, family, root).map(

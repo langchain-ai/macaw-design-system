@@ -1,5 +1,5 @@
 {
-  "name": "@langchain/design-system",
+  "name": "@langchain/macaw-design-system",
   "version": "0.1.0",
   "description": "The shared UI foundation for the LangChain product suite.",
   "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
