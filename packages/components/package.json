@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "0.1.0",
+  "version": "1.0.0-beta.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
   "bugs": {
@@ -288,7 +288,243 @@
       "import": "./dist/components/ThinkingState/index.js"
     },
     "./catalog.json": "./dist/catalog.json",
-    "./docs/*": "./docs/*"
+    "./docs/*": "./docs/*",
+    "./index": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./components/index": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./components/Avatar": {
+      "types": "./dist/components/Avatar/index.d.ts",
+      "import": "./dist/components/Avatar/index.js"
+    },
+    "./components/Badge": {
+      "types": "./dist/components/Badge/index.d.ts",
+      "import": "./dist/components/Badge/index.js"
+    },
+    "./components/Banner": {
+      "types": "./dist/components/Banner/index.d.ts",
+      "import": "./dist/components/Banner/index.js"
+    },
+    "./components/BarChart": {
+      "types": "./dist/components/BarChart/index.d.ts",
+      "import": "./dist/components/BarChart/index.js"
+    },
+    "./components/Button": {
+      "types": "./dist/components/Button/index.d.ts",
+      "import": "./dist/components/Button/index.js"
+    },
+    "./components/ButtonGroup": {
+      "types": "./dist/components/ButtonGroup/index.d.ts",
+      "import": "./dist/components/ButtonGroup/index.js"
+    },
+    "./components/Card": {
+      "types": "./dist/components/Card/index.d.ts",
+      "import": "./dist/components/Card/index.js"
+    },
+    "./components/ChartCard": {
+      "types": "./dist/components/ChartCard/index.d.ts",
+      "import": "./dist/components/ChartCard/index.js"
+    },
+    "./components/ChartLegend": {
+      "types": "./dist/components/ChartLegend/index.d.ts",
+      "import": "./dist/components/ChartLegend/index.js"
+    },
+    "./components/ChartTooltip": {
+      "types": "./dist/components/ChartTooltip/index.d.ts",
+      "import": "./dist/components/ChartTooltip/index.js"
+    },
+    "./components/Checkbox": {
+      "types": "./dist/components/Checkbox/index.d.ts",
+      "import": "./dist/components/Checkbox/index.js"
+    },
+    "./components/CircularProgress": {
+      "types": "./dist/components/CircularProgress/index.d.ts",
+      "import": "./dist/components/CircularProgress/index.js"
+    },
+    "./components/Code": {
+      "types": "./dist/components/Code/index.d.ts",
+      "import": "./dist/components/Code/index.js"
+    },
+    "./components/Command": {
+      "types": "./dist/components/Command/index.d.ts",
+      "import": "./dist/components/Command/index.js"
+    },
+    "./components/ContextMenu": {
+      "types": "./dist/components/ContextMenu/index.d.ts",
+      "import": "./dist/components/ContextMenu/index.js"
+    },
+    "./components/CopyButton": {
+      "types": "./dist/components/CopyButton/index.d.ts",
+      "import": "./dist/components/CopyButton/index.js"
+    },
+    "./components/Dialog": {
+      "types": "./dist/components/Dialog/index.d.ts",
+      "import": "./dist/components/Dialog/index.js"
+    },
+    "./components/Divider": {
+      "types": "./dist/components/Divider/index.d.ts",
+      "import": "./dist/components/Divider/index.js"
+    },
+    "./components/DonutChart": {
+      "types": "./dist/components/DonutChart/index.d.ts",
+      "import": "./dist/components/DonutChart/index.js"
+    },
+    "./components/DropdownMenu": {
+      "types": "./dist/components/DropdownMenu/index.d.ts",
+      "import": "./dist/components/DropdownMenu/index.js"
+    },
+    "./components/EmptyState": {
+      "types": "./dist/components/EmptyState/index.d.ts",
+      "import": "./dist/components/EmptyState/index.js"
+    },
+    "./components/ErrorMessage": {
+      "types": "./dist/components/ErrorMessage/index.d.ts",
+      "import": "./dist/components/ErrorMessage/index.js"
+    },
+    "./components/ErrorState": {
+      "types": "./dist/components/ErrorState/index.d.ts",
+      "import": "./dist/components/ErrorState/index.js"
+    },
+    "./components/GroupedTabs": {
+      "types": "./dist/components/GroupedTabs/index.d.ts",
+      "import": "./dist/components/GroupedTabs/index.js"
+    },
+    "./components/Icon": {
+      "types": "./dist/components/Icon/index.d.ts",
+      "import": "./dist/components/Icon/index.js"
+    },
+    "./components/IconButton": {
+      "types": "./dist/components/IconButton/index.d.ts",
+      "import": "./dist/components/IconButton/index.js"
+    },
+    "./components/Input": {
+      "types": "./dist/components/Input/index.d.ts",
+      "import": "./dist/components/Input/index.js"
+    },
+    "./components/Kbd": {
+      "types": "./dist/components/Kbd/index.d.ts",
+      "import": "./dist/components/Kbd/index.js"
+    },
+    "./components/LineChart": {
+      "types": "./dist/components/LineChart/index.d.ts",
+      "import": "./dist/components/LineChart/index.js"
+    },
+    "./components/LinearProgress": {
+      "types": "./dist/components/LinearProgress/index.d.ts",
+      "import": "./dist/components/LinearProgress/index.js"
+    },
+    "./components/Link": {
+      "types": "./dist/components/Link/index.d.ts",
+      "import": "./dist/components/Link/index.js"
+    },
+    "./components/Logo": {
+      "types": "./dist/components/Logo/index.d.ts",
+      "import": "./dist/components/Logo/index.js"
+    },
+    "./components/MetricChart": {
+      "types": "./dist/components/MetricChart/index.d.ts",
+      "import": "./dist/components/MetricChart/index.js"
+    },
+    "./components/Pane": {
+      "types": "./dist/components/Pane/index.d.ts",
+      "import": "./dist/components/Pane/index.js"
+    },
+    "./components/PlainTextEditor": {
+      "types": "./dist/components/PlainTextEditor/index.d.ts",
+      "import": "./dist/components/PlainTextEditor/index.js"
+    },
+    "./components/Popover": {
+      "types": "./dist/components/Popover/index.d.ts",
+      "import": "./dist/components/Popover/index.js"
+    },
+    "./components/ProgressBar": {
+      "types": "./dist/components/ProgressBar/index.d.ts",
+      "import": "./dist/components/ProgressBar/index.js"
+    },
+    "./components/RadioButton": {
+      "types": "./dist/components/RadioButton/index.d.ts",
+      "import": "./dist/components/RadioButton/index.js"
+    },
+    "./components/RadioCard": {
+      "types": "./dist/components/RadioCard/index.d.ts",
+      "import": "./dist/components/RadioCard/index.js"
+    },
+    "./components/RadioGroup": {
+      "types": "./dist/components/RadioGroup/index.d.ts",
+      "import": "./dist/components/RadioGroup/index.js"
+    },
+    "./components/Select": {
+      "types": "./dist/components/Select/index.d.ts",
+      "import": "./dist/components/Select/index.js"
+    },
+    "./components/Skeleton": {
+      "types": "./dist/components/Skeleton/index.d.ts",
+      "import": "./dist/components/Skeleton/index.js"
+    },
+    "./components/Slider": {
+      "types": "./dist/components/Slider/index.d.ts",
+      "import": "./dist/components/Slider/index.js"
+    },
+    "./components/SparkLineChart": {
+      "types": "./dist/components/SparkLineChart/index.d.ts",
+      "import": "./dist/components/SparkLineChart/index.js"
+    },
+    "./components/Spinner": {
+      "types": "./dist/components/Spinner/index.d.ts",
+      "import": "./dist/components/Spinner/index.js"
+    },
+    "./components/SplitViewPane": {
+      "types": "./dist/components/SplitViewPane/index.d.ts",
+      "import": "./dist/components/SplitViewPane/index.js"
+    },
+    "./components/Switch": {
+      "types": "./dist/components/Switch/index.d.ts",
+      "import": "./dist/components/Switch/index.js"
+    },
+    "./components/Tabs": {
+      "types": "./dist/components/Tabs/index.d.ts",
+      "import": "./dist/components/Tabs/index.js"
+    },
+    "./components/Text": {
+      "types": "./dist/components/Text/index.d.ts",
+      "import": "./dist/components/Text/index.js"
+    },
+    "./components/Textarea": {
+      "types": "./dist/components/Textarea/index.d.ts",
+      "import": "./dist/components/Textarea/index.js"
+    },
+    "./components/Toast": {
+      "types": "./dist/components/Toast/index.d.ts",
+      "import": "./dist/components/Toast/index.js"
+    },
+    "./components/Tooltip": {
+      "types": "./dist/components/Tooltip/index.d.ts",
+      "import": "./dist/components/Tooltip/index.js"
+    },
+    "./components/TopList": {
+      "types": "./dist/components/TopList/index.d.ts",
+      "import": "./dist/components/TopList/index.js"
+    },
+    "./components/Typeahead": {
+      "types": "./dist/components/Typeahead/index.d.ts",
+      "import": "./dist/components/Typeahead/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js"
+    },
+    "./components/ThinkingState": {
+      "types": "./dist/components/ThinkingState/index.d.ts",
+      "import": "./dist/components/ThinkingState/index.js"
+    }
   },
   "publishConfig": {
     "access": "public",

@@ -1,52 +1,62 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "defaultBase": "main",
-  "release": {
-    "projects": [
-      "@langchain/macaw-tokens",
-      "@langchain/macaw-components",
-      "@langchain/macaw-cli"
-    ],
-    "projectsRelationship": "fixed",
-    "releaseTag": {
-      "pattern": "v{version}"
-    },
-    "version": {
-      "currentVersionResolver": "disk",
-      "git": {
-        "commit": false,
-        "stageChanges": false,
-        "tag": false
-      }
-    },
-    "changelog": {
-      "workspaceChangelog": {
-        "createRelease": false
-      },
-      "git": {
-        "commit": false,
-        "stageChanges": false,
-        "tag": false
-      }
-    }
-  },
   "targetDefaults": {
-    "build": {
-      "cache": true,
-      "inputs": ["default", "^default"]
+    "format": {
+      "outputs": ["{projectRoot}/dist"],
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "format:check": {
+      "cache": true
     }
   },
-  "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": [
-      "{workspaceRoot}/scripts/**/*",
-      "{workspaceRoot}/package.json",
-      "{workspaceRoot}/pnpm-lock.yaml",
-      "{workspaceRoot}/pnpm-workspace.yaml",
-      "{workspaceRoot}/vite.config.ts",
-      "{workspaceRoot}/tsconfig*.json",
-      "{workspaceRoot}/tailwind.config.cjs",
-      "{workspaceRoot}/postcss.config.cjs"
-    ]
+  "analytics": false,
+  "plugins": [
+    {
+      "plugin": "@nx/oxlint",
+      "options": {
+        "targetName": "oxlint"
+      }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "vite:build",
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "vite:typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "vitest:test",
+        "ciTargetName": "test-ci",
+        "testMode": "watch"
+      }
+    },
+    {
+      "plugin": "@nx/storybook/plugin",
+      "options": {
+        "serveStorybookTargetName": "serve:storybook",
+        "buildStorybookTargetName": "build-storybook",
+        "testStorybookTargetName": "test-storybook",
+        "staticStorybookTargetName": "static-storybook",
+        "buildDepsTargetName": "storybook:build-deps",
+        "watchDepsTargetName": "storybook:watch-deps"
+      }
+    }
+  ],
+  "neverConnectToCloud": true,
+  "release": {
+    "version": {
+      "conventionalCommits": true
+    }
   }
 }

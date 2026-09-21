@@ -27,3 +27,12 @@ token.json
 # Nx local cache
 .nx/
 *.tgz
+
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json
