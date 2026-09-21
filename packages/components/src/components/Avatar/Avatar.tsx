@@ -1,0 +1,137 @@
+import type { ReactNode } from 'react';
+import { forwardRef } from 'react';
+
+import { sanitizeUrl } from '@braintree/sanitize-url';
+
+import { cn } from '../../utils/cn';
+import {
+  VISUAL_ELEMENT_SIZES,
+  type VisualElementSize,
+} from '../../utils/componentSizes';
+import { getColorByString } from '../../utils/get-color-by-string';
+import { Tooltip } from '../Tooltip';
+
+type AvatarSize = VisualElementSize | 'lg' | 'xl';
+type AvatarShape = 'circle' | 'square';
+
+interface AvatarProps {
+  /** Outer box size: xxs=12px, xs=16px, sm=20px, md=24px, lg=36px, xl=48px. */
+  size?: AvatarSize;
+  shape?: AvatarShape;
+  /** Show a small notification dot in the top-right corner. */
+  badge?: boolean;
+  /** Wrap the avatar in a tooltip with this title. */
+  tooltip?: string;
+  /** Extra classes on the avatar box. Can override size/text/color via `twMerge`. */
+  className?: string;
+  /** Text used for the initial and, unless `color` is set, the color hash. */
+  label: string;
+  /** Renders an image instead of the initial when present. */
+  imageUrl?: string;
+  /** Overrides the color-from-string hash with an explicit gradient start color. */
+  color?: string;
+  /** Rendered instead of the initial when `label` is empty. */
+  fallbackIcon?: ReactNode;
+  /** Highlighted brand-fill state (e.g. the current user's own entry). */
+  active?: boolean;
+}
+
+// The shared tiers use the visual-element scale. Identity-specific lg/xl tiers
+// remain larger so existing Avatar presentations retain their geometry.
+const BOX_SIZE: Record<AvatarSize, string> = {
+  xxs: VISUAL_ELEMENT_SIZES.xxs.className,
+  xs: VISUAL_ELEMENT_SIZES.xs.className,
+  sm: VISUAL_ELEMENT_SIZES.sm.className,
+  md: VISUAL_ELEMENT_SIZES.md.className,
+  lg: 'size-9',
+  xl: 'size-12',
+};
+
+const TEXT_SIZE: Record<AvatarSize, string> = {
+  xxs: 'text-[0.625rem] leading-none',
+  xs: 'text-xxs',
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-lg',
+  xl: 'text-xl',
+};
+
+const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
+  (
+    {
+      size = 'md',
+      shape = 'square',
+      badge,
+      tooltip,
+      className,
+      label,
+      imageUrl,
+      color,
+      fallbackIcon,
+      active,
+    },
+    ref
+  ) => {
+    const startColor = color ?? getColorByString(label);
+    const rounding = shape === 'circle' ? 'rounded-full' : 'rounded-sm';
+
+    const inner = (
+      // The box is intentionally not `overflow-hidden` so the badge dot can
+      // overflow the top-right corner. The image child clips itself instead.
+      <div
+        ref={ref}
+        className={cn(
+          'relative inline-flex shrink-0 cursor-default items-center justify-center text-center font-medium uppercase text-white/90 transition-all',
+          rounding,
+          BOX_SIZE[size],
+          TEXT_SIZE[size],
+          active && 'bg-brand',
+          className
+        )}
+        style={
+          active
+            ? undefined
+            : {
+                backgroundImage: `linear-gradient(to bottom right, ${startColor}, #aaaaaa)`,
+              }
+        }
+      >
+        {imageUrl ? (
+          <div
+            className={cn(
+              'absolute inset-0 size-full bg-cover bg-center',
+              rounding
+            )}
+            style={{ backgroundImage: `url(${sanitizeUrl(imageUrl)})` }}
+          />
+        ) : label ? (
+          <span>{label.charAt(0)}</span>
+        ) : (
+          (fallbackIcon ?? null)
+        )}
+
+        {badge && (
+          <div
+            className={cn(
+              'absolute rounded-full border-current bg-error-strong outline-transparent',
+              size === 'xxs'
+                ? '-right-0.5 -top-0.5 size-1.5 border'
+                : '-right-1 -top-1 size-3 border-2'
+            )}
+          />
+        )}
+      </div>
+    );
+
+    if (tooltip) {
+      return <Tooltip title={tooltip}>{inner}</Tooltip>;
+    }
+
+    return inner;
+  }
+);
+
+Avatar.displayName = 'Avatar';
+
+export { Avatar };
+export type { AvatarProps, AvatarSize };

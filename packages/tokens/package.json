@@ -1,0 +1,47 @@
+{
+  "name": "@langchain/macaw-tokens",
+  "version": "0.1.0-beta.0",
+  "description": "Framework-independent CSS design tokens for Macaw.",
+  "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
+  "bugs": {
+    "url": "https://github.com/langchain-ai/macaw-design-system/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langchain-ai/macaw-design-system.git",
+    "directory": "packages/tokens"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens.json": "./dist/tokens.json",
+    "./docs/*": "./docs/*",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "node ../../scripts/build.mjs tokens"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  }
+}

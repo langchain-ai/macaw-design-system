@@ -3,11 +3,11 @@ name: design-system
 description: Build or change @langchain/macaw-components components, tokens, styles, icons, stories, package exports, or documentation in this repository. Use for package work, not product-specific UI in a consuming application.
 ---
 
-# LangChain Design System
+# Macaw Design System
 
-Maintain the shared, domain-free UI package. Read
-[`docs/DESIGN.md`](../../../docs/DESIGN.md) before changing component behavior or
-visual rules. Read [`docs/STYLES.md`](../../../docs/STYLES.md) when working with
+Maintain the shared, domain-free Macaw workspace: components, tokens, and CLI. Read
+[`packages/components/docs/DESIGN.md`](../../../packages/components/docs/DESIGN.md) before changing component behavior or
+visual rules. Read [`packages/components/docs/STYLES.md`](../../../packages/components/docs/STYLES.md) when working with
 tokens, CSS, Tailwind, spacing, or z-index.
 
 ## Find components and guidance
@@ -16,18 +16,18 @@ tokens, CSS, Tailwind, spacing, or z-index.
   `pnpm --silent design-system inspect <name> --json` for exact imports, source,
   and stories. Family names group exports; they are not always importable names.
 - Keep capability keywords in the static component-level `tags` array of the
-  colocated story. The CLI reads this metadata directly.
+  colocated story. The contributor CLI reads this metadata directly; the package build exports it as a catalog for the installed CLI.
 - Read long docs in bounded sections. For styling, read **Usage Rules** in
-  `docs/STYLES.md` and the sections relevant to the change.
+  `packages/components/docs/STYLES.md` and the sections relevant to the change.
 - Use `ThinkingState` for active AI work and `LoadingIndicator` for its decorative
   animation. Use `Spinner` for routine loading, `Skeleton` for known content
   shapes, and `ProgressBar` for measurable completion.
-- Component sizes are family-specific. Check `src/utils/componentSizes.ts` and
+- Component sizes are family-specific. Check `packages/components/src/utils/componentSizes.ts` and
   the component's actual supported tiers.
 
 ## Work from the package contract
 
-- Search `src/components`, colocated stories, and `src/stories` before adding a
+- Search `packages/components/src/components`, colocated stories, and `packages/components/src/stories` before adding a
   new primitive. Extend or compose an existing component when it already owns
   the interaction.
 - Keep product navigation, data fetching, permissions, analytics, and feature
@@ -39,12 +39,20 @@ tokens, CSS, Tailwind, spacing, or z-index.
 - Update the export map, types, story, tests, and docs when a public contract
   changes. `pnpm verify:package` checks the packaged surface.
 
+## Package boundaries
+
+- Components, hooks, icons, and usage guidance live in `packages/components`.
+- Theme CSS and generated token JSON live in `packages/tokens`.
+- Discovery commands and agent setup templates live in `packages/cli`.
+- Keep the installed CLI independent of React and repository source files.
+- Keep versions coordinated with Nx and validate all three tarballs with `pnpm pack:check`.
+
 ## Styling and icons
 
 - Use semantic tokens and the named spacing, radius, shadow, motion, and
   z-index scales. Do not add raw color, primitive-token, spacing, or stacking
   literals when the system already represents the intent.
-- Merge conditional classes with `cn` from `src/utils/cn.tsx`.
+- Merge conditional classes with `cn` from `packages/components/src/utils/cn.tsx`.
 - Import general-purpose icons from server-safe Phosphor leaf modules such as
   `@phosphor-icons/react/dist/ssr/Check`. Set size and weight explicitly; use
   `fill` only for intentionally filled states.

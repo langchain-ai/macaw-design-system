@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
-const distRoot = resolve(repositoryRoot, 'dist');
+const distRoot = resolve(repositoryRoot, 'packages/components/dist');
 const failures = [];
 let rewrittenSpecifierCount = 0;
 

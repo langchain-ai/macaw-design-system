@@ -1,0 +1,19 @@
+packages:
+  - packages/*
+
+onlyBuiltDependencies:
+  - nx
+  - esbuild
+
+overrides:
+  # Nx 23.2.1 pins a version affected by a malformed-TOML denial of service.
+  nx>smol-toml: 1.7.1
+
+# These themes import highlight without declaring it in their manifests.
+packageExtensions:
+  '@uiw/codemirror-theme-tokyo-night-day@4.25.11':
+    dependencies:
+      '@lezer/highlight': ^1.2.0
+  '@uiw/codemirror-theme-tokyo-night-storm@4.25.11':
+    dependencies:
+      '@lezer/highlight': ^1.2.0

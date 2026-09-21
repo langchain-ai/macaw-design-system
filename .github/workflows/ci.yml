@@ -35,4 +35,4 @@ jobs:
       - run: pnpm build
       - run: pnpm verify:package
       - run: pnpm build:storybook
-      - run: npm pack --dry-run --ignore-scripts
+      - run: node scripts/pack.mjs

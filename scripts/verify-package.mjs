@@ -3,7 +3,8 @@ import { createRequire } from 'node:module';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
+const workspaceRoot = fileURLToPath(new URL('..', import.meta.url));
+const repositoryRoot = resolve(workspaceRoot, 'packages/components');
 const packageJson = JSON.parse(
   readFileSync(resolve(repositoryRoot, 'package.json'), 'utf8')
 );
@@ -42,6 +43,43 @@ for (const target of exportTargets(packageJson.exports)) {
   if (target.includes('*')) continue;
   const path = resolve(repositoryRoot, target);
   if (!existsSync(path)) fail(`missing export target: ${target}`);
+}
+
+for (const name of ['tokens', 'components', 'cli']) {
+  const directory = resolve(workspaceRoot, 'packages', name);
+  const manifest = JSON.parse(
+    readFileSync(resolve(directory, 'package.json'), 'utf8')
+  );
+  if (manifest.version !== packageJson.version)
+    fail(`${name} must use the coordinated package version`);
+  for (const target of [
+    ...exportTargets(manifest.exports),
+    ...Object.values(manifest.bin ?? {}),
+  ]) {
+    if (!target.includes('*') && !existsSync(resolve(directory, target)))
+      fail(`${name} is missing ${target}`);
+  }
+  if (
+    name !== 'components' &&
+    (Object.keys(manifest.dependencies ?? {}).length ||
+      Object.keys(manifest.peerDependencies ?? {}).length)
+  ) {
+    fail(`${name} must remain independent of component runtime dependencies`);
+  }
+}
+const catalog = JSON.parse(
+  readFileSync(resolve(repositoryRoot, 'dist/catalog.json'), 'utf8')
+);
+if (
+  catalog.schemaVersion !== 1 ||
+  catalog.version !== packageJson.version ||
+  !catalog.components.length
+)
+  fail('Catalog must describe the shipped component version');
+for (const entry of catalog.components) {
+  const target = fileURLToPath(import.meta.resolve(entry.importPath));
+  if (!existsSync(target))
+    fail(`Catalog import is missing: ${entry.importPath}`);
 }
 
 const sourceFiles = walk(resolve(repositoryRoot, 'src'));
@@ -93,7 +131,7 @@ const componentDirectories = readdirSync(
 ).filter((entry) => entry.isDirectory() && entry.name !== '__tests__');
 
 for (const { name } of componentDirectories) {
-  const exportName = `./components/${name}`;
+  const exportName = `./${name}`;
   if (!(exportName in packageJson.exports)) {
     fail(`missing package export for component directory: ${exportName}`);
   }
@@ -128,7 +166,10 @@ for (const path of distFiles) {
 }
 
 const styles = readFileSync(resolve(repositoryRoot, 'dist/styles.css'), 'utf8');
-const tokens = readFileSync(resolve(repositoryRoot, 'dist/tokens.css'), 'utf8');
+const tokens = readFileSync(
+  resolve(workspaceRoot, 'packages/tokens/dist/tokens.css'),
+  'utf8'
+);
 const utilities = readFileSync(
   resolve(repositoryRoot, 'dist/utilities.css'),
   'utf8'
@@ -144,7 +185,7 @@ if (
 )
   fail('ThinkingState attribution is missing from the package');
 
-if (!styles.includes("@import './tokens.css'"))
+if (!styles.includes("@import '@langchain/macaw-tokens/tokens.css'"))
   fail('styles.css does not load tokens.css');
 if (!tokens.includes('--bg-surface-level-1'))
   fail('tokens.css is missing semantic surface tokens');
@@ -153,18 +194,17 @@ if (!tokens.includes('html.dark'))
 if (!utilities.includes('.bg-surface-level-1'))
   fail('utilities.css is missing component utility classes');
 
-const packageName = packageJson.name;
 await Promise.all([
-  import(packageName),
-  import(`${packageName}/components/BarChart`),
-  import(`${packageName}/components/Code`),
-  import(`${packageName}/components/Logo`),
-  import(`${packageName}/components/ThinkingState`),
-  import(`${packageName}/components/SplitViewPane`),
+  import('@langchain/macaw-components'),
+  import('@langchain/macaw-components/BarChart'),
+  import('@langchain/macaw-components/Code'),
+  import('@langchain/macaw-components/Logo'),
+  import('@langchain/macaw-components/ThinkingState'),
+  import('@langchain/macaw-components/SplitViewPane'),
 ]);
 
 const require = createRequire(import.meta.url);
-const preset = require(`${packageName}/tailwind-preset`);
+const preset = require('@langchain/macaw-components/tailwind-preset');
 if (preset.darkMode !== 'class' || preset.content.length !== 0) {
   fail(
     'Tailwind preset must be consumer-scanned and class-based for dark mode'

@@ -24,7 +24,9 @@ __pycache__/
 credentials.json
 token.json
 
-
+# Nx local cache
+.nx/
+*.tgz
 
 .nx/cache
 .nx/workspace-data
