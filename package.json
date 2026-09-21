@@ -1,6 +1,6 @@
 {
-  "name": "@langchain/design-system",
-  "version": "0.1.0",
+  "name": "@langchain/macaw-components",
+  "version": "0.1.0-alpha.0",
   "description": "The shared UI foundation for the LangChain product suite.",
   "homepage": "https://github.com/langchain-ai/langchain-design-system#readme",
   "bugs": {
@@ -300,8 +300,7 @@
     }
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "scripts": {
     "clean": "node scripts/clean.mjs",

@@ -153,17 +153,18 @@ if (!tokens.includes('html.dark'))
 if (!utilities.includes('.bg-surface-level-1'))
   fail('utilities.css is missing component utility classes');
 
+const packageName = packageJson.name;
 await Promise.all([
-  import('@langchain/design-system'),
-  import('@langchain/design-system/components/BarChart'),
-  import('@langchain/design-system/components/Code'),
-  import('@langchain/design-system/components/Logo'),
-  import('@langchain/design-system/components/ThinkingState'),
-  import('@langchain/design-system/components/SplitViewPane'),
+  import(packageName),
+  import(`${packageName}/components/BarChart`),
+  import(`${packageName}/components/Code`),
+  import(`${packageName}/components/Logo`),
+  import(`${packageName}/components/ThinkingState`),
+  import(`${packageName}/components/SplitViewPane`),
 ]);
 
 const require = createRequire(import.meta.url);
-const preset = require('@langchain/design-system/tailwind-preset');
+const preset = require(`${packageName}/tailwind-preset`);
 if (preset.darkMode !== 'class' || preset.content.length !== 0) {
   fail(
     'Tailwind preset must be consumer-scanned and class-based for dark mode'
