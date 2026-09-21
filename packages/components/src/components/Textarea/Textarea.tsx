@@ -12,13 +12,21 @@ import {
 import { useDebouncedCallback } from 'use-debounce';
 
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES } from '../../utils/componentSizes';
 import { mergeRefs } from '../../utils/merge-refs';
+import {
+  INPUT_HORIZONTAL_PADDING_CLASSES,
+  INPUT_RADIUS_CLASSES,
+  INPUT_TEXT_CLASSES,
+} from '../Input/inputStyles';
+import type { InputSize } from '../Input/inputStyles';
 import { Text } from '../Text';
 
 const DEFAULT_AUTO_RESIZE_MAX_HEIGHT_PX = 200;
 
 export interface TextareaProps {
-  size?: 'sm' | 'md';
+  /** First-row metrics. Total height remains intrinsic to rows and content. */
+  size?: InputSize;
   /** Left side decorator/icon */
   leftDecorator?: ReactNode;
   /** Right side decorator/icon */
@@ -68,7 +76,7 @@ export const Textarea = forwardRef<
 >(
   (
     {
-      size = 'md',
+      size = 'lg',
       leftDecorator,
       rightDecorator,
       disabled = false,
@@ -162,10 +170,15 @@ export const Textarea = forwardRef<
     const textareaContainerClasses = cn(
       'flex w-full gap-space-2',
       variant === 'default' && [
-        'rounded-md border bg-transparent transition-[border-color,box-shadow,background-color]',
+        'border bg-transparent transition-[border-color,box-shadow,background-color]',
+        CONTROL_SIZES[size].minHeightClassName,
+        INPUT_HORIZONTAL_PADDING_CLASSES[size],
+        INPUT_RADIUS_CLASSES[size],
         {
-          'py-space-1 pl-space-2 pr-1.5': size === 'sm',
-          'py-space-2 pl-space-3 pr-2.5': size === 'md',
+          'py-px': size === 'xs',
+          'py-0.5': size === 'sm',
+          'py-space-1': size === 'md',
+          'py-space-2': size === 'lg',
         },
         'focus-within:outline-none',
         'border-subtle',
@@ -183,10 +196,7 @@ export const Textarea = forwardRef<
     const effectiveResize = autoResize ? 'none' : resize;
     const textareaClasses = cn(
       'max-w-full flex-1 border-none bg-transparent p-0 outline-none',
-      {
-        'text-xs': size === 'sm',
-        'text-sm': size === 'md',
-      },
+      INPUT_TEXT_CLASSES[size],
       'placeholder:text-placeholder',
       disabled && 'cursor-not-allowed',
       // Resize handling (autoResize forces none)
@@ -200,10 +210,11 @@ export const Textarea = forwardRef<
     );
 
     // Decorator styles
-    const decoratorClasses = cn(
-      'flex items-center text-tertiary',
-      size === 'sm' ? 'mt-0.5' : 'mt-space-1' // Align with first line of text
-    );
+    const decoratorClasses = cn('flex items-center text-tertiary', {
+      'mt-0': size === 'xs' || size === 'sm',
+      'mt-0.5': size === 'md',
+      'mt-space-1': size === 'lg',
+    });
     const leftDecoratorClasses = cn(decoratorClasses);
     const rightDecoratorClasses = cn(decoratorClasses);
 

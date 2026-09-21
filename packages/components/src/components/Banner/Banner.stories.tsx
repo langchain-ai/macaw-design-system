@@ -133,7 +133,7 @@ export const Flush: Story = {
     children: 'Maintenance begins Saturday at 2am UTC.',
     dismissible: true,
     action: (
-      <Button variant="plain" size="xs" color="primary" onClick={fn()}>
+      <Button variant="plain" size="sm" color="primary" onClick={fn()}>
         View details
       </Button>
     ),

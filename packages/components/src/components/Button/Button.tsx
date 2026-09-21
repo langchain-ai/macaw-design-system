@@ -1,23 +1,24 @@
 import {
   type ButtonHTMLAttributes,
   type ReactElement,
-  type SVGProps,
   cloneElement,
   forwardRef,
   isValidElement,
 } from 'react';
 
-import { SpinnerGapIcon } from '@phosphor-icons/react/dist/ssr/SpinnerGap';
-
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
 import type { IconComponent } from '../../utils/icon-types';
 import { Badge } from '../Badge';
+import { Spinner } from '../Spinner';
 import { Text } from '../Text';
 import { buttonStyleMap } from './constants';
 
+type ButtonSize = Exclude<ControlSize, 'lg'>;
+
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** Button size variant */
-  size?: 'xs' | 'sm' | 'md';
+  /** Exact outer height: xs=20px, sm=24px, md=32px. */
+  size?: ButtonSize;
   /** Button color scheme */
   color?: 'primary' | 'secondary' | 'error';
   /** Button visual variant */
@@ -42,14 +43,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   as?: ReactElement<{ children: React.ReactNode; [key: string]: unknown }>;
 }
 
-const ButtonSpinnerIcon = (props: SVGProps<SVGSVGElement>) => (
-  <SpinnerGapIcon {...props} weight="regular" />
-);
-
-const Spinner = () => {
-  return <ButtonSpinnerIcon aria-hidden className="size-4 animate-spin" />;
-};
-
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -71,16 +64,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles = cn(
-      'lc-button relative inline-flex flex-none items-center justify-center gap-1.5 truncate transition-all duration-200',
+      'lc-button relative box-border inline-flex flex-none items-center justify-center gap-1.5 truncate transition-all duration-200',
+      CONTROL_SIZES[size].heightClassName,
       '[&_*]:[text-box-trim:trim-both]',
       {
         'text-xxs leading-[1.15] tracking-normal': size === 'xs',
         'text-xs leading-tight tracking-snug': size === 'sm',
         'text-sm leading-[1.15] tracking-tighter': size === 'md',
-      },
-      {
-        'py-space-1': size === 'xs' || size === 'sm',
-        'py-space-2': size === 'md',
       },
       {
         'px-space-2': variant !== 'underlined',
@@ -139,9 +129,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {tagText && tagPosition === 'left' && (
           <Badge
             color={color}
-            size="xs"
+            size={size === 'md' ? 'xs' : 'xxs'}
             rounded="xs"
-            className={cn(disabled && 'opacity-50')}
+            className={cn('border-0 py-0', disabled && 'opacity-50')}
           >
             {tagText}
           </Badge>
@@ -158,9 +148,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {tagText && tagPosition === 'right' && (
           <Badge
             color={color}
-            size="xs"
+            size={size === 'md' ? 'xs' : 'xxs'}
             rounded="xs"
-            className={cn(disabled && 'opacity-50')}
+            className={cn('border-0 py-0', disabled && 'opacity-50')}
           >
             {tagText}
           </Badge>
@@ -178,6 +168,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </>
     );
+    const spinnerSize = size === 'xs' ? 'xxs' : 'xs';
 
     if (as) {
       if (!isValidElement(as)) return null;
@@ -193,7 +184,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <>
             <span className="invisible flex items-center">{content}</span>
             <span className="absolute">
-              <Spinner />
+              <Spinner size={spinnerSize} />
             </span>
           </>
         ) : (
@@ -217,7 +208,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <>
             <span className="invisible flex items-center">{content}</span>
             <span className="absolute">
-              <Spinner />
+              <Spinner size={spinnerSize} />
             </span>
           </>
         ) : (

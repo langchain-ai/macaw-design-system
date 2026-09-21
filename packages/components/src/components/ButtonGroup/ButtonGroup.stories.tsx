@@ -10,6 +10,16 @@ const meta: Meta<typeof ButtonGroup> = {
   component: ButtonGroup,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component: [
+          'Joins equally sized Button and IconButton controls. Wrappers must not add a DOM container between the group and its controls.',
+          '- Group size, color, and variant replace direct-child props, including when undefined.',
+          '- PopoverTrigger and DropdownMenuTrigger with asChild forward group props; explicit inner props take precedence.',
+          '- Tooltip does not forward group props. Set matching size, color, and variant on its inner control.',
+        ].join('\n\n'),
+      },
+    },
   },
   tags: ['autodocs', 'actions', 'toolbar', 'grouped', 'controls'],
   argTypes: {
@@ -23,7 +33,7 @@ const meta: Meta<typeof ButtonGroup> = {
     },
     size: {
       control: 'select',
-      options: ['sm', 'md'],
+      options: ['xs', 'sm', 'md'],
     },
   },
   decorators: [
@@ -46,7 +56,7 @@ export const Primary: Story = {
   },
   render: (args) => (
     <ButtonGroup {...args}>
-      <Button>First</Button>
+      <Button loading>First</Button>
       <Button>Second</Button>
       <Button>Third</Button>
     </ButtonGroup>
@@ -94,5 +104,24 @@ export const MixedButtons: Story = {
       <Button>Save</Button>
       <IconButton icon={CaretDownIcon} label="More save options" />
     </ButtonGroup>
+  ),
+};
+
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex flex-col items-start gap-space-3">
+      <ButtonGroup size="xs" color="secondary" variant="outlined">
+        <Button>Extra small</Button>
+        <IconButton icon={CaretDownIcon} label="Extra small options" />
+      </ButtonGroup>
+      <ButtonGroup size="sm" color="secondary" variant="outlined">
+        <Button>Small</Button>
+        <IconButton icon={CaretDownIcon} label="Small options" />
+      </ButtonGroup>
+      <ButtonGroup size="md" color="secondary" variant="outlined">
+        <Button>Medium</Button>
+        <IconButton icon={CaretDownIcon} label="Medium options" />
+      </ButtonGroup>
+    </div>
   ),
 };

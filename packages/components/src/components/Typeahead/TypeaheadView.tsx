@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Keep the control, tag layout, and popover rendering together in this view. */
 import type {
   FocusEvent,
   HTMLAttributes,
@@ -13,7 +14,10 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 
 import { CaretDownIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES } from '../../utils/componentSizes';
+import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
 import { Command, CommandEmpty, CommandItem, CommandList } from '../Command';
+import { Icon } from '../Icon';
 import { Popover, PopoverAnchor, PopoverContent } from '../Popover';
 import { Text } from '../Text';
 import type {
@@ -119,26 +123,18 @@ interface TypeaheadViewProps<TOption> {
   popoverContentRef: Ref<HTMLDivElement>;
 }
 
-// Keep same-sized Typeahead and Button controls height-compatible.
-const CONTROL_HEIGHT_CLASSES = {
-  xs: 'h-[1.5625rem]',
-  sm: 'h-[1.625rem]',
-  md: 'h-[2.1875rem]',
-  lg: 'h-[2.4375rem]',
-} as const satisfies Record<TypeaheadSize, string>;
-
-const CONTROL_MIN_HEIGHT_CLASSES = {
-  xs: 'min-h-[1.5625rem]',
-  sm: 'min-h-[1.625rem]',
-  md: 'min-h-[2.1875rem]',
-  lg: 'min-h-[2.4375rem]',
-} as const satisfies Record<TypeaheadSize, string>;
-
 const CONTROL_RADIUS_CLASSES = {
   xs: 'rounded-xs',
   sm: 'rounded-sm',
   md: 'rounded-md',
   lg: 'rounded-md',
+} as const satisfies Record<TypeaheadSize, string>;
+
+const MULTIPLE_INPUT_HEIGHT_CLASSES = {
+  xs: 'h-4',
+  sm: 'h-5',
+  md: 'h-6',
+  lg: 'h-6',
 } as const satisfies Record<TypeaheadSize, string>;
 
 const INPUT_TEXT_CLASSES = {
@@ -222,8 +218,8 @@ export function TypeaheadView<TOption>({
     !visibleShowCreateOption &&
     (emptyState != null || !hideEmptyList);
   const controlHeightClass = multiple
-    ? CONTROL_MIN_HEIGHT_CLASSES[size]
-    : CONTROL_HEIGHT_CLASSES[size];
+    ? CONTROL_SIZES[size].minHeightClassName
+    : CONTROL_SIZES[size].heightClassName;
   const controlPaddingClass =
     size === 'xs' || size === 'sm' ? 'px-space-2' : 'px-space-3';
   const renderedTags =
@@ -238,6 +234,7 @@ export function TypeaheadView<TOption>({
               selected={selected}
               index={index}
               disabled={disabled}
+              size={size}
               getLabel={getLabel}
               getValue={getValue}
               onRemove={tagProps.onDelete}
@@ -257,9 +254,13 @@ export function TypeaheadView<TOption>({
           {leftDecorator}
         </div>
       ) : !multiple && !hasValue ? (
-        <div className="flex items-center text-icon-tertiary">
-          <MagnifyingGlassIcon aria-hidden size={16} weight="regular" />
-        </div>
+        <Icon
+          aria-hidden
+          icon={MagnifyingGlassIcon}
+          iconClassName={CONTROL_ICON_SIZES[size].iconClassName}
+          className="text-icon-tertiary"
+          weight="regular"
+        />
       ) : null}
       {/*
         cmdk rewrites some of these combobox attributes as the query changes, so
@@ -297,7 +298,9 @@ export function TypeaheadView<TOption>({
           'min-w-0 max-w-full border-none bg-transparent p-0 outline-none placeholder:text-placeholder',
           INPUT_TEXT_CLASSES[size],
           disabled && 'cursor-not-allowed',
-          multiple ? 'h-6 w-full' : 'h-full w-full flex-1'
+          multiple
+            ? cn(MULTIPLE_INPUT_HEIGHT_CLASSES[size], 'w-full')
+            : 'h-full w-full flex-1'
         )}
       />
     </div>
@@ -308,9 +311,16 @@ export function TypeaheadView<TOption>({
         'flex shrink-0 items-center gap-space-1 text-icon-tertiary',
         multiple ? 'self-center' : 'ml-auto'
       )}
+      style={{
+        marginInlineEnd:
+          showClearButton && !forcePopupIcon
+            ? CONTROL_ICON_SIZES[size].actionOffset
+            : undefined,
+      }}
     >
       {showClearButton && (
         <TypeaheadClearButton
+          size={size}
           label={multiple ? 'Clear selections' : 'Clear selection'}
           onClick={(event) => {
             event.stopPropagation();
@@ -319,15 +329,16 @@ export function TypeaheadView<TOption>({
         />
       )}
       {forcePopupIcon && (
-        <span
+        <Icon
           aria-hidden
+          icon={CaretDownIcon}
+          iconClassName={CONTROL_ICON_SIZES[size].iconClassName}
           className={cn(
-            'inline-flex size-4 transition-transform',
+            'text-icon-tertiary transition-transform',
             open && 'rotate-180'
           )}
-        >
-          <CaretDownIcon size="100%" weight="regular" />
-        </span>
+          weight="regular"
+        />
       )}
     </div>
   );
@@ -353,8 +364,12 @@ export function TypeaheadView<TOption>({
                 : 'flex items-center gap-space-1 overflow-hidden',
               'focus-within:border-focus focus-within:bg-elevated hover:bg-elevated-hover',
               controlHeightClass,
-              multiple &&
-                (size === 'lg' ? 'px-space-3 py-space-1' : 'p-space-1'),
+              multiple && {
+                'px-space-1 py-0': size === 'xs',
+                'px-space-1 py-px': size === 'sm',
+                'px-space-2 py-0.5': size === 'md',
+                'px-space-3 py-space-1': size === 'lg',
+              },
               !multiple && controlPaddingClass,
               CONTROL_RADIUS_CLASSES[size],
               isError && 'border-error focus-within:border-error',

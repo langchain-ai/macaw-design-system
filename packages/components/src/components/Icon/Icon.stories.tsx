@@ -18,7 +18,7 @@ const meta: Meta<typeof Icon> = {
     docs: {
       description: {
         component:
-          'Icon is a presentation wrapper around a glyph from Foundations → Icon Library. Named sizes are intrinsic for plain icons. Decorated icons use corresponding outer boxes: xxs=12px, xs=16px, sm=20px, md=24px, lg=36px, and xl=48px.',
+          'Icon is a presentation wrapper around a glyph from Foundations → Icon Library. Named sizes are intrinsic for plain icons. Decorated icons use corresponding box sizes: xxs=12px, xs=16px, sm=20px, md=24px, lg=36px, and xl=48px.',
       },
     },
   },
@@ -84,13 +84,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     icon: InfoIcon,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Legacy intrinsic presentation retained for existing consumers.',
-      },
-    },
   },
 };
 

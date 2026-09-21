@@ -131,7 +131,15 @@ describe('DonutChart', () => {
       showLegend: false,
       legendProps: undefined,
     });
-    const chainSlice = screen.getByLabelText('chain slice');
+    expect(
+      screen.getByRole('group', { name: 'Runs by type', queryFallbacks: true })
+    ).toBe(screen.getByRole('graphics-document', { name: 'Runs by type' }));
+    expect(
+      screen.getByRole('graphics-document', { name: 'Runs by type' })
+    ).toBeVisible();
+    const chainSlice = screen.getByRole('graphics-symbol', {
+      name: 'chain slice',
+    });
 
     await user.click(chainSlice);
     expect(chainSlice).not.toHaveFocus();

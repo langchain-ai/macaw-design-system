@@ -60,7 +60,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Selects one value from a known set. Use RadioGroup for a small visible set and Typeahead for multiple or user-created values.',
+          'Selects one value from a known set. Use RadioGroup for a small visible set and Typeahead for multiple or user-created values. The picker trigger uses exact outer heights: xs=20px, sm=24px, md=32px, and lg=40px for compatibility.',
       },
     },
   },

@@ -146,8 +146,8 @@ export const Overflow: Story = {
     return (
       <div className="flex flex-col gap-space-2">
         <Text variant="xs" color="secondary">
-          Drag the card’s bottom-right edge to resize it, or click the legend
-          background and +N badge.
+          Drag the card’s bottom-right edge to resize it, or use the +N badge to
+          view hidden legends.
         </Text>
         <div className="flex w-[32rem] min-w-64 max-w-[80vw] resize-x flex-col gap-space-4 overflow-auto">
           <ChartPreview />

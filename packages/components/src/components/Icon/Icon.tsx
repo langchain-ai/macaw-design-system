@@ -35,11 +35,11 @@ export interface IconProps extends React.HTMLAttributes<HTMLDivElement> {
   rounded?: boolean;
   /** Optional label - renders a tooltip when provided */
   label?: React.ReactNode;
-  /** Intrinsic glyph size. Decorated icons also receive the corresponding presentation box. */
+  /** The size of the icon. Decorated icons also receive the corresponding presentation box. */
   size?: IconSize;
   /** Class name for the icon */
   iconClassName?: string;
-  /** Phosphor weight used to render the icon */
+  /** Weight used to render the icon */
   weight?: IconWeight;
   /** Tooltip props */
   tooltipProps?: Omit<TooltipProps, 'children' | 'title'>;

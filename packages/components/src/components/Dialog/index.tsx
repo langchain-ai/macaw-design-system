@@ -95,6 +95,7 @@ interface DialogContentProps {
   onPointerDownOutside?: RadixDialogContentProps['onPointerDownOutside'];
   onInteractOutside?: RadixDialogContentProps['onInteractOutside'];
   onOpenAutoFocus?: RadixDialogContentProps['onOpenAutoFocus'];
+  onCloseAutoFocus?: RadixDialogContentProps['onCloseAutoFocus'];
   onEscapeKeyDown?: RadixDialogContentProps['onEscapeKeyDown'];
   onKeyDown?: RadixDialogContentProps['onKeyDown'];
 }
@@ -150,6 +151,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       onPointerDownOutside,
       onInteractOutside,
       onOpenAutoFocus,
+      onCloseAutoFocus,
       onEscapeKeyDown,
       onKeyDown,
     },
@@ -175,6 +177,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         onPointerDownOutside={onPointerDownOutside}
         onInteractOutside={onInteractOutside}
         onOpenAutoFocus={onOpenAutoFocus}
+        onCloseAutoFocus={onCloseAutoFocus}
         onEscapeKeyDown={onEscapeKeyDown}
         onKeyDown={onKeyDown}
       >

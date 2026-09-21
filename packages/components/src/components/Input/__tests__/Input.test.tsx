@@ -119,6 +119,32 @@ describe('Input', () => {
     expect(handleChange).toHaveBeenCalledWith('LangSmith');
   });
 
+  it('keeps input focus when its icon action runs and disables the action with the field', async () => {
+    const onAction = vi.fn();
+    const props = {
+      label: 'Search',
+      onChange: () => {},
+      rightAction: {
+        icon: QuestionIcon,
+        label: 'Search help',
+        onClick: onAction,
+      },
+    };
+    const { user, rerender } = render(<Input {...props} />);
+    const input = screen.getByRole('textbox', { name: 'Search' });
+    const action = screen.getByRole('button', { name: 'Search help' });
+
+    await user.click(input);
+    await user.click(action);
+    expect(onAction).toHaveBeenCalledOnce();
+    expect(input).toHaveFocus();
+
+    rerender(<Input {...props} disabled />);
+    expect(action).toBeDisabled();
+    await user.click(action);
+    expect(onAction).toHaveBeenCalledOnce();
+  });
+
   it('masks password values by default and toggles visibility inline', async () => {
     const user = userEvent.setup();
 

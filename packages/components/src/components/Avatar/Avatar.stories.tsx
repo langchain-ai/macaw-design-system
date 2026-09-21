@@ -19,7 +19,7 @@ const meta: Meta<AvatarStoryArgs> = {
     docs: {
       description: {
         component: [
-          "Identity marker for a person or organization: shows an image, the first initial of `label` or a `fallbackIcon`. Creates background gradient based from the label. Shares `Icon`'s outer-box scale: `xs`/`sm`/`md`/`lg`/`xl` render at 16/20/24/36/48px.",
+          "Identity marker for a person or organization: shows an image, the first initial of `label` or a `fallbackIcon`. Creates background gradient based from the label. Shares `Icon`'s outer-box scale for `xxs`/`xs`/`sm`/`md` at 12/16/20/24px, with larger `lg`/`xl` tiers at 36/48px.",
           '',
           '**Use for** members, reviewers, feedback/comment authors, and organizations (via `OrganizationAvatar`).',
           '',
@@ -32,7 +32,7 @@ const meta: Meta<AvatarStoryArgs> = {
   argTypes: {
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      options: ['xxs', 'xs', 'sm', 'md', 'lg', 'xl'],
     },
     shape: {
       control: 'select',
@@ -65,12 +65,13 @@ export const Default: Story = {
 };
 
 /**
- * Sizes share Icon's outer-box scale: xs (16px), sm (20px), md (24px),
- * lg (36px), xl (48px).
+ * Sizes share Icon's outer-box scale: xxs (12px), xs (16px), sm (20px), md (24px),
+ * with larger lg (36px) and xl (48px) tiers.
  */
 export const Sizes: Story = {
   render: () => {
     const sizes: { size: AvatarSize; px: number }[] = [
+      { size: 'xxs', px: 12 },
       { size: 'xs', px: 16 },
       { size: 'sm', px: 20 },
       { size: 'md', px: 24 },

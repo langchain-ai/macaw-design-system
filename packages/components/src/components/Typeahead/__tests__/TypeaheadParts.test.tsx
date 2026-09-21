@@ -12,6 +12,7 @@ describe('Typeahead tag removal', () => {
       render(
         <TypeaheadDefaultTag
           selected="Alpha"
+          size="md"
           index={0}
           disabled={false}
           getLabel={String}
@@ -34,6 +35,7 @@ describe('Typeahead tag removal', () => {
     render(
       <TypeaheadDefaultTag
         selected="Alpha"
+        size="md"
         index={0}
         disabled
         getLabel={String}

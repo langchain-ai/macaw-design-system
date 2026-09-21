@@ -12,8 +12,11 @@ const meta = {
   title: 'Components/Status/Toast',
   component: ToastProvider,
   parameters: {
-    layout: 'centered',
+    layout: 'fullscreen',
     docs: {
+      story: {
+        height: '16rem',
+      },
       description: {
         component:
           'Brief, non-blocking operation feedback. Use Banner when the message must remain visible and Dialog when a decision is required.',

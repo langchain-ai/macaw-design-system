@@ -25,6 +25,10 @@ import { EmptyState } from '../EmptyState';
 import { IconButton } from '../IconButton';
 import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
+import {
+  ChartCardSkeleton,
+  type ChartCardSkeletonVariant,
+} from './ChartCardSkeleton';
 
 export interface ChartCardActionButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -88,9 +92,13 @@ export interface ChartCardProps extends Omit<
   description?: ReactNode;
   /** Visual state of the card. Fetching and retry behavior remain external. */
   state?: ChartCardState;
+  /** Chart-shaped loading state. Omit for the generic placeholder. */
+  skeletonVariant?: ChartCardSkeletonVariant;
+  /** Size the loading plot to match a compact or fixed-height chart. */
+  skeletonClassName?: string;
   /** Layout state for the card. Full-width cards hide their move handle. */
   variant?: ChartCardVariant;
-  /** Whether to show the chart's move handle. */
+  /** Whether to show the chart's move handle. Requires dragHandleProps. */
   isMovable?: boolean;
   /**
    * Props for the move handle. Pass the listeners and attributes from the
@@ -126,6 +134,8 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
       description,
       children,
       state = 'ready',
+      skeletonVariant,
+      skeletonClassName,
       variant = 'default',
       isMovable = false,
       dragHandleProps,
@@ -144,6 +154,8 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
     const titleId = useId();
     const isFullWidth = variant === 'full-width';
     const isLoading = state === 'loading';
+    const showDragHandle =
+      isMovable && dragHandleProps != null && !isFullWidth && !isLoading;
 
     const {
       label: dragHandleLabel = 'Move chart',
@@ -180,7 +192,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
       >
         <div className="flex min-w-0 items-center justify-between gap-space-3 pl-space-3 pr-space-2 pt-space-2">
           <div className="flex min-w-0 flex-1 items-center">
-            {isMovable && !isFullWidth && !isLoading && (
+            {showDragHandle && (
               <IconButton
                 {...dragButtonProps}
                 icon={DotsSixVerticalIcon}
@@ -300,7 +312,14 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
           )}
         >
           {state === 'loading' ? (
-            <ChartCardLoadingState />
+            skeletonVariant ? (
+              <ChartCardSkeleton
+                variant={skeletonVariant}
+                className={skeletonClassName}
+              />
+            ) : (
+              <ChartCardLoadingState />
+            )
           ) : state === 'error' ? (
             <ChartCardErrorState />
           ) : (

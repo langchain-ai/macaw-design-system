@@ -9,9 +9,10 @@ import {
 } from '../../utils/componentSizes';
 import type { IconWeight } from '../../utils/icon-types';
 
-type SpinnerSize = Exclude<VisualElementSize, 'xxs'> | 'lg';
+type SpinnerSize = VisualElementSize | 'lg';
 
 const SPINNER_SIZE: Record<SpinnerSize, string> = {
+  xxs: VISUAL_ELEMENT_SIZES.xxs.className,
   xs: VISUAL_ELEMENT_SIZES.xs.className,
   sm: VISUAL_ELEMENT_SIZES.sm.className,
   md: VISUAL_ELEMENT_SIZES.md.className,
@@ -39,7 +40,7 @@ const Spinner = ({
 }) => {
   return (
     <SpinnerIcon
-      weight={size === 'xs' ? 'bold' : 'regular'}
+      weight={size === 'xxs' || size === 'xs' ? 'bold' : 'regular'}
       className={cn(SPINNER_SIZE[size], className)}
     />
   );

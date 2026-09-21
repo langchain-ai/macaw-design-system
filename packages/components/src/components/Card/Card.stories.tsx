@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Card } from '.';
+import { Divider } from '../Divider';
 import { Text } from '../Text';
 
 const meta: Meta<typeof Card> = {
@@ -11,6 +12,9 @@ const meta: Meta<typeof Card> = {
   },
   tags: ['autodocs', 'surface', 'container', 'panel'],
   argTypes: {
+    className: {
+      control: 'text',
+    },
     intent: {
       control: 'select',
       options: ['plain', 'neutral', 'info'],
@@ -59,7 +63,8 @@ export const Default: Story = {
             <Text weight="medium">8</Text>
           </div>
         </div>
-        <div className="border-t border-muted pt-space-3">
+        <div className="flex flex-col gap-space-3">
+          <Divider weight="strong" />
           <Text variant="xs" color="tertiary">
             Updated a few minutes ago
           </Text>

@@ -226,6 +226,7 @@ const AnimatedDonutArc = ({
         );
         return path({ ...arc, endAngle }) ?? '';
       })}
+      role={ariaProps['aria-label'] == null ? undefined : 'graphics-symbol img'}
       tabIndex={ariaProps['aria-label'] == null ? undefined : 0}
       {...ariaProps}
       onPointerMove={onPointerMove}
@@ -337,7 +338,7 @@ export const DonutChart = ({
         viewBox={`0 0 ${DONUT_VIEWBOX} ${DONUT_VIEWBOX}`}
         preserveAspectRatio="xMidYMid meet"
         className="size-full"
-        role="img"
+        role={getSegmentAriaLabel == null ? 'img' : 'graphics-document group'}
         {...ariaProps}
       >
         {isRendering && (

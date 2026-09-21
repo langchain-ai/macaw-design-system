@@ -7,9 +7,11 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Typeahead } from '.';
 import type { TypeaheadOption, TypeaheadSize } from '.';
+import { CONTROL_SIZES } from '../../utils/componentSizes';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { Input } from '../Input';
+import { Select } from '../Select';
 import { Text } from '../Text';
 
 const metricOptions: TypeaheadOption[] = [
@@ -61,7 +63,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Searches large option sets, selects multiple values, or accepts user-created values. Use Select for one known value; default tags support removal with Enter or Space.',
+          'Searches large option sets, selects multiple values, or accepts user-created values. Use Select for one known value. Single-select controls use exact xs=20px, sm=24px, md=32px, and lg=40px heights; multiple mode uses those values as minimum heights and grows as tags wrap. Default tags support removal with Enter or Space.',
       },
     },
   },
@@ -193,6 +195,114 @@ export const Sizes: Story = {
   },
 };
 
+const iconAlignmentOptions = [
+  'Run count',
+  'Error rate',
+  'Latency (p50)',
+  'Token count',
+];
+
+function IconAlignmentExample({
+  size,
+  disabled,
+}: {
+  size: TypeaheadSize;
+  disabled: boolean;
+}) {
+  const [selectValue, setSelectValue] = useState<string | undefined>(
+    'Run count'
+  );
+  const [emptyValue, setEmptyValue] = useState<string | null | undefined>(null);
+  const [caretValue, setCaretValue] = useState<string | null | undefined>(
+    'Run count'
+  );
+  const [clearValue, setClearValue] = useState<string | null | undefined>(
+    'Run count'
+  );
+  const [multipleValue, setMultipleValue] =
+    useState<string[]>(iconAlignmentOptions);
+
+  return (
+    <div className="flex flex-col gap-space-2">
+      <Text variant="xs" color="secondary">
+        {size}
+      </Text>
+      <Select
+        size={size}
+        disabled={disabled}
+        value={selectValue}
+        onChange={setSelectValue}
+        options={iconAlignmentOptions.map((value) => ({ value }))}
+        aria-label={`${size} select with decorative caret`}
+      />
+      <Typeahead
+        size={size}
+        disabled={disabled}
+        value={emptyValue}
+        onChange={setEmptyValue}
+        options={iconAlignmentOptions}
+        placeholder="Search icons"
+        aria-label={`${size} search and caret icons`}
+      />
+      <Typeahead
+        size={size}
+        disabled={disabled}
+        value={caretValue}
+        onChange={setCaretValue}
+        options={iconAlignmentOptions}
+        aria-label={`${size} clear button followed by caret`}
+      />
+      <Typeahead
+        size={size}
+        disabled={disabled}
+        value={clearValue}
+        onChange={setClearValue}
+        options={iconAlignmentOptions}
+        forcePopupIcon={false}
+        aria-label={`${size} clear button at the edge`}
+      />
+      <Typeahead
+        multiple
+        size={size}
+        disabled={disabled}
+        value={multipleValue}
+        onChange={setMultipleValue}
+        options={iconAlignmentOptions}
+        aria-label={`${size} wrapped selections with caret`}
+      />
+      <Typeahead
+        multiple
+        size={size}
+        disabled={disabled}
+        value={multipleValue}
+        onChange={setMultipleValue}
+        options={iconAlignmentOptions}
+        forcePopupIcon={false}
+        aria-label={`${size} wrapped selections with clear button at the edge`}
+      />
+    </div>
+  );
+}
+
+export const IconAlignment: Story = {
+  parameters: {
+    controls: { include: ['disabled'] },
+    docs: {
+      description: {
+        story:
+          'Each size compares Select, an empty search field, clear with a caret, clear at the edge, and wrapped selections with and without a caret. Only an outermost clear button receives edge compensation; its click target does not increase the tag row height.',
+      },
+    },
+  },
+  render: ({ disabled }) => (
+    <div className="flex w-72 flex-col gap-space-5">
+      {Object.values(CONTROL_SIZES).map(({ name }) => (
+        <IconAlignmentExample key={name} size={name} disabled={disabled} />
+      ))}
+    </div>
+  ),
+};
+
 export const WithLeftDecorator: Story = {
   render: () => {
     const [value, setValue] = useState<
@@ -264,6 +374,41 @@ export const SearchableMultiSelect: Story = {
       />
     );
   },
+};
+
+export const MultipleSizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-space-2">
+      <Typeahead
+        multiple
+        size="xs"
+        options={metricOptions}
+        value={metricOptions.slice(0, 1)}
+        onChange={() => {}}
+      />
+      <Typeahead
+        multiple
+        size="sm"
+        options={metricOptions}
+        value={metricOptions.slice(0, 1)}
+        onChange={() => {}}
+      />
+      <Typeahead
+        multiple
+        size="md"
+        options={metricOptions}
+        value={metricOptions.slice(0, 1)}
+        onChange={() => {}}
+      />
+      <Typeahead
+        multiple
+        size="lg"
+        options={metricOptions}
+        value={metricOptions.slice(0, 1)}
+        onChange={() => {}}
+      />
+    </div>
+  ),
 };
 
 export const MultipleFreeSolo: Story = {

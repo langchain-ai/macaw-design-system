@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { CheckIcon, PlusIcon, XIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
 import { Badge } from '../Badge';
 import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
@@ -9,26 +10,32 @@ import { Text } from '../Text';
 import type {
   TypeaheadRenderOptionState,
   TypeaheadSelectedValue,
+  TypeaheadSize,
 } from './Typeahead.types';
 import { isTypeaheadOption } from './Typeahead.utils';
 
 export function TypeaheadClearButton({
   label,
   onClick,
+  size,
 }: {
   label: string;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  size: TypeaheadSize;
 }) {
+  // Let the click target extend vertically without making tag rows taller.
   return (
     <IconButton
       type="button"
       icon={XIcon}
+      iconWeight="regular"
       label={label}
       variant="plain"
       color="secondary"
-      size="xs"
+      size={CONTROL_ICON_SIZES[size].buttonSize}
       tooltipProps={{ title: null }}
-      className="size-4 bg-transparent p-0 text-icon-tertiary shadow-none hover:bg-elevated-hover hover:text-icon-primary"
+      className="bg-transparent text-icon-tertiary shadow-none hover:bg-elevated-hover hover:text-icon-primary"
+      style={{ marginBlock: CONTROL_ICON_SIZES[size].actionOffset }}
       onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
     />
@@ -39,6 +46,7 @@ export function TypeaheadDefaultTag<TOption>({
   selected,
   index,
   disabled,
+  size,
   getLabel,
   getValue,
   onRemove,
@@ -46,6 +54,7 @@ export function TypeaheadDefaultTag<TOption>({
   selected: TypeaheadSelectedValue<TOption>;
   index: number;
   disabled: boolean;
+  size: TypeaheadSize;
   getLabel: (option: TypeaheadSelectedValue<TOption>) => string;
   getValue: (option: TypeaheadSelectedValue<TOption>) => string;
   onRemove: () => void;
@@ -57,7 +66,7 @@ export function TypeaheadDefaultTag<TOption>({
       key={`${getValue(selected)}-${index}`}
       color="plain"
       rounded="xs"
-      size="sm"
+      size={size === 'xs' || size === 'sm' ? 'xs' : 'sm'}
       textWeight="normal"
       rightDecorator={!disabled ? XIcon : undefined}
       iconWeight="regular"
@@ -82,6 +91,7 @@ export function TypeaheadDefaultTag<TOption>({
       }
       className={cn(
         'min-w-0 max-w-full justify-start border-default bg-surface-level-2 px-space-1 text-primary [&>span]:min-w-0 [&>span]:truncate [&>span]:text-xxs',
+        size === 'xs' && 'border-0 py-0',
         !disabled &&
           'cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]',
         disabled && 'cursor-not-allowed'

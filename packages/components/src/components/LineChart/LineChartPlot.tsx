@@ -1,4 +1,4 @@
-import { useId, type AriaAttributes, type PointerEvent } from 'react';
+import { useId, useRef, type AriaAttributes, type PointerEvent } from 'react';
 
 import { animated, useReducedMotion, useSpring } from '@react-spring/web';
 import { AxisBottom, AxisLeft, AxisRight } from '@visx/axis';
@@ -34,11 +34,9 @@ import type {
 } from './LineChart.types';
 import { getLineSegments, getSelectionBounds } from './LineChart.utils';
 
-const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
+const defaultFormatValue = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
-});
-
-const defaultFormatValue = (value: number) => NUMBER_FORMATTER.format(value);
+}).format;
 
 const getInteractionDatum = (
   nearestX: number,
@@ -134,6 +132,7 @@ export const LineChartPlot = ({
   onDatumPointerUp,
   ...ariaProps
 }: LineChartPlotProps) => {
+  const activePointerId = useRef<number | null>(null);
   const clipPathId = `line-chart-${useId().replace(/:/g, '')}`;
   const revealClipPathId = `${clipPathId}-reveal`;
   const axisById = new Map(axes.map((axis) => [axis.id, axis]));
@@ -174,22 +173,24 @@ export const LineChartPlot = ({
   const getDatumFromPointer = (event: PointerEvent<SVGSVGElement>) => {
     if (uniqueXValues.length === 0 || innerWidth === 0) return null;
     const bounds = event.currentTarget.getBoundingClientRect();
+    const rawX = event.clientX - bounds.left - chartMargin.left;
+    // Keep an in-progress range selection at its endpoint through the gutter.
+    const plotX =
+      activePointerId.current === event.pointerId
+        ? Math.max(0, Math.min(innerWidth, rawX))
+        : rawX;
     const plotY = event.clientY - bounds.top - chartMargin.top;
-    if (plotY < 0 || plotY > innerHeight) return null;
-    const plotX = Math.max(
-      0,
-      Math.min(innerWidth, event.clientX - bounds.left - chartMargin.left)
-    );
+    if (plotX < 0 || plotX > innerWidth || plotY < 0 || plotY > innerHeight)
+      return null;
     const pointerX = getXValue(plotX);
     const nearestX = getNearestChartValue(uniqueXValues, plotX, getXPosition);
-    return nearestX == null
-      ? null
-      : getInteractionDatum(
-          nearestX,
-          series,
-          chartMargin.left + getXPosition(nearestX),
-          pointerX
-        );
+    if (nearestX == null) return null;
+    return getInteractionDatum(
+      nearestX,
+      series,
+      chartMargin.left + getXPosition(nearestX),
+      pointerX
+    );
   };
 
   const selectionStartX =
@@ -201,33 +202,33 @@ export const LineChartPlot = ({
     selectionEndX,
     innerWidth
   );
-  const handlePointerMove =
-    onDatumPointerMove == null
-      ? undefined
-      : (event: PointerEvent<SVGSVGElement>) => {
-          const datum = getDatumFromPointer(event);
-          if (datum != null) onDatumPointerMove(datum, event);
-        };
-  const handlePointerDown =
-    onDatumPointerDown == null
-      ? undefined
-      : (event: PointerEvent<SVGSVGElement>) => {
-          const datum = getDatumFromPointer(event);
-          if (datum != null) onDatumPointerDown(datum, event);
-        };
-  const handlePointerUp =
-    onDatumPointerUp == null
-      ? undefined
-      : (event: PointerEvent<SVGSVGElement>) => {
-          const datum = getDatumFromPointer(event);
-          if (datum != null) onDatumPointerUp(datum, event);
-        };
+  const handlePointerExit = () => {
+    activePointerId.current = null;
+    onDatumPointerOut?.();
+  };
+  const handlePointerMove = (event: PointerEvent<SVGSVGElement>) => {
+    const datum = getDatumFromPointer(event);
+    if (datum == null) handlePointerExit();
+    else onDatumPointerMove?.(datum, event);
+  };
+  const handlePointerDown = (event: PointerEvent<SVGSVGElement>) => {
+    const datum = getDatumFromPointer(event);
+    if (datum == null || onDatumPointerDown == null) return;
+    if (event.button === 0) activePointerId.current = event.pointerId;
+    onDatumPointerDown(datum, event);
+  };
+  const handlePointerUp = (event: PointerEvent<SVGSVGElement>) => {
+    const datum = getDatumFromPointer(event);
+    if (datum == null) return handlePointerExit();
+    activePointerId.current = null;
+    onDatumPointerUp?.(datum, event);
+  };
 
   return (
     <svg
       width={width}
       height={height}
-      role="img"
+      role="graphics-document group"
       {...ariaProps}
       focusable="false"
       className={cn(
@@ -236,7 +237,8 @@ export const LineChartPlot = ({
       )}
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
-      onPointerLeave={onDatumPointerOut}
+      onPointerLeave={handlePointerExit}
+      onPointerCancel={handlePointerExit}
       onPointerUp={handlePointerUp}
     >
       {canRender && (

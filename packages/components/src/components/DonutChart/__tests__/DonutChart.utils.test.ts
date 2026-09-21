@@ -26,6 +26,22 @@ const segments: readonly DonutChartSegment[] = [
 ];
 
 describe('collateDonutSegments', () => {
+  it.each([undefined, 2])(
+    'normalizes invalid values with threshold %s',
+    (threshold) => {
+      expect(
+        collateDonutSegments(
+          [
+            { ...segments[0], value: -1 },
+            { ...segments[1], value: Number.NaN },
+            { ...segments[2], value: Number.POSITIVE_INFINITY },
+          ],
+          threshold
+        ).map((segment) => segment.value)
+      ).toEqual([0, 0, 0]);
+    }
+  );
+
   it('merges flagged segments with the sub-threshold tail', () => {
     expect(collateDonutSegments(segments, 2)).toEqual([
       segments[0],
@@ -36,6 +52,22 @@ describe('collateDonutSegments', () => {
         color: CHART_OTHER_COLOR,
         isOther: true,
       },
+    ]);
+  });
+
+  it('merges a reserved Other id with the collated tail', () => {
+    expect(
+      collateDonutSegments(
+        [
+          segments[0],
+          { ...segments[2], id: DONUT_OTHER_SEGMENT_ID, isOther: false },
+          segments[1],
+        ],
+        2
+      )
+    ).toEqual([
+      segments[0],
+      expect.objectContaining({ id: DONUT_OTHER_SEGMENT_ID, value: 100 }),
     ]);
   });
 

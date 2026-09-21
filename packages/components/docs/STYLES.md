@@ -71,7 +71,7 @@ The same tier name is meaningful only within its family.
 | Family                                                                                                                                            | Tiers                   | Guidance                                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
 | Visual elements — `VISUAL_ELEMENT_SIZES` (decorated `Icon`, `Avatar`, `Spinner`)                                                                  | `xxs`, `xs`, `sm`, `md` | Choose `md` for standard UI, smaller tiers for dense/inline UI; expose `xxs` only when needed.      |
-| Controls — `CONTROL_SIZES` (`Button`, `Input`, `Select`, `Typeahead`, etc.)                                                                       | `xs`, `sm`, `md`, `lg`  | Choose `md` for standard UI, `sm` for dense UI, `xs` for compact UI; retain `lg` for compatibility. |
+| Controls — `CONTROL_SIZES` (`Button`, `IconButton`, `ButtonGroup`, `CopyButton`, `Input`, `CommandInput`, `Select`, `Typeahead`, `GroupedTabs`)   | `xs`, `sm`, `md`, `lg`  | Choose `md` for standard UI, `sm` for dense UI, `xs` for compact UI; retain `lg` for compatibility. |
 | Selection controls — `SELECTION_CONTROL_SIZES` (`Checkbox`, `RadioButton`, `RadioCard`, `Switch`; `RadioGroupItem` and `Slider` remain intrinsic) | `sm`, `md`              | The tier controls indicator geometry, not labeled-row or card height.                               |
 | Option rows — `OPTION_ROW_SIZES` (menu, select, and typeahead rows)                                                                               | `sm`, `md`              | Use `md` unless the menu is dense; multiline rows may grow.                                         |
 
@@ -88,6 +88,9 @@ The same tier name is meaningful only within its family.
   the shared outer-box families.
 - Derive supported tiers from the component's family mapping. Some components
   retain additional compatibility tiers; do not create a universal `Size` type.
+
+- `Input`, `CommandInput`, and `Textarea` default to the `lg` compatibility tier.
+  New consumers should choose `md` explicitly.
 
 ## Label Casing
 
@@ -168,6 +171,9 @@ dashboard visualization shells.
 - Consumers own charts, legends, data interactions, and empty states. Use the
   `state` prop for standard loading and known data-fetching error states; it
   does not catch chart-rendering exceptions.
+- Set `skeletonVariant` to `bar`, `line`, `donut`, `metric`, or `sparkline` to match the chart
+  shape while loading. Use `ChartCardSkeleton` directly for a chart placeholder
+  outside a card.
 - Loading and error states have a baseline minimum height. Set an explicit card
   height when the state must exactly match the ready chart and avoid layout
   shift.

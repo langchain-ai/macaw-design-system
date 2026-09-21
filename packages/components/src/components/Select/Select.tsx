@@ -3,9 +3,12 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { CaretDownIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
+import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
 import { Button } from '../Button';
 import { CommandMenu } from '../Command/CommandMenu';
 import type { CommandMenuGroup, CommandMenuItem } from '../Command/CommandMenu';
+import { Icon } from '../Icon';
 import { Popover, PopoverContent, PopoverTrigger } from '../Popover';
 import { Text } from '../Text';
 
@@ -27,14 +30,7 @@ export interface SelectGroup<T extends string = string> {
   options: SelectOption<T>[];
 }
 
-export type SelectSize = 'xs' | 'sm' | 'md' | 'lg';
-
-const CONTROL_HEIGHT_CLASSES = {
-  xs: 'h-[1.5625rem]',
-  sm: 'h-[1.625rem]',
-  md: 'h-[2.1875rem]',
-  lg: 'h-[2.4375rem]',
-} as const satisfies Record<SelectSize, string>;
+export type SelectSize = ControlSize;
 
 interface SelectBaseProps<T extends string = string> {
   /** The currently selected value */
@@ -47,7 +43,7 @@ interface SelectBaseProps<T extends string = string> {
   searchPlaceholder?: string;
   /** Whether the select is disabled */
   disabled?: boolean;
-  /** Size variant for the trigger. xs/sm/md match Typeahead control heights; lg matches the default Input height. */
+  /** Exact trigger height: xs=20px, sm=24px, md=32px, lg=40px. */
   size?: SelectSize;
   /** Text to show when no options match the search */
   emptyText?: string;
@@ -244,15 +240,21 @@ function OptionSelect<T extends string = string>({
           color="secondary"
           size={triggerButtonSize}
           className={cn(
-            'w-full justify-between',
-            CONTROL_HEIGHT_CLASSES[size],
+            'box-border w-full justify-between py-0',
+            CONTROL_SIZES[size].heightClassName,
             triggerClassName
           )}
           disabled={disabled}
-          rightDecorator={CaretDownIcon}
           data-testid={dataTestId}
         >
           {triggerContent}
+          <Icon
+            aria-hidden
+            icon={CaretDownIcon}
+            iconClassName={CONTROL_ICON_SIZES[size].iconClassName}
+            className="text-inherit"
+            weight="regular"
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent

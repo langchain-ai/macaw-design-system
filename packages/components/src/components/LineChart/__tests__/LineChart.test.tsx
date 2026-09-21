@@ -121,10 +121,15 @@ describe('LineChart', () => {
       </>
     );
 
-    expect(screen.getByRole('img', { name: 'Request health' })).toHaveAttribute(
-      'aria-describedby',
-      'request-health-summary'
-    );
+    expect(
+      screen.getByRole('group', {
+        name: 'Request health',
+        queryFallbacks: true,
+      })
+    ).toBe(screen.getByRole('graphics-document', { name: 'Request health' }));
+    expect(
+      screen.getByRole('graphics-document', { name: 'Request health' })
+    ).toHaveAttribute('aria-describedby', 'request-health-summary');
     expect(
       screen.getByRole('group', { name: 'Request health legend' })
     ).toBeVisible();
@@ -159,7 +164,9 @@ describe('LineChart', () => {
     const emptyLegendItem = within(legend).getByRole('group', {
       name: 'No data',
     });
-    const chart = screen.getByRole('img', { name: 'Legend emphasis' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Legend emphasis',
+    });
     const getSeriesMarks = (name: string, color: string) => {
       const seriesGroup = screen.getByRole('group', { name });
       const line = seriesGroup.getElementsByTagName('path')[0];
@@ -312,7 +319,7 @@ describe('LineChart', () => {
     }
     const svgWidth = Number(
       screen
-        .getByRole('img', { name: 'Wide line-chart axes' })
+        .getByRole('graphics-document', { name: 'Wide line-chart axes' })
         .getAttribute('width')
     );
 
@@ -334,7 +341,9 @@ describe('LineChart', () => {
       />
     );
 
-    expect(screen.getByRole('img', { name: 'Paused chart' })).toBeVisible();
+    expect(
+      screen.getByRole('graphics-document', { name: 'Paused chart' })
+    ).toBeVisible();
     expect(screen.getByText('Requests')).toBeVisible();
     expect(
       screen.queryByRole('group', { name: 'requests series' })
@@ -353,7 +362,7 @@ describe('LineChart', () => {
     );
 
     expect(
-      screen.getByRole('img', { name: 'Narrow responsive chart' })
+      screen.getByRole('graphics-document', { name: 'Narrow responsive chart' })
     ).toHaveAttribute('width', '200');
   });
 
@@ -376,7 +385,9 @@ describe('LineChart', () => {
       />
     );
 
-    expect(screen.getByRole('img', { name: 'Empty metrics' })).toBeVisible();
+    expect(
+      screen.getByRole('graphics-document', { name: 'Empty metrics' })
+    ).toBeVisible();
   });
 
   it('connects valid observations without rendering points for null values', () => {
@@ -444,7 +455,7 @@ describe('LineChart', () => {
       />
     );
 
-    const chart = screen.getByRole('img', {
+    const chart = screen.getByRole('graphics-document', {
       name: 'Disconnected null observations',
     });
     expect(chart.getElementsByTagName('circle')).toHaveLength(0);
@@ -478,7 +489,9 @@ describe('LineChart', () => {
       />
     );
 
-    const chart = screen.getByRole('img', { name: 'Interactive chart' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Interactive chart',
+    });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 640, height: 320 })
     );
@@ -523,7 +536,9 @@ describe('LineChart', () => {
         onDatumPointerMove={onDatumPointerMove}
       />
     );
-    const chart = screen.getByRole('img', { name: 'Brushable chart' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Brushable chart',
+    });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 640, height: 320 })
     );
@@ -560,7 +575,9 @@ describe('LineChart', () => {
         onDatumPointerMove={onDatumPointerMove}
       />
     );
-    const chart = screen.getByRole('img', { name: 'Band bucket chart' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Band bucket chart',
+    });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 640, height: 320 })
     );
@@ -600,7 +617,7 @@ describe('LineChart', () => {
         onDatumPointerMove={onDatumPointerMove}
       />
     );
-    const chart = screen.getByRole('img', {
+    const chart = screen.getByRole('graphics-document', {
       name: 'Clipped interaction chart',
     });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
@@ -650,7 +667,9 @@ describe('LineChart', () => {
     const renderedSeries = screen.getByRole('group', {
       name: 'buckets series',
     });
-    const chart = screen.getByRole('img', { name: 'Clipped band chart' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Clipped band chart',
+    });
     expect(renderedSeries.getElementsByTagName('path')).toHaveLength(1);
     expect(chart.getElementsByTagName('circle')).toHaveLength(2);
     expect(chart.getElementsByTagName('line')).toHaveLength(0);
@@ -691,19 +710,24 @@ describe('LineChart', () => {
     expect(screen.getByRole('group', { name: 'values series' })).toBeVisible();
   });
 
-  it('does not report data while the pointer is over an axis', async () => {
+  it.each([
+    { clientX: 348, clientY: 319 },
+    { clientX: 0, clientY: 100 },
+  ])('clears interaction over an axis at %o', async (coords) => {
     const onDatumPointerMove = vi.fn(
       (_datum: LineChartInteractionDatum) => undefined
     );
+    const onDatumPointerOut = vi.fn();
     const { user } = render(
       <LineChart
         aria-label="Plot-bounded interaction chart"
         showLegend={false}
         series={series}
         onDatumPointerMove={onDatumPointerMove}
+        onDatumPointerOut={onDatumPointerOut}
       />
     );
-    const chart = screen.getByRole('img', {
+    const chart = screen.getByRole('graphics-document', {
       name: 'Plot-bounded interaction chart',
     });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
@@ -712,11 +736,101 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 348, clientY: 319 },
+      coords,
     });
 
     expect(onDatumPointerMove).not.toHaveBeenCalled();
+    expect(onDatumPointerOut).toHaveBeenCalledOnce();
   });
+
+  it('only clamps gutter interaction during a drag started in the plot', async () => {
+    const onDatumPointerDown = vi.fn();
+    const onDatumPointerMove = vi.fn();
+    const onDatumPointerUp = vi.fn();
+    const onDatumPointerOut = vi.fn();
+    const { user } = render(
+      <LineChart
+        aria-label="Range selection chart"
+        showLegend={false}
+        series={series}
+        onDatumPointerDown={onDatumPointerDown}
+        onDatumPointerMove={onDatumPointerMove}
+        onDatumPointerUp={onDatumPointerUp}
+        onDatumPointerOut={onDatumPointerOut}
+      />
+    );
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Range selection chart',
+    });
+    const gutter = { clientX: 0, clientY: 100 };
+
+    await user.pointer({ target: chart, keys: '[MouseLeft]', coords: gutter });
+    expect(onDatumPointerDown).not.toHaveBeenCalled();
+    expect(onDatumPointerUp).not.toHaveBeenCalled();
+
+    await user.pointer([
+      {
+        target: chart,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 300, clientY: 100 },
+      },
+      { target: chart, coords: gutter },
+      { target: chart, keys: '[/MouseLeft]', coords: gutter },
+    ]);
+    expect(onDatumPointerDown).toHaveBeenCalledOnce();
+    expect(onDatumPointerUp).toHaveBeenCalledOnce();
+    onDatumPointerMove.mockClear();
+    onDatumPointerOut.mockClear();
+
+    await user.pointer({ target: chart, coords: { ...gutter, clientY: 110 } });
+    expect(onDatumPointerMove).not.toHaveBeenCalled();
+    expect(onDatumPointerOut).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    { button: 'MouseRight', gutterX: 0 },
+    { button: 'MouseRight', gutterX: 640 },
+    { button: 'MouseMiddle', gutterX: 0 },
+    { button: 'MouseMiddle', gutterX: 640 },
+  ])(
+    'clears gutter hover after a non-primary $button press at $gutterX',
+    async ({ button, gutterX }) => {
+      const onDatumPointerMove = vi.fn();
+      const onDatumPointerOut = vi.fn();
+      const { user } = render(
+        <LineChart
+          aria-label="Range selection chart"
+          showLegend={false}
+          series={series}
+          onDatumPointerDown={vi.fn()}
+          onDatumPointerMove={onDatumPointerMove}
+          onDatumPointerOut={onDatumPointerOut}
+        />
+      );
+      const chart = screen.getByRole('graphics-document', {
+        name: 'Range selection chart',
+      });
+      await user.pointer({
+        target: chart,
+        keys: `[${button}>]`,
+        coords: { clientX: 300, clientY: 100 },
+      });
+      await user.pointer({
+        target: chart,
+        coords: { clientX: 320, clientY: 100 },
+      });
+      expect(onDatumPointerMove).toHaveBeenCalled();
+      onDatumPointerMove.mockClear();
+
+      await user.pointer({
+        target: chart,
+        coords: { clientX: gutterX, clientY: 100 },
+      });
+
+      expect(onDatumPointerMove).not.toHaveBeenCalled();
+      expect(onDatumPointerOut).toHaveBeenCalledOnce();
+    }
+  );
 
   it('omits a redundant legend for a single series by default', () => {
     render(
@@ -805,7 +919,7 @@ describe('LineChart', () => {
     expect(styledLine).toHaveAttribute('opacity', '0.4');
     expect(
       screen
-        .getByRole('img', { name: 'Styled metrics' })
+        .getByRole('graphics-document', { name: 'Styled metrics' })
         .getElementsByTagName('circle')
     ).toHaveLength(1);
   });
