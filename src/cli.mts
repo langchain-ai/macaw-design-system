@@ -93,7 +93,7 @@ function catalog() {
   return entries
     .flatMap(({ name: family, entrypoint, sourceFiles }) => {
       const importPath = relative(entrypoint)
-        .replace(/^src\//, '@@langchain/macaw-components/')
+        .replace(/^src\//, '@langchain/macaw-components/')
         .replace(/\.tsx?$/, '')
         .replace(/\/index$/, '');
       return componentExports(entrypoint, family, root).map(

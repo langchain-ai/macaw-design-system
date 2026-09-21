@@ -47,7 +47,7 @@ export interface CodeProps {
 /**
  * Renders syntax-highlighted code with optional editing and copy support.
  *
- * Import directly from `@@langchain/macaw-components/components/Code` so the CodeMirror
+ * Import directly from `@langchain/macaw-components/components/Code` so the CodeMirror
  * dependency is only loaded by surfaces that use it.
  */
 export const Code = ({

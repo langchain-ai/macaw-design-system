@@ -23,7 +23,7 @@
 
 <!-- Update with DS name -->
 
-Welcome to LangChain's design-system package! This repo, `@@langchain/macaw-components`, contains LangChain's:
+Welcome to LangChain's design-system package! This repo, `@langchain/macaw-components`, contains LangChain's:
 
 1. Component Library
 2. Tokens
@@ -38,7 +38,7 @@ Contributions are welcome. See the [contributing guide](CONTRIBUTING.md) for loc
 To install, run
 
 ```sh
-pnpm add @@langchain/macaw-components
+pnpm add @langchain/macaw-components
 ```
 
 React 18+ is supported.
@@ -46,15 +46,15 @@ React 18+ is supported.
 ## Use
 
 Apps should use `AppThemeProvider` from
-`@@langchain/macaw-components/hooks/AppThemeProvider`, to wrap the entire application.
+`@langchain/macaw-components/hooks/AppThemeProvider`, to wrap the entire application.
 
 The default CSS imports uses the `styles.css` which includes our default fonts,
 Inter and Fira Code. Both light and dark semantic tokens are supported.
 
 ```tsx
-import '@@langchain/macaw-components/styles.css';
+import '@langchain/macaw-components/styles.css';
 
-import { Button, Card, Text } from '@@langchain/macaw-components';
+import { Button, Card, Text } from '@langchain/macaw-components';
 
 export function Example() {
   return (
@@ -69,22 +69,22 @@ export function Example() {
 Components are imported in this way:
 
 ```tsx
-import { Button } from '@@langchain/macaw-components';
-import { BarChart } from '@@langchain/macaw-components/components/BarChart';
-import { Code } from '@@langchain/macaw-components/components/Code';
+import { Button } from '@langchain/macaw-components';
+import { BarChart } from '@langchain/macaw-components/components/BarChart';
+import { Code } from '@langchain/macaw-components/components/Code';
 ```
 
 Utilities, hooks, and contexts are also available through explicit subpaths,
-for example `@@langchain/macaw-components/utils/cn` and
-`@@langchain/macaw-components/hooks/useColorScheme`.
+for example `@langchain/macaw-components/utils/cn` and
+`@langchain/macaw-components/hooks/useColorScheme`.
 
 Add the `dark` class to the document root to activate dark tokens.
 
 ### Styling contracts
 
-- `@@langchain/macaw-components/styles.css` main stylesheet.
-- `@@langchain/macaw-components/tokens.css` semantic tokens for your own components, or composite components.
-- `@@langchain/macaw-components/tailwind-preset` our TW customizations, themes, and plugins.
+- `@langchain/macaw-components/styles.css` main stylesheet.
+- `@langchain/macaw-components/tokens.css` semantic tokens for your own components, or composite components.
+- `@langchain/macaw-components/tailwind-preset` our TW customizations, themes, and plugins.
 
 ### Agentic Contracts
 
@@ -120,7 +120,7 @@ The component library owns domain-free UI, but can have some overlap if componen
 framework's anchor element through `as` for client-side navigation:
 
 ```tsx
-import { Link } from '@@langchain/macaw-components';
+import { Link } from '@langchain/macaw-components';
 import { Link as RouterLink } from 'react-router-dom';
 
 <Link as={<RouterLink to="/runs" />}>View runs</Link>;

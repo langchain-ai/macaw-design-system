@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: Build or change @@langchain/macaw-components components, tokens, styles, icons, stories, package exports, or documentation in this repository. Use for package work, not product-specific UI in a consuming application.
+description: Build or change @langchain/macaw-components components, tokens, styles, icons, stories, package exports, or documentation in this repository. Use for package work, not product-specific UI in a consuming application.
 ---
 
 # LangChain Design System

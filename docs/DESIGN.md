@@ -9,12 +9,12 @@ Read the relevant [`STYLES.md`](./STYLES.md) sections for token choices, values,
 Import the package stylesheet once at the application entry point:
 
 ```ts
-import '@@langchain/macaw-components/styles.css';
+import '@langchain/macaw-components/styles.css';
 ```
 
 It includes fonts, light and dark token values, base rules, and the precompiled
 utilities used by package components. Use
-`@@langchain/macaw-components/tokens.css` only for a variables-only integration. Do
+`@langchain/macaw-components/tokens.css` only for a variables-only integration. Do
 not import both.
 
 Applications that author the semantic Tailwind classes may additionally extend
@@ -24,7 +24,7 @@ the optional Tailwind v3 preset:
 // tailwind.config.cjs
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
-  presets: [require('@@langchain/macaw-components/tailwind-preset')],
+  presets: [require('@langchain/macaw-components/tailwind-preset')],
 };
 ```
 
@@ -34,7 +34,7 @@ component classes are already precompiled. Theme switching uses `html.dark`.
 
 ## Components
 
-From this repository, use `pnpm design-system search <capability>` to discover components and `pnpm --silent design-system inspect <name> --json` for imports, source, and stories. Root-exported components such as `Button` and `Text` can be imported from `@@langchain/macaw-components`. Components omitted from the root require direct imports, such as `TabGroup` and `TabList` from `@@langchain/macaw-components/components/Tabs`. The CLI returns direct paths even when a root import is available.
+From this repository, use `pnpm design-system search <capability>` to discover components and `pnpm --silent design-system inspect <name> --json` for imports, source, and stories. Root-exported components such as `Button` and `Text` can be imported from `@langchain/macaw-components`. Components omitted from the root require direct imports, such as `TabGroup` and `TabList` from `@langchain/macaw-components/components/Tabs`. The CLI returns direct paths even when a root import is available.
 
 Keep capability keywords in the static component-level `tags` array of the story beside the component in `src/components/`. The CLI reads them directly, and Storybook exposes them as sidebar filters. Built-in tags such as `autodocs` are excluded from CLI search.
 
@@ -64,7 +64,7 @@ Primitives  ->  Semantics          ->  Components
 raw scale       purpose alias          private detail
 ```
 
-Component code uses semantic tokens through Tailwind utilities. Do not use primitive variables, component-owned variables, primitive palette utilities, or color literals. Use `cn` from `@@langchain/macaw-components/utils/cn` for conditional classes.
+Component code uses semantic tokens through Tailwind utilities. Do not use primitive variables, component-owned variables, primitive palette utilities, or color literals. Use `cn` from `@langchain/macaw-components/utils/cn` for conditional classes.
 
 ```tsx
 <div className="rounded-lg bg-surface-level-2 text-secondary" />
@@ -79,7 +79,7 @@ Choose color by meaning:
 - `text-*` is for copy; `text-icon-*` is for standalone icons.
 - Pair state color with text, shape, or an icon.
 
-Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
+Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
 
 ## Icons
 
@@ -95,7 +95,7 @@ Set `size` and `weight` explicitly. Use `regular` for outline glyphs, `fill`
 only for intentionally filled states, and `bold` only for a deliberate heavier
 visual weight. Do not import from the Phosphor package root. The optically
 adjusted wrappers used by components are exported from
-`@@langchain/macaw-components/icons`. This package does not provide a separate
+`@langchain/macaw-components/icons`. This package does not provide a separate
 general-purpose icon catalog.
 
 ## Typography and labels

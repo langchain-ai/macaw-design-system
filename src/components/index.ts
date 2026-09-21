@@ -89,8 +89,8 @@ export type {
 // (~297KB), while Code depends on CodeMirror and syntax-highlighting packages.
 // Exporting either here would pull those dependencies into every chunk that
 // imports from this file. Import them directly:
-//   import { TabGroup, ... } from '@@langchain/macaw-components/components/Tabs'
-//   import { Code, CodeLite } from '@@langchain/macaw-components/components/Code'
+//   import { TabGroup, ... } from '@langchain/macaw-components/components/Tabs'
+//   import { Code, CodeLite } from '@langchain/macaw-components/components/Code'
 
 export { Spinner, SpinnerIcon } from './Spinner';
 
@@ -132,25 +132,25 @@ export { Switch } from './Switch';
 export type { SwitchProps } from './Switch';
 
 // SparkLineChart, BarChart, and TopList depend on @react-spring/web; import each
-// directly from `@@langchain/macaw-components/components/<Component>`.
+// directly from `@langchain/macaw-components/components/<Component>`.
 
 // NOTE: HoverCard, Popover, ContextMenu, and Command are intentionally excluded
 // from this barrel. They depend on @radix-ui/react-hover-card,
 // @radix-ui/react-popover, @radix-ui/react-context-menu, and cmdk respectively,
 // which would be pulled into every chunk that imports from this file.
 // Import directly:
-//   import { HoverCard, ... } from '@@langchain/macaw-components/components/HoverCard'
-//   import { Popover, ... } from '@@langchain/macaw-components/components/Popover'
-//   import { ContextMenu, ... } from '@@langchain/macaw-components/components/ContextMenu'
-//   import { Command, ... } from '@@langchain/macaw-components/components/Command'
-//   import { Select, ... } from '@@langchain/macaw-components/components/Select'
-//   import { Typeahead, ... } from '@@langchain/macaw-components/components/Typeahead'
+//   import { HoverCard, ... } from '@langchain/macaw-components/components/HoverCard'
+//   import { Popover, ... } from '@langchain/macaw-components/components/Popover'
+//   import { ContextMenu, ... } from '@langchain/macaw-components/components/ContextMenu'
+//   import { Command, ... } from '@langchain/macaw-components/components/Command'
+//   import { Select, ... } from '@langchain/macaw-components/components/Select'
+//   import { Typeahead, ... } from '@langchain/macaw-components/components/Typeahead'
 //
 // NOTE: ChartCard is also excluded because its built-in overflow menu depends
 // on @radix-ui/react-dropdown-menu. Import it directly:
-//   import { ChartCard } from '@@langchain/macaw-components/components/ChartCard'
+//   import { ChartCard } from '@langchain/macaw-components/components/ChartCard'
 //
 // NOTE: Dialog and Pane are likewise excluded — both wrap @radix-ui/react-dialog.
 // Import directly:
-//   import { Dialog, DialogContent } from '@@langchain/macaw-components/components/Dialog'
-//   import { Pane, TopBarPaneSlot } from '@@langchain/macaw-components/components/Pane'
+//   import { Dialog, DialogContent } from '@langchain/macaw-components/components/Dialog'
+//   import { Pane, TopBarPaneSlot } from '@langchain/macaw-components/components/Pane'
