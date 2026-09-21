@@ -528,7 +528,6 @@
   },
   "publishConfig": {
     "access": "public",
-    "provenance": true
   },
   "scripts": {
     "build": "node ../../scripts/build.mjs components"
