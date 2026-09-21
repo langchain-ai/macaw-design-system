@@ -18,7 +18,7 @@ const meta = {
   argTypes: {
     size: {
       control: { type: 'select' },
-      options: ['xs', 'sm', 'md', 'lg'],
+      options: ['xxs', 'xs', 'sm', 'md', 'lg'],
     },
   },
 };
@@ -29,6 +29,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     size: 'sm',
+  },
+};
+
+export const ExtraExtraSmall: Story = {
+  args: {
+    size: 'xxs',
   },
 };
 

@@ -22,13 +22,15 @@ const TextWithLinksInner = ({
           const href = part.url?.startsWith('http')
             ? part.url
             : `https://${part.url}`;
+
           return (
+            // oxlint-disable-next-line forbid-elements
             <a
               key={index}
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto text-ls-blue underline"
+              className="pointer-events-auto text-link underline"
               onClick={(e) => e.stopPropagation()}
             >
               {part.content}

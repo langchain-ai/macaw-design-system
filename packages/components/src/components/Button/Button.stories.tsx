@@ -417,3 +417,10 @@ export const InteractiveExample: Story = {
     </div>
   ),
 };
+
+export const Loading: Story = {
+  args: {
+    loading: true,
+    children: 'Loading Button',
+  },
+};

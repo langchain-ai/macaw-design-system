@@ -37,25 +37,27 @@ function handleEscapeKeyDown(event: KeyboardEvent) {
 
 function handleMouseDown(event: MouseEvent) {
   const topmostPane = getTopmostPane();
+  const path = event.composedPath();
   if (
     topmostPane?.onMouseDownOutside == null ||
     document.querySelector(
       '[data-pane-interaction-boundary][data-state="open"]'
     ) != null ||
-    event
-      .composedPath()
-      .some(
-        (target) =>
-          target instanceof HTMLElement &&
-          (target.classList.contains('data-grid-row-component') ||
-            target.hasAttribute('data-split-view-pane-interaction-boundary'))
-      )
+    path.some(
+      (target) =>
+        target instanceof HTMLElement &&
+        (target.classList.contains('data-grid-row-component') ||
+          target.hasAttribute('data-split-view-pane-interaction-boundary') ||
+          target.hasAttribute('data-split-view-pane-resize-handle'))
+    )
   ) {
     return;
   }
 
   const element = topmostPane.element.current;
-  if (element == null) return;
+  // The bounds comparison below misses clicks on the pane's own subpixel edge,
+  // so containment decides first.
+  if (element == null || path.includes(element)) return;
   const bounds = element.getBoundingClientRect();
   const isInside =
     event.clientX >= bounds.left &&

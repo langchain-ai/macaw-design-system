@@ -1,5 +1,7 @@
 import type { HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
 
+import type { ControlSize } from '../../utils/componentSizes';
+
 export interface TypeaheadOption<TValue extends string = string> {
   value: TValue;
   label?: string;
@@ -10,7 +12,7 @@ export interface TypeaheadOption<TValue extends string = string> {
 }
 
 export type FreeSoloValue = string & Record<never, never>;
-export type TypeaheadSize = 'xs' | 'sm' | 'md' | 'lg';
+export type TypeaheadSize = ControlSize;
 export type TypeaheadSelectedValue<TOption> = TOption | FreeSoloValue;
 export type TypeaheadSingleValue<TOption> =
   | TypeaheadSelectedValue<TOption>
@@ -54,7 +56,7 @@ interface TypeaheadBaseProps<TOption> extends Omit<
   /** Keeps the placeholder visible after values have been selected in multiple mode. */
   showPlaceholderWithValues?: boolean;
   emptyText?: string;
-  /** Control size. `lg` matches the default Input height and padding. */
+  /** Control height: xs=20px, sm=24px, md=32px, lg=40px. */
   size?: TypeaheadSize;
   disabled?: boolean;
   isError?: boolean;

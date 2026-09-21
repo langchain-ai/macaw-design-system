@@ -96,7 +96,7 @@ describe('ChartCard', () => {
     expect(onExpand).toHaveBeenCalledOnce();
   });
 
-  it('uses isMovable to control the move handle independently of drag props', () => {
+  it('requires both movable state and drag props for the move handle', () => {
     const { rerender } = render(
       <ChartCard
         title="Trace count"
@@ -116,8 +116,9 @@ describe('ChartCard', () => {
       </ChartCard>
     );
 
-    const moveButton = screen.getByRole('button', { name: 'Move chart' });
-    expect(moveButton).toBeEnabled();
+    expect(
+      screen.queryByRole('button', { name: 'Move chart' })
+    ).not.toBeInTheDocument();
   });
 
   it('hides movement and exposes minimize behavior at full width', () => {
@@ -194,6 +195,23 @@ describe('ChartCard', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it.each(['bar', 'line', 'donut', 'metric', 'sparkline'] as const)(
+    'renders the %s chart skeleton',
+    (skeletonVariant) => {
+      render(
+        <ChartCard
+          title="Trace count"
+          state="loading"
+          skeletonVariant={skeletonVariant}
+        />
+      );
+
+      expect(
+        screen.getByRole('status', { name: 'Loading chart' })
+      ).toBeVisible();
+    }
+  );
+
   it('renders error content while retaining header actions', () => {
     render(
       <ChartCard
@@ -217,8 +235,8 @@ describe('ChartCard', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText('Chart content')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Move chart' })
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: 'Move chart' })
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Expand chart' })
     ).toBeInTheDocument();

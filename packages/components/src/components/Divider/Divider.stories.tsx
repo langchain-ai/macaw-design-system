@@ -10,6 +10,10 @@ const meta: Meta<typeof Divider> = {
   },
   tags: ['autodocs', 'separator', 'rule'],
   argTypes: {
+    weight: {
+      control: 'select',
+      options: ['default', 'strong'],
+    },
     orientation: {
       control: 'select',
       options: ['horizontal', 'vertical'],
@@ -49,6 +53,14 @@ export const Vertical: Story = {
   ),
   args: {
     orientation: 'vertical',
+  },
+};
+
+export const Strong: Story = {
+  ...Horizontal,
+  args: {
+    orientation: 'horizontal',
+    weight: 'strong',
   },
 };
 

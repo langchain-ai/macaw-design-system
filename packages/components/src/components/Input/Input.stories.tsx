@@ -1,11 +1,71 @@
+import type { ComponentProps } from 'react';
+import { useState } from 'react';
+
 import { EnvelopeIcon } from '@phosphor-icons/react/dist/ssr/Envelope';
-import { EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
-import { EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 import { QuestionIcon } from '@phosphor-icons/react/dist/ssr/Question';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import {
+  ControlSizeMatrix,
+  ControlVariantGrid,
+} from '../../stories/ControlSizeMatrix';
+import { Text } from '../Text/Text';
 import { Input } from './Input';
+
+const variants: { value: 'outlined' | 'plain'; label: string }[] = [
+  { value: 'outlined', label: 'Outlined' },
+  { value: 'plain', label: 'Plain' },
+];
+
+function InputExample({
+  value,
+  onChange,
+  ...props
+}: ComponentProps<typeof Input>) {
+  const [currentValue, setCurrentValue] = useState(value ?? '');
+
+  return (
+    <Input
+      {...props}
+      value={currentValue}
+      onChange={(nextValue, event) => {
+        setCurrentValue(nextValue);
+        onChange(nextValue, event);
+      }}
+    />
+  );
+}
+
+function ClearableInputExample({
+  onChange,
+  ...props
+}: ComponentProps<typeof Input>) {
+  const [value, setValue] = useState('Search traces');
+
+  return (
+    <Input
+      {...props}
+      value={value}
+      debounceMs={0}
+      onChange={(nextValue, event) => {
+        setValue(nextValue);
+        onChange(nextValue, event);
+      }}
+      leftIcon={MagnifyingGlassIcon}
+      rightAction={{
+        icon: XIcon,
+        label: 'Clear search',
+        disabled: value.length === 0,
+        onClick: () => {
+          setValue('');
+          onChange('');
+        },
+      }}
+    />
+  );
+}
 
 const meta: Meta<typeof Input> = {
   title: 'Components/Inputs/Input',
@@ -22,10 +82,29 @@ const meta: Meta<typeof Input> = {
     'hint',
     'single line',
   ],
+  args: {
+    label: 'Email',
+    placeholder: 'Enter your email',
+    hintText: 'Use the controls to explore sizes, variants, and icons.',
+    size: 'md',
+    variant: 'outlined',
+    type: 'text',
+    value: '',
+    disabled: false,
+    isError: false,
+    required: false,
+    onChange: () => {},
+    debounceMs: 300,
+  },
+  render: (args) => (
+    <div className="w-80 max-w-full">
+      <InputExample key={`${args.type}:${args.value}`} {...args} />
+    </div>
+  ),
   argTypes: {
     size: {
       control: 'select',
-      options: ['sm', 'md'],
+      options: ['xs', 'sm', 'md', 'lg'],
     },
     variant: {
       control: 'select',
@@ -59,333 +138,228 @@ const meta: Meta<typeof Input> = {
     debounceMs: {
       control: 'number',
     },
-    leftDecorator: {
+    leftIcon: {
       control: 'select',
-      options: ['None', 'EnvelopeIcon', 'MagnifyingGlassIcon', 'EyeIcon'],
+      options: ['None', 'EnvelopeIcon', 'MagnifyingGlassIcon'],
       mapping: {
         None: undefined,
-        EnvelopeIcon: <EnvelopeIcon size={16} weight="regular" />,
-        MagnifyingGlassIcon: <MagnifyingGlassIcon size={16} weight="regular" />,
-        EyeIcon: <EyeIcon size={16} weight="regular" />,
+        EnvelopeIcon,
+        MagnifyingGlassIcon,
       },
     },
-    rightDecorator: {
+    rightIcon: {
       control: 'select',
-      options: ['None', 'QuestionIcon', 'EyeSlashIcon'],
+      options: ['None', 'QuestionIcon'],
       mapping: {
         None: undefined,
-        QuestionIcon: <QuestionIcon size={16} weight="regular" />,
-        EyeSlashIcon: <EyeSlashIcon size={16} weight="regular" />,
+        QuestionIcon,
       },
     },
+    leftAction: { control: false },
+    rightAction: { control: false },
+    leftDecorator: { control: false },
+    rightDecorator: { control: false },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Basic variants
-export const Default: Story = {
+export const Playground: Story = {};
+
+export const SizesAndVariants: Story = {
+  name: 'Sizes & Variants',
   args: {
+    hintText: 'Compare the same field across all sizes and variants.',
+  },
+  argTypes: {
+    size: { control: false },
+    variant: { control: false },
+  },
+  render: (args) => (
+    <ControlSizeMatrix variants={variants}>
+      {(size, variant) => (
+        <InputExample
+          key={`${args.type}:${args.value}`}
+          {...args}
+          size={size}
+          variant={variant}
+        />
+      )}
+    </ControlSizeMatrix>
+  ),
+};
+
+export const States: Story = {
+  parameters: {
+    controls: { include: ['leftIcon', 'rightIcon'] },
+  },
+  render: (args) => (
+    <ControlVariantGrid variants={variants}>
+      {(variant) => (
+        <>
+          <InputExample
+            {...args}
+            size="md"
+            variant={variant}
+            label="Default"
+            hintText="Enter your email address."
+          />
+          <InputExample
+            {...args}
+            size="md"
+            variant={variant}
+            label="Error"
+            value="invalid-email"
+            isError
+            hintText="Please enter a valid email address."
+          />
+          <InputExample
+            {...args}
+            size="md"
+            variant={variant}
+            label="Disabled"
+            value="polly@langchain.dev"
+            disabled
+            hintText="This field is disabled."
+          />
+          <InputExample
+            {...args}
+            size="md"
+            variant={variant}
+            label={
+              <div className="flex items-center gap-space-2">
+                <Text as="span">Required</Text>
+                <QuestionIcon size={16} weight="regular" />
+              </div>
+            }
+            required
+            hintText="This field is required."
+          />
+        </>
+      )}
+    </ControlVariantGrid>
+  ),
+};
+
+const inputTypeExamples = [
+  {
+    type: 'text',
+    label: 'Text / search',
+    placeholder: 'Search...',
+    hintText: 'A text field with a decorative search icon.',
+    leftIcon: MagnifyingGlassIcon,
+  },
+  {
+    type: 'email',
     label: 'Email',
-    placeholder: 'Enter your email',
-    hintText: 'This is a hint text to help user.',
-    onChange: () => {},
-    debounceMs: 300,
+    placeholder: 'name@example.com',
+    hintText: 'Uses the native email input.',
+    leftIcon: EnvelopeIcon,
   },
-};
-
-export const SmallSize: Story = {
-  args: {
-    placeholder: 'Small size search',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
-    size: 'sm',
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-export const WithHintText: Story = {
-  args: {
-    label: 'Email',
-    placeholder: 'Enter your email',
-    hintText: 'This is a hint text to help user.',
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-export const WithBothDecorators: Story = {
-  args: {
-    label: 'Email',
-    placeholder: 'Enter your email',
-    hintText: 'This is a hint text to help user.',
-    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
-    rightDecorator: <QuestionIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-// States
-export const ErrorState: Story = {
-  args: {
-    label: 'Email',
-    value: 'invalid-email',
-    placeholder: 'Enter your email',
-    hintText: 'Please enter a valid email address.',
-    isError: true,
-    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
-    rightDecorator: <QuestionIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-export const DisabledState: Story = {
-  args: {
-    label: 'Email',
-    value: 'polly@langchain.dev',
-    placeholder: 'Enter your email',
-    hintText: 'This field is disabled.',
-    disabled: true,
-    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
-    rightDecorator: <QuestionIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-export const RequiredField: Story = {
-  args: {
-    label: 'Email',
-    placeholder: 'Enter your email',
-    hintText: 'This field is required.',
-    required: true,
-    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
-    rightDecorator: <QuestionIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-// Input types
-export const PasswordInput: Story = {
-  args: {
-    label: 'Password',
+  {
     type: 'password',
-    value: 'sk-langsmith-secret',
+    label: 'Password',
+    value: 'example-password',
     placeholder: 'Enter your password',
-    hintText: 'Password must be at least 8 characters.',
-    onChange: () => {},
-    debounceMs: 300,
+    hintText: 'Toggle visibility to reveal or mask the value.',
   },
-};
-
-export const NumberInput: Story = {
-  args: {
-    label: 'Age',
+  {
     type: 'number',
-    placeholder: 'Enter your age',
-    hintText: 'Please enter a valid number.',
-    onChange: () => {},
-    debounceMs: 300,
+    label: 'Number',
+    placeholder: 'Enter a number',
+    hintText: 'Uses the native number input.',
   },
-};
-
-export const DateInput: Story = {
-  args: {
-    label: 'Start date',
+  {
+    type: 'url',
+    label: 'URL',
+    placeholder: 'https://example.com',
+    hintText: 'Uses the native URL input.',
+  },
+  {
     type: 'date',
+    label: 'Date',
     hintText: 'Pick a date.',
-    onChange: () => {},
   },
-};
-
-export const DateTimeLocalInput: Story = {
-  args: {
-    label: 'End time',
+  {
     type: 'datetime-local',
+    label: 'Date and time',
     hintText: 'Pick a date and time.',
-    onChange: () => {},
   },
-};
-
-export const FileInput: Story = {
-  args: {
-    label: 'Attachments',
+  {
     type: 'file',
+    label: 'Attachments',
     multiple: true,
     hintText: 'Select one or more files.',
-    onChange: () => {},
   },
-};
+] satisfies Partial<ComponentProps<typeof Input>>[];
 
-export const FileInputSmall: Story = {
+export const InputTypes: Story = {
   args: {
-    label: 'Attachment',
-    type: 'file',
-    size: 'sm',
-    placeholder: 'Attach a file',
-    onChange: () => {},
+    placeholder: undefined,
   },
-};
-
-export const SearchInput: Story = {
-  args: {
-    label: 'Search',
-    type: 'text',
-    placeholder: 'Search...',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
+  parameters: {
+    controls: { include: ['size', 'variant', 'disabled', 'isError'] },
   },
-};
-
-export const CustomLabelNode: Story = {
-  args: {
-    label: (
-      <div className="flex items-center gap-space-2">
-        <span>Custom Label</span>
-        <span className="inline-flex text-tertiary">
-          <QuestionIcon size={16} weight="regular" />
-        </span>
-      </div>
-    ),
-    placeholder: 'Enter text',
-    hintText: 'This input has a custom label with an icon',
-    leftDecorator: <EnvelopeIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-// Showcase of all states
-export const AllStates: Story = {
-  render: () => (
-    <div className="w-80 space-y-space-5">
-      <Input
-        label="Default State"
-        placeholder="Enter text"
-        hintText="This is a normal input"
-        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
-        rightDecorator={<QuestionIcon size={16} weight="regular" />}
-        onChange={() => {}}
-        debounceMs={300}
-        required
-      />
-
-      <Input
-        label="Error State"
-        value="Invalid input"
-        placeholder="Enter text"
-        hintText="This is an error message"
-        isError
-        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
-        rightDecorator={<QuestionIcon size={16} weight="regular" />}
-        onChange={() => {}}
-        debounceMs={300}
-      />
-
-      <Input
-        label="Disabled State"
-        value="Disabled input"
-        placeholder="Enter text"
-        hintText="This input is disabled"
-        disabled
-        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
-        rightDecorator={<QuestionIcon size={16} weight="regular" />}
-        onChange={() => {}}
-        debounceMs={300}
-      />
-      <Input
-        placeholder="Small size"
-        leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
-        rightDecorator={<QuestionIcon size={16} weight="regular" />}
-        onChange={() => {}}
-        debounceMs={300}
-        size="sm"
-        required
-      />
+  render: (args) => (
+    <div className="grid w-[48rem] max-w-full grid-cols-1 gap-space-5 sm:grid-cols-2">
+      {inputTypeExamples.map((example) => (
+        <InputExample key={example.type} {...args} {...example} />
+      ))}
     </div>
   ),
 };
 
-// Plain variant
-export const PlainVariant: Story = {
+export const IconsAndActions: Story = {
+  name: 'Icons & Actions',
   args: {
-    variant: 'plain',
-    placeholder: 'Plain input with no border',
-    hintText: 'This input uses the plain variant',
-    onChange: () => {},
-    debounceMs: 300,
+    hintText: undefined,
+    debounceMs: 0,
   },
-};
-
-export const PlainWithDecorators: Story = {
-  args: {
-    variant: 'plain',
-    label: 'Search',
-    placeholder: 'Search...',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
+  parameters: {
+    controls: { include: ['disabled', 'isError'] },
+    docs: {
+      description: {
+        story:
+          'Use leftIcon/rightIcon for decoration and leftAction/rightAction for labeled actions. Input owns glyph size, color, and edge spacing. Custom decorators retain caller-defined styling. Date fields keep the native picker.',
+      },
+    },
   },
-};
-
-export const PlainSmallSize: Story = {
-  args: {
-    variant: 'plain',
-    placeholder: 'Small plain input',
-    size: 'sm',
-    leftDecorator: <MagnifyingGlassIcon size={16} weight="regular" />,
-    onChange: () => {},
-    debounceMs: 300,
-  },
-};
-
-// Comparison of variants
-export const VariantComparison: Story = {
-  render: () => (
-    <div className="w-80 space-y-space-5">
-      <div>
-        <h3 className="mb-space-3 text-sm font-medium">
-          Outlined Variant (Default)
-        </h3>
-        <Input
-          variant="outlined"
-          label="Email"
-          placeholder="Enter your email"
-          hintText="Standard outlined input with border"
-          leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
-          onChange={() => {}}
-          debounceMs={300}
-        />
-      </div>
-
-      <div>
-        <h3 className="mb-space-3 text-sm font-medium">Plain Variant</h3>
-        <Input
-          variant="plain"
-          label="Email"
-          placeholder="Enter your email"
-          hintText="Plain input with no border and secondary background"
-          leftDecorator={<EnvelopeIcon size={16} weight="regular" />}
-          onChange={() => {}}
-          debounceMs={300}
-        />
-      </div>
-
-      <div>
-        <h3 className="mb-space-3 text-sm font-medium">Plain with Search</h3>
-        <Input
-          variant="plain"
-          placeholder="Search..."
-          leftDecorator={<MagnifyingGlassIcon size={16} weight="regular" />}
-          onChange={() => {}}
-          debounceMs={300}
-        />
-      </div>
-    </div>
+  render: (args) => (
+    <ControlSizeMatrix variants={variants}>
+      {(size, variant) => (
+        <div className="flex flex-col gap-space-4">
+          <InputExample
+            {...args}
+            size={size}
+            variant={variant}
+            label="Decorative Icons"
+            leftIcon={EnvelopeIcon}
+            rightIcon={QuestionIcon}
+          />
+          <ClearableInputExample
+            {...args}
+            size={size}
+            variant={variant}
+            label="Search"
+            placeholder="Search traces"
+          />
+          {inputTypeExamples
+            .filter(({ type }) =>
+              ['password', 'date', 'datetime-local', 'file'].includes(type)
+            )
+            .map((example) => (
+              <InputExample
+                key={example.type}
+                {...args}
+                {...example}
+                size={size}
+                variant={variant}
+                hintText={undefined}
+              />
+            ))}
+        </div>
+      )}
+    </ControlSizeMatrix>
   ),
 };

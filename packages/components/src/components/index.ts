@@ -64,7 +64,7 @@ export { Kbd, KbdGroup } from './Kbd';
 export type { KbdProps, KbdGroupProps } from './Kbd';
 
 export { Input } from './Input';
-export type { InputProps } from './Input';
+export type { InputIconAction, InputProps } from './Input';
 
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';

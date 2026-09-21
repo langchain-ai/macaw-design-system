@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useEffectEvent, useId } from 'react';
 
 import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
 
@@ -30,6 +30,12 @@ export const ChartLegendItemRenderer = ({
   listColumns,
 }: ChartLegendItemRendererProps) => {
   const labelId = useId();
+  const clearActivity = useEffectEvent(() => {
+    onActiveChange?.(item, 'pointer', false);
+    onActiveChange?.(item, 'focus', false);
+  });
+  // Removing a focused or hovered row does not fire blur or pointerleave.
+  useEffect(() => () => clearActivity(), []);
 
   const isList = layout === 'list';
   const defaultAriaLabel = getChartLegendAriaLabel(

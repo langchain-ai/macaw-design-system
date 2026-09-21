@@ -1,12 +1,14 @@
-import { type SVGProps, cloneElement, forwardRef, isValidElement } from 'react';
-
-import { SpinnerGapIcon } from '@phosphor-icons/react/dist/ssr/SpinnerGap';
+import { cloneElement, forwardRef, isValidElement } from 'react';
 
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import { buttonStyleMap } from '../Button/constants';
-import type { TooltipProps } from '../Tooltip/';
-import { Tooltip } from '../Tooltip/';
+import { Spinner } from '../Spinner';
+import type { TooltipProps } from '../Tooltip';
+import { Tooltip } from '../Tooltip';
+
+type IconButtonSize = 'xxs' | Exclude<ControlSize, 'lg'>;
 
 interface IconButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -30,8 +32,8 @@ interface IconButtonProps extends Omit<
   iconClassName?: string;
   /** Phosphor weight used to render the icon */
   iconWeight?: IconWeight;
-  /** Size of the square button */
-  size?: 'xxs' | 'xs' | 'sm' | 'md';
+  /** Square outer box. xxs=16px is reserved for dense icon-only actions. */
+  size?: IconButtonSize;
   /** Whether the button is loading */
   loading?: boolean;
   /** Tooltip props */
@@ -39,28 +41,6 @@ interface IconButtonProps extends Omit<
   /** Pass through the `<button>` props to a child component */
   asChild?: boolean;
 }
-
-const IconButtonSpinnerIcon = ({
-  weight = 'regular',
-  ...props
-}: SVGProps<SVGSVGElement> & { weight?: IconWeight }) => (
-  <SpinnerGapIcon {...props} weight={weight} />
-);
-
-const Spinner = ({ size }: { size: NonNullable<IconButtonProps['size']> }) => {
-  return (
-    <IconButtonSpinnerIcon
-      aria-hidden
-      weight={size === 'xxs' ? 'bold' : 'regular'}
-      className={cn(
-        size === 'xxs' && 'size-3',
-        size === 'xs' && 'size-3.5',
-        (size === 'sm' || size === 'md') && 'size-4',
-        'animate-spin'
-      )}
-    />
-  );
-};
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
@@ -84,13 +64,18 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     ref
   ) => {
     const baseStyles = cn(
-      'lc-button inline-flex h-fit w-fit flex-none items-center justify-center transition-all duration-200',
+      'lc-button relative box-border inline-flex flex-none items-center justify-center p-0 transition-all duration-200',
       {
-        'size-4 p-0': size === 'xxs',
-        'p-0.5': size === 'xs',
-        'p-space-1': size === 'sm',
-        'p-space-2': size === 'md',
-      }, // Square padding for icon buttons
+        'size-4': size === 'xxs',
+        [CONTROL_SIZES.xs.heightClassName]: size === 'xs',
+        [CONTROL_SIZES.sm.heightClassName]: size === 'sm',
+        [CONTROL_SIZES.md.heightClassName]: size === 'md',
+      },
+      {
+        'w-5': size === 'xs',
+        'w-6': size === 'sm',
+        'w-8': size === 'md',
+      },
       {
         'shadow-[0px_1px_2px_0px_var(--shadow-color-subtle)]':
           (variant === 'normal' || variant === 'outlined') && !disabled,
@@ -103,7 +88,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     );
 
     const children = loading ? (
-      <Spinner size={size} />
+      <Spinner size={size === 'xxs' || size === 'xs' ? 'xxs' : 'xs'} />
     ) : (
       <Icon
         aria-hidden

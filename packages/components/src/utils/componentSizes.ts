@@ -19,13 +19,32 @@ export type VisualElementSize = keyof typeof VISUAL_ELEMENT_SIZES;
  * CommandInput, Select, Typeahead, and GroupedTabs.
  */
 export const CONTROL_SIZES = {
-  xs: { name: 'xs', rem: 1.25, heightClassName: 'h-5' },
-  sm: { name: 'sm', rem: 1.5, heightClassName: 'h-6' },
-  md: { name: 'md', rem: 2, heightClassName: 'h-8' },
-  lg: { name: 'lg', rem: 2.5, heightClassName: 'h-10' },
+  xs: {
+    name: 'xs',
+    rem: 1.25,
+    heightClassName: 'h-5',
+    minHeightClassName: 'min-h-5',
+  },
+  sm: {
+    name: 'sm',
+    rem: 1.5,
+    heightClassName: 'h-6',
+    minHeightClassName: 'min-h-6',
+  },
+  md: {
+    name: 'md',
+    rem: 2,
+    heightClassName: 'h-8',
+    minHeightClassName: 'min-h-8',
+  },
+  lg: {
+    name: 'lg',
+    rem: 2.5,
+    heightClassName: 'h-10',
+    minHeightClassName: 'min-h-10',
+  },
 } as const;
 
-/** @knipignore Public family type for components adopting this contract. */
 export type ControlSize = keyof typeof CONTROL_SIZES;
 
 /**

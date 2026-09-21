@@ -89,6 +89,9 @@ export interface LogoProps {
   customLogoUrl?: string | null;
 }
 
+/**
+ * Logo use: the `Logo` component renders the logo for a specified brand, variant, and size. When using this component you MUST follow LangChain's brand guidelines, which can be found on LangChain's official website.
+ **/
 export function Logo(props: LogoProps) {
   const size = props.size ?? 'md';
   const variant = props.variant ?? 'full';

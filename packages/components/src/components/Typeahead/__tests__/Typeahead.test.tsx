@@ -231,10 +231,9 @@ describe('Typeahead', () => {
     expect(input).not.toHaveAttribute('aria-labelledby');
   });
 
-  it('uses control-compatible height and radius classes for each size', () => {
+  it('uses the 20/24/32/40px single-select size contract', () => {
     render(
       <>
-        <Button size="xs">Extra small action</Button>
         <Typeahead
           data-testid="xs-typeahead"
           size="xs"
@@ -243,7 +242,6 @@ describe('Typeahead', () => {
           options={['Latency']}
           placeholder="Extra small metric"
         />
-        <Button size="sm">Small action</Button>
         <Typeahead
           data-testid="sm-typeahead"
           size="sm"
@@ -252,7 +250,6 @@ describe('Typeahead', () => {
           options={['Latency']}
           placeholder="Small metric"
         />
-        <Button size="md">Medium action</Button>
         <Typeahead
           data-testid="md-typeahead"
           size="md"
@@ -272,27 +269,18 @@ describe('Typeahead', () => {
       </>
     );
 
-    expect(screen.getByTestId('xs-typeahead')).toHaveClass(
-      'h-[1.5625rem]',
-      'rounded-xs'
-    );
-    expect(screen.getByTestId('sm-typeahead')).toHaveClass(
-      'h-[1.625rem]',
-      'rounded-sm'
-    );
-    expect(screen.getByTestId('md-typeahead')).toHaveClass(
-      'h-[2.1875rem]',
-      'rounded-md'
-    );
+    expect(screen.getByTestId('xs-typeahead')).toHaveClass('h-5', 'rounded-xs');
+    expect(screen.getByTestId('sm-typeahead')).toHaveClass('h-6', 'rounded-sm');
+    expect(screen.getByTestId('md-typeahead')).toHaveClass('h-8', 'rounded-md');
     expect(screen.getByTestId('lg-typeahead')).toHaveClass(
-      'h-[2.4375rem]',
+      'h-10',
       'rounded-md',
       'px-space-3'
     );
-    expect(screen.getByTestId('md-typeahead')).not.toHaveClass('min-h-10');
+    expect(screen.getByTestId('md-typeahead')).not.toHaveClass('min-h-8');
   });
 
-  it('uses matching minimum heights for multiple selections so chips can wrap', () => {
+  it('uses a 24px minimum height for small multiple selections so chips can wrap', () => {
     render(
       <Typeahead
         data-testid="multiple-typeahead"
@@ -306,18 +294,17 @@ describe('Typeahead', () => {
     );
 
     expect(screen.getByTestId('multiple-typeahead')).toHaveClass(
-      'min-h-[1.625rem]',
+      'min-h-6',
       'rounded-sm',
       'flex',
       'flex-wrap',
-      'p-space-1'
+      'px-space-1',
+      'py-px'
     );
-    expect(screen.getByTestId('multiple-typeahead')).not.toHaveClass(
-      'h-[1.625rem]'
-    );
+    expect(screen.getByTestId('multiple-typeahead')).not.toHaveClass('h-6');
   });
 
-  it('matches the default Input height and horizontal padding at large size', () => {
+  it('uses a 40px minimum height and 12px horizontal padding at large size', () => {
     render(
       <Typeahead
         data-testid="large-multiple-typeahead"
@@ -331,13 +318,13 @@ describe('Typeahead', () => {
     );
 
     expect(screen.getByTestId('large-multiple-typeahead')).toHaveClass(
-      'min-h-[2.4375rem]',
+      'min-h-10',
       'rounded-md',
       'px-space-3',
       'py-space-1'
     );
     expect(screen.getByTestId('large-multiple-typeahead')).not.toHaveClass(
-      'p-space-1'
+      'h-10'
     );
   });
 

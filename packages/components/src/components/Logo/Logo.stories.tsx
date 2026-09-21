@@ -56,9 +56,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const LangSmith: Story = {};
+export const LangSmith: Story = {
+  name: 'LangSmith',
+};
 
 export const LangChain: Story = {
+  name: 'LangChain',
   args: {
     brand: 'langchain',
   },

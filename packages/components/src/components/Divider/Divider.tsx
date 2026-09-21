@@ -4,6 +4,8 @@ import { cn } from '../../utils/cn';
 
 interface DividerProps extends React.HTMLAttributes<HTMLElement> {
   orientation?: 'horizontal' | 'vertical';
+  /** Strong emphasizes section boundaries; default keeps separators subtle. */
+  weight?: 'default' | 'strong';
   decorative?: boolean;
 }
 
@@ -11,6 +13,7 @@ const Divider = forwardRef<HTMLElement, DividerProps>(
   (
     {
       orientation = 'horizontal',
+      weight = 'default',
       decorative = true,
       className,
       role,
@@ -29,7 +32,11 @@ const Divider = forwardRef<HTMLElement, DividerProps>(
       return (
         <div
           ref={ref as React.Ref<HTMLDivElement>}
-          className={cn('self-stretch border-l border-subtle', className)}
+          className={cn(
+            'self-stretch border-l',
+            weight === 'strong' ? 'border-default' : 'border-subtle',
+            className
+          )}
           {...accessibilityProps}
           {...props}
         />
@@ -39,7 +46,11 @@ const Divider = forwardRef<HTMLElement, DividerProps>(
     return (
       <hr
         ref={ref as React.Ref<HTMLHRElement>}
-        className={cn('w-full border-0 border-t border-subtle', className)}
+        className={cn(
+          'w-full border-0 border-t',
+          weight === 'strong' ? 'border-default' : 'border-subtle',
+          className
+        )}
         {...accessibilityProps}
         {...props}
       />

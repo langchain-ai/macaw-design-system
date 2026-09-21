@@ -1,7 +1,29 @@
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
 
-export type InputSize = 'sm' | 'md';
+export type InputSize = ControlSize;
 export type InputVariant = 'outlined' | 'plain';
+
+export const INPUT_HORIZONTAL_PADDING_CLASSES: Record<InputSize, string> = {
+  xs: 'px-space-1',
+  sm: 'px-space-2',
+  md: 'px-space-3',
+  lg: 'px-space-3',
+};
+
+export const INPUT_RADIUS_CLASSES: Record<InputSize, string> = {
+  xs: 'rounded-xs',
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-md',
+};
+
+export const INPUT_TEXT_CLASSES: Record<InputSize, string> = {
+  xs: 'text-xxs leading-[1.15]',
+  sm: 'text-xs',
+  md: 'text-sm leading-normal',
+  lg: 'text-sm leading-normal',
+};
 
 /**
  * Shared styling for input containers (border, padding, rounding, variant).
@@ -22,15 +44,10 @@ export function getInputContainerClasses({
 }) {
   const outlined = variant === 'outlined';
   return cn(
-    'flex w-full items-center gap-space-2 transition-[border-color,box-shadow,background-color]',
-    {
-      'px-space-2 py-space-1': size === 'sm',
-      'px-space-3 py-space-2': size === 'md',
-    },
-    {
-      'rounded-sm': size === 'sm',
-      'rounded-md': size === 'md',
-    },
+    'box-border flex w-full items-center gap-space-2 transition-[border-color,box-shadow,background-color]',
+    CONTROL_SIZES[size].heightClassName,
+    INPUT_HORIZONTAL_PADDING_CLASSES[size],
+    INPUT_RADIUS_CLASSES[size],
     'focus-within:outline-none',
     {
       'border border-subtle bg-transparent': variant === 'outlined',
@@ -68,10 +85,7 @@ export function getInputElementClasses({
 }) {
   return cn(
     'min-w-0 max-w-full flex-1 border-none bg-transparent p-0 outline-none',
-    {
-      'text-xs leading-normal': size === 'sm',
-      'text-sm leading-normal': size === 'md',
-    },
+    INPUT_TEXT_CLASSES[size],
     'placeholder:text-placeholder',
     disabled && 'cursor-not-allowed',
     className

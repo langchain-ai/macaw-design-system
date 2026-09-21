@@ -11,11 +11,11 @@ import {
 import { getColorByString } from '../../utils/get-color-by-string';
 import { Tooltip } from '../Tooltip';
 
-type AvatarSize = Exclude<VisualElementSize, 'xxs'> | 'lg' | 'xl';
+type AvatarSize = VisualElementSize | 'lg' | 'xl';
 type AvatarShape = 'circle' | 'square';
 
 interface AvatarProps {
-  /** Outer box size: xs=16px, sm=20px, md=24px, lg=36px, xl=48px. */
+  /** Outer box size: xxs=12px, xs=16px, sm=20px, md=24px, lg=36px, xl=48px. */
   size?: AvatarSize;
   shape?: AvatarShape;
   /** Show a small notification dot in the top-right corner. */
@@ -39,6 +39,7 @@ interface AvatarProps {
 // The shared tiers use the visual-element scale. Identity-specific lg/xl tiers
 // remain larger so existing Avatar presentations retain their geometry.
 const BOX_SIZE: Record<AvatarSize, string> = {
+  xxs: VISUAL_ELEMENT_SIZES.xxs.className,
   xs: VISUAL_ELEMENT_SIZES.xs.className,
   sm: VISUAL_ELEMENT_SIZES.sm.className,
   md: VISUAL_ELEMENT_SIZES.md.className,
@@ -47,6 +48,7 @@ const BOX_SIZE: Record<AvatarSize, string> = {
 };
 
 const TEXT_SIZE: Record<AvatarSize, string> = {
+  xxs: 'text-[0.625rem] leading-none',
   xs: 'text-xxs',
   sm: 'text-xs',
   md: 'text-sm',
@@ -109,7 +111,14 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         )}
 
         {badge && (
-          <div className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-current bg-error-strong outline-transparent" />
+          <div
+            className={cn(
+              'absolute rounded-full border-current bg-error-strong outline-transparent',
+              size === 'xxs'
+                ? '-right-0.5 -top-0.5 size-1.5 border'
+                : '-right-1 -top-1 size-3 border-2'
+            )}
+          />
         )}
       </div>
     );

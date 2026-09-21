@@ -49,7 +49,7 @@ export const CommandInput = forwardRef<
       className,
       leftDecorator,
       rightDecorator,
-      size = 'md',
+      size = 'lg',
       variant = 'outlined',
       ...props
     },

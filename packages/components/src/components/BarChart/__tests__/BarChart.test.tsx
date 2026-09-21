@@ -98,10 +98,12 @@ describe('BarChart', () => {
       </>
     );
 
-    expect(screen.getByRole('group', { name: 'Daily usage' })).toHaveAttribute(
-      'aria-describedby',
-      'usage-summary'
-    );
+    expect(
+      screen.getByRole('group', { name: 'Daily usage', queryFallbacks: true })
+    ).toBe(screen.getByRole('graphics-document', { name: 'Daily usage' }));
+    expect(
+      screen.getByRole('graphics-document', { name: 'Daily usage' })
+    ).toHaveAttribute('aria-describedby', 'usage-summary');
     expect(
       screen.getByRole('group', { name: 'Daily usage legend' })
     ).toBeVisible();
@@ -215,7 +217,9 @@ describe('BarChart', () => {
     );
 
     expect(
-      screen.getByRole('group', { name: 'Usage with warning range' })
+      screen.getByRole('graphics-document', {
+        name: 'Usage with warning range',
+      })
     ).toBeVisible();
     expect(screen.getByRole('img', { name: 'Warning range' })).toBeVisible();
   });
@@ -229,7 +233,9 @@ describe('BarChart', () => {
       />
     );
 
-    expect(screen.getByRole('group', { name: 'Selected usage' })).toBeVisible();
+    expect(
+      screen.getByRole('graphics-document', { name: 'Selected usage' })
+    ).toBeVisible();
     expect(
       screen.getByRole('img', { name: 'Selected range from Mon to Tue' })
     ).toBeVisible();
@@ -622,12 +628,18 @@ describe('BarChart', () => {
             tickValues: [-1_000, 1_000],
             formatValue: (value) => `${value} requests`,
           },
+          {
+            id: 'cost',
+            domain: [-1_000, 1_000],
+            tickValues: [-1_000, 1_000],
+            formatValue: (value) => `${value} very wide cost units`,
+          },
         ]}
       />
     );
 
-    const minimumLabelContent = screen.getByText('-1000 requests');
-    const maximumLabelContent = screen.getByText('1000 requests');
+    const minimumLabelContent = screen.getByText('-1000 very wide cost units');
+    const maximumLabelContent = screen.getByText('1000 very wide cost units');
     const minimumLabel = getSvgTextElement(minimumLabelContent);
     const maximumLabel = getSvgTextElement(maximumLabelContent);
     if (minimumLabel == null || maximumLabel == null) {
@@ -661,7 +673,9 @@ describe('BarChart', () => {
         onDatumPointerMove={onDatumPointerMove}
       />
     );
-    const chart = screen.getByRole('group', { name: 'Interactive usage' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Interactive usage',
+    });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 640, height: 320 })
     );
@@ -720,7 +734,9 @@ describe('BarChart', () => {
         onDatumPointerOut={onDatumPointerOut}
       />
     );
-    const chart = screen.getByRole('group', { name: 'Gutter usage' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Gutter usage',
+    });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 640, height: 320 })
     );
@@ -774,7 +790,9 @@ describe('BarChart', () => {
         onDatumActivate={onDatumActivate}
       />
     );
-    const chart = screen.getByRole('group', { name: 'Clickable bars' });
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Clickable bars',
+    });
     const mondayBar = screen.getByRole('button', { name: 'Mon requests' });
     vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 640, height: 320 })

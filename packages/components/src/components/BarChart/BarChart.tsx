@@ -300,10 +300,14 @@ export const BarChart = ({
     (categoryAxis?.label == null ? 0 : CHART_AXIS_LABEL_THICKNESS);
   const categoryAxisThickness =
     categoryAxis?.thickness ?? defaultCategoryAxisThickness;
-  const horizontalValueAxisEdgeMargin =
-    isVertical || resolvedValueAxes[0] == null
-      ? 0
-      : getHorizontalValueAxisEdgeMargin(resolvedValueAxes[0], bars);
+  const horizontalValueAxisEdgeMargin = isVertical
+    ? 0
+    : Math.max(
+        0,
+        ...resolvedValueAxes.map((axis) =>
+          getHorizontalValueAxisEdgeMargin(axis, bars)
+        )
+      );
   const chartMargin = isVertical
     ? {
         top: BAR_CHART_MARGIN_TOP + padding.top,

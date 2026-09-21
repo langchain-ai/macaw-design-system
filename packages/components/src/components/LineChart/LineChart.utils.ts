@@ -120,7 +120,10 @@ export const createLineChartXScaleAdapter = ({
       scale,
       getPosition: getBandPosition,
       getValue: (position: number) =>
-        interpolateValue(position, positions, values),
+        Math.max(
+          domain[0],
+          Math.min(domain[1], interpolateValue(position, positions, values))
+        ),
       getRangePosition: getBandPosition,
     };
   }

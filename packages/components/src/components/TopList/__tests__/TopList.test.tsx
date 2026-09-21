@@ -119,7 +119,7 @@ describe('TopList', () => {
     );
 
     const chart = within(
-      screen.getByRole('group', { name: 'Narrow top models' })
+      screen.getByRole('graphics-document', { name: 'Narrow top models' })
     );
     expect(chart.getByText('1,000')).toBeVisible();
     expect(chart.getByText('2,000')).toBeVisible();
@@ -147,9 +147,9 @@ describe('TopList', () => {
     expect(screen.getByLabelText('Primary: 50')).toBeVisible();
     expect(screen.queryByLabelText('Other: 100')).not.toBeInTheDocument();
     expect(
-      within(screen.getByRole('group', { name: 'Limited groups' })).getByText(
-        '100'
-      )
+      within(
+        screen.getByRole('graphics-document', { name: 'Limited groups' })
+      ).getByText('100')
     ).toBeVisible();
   });
 
@@ -230,10 +230,28 @@ describe('TopList', () => {
     expect(onItemPointerMove).not.toHaveBeenCalled();
   });
 
+  it('omits rows with non-finite values', () => {
+    render(
+      <TopList
+        aria-label="Finite top list"
+        items={[
+          ...items,
+          { id: 'invalid', label: 'Invalid', value: Number.NaN },
+        ]}
+      />
+    );
+
+    expect(screen.getByText(items[0].label)).toBeVisible();
+    expect(screen.queryByText('Invalid')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Invalid/)).not.toBeInTheDocument();
+  });
+
   it('renders an empty chart without row labels', () => {
     render(<TopList aria-label="Empty top list" items={[]} />);
 
-    expect(screen.getByRole('group', { name: 'Empty top list' })).toBeVisible();
+    expect(
+      screen.getByRole('graphics-document', { name: 'Empty top list' })
+    ).toBeVisible();
     expect(screen.queryByLabelText(/:/)).not.toBeInTheDocument();
   });
 });

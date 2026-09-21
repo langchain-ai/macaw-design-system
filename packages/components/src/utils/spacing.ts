@@ -2,7 +2,7 @@
  * 4-point spacing scale (`space-1` … `space-9`).
  *
  * For guidelines on how to use, refer to Storybook:
- * https://langsmith-design-system.vercel.app/?path=/story/design-system-foundations-spacing--scale-and-guidelines
+ * https://langsmith-design-system.vercel.app/?path=/story/foundations-spacing--scale-and-guidelines
  *
  * The scale is surfaced as additive Tailwind utilities via
  * `tailwind.preset.cjs`, so it is used through the property prefix:

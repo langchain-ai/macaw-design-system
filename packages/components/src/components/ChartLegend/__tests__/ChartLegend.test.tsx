@@ -96,8 +96,39 @@ describe('ChartLegend', () => {
     expect(within(legend).getByText('Alpha').closest('[tabindex]')).toBeNull();
   });
 
+  it('supports keyboard selection and returns focus when overflow closes', async () => {
+    const onItemClick = vi.fn();
+    const onItemActiveChange = vi.fn();
+    const { user } = render(
+      <ChartLegend
+        items={items}
+        onItemClick={onItemClick}
+        onItemActiveChange={onItemActiveChange}
+      />,
+      {}
+    );
+    const trigger = screen.getByRole('button', {
+      name: /hidden chart legends?$/i,
+    });
+
+    await user.tab();
+    await user.tab();
+    expect(trigger).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('button', { name: 'Bravo' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(onItemClick).toHaveBeenCalledWith(items[1]);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(onItemActiveChange).toHaveBeenLastCalledWith(null);
+    expect(trigger).toHaveFocus();
+  });
+
   it('keeps selected overflow items in their input position', async () => {
-    render(<ChartLegend items={items} onItemClick={vi.fn()} />, {});
+    const { user } = render(
+      <ChartLegend items={items} onItemClick={vi.fn()} />,
+      {}
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Alpha' })).toBeInTheDocument();
@@ -105,5 +136,9 @@ describe('ChartLegend', () => {
     expect(
       screen.queryByRole('button', { name: 'Bravo' })
     ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: /hidden chart legends?$/i })
+    );
+    expect(screen.getByRole('button', { name: 'Bravo' })).toBeVisible();
   });
 });

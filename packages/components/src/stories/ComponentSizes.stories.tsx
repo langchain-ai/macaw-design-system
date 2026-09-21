@@ -10,8 +10,10 @@ import { Button } from '../components/Button/Button';
 import { ButtonGroup } from '../components/ButtonGroup';
 import { Checkbox } from '../components/Checkbox';
 import { Command, CommandItem, CommandList } from '../components/Command';
+import { CopyIconButton } from '../components/CopyButton';
 import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
 import { Icon } from '../components/Icon';
+import { IconButton } from '../components/IconButton';
 import { Input } from '../components/Input/Input';
 import { Kbd, KbdGroup } from '../components/Kbd';
 import { RadioButton } from '../components/RadioButton';
@@ -187,8 +189,24 @@ const SameNamedSizeComparison = () => (
           <SameSizeSpecimen label="Button">
             <Button size="xs">Continue</Button>
           </SameSizeSpecimen>
-          <SameSizeSpecimen label="Select">
+          <SameSizeSpecimen label="ButtonGroup">
+            <ButtonGroup size="xs" color="secondary" variant="outlined">
+              <Button>First</Button>
+              <Button>Second</Button>
+            </ButtonGroup>
+          </SameSizeSpecimen>
+          <SameSizeSpecimen label="Input">
             <div className="w-36">
+              <Input
+                size="xs"
+                placeholder="Search"
+                aria-label="xs input"
+                onChange={noop}
+              />
+            </div>
+          </SameSizeSpecimen>
+          <SameSizeSpecimen label="Select">
+            <div className="flex w-36 items-center">
               <Select
                 size="xs"
                 options={options}
@@ -234,7 +252,7 @@ const SameNamedSizeComparison = () => (
             </div>
           </SameSizeSpecimen>
           <SameSizeSpecimen label="Select">
-            <div className="w-36">
+            <div className="flex w-36 items-center">
               <Select
                 size="sm"
                 options={options}
@@ -291,7 +309,7 @@ const SameNamedSizeComparison = () => (
             </div>
           </SameSizeSpecimen>
           <SameSizeSpecimen label="Select">
-            <div className="w-36">
+            <div className="flex w-36 items-center">
               <Select
                 size="md"
                 options={options}
@@ -326,12 +344,22 @@ const SameNamedSizeComparison = () => (
             <Icon icon={InfoIcon} color="neutral" size="lg" />
           </SameSizeSpecimen>
           <SameSizeSpecimen label="Select">
-            <div className="w-36">
+            <div className="flex w-36 items-center">
               <Select
                 size="lg"
                 options={options}
                 onChange={noop}
                 placeholder="Select"
+              />
+            </div>
+          </SameSizeSpecimen>
+          <SameSizeSpecimen label="Input">
+            <div className="w-36">
+              <Input
+                size="lg"
+                placeholder="Search"
+                aria-label="lg input"
+                onChange={noop}
               />
             </div>
           </SameSizeSpecimen>
@@ -363,16 +391,12 @@ const VisualElementMatrix = () => (
                   weight="regular"
                 />
               </GuidedSpecimen>
-              {name !== 'xxs' && (
-                <GuidedSpecimen label="Avatar" rem={contract.rem} square>
-                  <Avatar label="Ada" size={name} />
-                </GuidedSpecimen>
-              )}
-              {name !== 'xxs' && (
-                <GuidedSpecimen label="Spinner" rem={contract.rem} square>
-                  <Spinner size={name} />
-                </GuidedSpecimen>
-              )}
+              <GuidedSpecimen label="Avatar" rem={contract.rem} square>
+                <Avatar label="Ada" size={name} />
+              </GuidedSpecimen>
+              <GuidedSpecimen label="Spinner" rem={contract.rem} square>
+                <Spinner size={name} />
+              </GuidedSpecimen>
             </div>
           );
         })}
@@ -470,7 +494,7 @@ const ControlMatrix = () => (
     <FamilyHeading
       title="Controls"
       description="The ruler marks exact outer height. Multiline Textarea and multi-value Typeahead use these as first-row or minimum-height metrics."
-      components="Button, IconButton, ButtonGroup, CopyButton, Input, CommandInput, Select, Typeahead, GroupedTabs"
+      components="Button, IconButton, ButtonGroup, CopyButton, Input, Select, Typeahead, GroupedTabs"
     />
     <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
       <div className="flex min-w-max flex-col gap-space-3">
@@ -484,7 +508,16 @@ const ControlMatrix = () => (
                   <Button size={name}>Continue</Button>
                 </GuidedSpecimen>
               )}
-              {(name === 'sm' || name === 'md') && (
+              {name !== 'lg' && (
+                <GuidedSpecimen label="IconButton" rem={contract.rem}>
+                  <IconButton
+                    size={name}
+                    icon={MagnifyingGlassIcon}
+                    label="Search"
+                  />
+                </GuidedSpecimen>
+              )}
+              {name !== 'lg' && (
                 <GuidedSpecimen label="ButtonGroup" rem={contract.rem}>
                   <ButtonGroup size={name} color="secondary" variant="outlined">
                     <Button>First</Button>
@@ -492,20 +525,23 @@ const ControlMatrix = () => (
                   </ButtonGroup>
                 </GuidedSpecimen>
               )}
-              {(name === 'sm' || name === 'md') && (
-                <GuidedSpecimen label="Input" rem={contract.rem}>
-                  <div className="w-36">
-                    <Input
-                      size={name}
-                      placeholder="Search"
-                      aria-label={`${name} input`}
-                      onChange={noop}
-                    />
-                  </div>
+              {name !== 'lg' && (
+                <GuidedSpecimen label="CopyButton" rem={contract.rem}>
+                  <CopyIconButton copy="size contract" size={name} />
                 </GuidedSpecimen>
               )}
-              <GuidedSpecimen label="Select" rem={contract.rem}>
+              <GuidedSpecimen label="Input" rem={contract.rem}>
                 <div className="w-36">
+                  <Input
+                    size={name}
+                    placeholder="Search"
+                    aria-label={`${name} input`}
+                    onChange={noop}
+                  />
+                </div>
+              </GuidedSpecimen>
+              <GuidedSpecimen label="Select" rem={contract.rem}>
+                <div className="flex w-36 items-center">
                   <Select
                     size={name}
                     options={options}

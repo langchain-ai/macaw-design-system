@@ -1,28 +1,50 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { forwardRef, useEffect, useId, useRef, useState } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
+import { CalendarBlankIcon } from '@phosphor-icons/react/dist/ssr/CalendarBlank';
 import { EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import { PaperclipIcon } from '@phosphor-icons/react/dist/ssr/Paperclip';
 
 import { cn } from '../../utils/cn';
+import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
+import type { IconComponent } from '../../utils/icon-types';
 import { mergeRefs } from '../../utils/merge-refs';
+import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
 import {
   DECORATOR_CLASSES,
   getInputContainerClasses,
   getInputElementClasses,
+  INPUT_TEXT_CLASSES,
 } from './inputStyles';
+import type { InputSize } from './inputStyles';
+
+export type InputIconAction = Pick<
+  ComponentProps<typeof IconButton>,
+  'icon' | 'label' | 'disabled' | 'tooltipProps'
+> & {
+  onClick: NonNullable<ComponentProps<typeof IconButton>['onClick']>;
+};
 
 export interface InputProps {
-  size?: 'sm' | 'md';
+  /** Exact outer height. The default lg tier preserves the legacy 40px field. */
+  size?: InputSize;
   variant?: 'outlined' | 'plain';
-  /** Left side decorator/icon */
+  /** Decorative icon. Input owns its size and color. */
+  leftIcon?: IconComponent;
+  /** Decorative icon. Input owns its size and color. */
+  rightIcon?: IconComponent;
+  /** Plain icon button. Takes precedence over leftIcon. */
+  leftAction?: InputIconAction;
+  /** Plain icon button. Takes precedence over rightIcon; precedes the password toggle. */
+  rightAction?: InputIconAction;
+  /** Custom content; overrides leftIcon/leftAction and the default file icon. */
   leftDecorator?: ReactNode;
-  /** Right side decorator/icon */
+  /** Custom content; overrides rightIcon/rightAction. The password toggle remains last. */
   rightDecorator?: ReactNode;
   /** Whether the input is disabled */
   disabled?: boolean;
@@ -84,21 +106,56 @@ export interface InputProps {
   multiple?: boolean;
 }
 
+function InputIconSlot({
+  icon,
+  action,
+  size,
+  disabled,
+}: {
+  icon?: IconComponent;
+  action?: InputIconAction;
+  size: InputSize;
+  disabled: boolean;
+}) {
+  const isDisabled = disabled || action?.disabled;
+  const colorClassName = isDisabled
+    ? 'text-icon-disabled'
+    : 'text-icon-secondary';
+
+  return action ? (
+    <IconButton
+      {...action}
+      color="secondary"
+      variant="plain"
+      size={CONTROL_ICON_SIZES[size].buttonSize}
+      className={colorClassName}
+      iconWeight="regular"
+      disabled={isDisabled}
+      onMouseDown={(event) => event.preventDefault()}
+    />
+  ) : icon ? (
+    <Icon
+      aria-hidden
+      icon={icon}
+      iconClassName={CONTROL_ICON_SIZES[size].iconClassName}
+      className={colorClassName}
+      weight="regular"
+    />
+  ) : null;
+}
+
 function FileSelection({
   size,
   fileNames,
   placeholder,
 }: {
-  size: 'sm' | 'md';
+  size: InputSize;
   fileNames: string[];
   placeholder?: string;
 }) {
   const summary =
     fileNames.length > 1 ? `${fileNames.length} files selected` : fileNames[0];
-  const textClasses = cn(
-    'leading-normal',
-    size === 'sm' ? 'text-xs' : 'text-sm'
-  );
+  const textClasses = INPUT_TEXT_CLASSES[size];
 
   return (
     <>
@@ -132,8 +189,12 @@ export const Input = forwardRef<
 >(
   (
     {
-      size = 'md',
+      size = 'lg',
       variant = 'outlined',
+      leftIcon,
+      rightIcon,
+      leftAction,
+      rightAction,
       leftDecorator,
       rightDecorator,
       disabled = false,
@@ -168,6 +229,7 @@ export const Input = forwardRef<
     const shouldDebounce = debounceMs > 0;
     const isFileInput = type === 'file';
     const isPasswordInput = type === 'password';
+    const isDateInput = type === 'date' || type === 'datetime-local';
     const [internalValue, setInternalValue] = useState(value);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [selectedFileNames, setSelectedFileNames] = useState<string[]>([]);
@@ -194,13 +256,8 @@ export const Input = forwardRef<
       fileInputRef.current?.click();
     };
 
-    // Update internal value when external value changes
     useEffect(() => {
-      if (!shouldDebounce) return;
-
-      setInternalValue((currentValue) =>
-        currentValue === value ? currentValue : value
-      );
+      if (shouldDebounce) setInternalValue(value);
     }, [shouldDebounce, value]);
 
     useEffect(() => {
@@ -229,11 +286,7 @@ export const Input = forwardRef<
       }
 
       if (shouldDebounce) {
-        setInternalValue((currentValue) =>
-          currentValue === newValue ? currentValue : newValue
-        );
-      }
-      if (shouldDebounce) {
+        setInternalValue(newValue);
         debouncedOnChange(newValue);
       } else {
         onChange(newValue, e);
@@ -254,46 +307,99 @@ export const Input = forwardRef<
           size,
           disabled,
           className: cn(
-            isPasswordInput && !isPasswordVisible && 'text-security'
+            isPasswordInput && !isPasswordVisible && 'text-security',
+            isDateInput && [
+              'supports-[selector(input::-webkit-calendar-picker-indicator)]:[&::-webkit-calendar-picker-indicator]:size-[var(--control-icon-size)]',
+              'supports-[selector(input::-webkit-calendar-picker-indicator)]:[&::-webkit-calendar-picker-indicator]:m-0',
+              'supports-[selector(input::-webkit-calendar-picker-indicator)]:[&::-webkit-calendar-picker-indicator]:p-0',
+              'supports-[selector(input::-webkit-calendar-picker-indicator)]:[&::-webkit-calendar-picker-indicator]:opacity-0',
+            ]
           ),
         });
 
-    const labelClasses = cn(
-      'mb-space-1 block text-sm font-medium text-primary',
-      disabled && 'text-disabled'
-    );
-
-    const hintTextClasses = cn(
-      'mt-space-1 text-xs',
-      isError ? 'text-error-secondary' : 'text-tertiary'
-    );
-
+    const effectiveLeftIcon =
+      leftIcon ?? (isFileInput ? PaperclipIcon : undefined);
+    const hasCustomLeftDecorator = leftDecorator != null;
+    const hasCustomRightDecorator = rightDecorator != null;
     const effectiveLeftDecorator =
       leftDecorator ??
-      (isFileInput ? (
-        <PaperclipIcon aria-hidden size={16} weight="regular" />
+      (effectiveLeftIcon || leftAction ? (
+        <InputIconSlot
+          icon={effectiveLeftIcon}
+          action={leftAction}
+          size={size}
+          disabled={disabled}
+        />
       ) : null);
-
-    const showPasswordToggle = isPasswordInput;
+    const rightContent =
+      rightDecorator ??
+      (rightIcon || rightAction ? (
+        <InputIconSlot
+          icon={rightIcon}
+          action={rightAction}
+          size={size}
+          disabled={disabled}
+        />
+      ) : null);
+    // Offset only known edge buttons by their glyph inset, including the border.
+    const leftActionOffset =
+      !hasCustomLeftDecorator && leftAction
+        ? CONTROL_ICON_SIZES[size].actionOffset
+        : undefined;
+    const rightActionOffset =
+      isPasswordInput || (!hasCustomRightDecorator && rightAction)
+        ? CONTROL_ICON_SIZES[size].actionOffset
+        : undefined;
     const effectiveRightDecorator =
-      showPasswordToggle || rightDecorator ? (
+      rightContent || isPasswordInput ? (
         <>
-          {rightDecorator}
-          {showPasswordToggle && (
-            <IconButton
-              label="toggle password visibility"
-              color="secondary"
-              variant="plain"
-              size="xs"
-              tooltipProps={{ disabled: true }}
+          {rightContent}
+          {isPasswordInput && (
+            <InputIconSlot
+              size={size}
               disabled={disabled}
-              onClick={() => setIsPasswordVisible((show) => !show)}
-              onMouseDown={(event) => event.preventDefault()}
-              icon={isPasswordVisible ? EyeSlashIcon : EyeIcon}
+              action={{
+                icon: isPasswordVisible ? EyeSlashIcon : EyeIcon,
+                label: 'toggle password visibility',
+                tooltipProps: { disabled: true },
+                onClick: () => setIsPasswordVisible((show) => !show),
+              }}
             />
           )}
         </>
       ) : null;
+
+    const nativeInput = (
+      // eslint-disable-next-line react/forbid-elements
+      <input
+        ref={isFileInput ? mergeRefs([fileInputRef, ref]) : ref}
+        id={inputId}
+        name={name ?? (typeof label === 'string' ? label : undefined)}
+        type={
+          isPasswordInput ? (isPasswordVisible ? 'text' : 'password') : type
+        }
+        value={
+          isFileInput
+            ? undefined
+            : shouldDebounce
+              ? (internalValue ?? '')
+              : value === null
+                ? ''
+                : value
+        }
+        onChange={handleInputChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+        autoFocus={autoFocus}
+        accept={accept}
+        multiple={multiple}
+        aria-describedby={describedBy}
+        aria-invalid={isError || undefined}
+        className={inputClasses}
+        {...rest}
+      />
+    );
 
     return (
       <div className={cn('w-full', className)}>
@@ -301,7 +407,10 @@ export const Input = forwardRef<
           <Text
             as="label"
             htmlFor={inputId}
-            className={labelClasses}
+            className={cn(
+              'mb-space-1 block text-sm font-medium text-primary',
+              disabled && 'text-disabled'
+            )}
             variant="xs"
           >
             {label}
@@ -319,7 +428,12 @@ export const Input = forwardRef<
           onClick={isFileInput ? openFilePicker : undefined}
         >
           {effectiveLeftDecorator && (
-            <div className={DECORATOR_CLASSES}>{effectiveLeftDecorator}</div>
+            <div
+              className={DECORATOR_CLASSES}
+              style={{ marginInlineStart: leftActionOffset }}
+            >
+              {effectiveLeftDecorator}
+            </div>
           )}
 
           {isFileInput && (
@@ -330,38 +444,32 @@ export const Input = forwardRef<
             />
           )}
 
-          {/* eslint-disable-next-line react/forbid-elements */}
-          <input
-            ref={isFileInput ? mergeRefs([fileInputRef, ref]) : ref}
-            id={inputId}
-            name={name ?? (typeof label === 'string' ? label : undefined)}
-            type={
-              isPasswordInput ? (isPasswordVisible ? 'text' : 'password') : type
-            }
-            value={
-              isFileInput
-                ? undefined
-                : shouldDebounce
-                  ? (internalValue ?? '')
-                  : value === null
-                    ? ''
-                    : value
-            }
-            onChange={handleInputChange}
-            placeholder={placeholder}
-            disabled={disabled}
-            required={required}
-            autoFocus={autoFocus}
-            accept={accept}
-            multiple={multiple}
-            aria-describedby={describedBy}
-            aria-invalid={isError || undefined}
-            className={inputClasses}
-            {...rest}
-          />
+          {isDateInput ? (
+            <div
+              className={cn(
+                'relative flex min-w-0 flex-1 items-center',
+                CONTROL_ICON_SIZES[size].sizeVariableClassName
+              )}
+            >
+              {nativeInput}
+              {/* The native picker target stays interactive beneath this glyph. */}
+              <span className="pointer-events-none absolute inset-y-0 end-0 hidden items-center supports-[selector(input::-webkit-calendar-picker-indicator)]:flex">
+                <InputIconSlot
+                  icon={CalendarBlankIcon}
+                  size={size}
+                  disabled={disabled}
+                />
+              </span>
+            </div>
+          ) : (
+            nativeInput
+          )}
 
           {effectiveRightDecorator && (
-            <div className={cn(DECORATOR_CLASSES, 'gap-space-1')}>
+            <div
+              className={cn(DECORATOR_CLASSES, 'gap-space-1')}
+              style={{ marginInlineEnd: rightActionOffset }}
+            >
               {effectiveRightDecorator}
             </div>
           )}
@@ -370,7 +478,10 @@ export const Input = forwardRef<
         {hintText && (
           <Text
             id={hintTextId}
-            className={hintTextClasses}
+            className={cn(
+              'mt-space-1 text-xs',
+              isError ? 'text-error-secondary' : 'text-tertiary'
+            )}
             variant="xs"
             weight="normal"
           >

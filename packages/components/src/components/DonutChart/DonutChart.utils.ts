@@ -14,12 +14,12 @@ export const sumSegmentValues = (segments: readonly DonutChartSegment[]) =>
 
 /**
  * Splits segments into the ones the donut draws on their own and the ones that
- * fold into a single "Other": every segment flagged `isOther`, plus every
- * segment worth less than `threshold` percent of the total.
+ * fold into a single "Other": every segment flagged `isOther` or using the
+ * reserved Other ID, plus segments below `threshold` percent of the total.
  *
  * `collapses` is false when there is nothing to fold, and also when the only
- * member is one `isOther` segment — that segment already is the "Other" slice,
- * so replacing it would rewrite its id without changing what is drawn.
+ * member is an existing Other segment, so replacing it would change its
+ * metadata without changing what is drawn.
  */
 const partitionSegments = (
   segments: readonly DonutChartSegment[],
@@ -37,7 +37,11 @@ const partitionSegments = (
   const kept: DonutChartSegment[] = [];
   const members: DonutChartSegment[] = [];
   segments.forEach((segment) => {
-    if (segment.isOther || (segment.value / total) * 100 < threshold) {
+    if (
+      segment.isOther ||
+      segment.id === DONUT_OTHER_SEGMENT_ID ||
+      (segment.value / total) * 100 < threshold
+    ) {
       members.push(segment);
     } else {
       kept.push(segment);
@@ -48,7 +52,10 @@ const partitionSegments = (
     kept,
     members,
     collapses:
-      members.length > 1 || (members.length === 1 && !members[0].isOther),
+      members.length > 1 ||
+      (members.length === 1 &&
+        !members[0].isOther &&
+        members[0].id !== DONUT_OTHER_SEGMENT_ID),
   };
 };
 
@@ -56,8 +63,8 @@ const partitionSegments = (
  * Folds a segment's long tail into one "Other" segment appended after the ones
  * that clear `threshold`. Segments already flagged `isOther` — a rollup the
  * data source computed, say — merge into that same segment rather than sitting
- * beside a second one wearing the same label and color. Without a threshold the
- * segments pass through untouched.
+ * beside a second one wearing the same label and color. Invalid values are
+ * normalized to zero. Without a threshold, valid segments pass through untouched.
  *
  * `DonutChart` applies this itself; call it directly when you also need the
  * collated list — to total the values behind the center number, for instance.
@@ -66,8 +73,19 @@ export const collateDonutSegments = (
   segments: readonly DonutChartSegment[],
   threshold: number | undefined
 ): readonly DonutChartSegment[] => {
-  const { kept, members, collapses } = partitionSegments(segments, threshold);
-  if (!collapses) return segments;
+  const normalizedSegments = segments.some(
+    (segment) => !Number.isFinite(segment.value) || segment.value < 0
+  )
+    ? segments.map((segment) => ({
+        ...segment,
+        value: Number.isFinite(segment.value) ? Math.max(0, segment.value) : 0,
+      }))
+    : segments;
+  const { kept, members, collapses } = partitionSegments(
+    normalizedSegments,
+    threshold
+  );
+  if (!collapses) return normalizedSegments;
 
   return [
     ...kept,

@@ -130,13 +130,13 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
               <MinusIcon
                 aria-hidden
                 size={checkboxIconSizes[size]}
-                weight="regular"
+                weight="bold"
               />
             ) : (
               <CheckIcon
                 aria-hidden
                 size={checkboxIconSizes[size]}
-                weight="regular"
+                weight="bold"
               />
             )}
           </CheckboxPrimitive.Indicator>

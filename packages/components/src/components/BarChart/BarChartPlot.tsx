@@ -334,9 +334,10 @@ export const BarChartPlot = ({
     <svg
       width={width}
       height={height}
-      // `img` makes descendants presentational, which would hide labeled
-      // bars, category targets, and guides from assistive technology.
-      role={isInteractive || hasAccessibleGuides ? 'group' : 'img'}
+      // Preserve accessible descendants for labeled bars, targets, and guides.
+      role={
+        isInteractive || hasAccessibleGuides ? 'graphics-document group' : 'img'
+      }
       aria-describedby={ariaDescribedBy}
       aria-label={ariaLabel}
       className={cn(

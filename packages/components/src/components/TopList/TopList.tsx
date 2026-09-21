@@ -192,7 +192,10 @@ export const TopList = <Item extends TopListItem>({
   'aria-label': ariaLabel,
   ...rest
 }: TopListProps<Item>) => {
-  const sortedItems = sortTopListItems(items, sort);
+  const sortedItems = sortTopListItems(
+    items.filter((item) => Number.isFinite(item.value)),
+    sort
+  );
   const visibleItems = limitTopListItems(sortedItems, limit);
   const itemById = new Map(visibleItems.map((item) => [item.id, item]));
   const formattedValueById = new Map(
@@ -215,13 +218,11 @@ export const TopList = <Item extends TopListItem>({
         )
       )
   );
-  const finiteValues = sortedItems
-    .map((item) => item.value)
-    .filter(Number.isFinite);
+  const values = sortedItems.map((item) => item.value);
   const valueDomain: readonly [number, number] | undefined =
-    finiteValues.length === 0
+    values.length === 0
       ? undefined
-      : [Math.min(0, ...finiteValues), Math.max(0, ...finiteValues)];
+      : [Math.min(0, ...values), Math.max(0, ...values)];
   const hasNegativeValues = (valueDomain?.[0] ?? 0) < 0;
   const series: readonly BarChartSeries[] = [
     {

@@ -13,8 +13,12 @@ import { cn } from '../../utils/cn';
 import { SPACE_SCALE_PX } from '../../utils/spacing';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
-import { Popover, PopoverAnchor, PopoverContent } from '../Popover';
-import { Text } from '../Text';
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverTrigger,
+} from '../Popover';
 import { Tooltip } from '../Tooltip';
 import { ChartLegendItemRenderer } from './ChartLegendItemRenderer';
 import {
@@ -256,55 +260,31 @@ const ChartLegendInline = ({
           role={role}
           aria-label={ariaLabel}
           className={cn(
-            'relative flex w-full min-w-0 items-center gap-space-1 overflow-hidden rounded-xs',
+            'relative flex w-full min-w-0 items-center gap-space-1 overflow-clip rounded-xs',
             className
           )}
           {...props}
         >
-          {hasOverflow && (
-            <Tooltip title={VIEW_HIDDEN_TOOLTIP}>
-              <Button
-                type="button"
-                size="xs"
-                color="secondary"
-                variant="plain"
-                className={cn(
-                  'focus-visible:ring-focus absolute inset-0 size-full rounded-xs border-transparent p-0 shadow-none hover:bg-surface-level-1-hover focus-visible:outline-none focus-visible:ring-2',
-                  popoverOpen && 'bg-surface-level-2 hover:bg-surface-level-2'
-                )}
-                aria-label="View hidden chart legends"
-                aria-expanded={popoverOpen}
-                aria-haspopup="dialog"
-                onClick={() => setPopoverOpen((open) => !open)}
-              >
-                <Text as="span" variant="xs" className="sr-only">
-                  View hidden chart legends
-                </Text>
-              </Button>
-            </Tooltip>
-          )}
-
           {visibleItems.map(renderItem)}
 
           {hasOverflow && (
             <Tooltip title={VIEW_HIDDEN_TOOLTIP}>
-              <Button
-                type="button"
-                size="xs"
-                color="secondary"
-                variant="plain"
-                className="focus-visible:ring-focus relative rounded-xs border-transparent bg-transparent p-0 shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
-                aria-label={`View ${hiddenCount} hidden chart ${
-                  hiddenCount === 1 ? 'legend' : 'legends'
-                }`}
-                aria-expanded={popoverOpen}
-                aria-haspopup="dialog"
-                onClick={() => setPopoverOpen((open) => !open)}
-              >
-                <Badge size="xxs" rounded="xs">
-                  {`+${hiddenCount}`}
-                </Badge>
-              </Button>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  size="xs"
+                  color="secondary"
+                  variant="plain"
+                  className="focus-visible:ring-focus relative rounded-xs border-transparent bg-transparent p-0 shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                  aria-label={`View ${hiddenCount} hidden chart ${
+                    hiddenCount === 1 ? 'legend' : 'legends'
+                  }`}
+                >
+                  <Badge size="xxs" rounded="xs">
+                    {`+${hiddenCount}`}
+                  </Badge>
+                </Button>
+              </PopoverTrigger>
             </Tooltip>
           )}
 
@@ -347,8 +327,7 @@ const ChartLegendInline = ({
         <PopoverContent
           align="end"
           className="w-max min-w-48 max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden border border-subtle p-0"
-          onOpenAutoFocus={(event) => event.preventDefault()}
-          onCloseAutoFocus={(event) => event.preventDefault()}
+          aria-label="Hidden chart legends"
           onInteractOutside={(event) => {
             if (
               event.target instanceof Node &&

@@ -233,7 +233,7 @@ export function Pane({
               icon={CaretDoubleRightIcon}
               onClick={handleCloseClick}
               variant="plain"
-              size="xs"
+              size="sm"
               iconClassName="size-5 text-quaternary"
             />
           )}

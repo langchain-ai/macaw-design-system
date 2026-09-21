@@ -33,6 +33,29 @@ describe('LineChart utilities', () => {
     );
   });
 
+  it.each([
+    { domain: [0, 30] as const, minimum: 0, maximum: 30 },
+    { domain: [-2, 32] as const, minimum: -2, maximum: 32 },
+  ])(
+    'bounds band interaction values to $domain',
+    ({ domain, minimum, maximum }) => {
+      const adapter = createLineChartXScaleAdapter({
+        type: 'band',
+        domain,
+        values: [0, 10, 30],
+        width: 300,
+        nice: false,
+      });
+      expect(adapter.getValue(0)).toBe(minimum);
+      expect(adapter.getValue(300)).toBe(maximum);
+      expect(
+        adapter.getValue(
+          (adapter.getPosition(10) + adapter.getPosition(30)) / 2
+        )
+      ).toBeCloseTo(20);
+    }
+  );
+
   it('does not clamp band positions at the first and last buckets', () => {
     const adapter = createLineChartXScaleAdapter({
       type: 'band',

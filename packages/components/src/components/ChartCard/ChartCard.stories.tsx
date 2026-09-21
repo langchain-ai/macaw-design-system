@@ -531,9 +531,37 @@ export const LoadingAndErrorStates: Story = {
 
     return (
       <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2">
-        <ChartCard title="Trace count" state="loading" {...actionProps} />
+        {(['bar', 'line', 'donut', 'metric', 'sparkline'] as const).map(
+          (skeletonVariant) => (
+            <ChartCard
+              key={skeletonVariant}
+              title={`${skeletonVariant} chart`}
+              state="loading"
+              skeletonVariant={skeletonVariant}
+              className="h-64"
+              {...actionProps}
+            />
+          )
+        )}
         <ChartCard title="Trace count" state="error" {...actionProps} />
       </div>
     );
   },
+};
+
+export const AutoHeightLoadingStates: Story = {
+  name: 'Auto-height loading states',
+  args: { title: '', children: null },
+  render: () => (
+    <div className="flex flex-col gap-space-4">
+      {(['bar', 'line', 'sparkline'] as const).map((skeletonVariant) => (
+        <ChartCard
+          key={skeletonVariant}
+          title={`${skeletonVariant} chart`}
+          state="loading"
+          skeletonVariant={skeletonVariant}
+        />
+      ))}
+    </div>
+  ),
 };
