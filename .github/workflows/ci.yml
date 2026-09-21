@@ -9,6 +9,31 @@ permissions:
   contents: read
 
 jobs:
+  review-policy:
+    name: Frontend platform review policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Require frontend-platform ownership of every file
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          rules = [
+              line.split()
+              for line in Path('.github/CODEOWNERS').read_text().splitlines()
+              if line.strip() and not line.lstrip().startswith('#')
+          ]
+          if rules != [['*', '@langchain-ai/frontend-platform']]:
+              raise SystemExit(
+                  'CODEOWNERS must assign every file exclusively to '
+                  '@langchain-ai/frontend-platform, without path overrides.'
+              )
+          PY
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
