@@ -21,4 +21,4 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 Do not import from the Phosphor package root; leaf imports keep dependency
 traversal bounded. `PaddedPhosphorIcons` and `WeightedPhosphorIcons` contain the
 small set of optical adjustments used by components and are exported from
-`@langchain/macaw-design-system/icons`.
+`@langchain/macaw-components/icons`.

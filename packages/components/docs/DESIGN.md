@@ -9,12 +9,12 @@ Read the relevant [`STYLES.md`](./STYLES.md) sections for token choices, values,
 Import the package stylesheet once at the application entry point:
 
 ```ts
-import '@langchain/macaw-design-system/styles.css';
+import '@langchain/macaw-components/styles.css';
 ```
 
 It includes fonts, light and dark token values, base rules, and the precompiled
 utilities used by package components. Use
-`@langchain/macaw-design-system/tokens.css` only for a variables-only integration. Do
+`@langchain/macaw-tokens/tokens.css` only for a variables-only integration. Do
 not import both.
 
 Applications that author the semantic Tailwind classes may additionally extend
@@ -24,7 +24,7 @@ the optional Tailwind v3 preset:
 // tailwind.config.cjs
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
-  presets: [require('@langchain/macaw-design-system/tailwind-preset')],
+  presets: [require('@langchain/macaw-components/tailwind-preset')],
 };
 ```
 
@@ -34,9 +34,9 @@ component classes are already precompiled. Theme switching uses `html.dark`.
 
 ## Components
 
-From this repository, use `pnpm design-system search <capability>` to discover components and `pnpm --silent design-system inspect <name> --json` for imports, source, and stories. Root-exported components such as `Button` and `Text` can be imported from `@langchain/macaw-design-system`. Components omitted from the root require direct imports, such as `TabGroup` and `TabList` from `@langchain/macaw-design-system/components/Tabs`. The CLI returns direct paths even when a root import is available.
+Use `pnpm exec macaw search <capability>` to discover components and `pnpm exec macaw inspect <name> --json` for imports, source, and stories. Root-exported components such as `Button` and `Text` can be imported from `@langchain/macaw-components`. Components omitted from the root require direct imports, such as `TabGroup` and `TabList` from `@langchain/macaw-components/Tabs`. The CLI returns direct paths even when a root import is available.
 
-Keep capability keywords in the static component-level `tags` array of the story beside the component in `src/components/`. The CLI reads them directly, and Storybook exposes them as sidebar filters. Built-in tags such as `autodocs` are excluded from CLI search.
+Keep capability keywords in the static component-level `tags` array of the story beside the component in `packages/components/src/components/`. The build generates the CLI catalog from them, and Storybook exposes them as sidebar filters. Built-in tags such as `autodocs` are excluded from CLI search.
 
 Use existing components for their interaction contracts, not just their appearance. They own focus handling, keyboard behavior, accessible names, loading states, and responsive details that a styled native element may miss.
 
@@ -64,7 +64,7 @@ Primitives  ->  Semantics          ->  Components
 raw scale       purpose alias          private detail
 ```
 
-Component code uses semantic tokens through Tailwind utilities. Do not use primitive variables, component-owned variables, primitive palette utilities, or color literals. Use `cn` from `@langchain/macaw-design-system/utils/cn` for conditional classes.
+Component code uses semantic tokens through Tailwind utilities. Do not use primitive variables, component-owned variables, primitive palette utilities, or color literals. Use `cn` from `@langchain/macaw-components/utils/cn` for conditional classes.
 
 ```tsx
 <div className="rounded-lg bg-surface-level-2 text-secondary" />
@@ -79,7 +79,7 @@ Choose color by meaning:
 - `text-*` is for copy; `text-icon-*` is for standalone icons.
 - Pair state color with text, shape, or an icon.
 
-Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-design-system/utils/chartColors`; do not use raw visualization variables or literals.
+Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
 
 ## Icons
 
@@ -95,7 +95,7 @@ Set `size` and `weight` explicitly. Use `regular` for outline glyphs, `fill`
 only for intentionally filled states, and `bold` only for a deliberate heavier
 visual weight. Do not import from the Phosphor package root. The optically
 adjusted wrappers used by components are exported from
-`@langchain/macaw-design-system/icons`. This package does not provide a separate
+`@langchain/macaw-components/icons`. This package does not provide a separate
 general-purpose icon catalog.
 
 ## Typography and labels
@@ -108,9 +108,9 @@ Use Title Case for names of things: field labels, section headings, tabs, column
 
 Use the 4-point `space-*` scale through utilities such as `gap-space-4` and `px-space-5`. Pick spacing by relationship: small gaps bind one cluster; larger gaps separate sections. Prefer flex or grid `gap` over sibling margins.
 
-Use named `rounded-*`, `shadow-*`, and duration utilities instead of recreating their values. Motion should explain a state change and respect `prefers-reduced-motion`. Use named values from `src/utils/zIndices.ts` or `useZIndex` instead of numeric z-indexes.
+Use named `rounded-*`, `shadow-*`, and duration utilities instead of recreating their values. Motion should explain a state change and respect `prefers-reduced-motion`. Use named values from `packages/components/src/utils/zIndices.ts` or `useZIndex` instead of numeric z-indexes.
 
-Component size names are family-specific. Use the tiers supported by the component; do not infer a universal size scale. `src/utils/componentSizes.ts` is the source of truth for shared outer-size families.
+Component size names are family-specific. Use the tiers supported by the component; do not infer a universal size scale. `packages/components/src/utils/componentSizes.ts` is the source of truth for shared outer-size families.
 
 ## Quality bar
 
@@ -118,17 +118,17 @@ Treat loading, empty, ready, error, disabled, and narrow-width behavior as part 
 
 For visible changes, run the affected page or Storybook story and inspect the relevant interaction, edge states, and dark mode. Lint and unit tests do not establish visual correctness.
 
-## Source map
+## Source map (Macaw repository)
 
-| Concern                          | Source                                         |
-| -------------------------------- | ---------------------------------------------- |
-| Token names and values           | `docs/STYLES.md`                               |
-| Components and public barrel     | `src/components`                               |
-| Component stories                | `src/components/<Family>/<Family>.stories.tsx` |
-| Foundation and overview stories  | `src/stories`                                  |
-| Primitive and semantic variables | `src/styles/tokens.css`                        |
-| Tailwind mapping                 | `tailwind.preset.cjs`                          |
-| Component size families          | `src/utils/componentSizes.ts`                  |
-| Spacing scale                    | `src/utils/spacing.ts`                         |
-| Z-index values                   | `src/utils/zIndices.ts`                        |
-| Class merge helper               | `src/utils/cn.tsx`                             |
+| Concern                          | Source                                                             |
+| -------------------------------- | ------------------------------------------------------------------ |
+| Token names and values           | `docs/STYLES.md`                                                   |
+| Components and public barrel     | `packages/components/src/components`                               |
+| Component stories                | `packages/components/src/components/<Family>/<Family>.stories.tsx` |
+| Foundation and overview stories  | `packages/components/src/stories`                                  |
+| Primitive and semantic variables | `packages/tokens/src/tokens.css`                                   |
+| Tailwind mapping                 | `packages/components/tailwind.preset.cjs`                          |
+| Component size families          | `packages/components/src/utils/componentSizes.ts`                  |
+| Spacing scale                    | `packages/components/src/utils/spacing.ts`                         |
+| Z-index values                   | `packages/components/src/utils/zIndices.ts`                        |
+| Class merge helper               | `packages/components/src/utils/cn.tsx`                             |

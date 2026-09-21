@@ -30,4 +30,5 @@ jobs:
       - run: corepack prepare pnpm@10.27.0 --activate
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - run: npm publish --access public --provenance --ignore-scripts
+      - run: node scripts/pack.mjs
+      - run: pnpm release:publish --access public

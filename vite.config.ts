@@ -8,7 +8,7 @@ import svgr from 'vite-plugin-svgr';
 import react from '@vitejs/plugin-react';
 
 const repositoryRoot = fileURLToPath(new URL('.', import.meta.url));
-const sourceRoot = resolve(repositoryRoot, 'src');
+const sourceRoot = resolve(repositoryRoot, 'packages/components/src');
 
 function collectEntries(directory: string): string[] {
   return readdirSync(directory).flatMap((name) => {
@@ -51,7 +51,7 @@ export default defineConfig({
   plugins: [react(), svgr()],
   build: {
     target: 'es2022',
-    outDir: 'dist',
+    outDir: 'packages/components/dist',
     emptyOutDir: true,
     sourcemap: true,
     minify: false,

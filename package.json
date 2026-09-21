@@ -1,318 +1,16 @@
 {
-  "name": "@langchain/macaw-design-system",
-  "version": "0.1.0",
-  "description": "The shared UI foundation for the LangChain product suite.",
-  "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
-  "bugs": {
-    "url": "https://github.com/langchain-ai/macaw-design-system/issues"
-  },
+  "name": "macaw-design-system",
+  "private": true,
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/langchain-ai/macaw-design-system.git"
-  },
-  "files": [
-    "dist",
-    "docs",
-    "tailwind.preset.cjs",
-    "tailwind.preset.d.cts",
-    "README.md"
-  ],
   "type": "module",
-  "sideEffects": [
-    "**/*.css"
-  ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./index": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./components": {
-      "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.js"
-    },
-    "./components/index": {
-      "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.js"
-    },
-    "./components/Avatar": {
-      "types": "./dist/components/Avatar/index.d.ts",
-      "import": "./dist/components/Avatar/index.js"
-    },
-    "./components/Badge": {
-      "types": "./dist/components/Badge/index.d.ts",
-      "import": "./dist/components/Badge/index.js"
-    },
-    "./components/Banner": {
-      "types": "./dist/components/Banner/index.d.ts",
-      "import": "./dist/components/Banner/index.js"
-    },
-    "./components/BarChart": {
-      "types": "./dist/components/BarChart/index.d.ts",
-      "import": "./dist/components/BarChart/index.js"
-    },
-    "./components/Button": {
-      "types": "./dist/components/Button/index.d.ts",
-      "import": "./dist/components/Button/index.js"
-    },
-    "./components/ButtonGroup": {
-      "types": "./dist/components/ButtonGroup/index.d.ts",
-      "import": "./dist/components/ButtonGroup/index.js"
-    },
-    "./components/Card": {
-      "types": "./dist/components/Card/index.d.ts",
-      "import": "./dist/components/Card/index.js"
-    },
-    "./components/ChartCard": {
-      "types": "./dist/components/ChartCard/index.d.ts",
-      "import": "./dist/components/ChartCard/index.js"
-    },
-    "./components/ChartLegend": {
-      "types": "./dist/components/ChartLegend/index.d.ts",
-      "import": "./dist/components/ChartLegend/index.js"
-    },
-    "./components/ChartTooltip": {
-      "types": "./dist/components/ChartTooltip/index.d.ts",
-      "import": "./dist/components/ChartTooltip/index.js"
-    },
-    "./components/Checkbox": {
-      "types": "./dist/components/Checkbox/index.d.ts",
-      "import": "./dist/components/Checkbox/index.js"
-    },
-    "./components/CircularProgress": {
-      "types": "./dist/components/CircularProgress/index.d.ts",
-      "import": "./dist/components/CircularProgress/index.js"
-    },
-    "./components/Code": {
-      "types": "./dist/components/Code/index.d.ts",
-      "import": "./dist/components/Code/index.js"
-    },
-    "./components/Command": {
-      "types": "./dist/components/Command/index.d.ts",
-      "import": "./dist/components/Command/index.js"
-    },
-    "./components/ContextMenu": {
-      "types": "./dist/components/ContextMenu/index.d.ts",
-      "import": "./dist/components/ContextMenu/index.js"
-    },
-    "./components/CopyButton": {
-      "types": "./dist/components/CopyButton/index.d.ts",
-      "import": "./dist/components/CopyButton/index.js"
-    },
-    "./components/Dialog": {
-      "types": "./dist/components/Dialog/index.d.ts",
-      "import": "./dist/components/Dialog/index.js"
-    },
-    "./components/Divider": {
-      "types": "./dist/components/Divider/index.d.ts",
-      "import": "./dist/components/Divider/index.js"
-    },
-    "./components/DonutChart": {
-      "types": "./dist/components/DonutChart/index.d.ts",
-      "import": "./dist/components/DonutChart/index.js"
-    },
-    "./components/DropdownMenu": {
-      "types": "./dist/components/DropdownMenu/index.d.ts",
-      "import": "./dist/components/DropdownMenu/index.js"
-    },
-    "./components/EmptyState": {
-      "types": "./dist/components/EmptyState/index.d.ts",
-      "import": "./dist/components/EmptyState/index.js"
-    },
-    "./components/ErrorMessage": {
-      "types": "./dist/components/ErrorMessage/index.d.ts",
-      "import": "./dist/components/ErrorMessage/index.js"
-    },
-    "./components/ErrorState": {
-      "types": "./dist/components/ErrorState/index.d.ts",
-      "import": "./dist/components/ErrorState/index.js"
-    },
-    "./components/GroupedTabs": {
-      "types": "./dist/components/GroupedTabs/index.d.ts",
-      "import": "./dist/components/GroupedTabs/index.js"
-    },
-    "./components/Icon": {
-      "types": "./dist/components/Icon/index.d.ts",
-      "import": "./dist/components/Icon/index.js"
-    },
-    "./components/IconButton": {
-      "types": "./dist/components/IconButton/index.d.ts",
-      "import": "./dist/components/IconButton/index.js"
-    },
-    "./components/Input": {
-      "types": "./dist/components/Input/index.d.ts",
-      "import": "./dist/components/Input/index.js"
-    },
-    "./components/Kbd": {
-      "types": "./dist/components/Kbd/index.d.ts",
-      "import": "./dist/components/Kbd/index.js"
-    },
-    "./components/LineChart": {
-      "types": "./dist/components/LineChart/index.d.ts",
-      "import": "./dist/components/LineChart/index.js"
-    },
-    "./components/LinearProgress": {
-      "types": "./dist/components/LinearProgress/index.d.ts",
-      "import": "./dist/components/LinearProgress/index.js"
-    },
-    "./components/Link": {
-      "types": "./dist/components/Link/index.d.ts",
-      "import": "./dist/components/Link/index.js"
-    },
-    "./components/Logo": {
-      "types": "./dist/components/Logo/index.d.ts",
-      "import": "./dist/components/Logo/index.js"
-    },
-    "./components/MetricChart": {
-      "types": "./dist/components/MetricChart/index.d.ts",
-      "import": "./dist/components/MetricChart/index.js"
-    },
-    "./components/Pane": {
-      "types": "./dist/components/Pane/index.d.ts",
-      "import": "./dist/components/Pane/index.js"
-    },
-    "./components/PlainTextEditor": {
-      "types": "./dist/components/PlainTextEditor/index.d.ts",
-      "import": "./dist/components/PlainTextEditor/index.js"
-    },
-    "./components/Popover": {
-      "types": "./dist/components/Popover/index.d.ts",
-      "import": "./dist/components/Popover/index.js"
-    },
-    "./components/ProgressBar": {
-      "types": "./dist/components/ProgressBar/index.d.ts",
-      "import": "./dist/components/ProgressBar/index.js"
-    },
-    "./components/RadioButton": {
-      "types": "./dist/components/RadioButton/index.d.ts",
-      "import": "./dist/components/RadioButton/index.js"
-    },
-    "./components/RadioCard": {
-      "types": "./dist/components/RadioCard/index.d.ts",
-      "import": "./dist/components/RadioCard/index.js"
-    },
-    "./components/RadioGroup": {
-      "types": "./dist/components/RadioGroup/index.d.ts",
-      "import": "./dist/components/RadioGroup/index.js"
-    },
-    "./components/Select": {
-      "types": "./dist/components/Select/index.d.ts",
-      "import": "./dist/components/Select/index.js"
-    },
-    "./components/Skeleton": {
-      "types": "./dist/components/Skeleton/index.d.ts",
-      "import": "./dist/components/Skeleton/index.js"
-    },
-    "./components/Slider": {
-      "types": "./dist/components/Slider/index.d.ts",
-      "import": "./dist/components/Slider/index.js"
-    },
-    "./components/SparkLineChart": {
-      "types": "./dist/components/SparkLineChart/index.d.ts",
-      "import": "./dist/components/SparkLineChart/index.js"
-    },
-    "./components/Spinner": {
-      "types": "./dist/components/Spinner/index.d.ts",
-      "import": "./dist/components/Spinner/index.js"
-    },
-    "./components/SplitViewPane": {
-      "types": "./dist/components/SplitViewPane/index.d.ts",
-      "import": "./dist/components/SplitViewPane/index.js"
-    },
-    "./components/Switch": {
-      "types": "./dist/components/Switch/index.d.ts",
-      "import": "./dist/components/Switch/index.js"
-    },
-    "./components/Tabs": {
-      "types": "./dist/components/Tabs/index.d.ts",
-      "import": "./dist/components/Tabs/index.js"
-    },
-    "./components/Text": {
-      "types": "./dist/components/Text/index.d.ts",
-      "import": "./dist/components/Text/index.js"
-    },
-    "./components/Textarea": {
-      "types": "./dist/components/Textarea/index.d.ts",
-      "import": "./dist/components/Textarea/index.js"
-    },
-    "./components/Toast": {
-      "types": "./dist/components/Toast/index.d.ts",
-      "import": "./dist/components/Toast/index.js"
-    },
-    "./components/Tooltip": {
-      "types": "./dist/components/Tooltip/index.d.ts",
-      "import": "./dist/components/Tooltip/index.js"
-    },
-    "./components/TopList": {
-      "types": "./dist/components/TopList/index.d.ts",
-      "import": "./dist/components/TopList/index.js"
-    },
-    "./components/Typeahead": {
-      "types": "./dist/components/Typeahead/index.d.ts",
-      "import": "./dist/components/Typeahead/index.js"
-    },
-    "./components/*": {
-      "types": "./dist/components/*.d.ts",
-      "import": "./dist/components/*.js"
-    },
-    "./contexts/*": {
-      "types": "./dist/contexts/*.d.ts",
-      "import": "./dist/contexts/*.js"
-    },
-    "./hooks/*": {
-      "types": "./dist/hooks/*.d.ts",
-      "import": "./dist/hooks/*.js"
-    },
-    "./icons": {
-      "types": "./dist/icons/index.d.ts",
-      "import": "./dist/icons/index.js"
-    },
-    "./icons/*": {
-      "types": "./dist/icons/*.d.ts",
-      "import": "./dist/icons/*.js"
-    },
-    "./utils/VirtuosoCustomScrollParentContext": {
-      "types": "./dist/utils/VirtuosoCustomScrollParentContext/index.d.ts",
-      "import": "./dist/utils/VirtuosoCustomScrollParentContext/index.js"
-    },
-    "./utils/*": {
-      "types": "./dist/utils/*.d.ts",
-      "import": "./dist/utils/*.js"
-    },
-    "./tokens.css": "./dist/tokens.css",
-    "./styles.css": "./dist/styles.css",
-    "./tailwind-preset": {
-      "types": "./tailwind.preset.d.cts",
-      "require": "./tailwind.preset.cjs",
-      "default": "./tailwind.preset.cjs"
-    },
-    "./package.json": "./package.json",
-    "./components/ThinkingState": {
-      "types": "./dist/components/ThinkingState/index.d.ts",
-      "import": "./dist/components/ThinkingState/index.js"
-    }
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
   "scripts": {
-    "clean": "node scripts/clean.mjs",
-    "build": "pnpm clean && vite build && tsc -p tsconfig.build.json && node scripts/rewrite-declaration-specifiers.mjs && pnpm build:styles && node scripts/copy-assets.mjs",
+    "build": "nx run-many -t build",
     "build:watch": "node scripts/watch-build.mjs",
-    "build:styles": "tailwindcss -c tailwind.config.cjs -i ./src/styles/tailwind.css -o ./dist/utilities.css --minify",
-    "storybook": "storybook dev -p 6006",
-    "build:storybook": "storybook build -o storybook-static",
+    "storybook": "storybook dev -p 6006 -c packages/components/.storybook",
+    "build:storybook": "storybook build -c packages/components/.storybook -o storybook-static",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "lint": "oxlint src scripts vite.config.ts vitest.config.ts",
+    "lint": "oxlint packages scripts vite.config.ts vitest.config.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "verify:types:bundler": "tsc --noEmit -p tests/consumer/tsconfig.bundler.json",
@@ -320,70 +18,18 @@
     "verify:types": "pnpm verify:types:bundler && pnpm verify:types:nodenext",
     "verify:package": "node scripts/verify-package.mjs && pnpm verify:types",
     "check": "pnpm typecheck && pnpm test && pnpm build && pnpm verify:package && pnpm build:storybook",
-    "pack:check": "pnpm build && pnpm verify:package && npm pack --dry-run --ignore-scripts",
-    "prepublishOnly": "node scripts/verify-license.mjs",
-    "prepack": "pnpm build && pnpm verify:package",
-    "design-system": "node src/cli.mts"
-  },
-  "dependencies": {
-    "@braintree/sanitize-url": "^7.1.2",
-    "@codemirror/commands": "^6.2.4",
-    "@codemirror/lang-javascript": "^6.2.4",
-    "@codemirror/lang-json": "^6.0.2",
-    "@codemirror/lang-markdown": "^6.5.0",
-    "@codemirror/lang-python": "^6.2.1",
-    "@codemirror/language": "^6.11.3",
-    "@codemirror/legacy-modes": "^6.5.1",
-    "@codemirror/lint": "^6.9.3",
-    "@codemirror/state": "^6.5.2",
-    "@codemirror/view": "^6.38.6",
-    "@fontsource/fira-code": "^5.2.7",
-    "@fontsource/inter": "^5.2.8",
-    "@headlessui/react": "^2.2.10",
-    "@lezer/common": "^1.2.1",
-    "@lezer/highlight": "^1.2.0",
-    "@lezer/yaml": "^1.0.4",
-    "@mantine/hooks": "^8.3.7",
-    "@phosphor-icons/react": "2.1.10",
-    "@radix-ui/react-checkbox": "^1.3.3",
-    "@radix-ui/react-context-menu": "^2.2.16",
-    "@radix-ui/react-dialog": "1.1.23",
-    "@radix-ui/react-dropdown-menu": "2.1.24",
-    "@radix-ui/react-hover-card": "1.1.23",
-    "@radix-ui/react-popover": "1.1.23",
-    "@radix-ui/react-portal": "^1.0.4",
-    "@radix-ui/react-radio-group": "^1.3.4",
-    "@radix-ui/react-select": "^2.3.7",
-    "@radix-ui/react-slider": "^1.3.6",
-    "@radix-ui/react-switch": "^1.1.0",
-    "@radix-ui/react-toast": "1.2.23",
-    "@radix-ui/react-tooltip": "^1.2.6",
-    "@radix-ui/react-use-controllable-state": "^1.2.2",
-    "@react-spring/web": "^10.1.2",
-    "@tailwindcss/container-queries": "^0.1.1",
-    "@tailwindcss/forms": "^0.5.7",
-    "@uiw/codemirror-theme-tokyo-night-day": "^4.25.4",
-    "@uiw/codemirror-theme-tokyo-night-storm": "^4.25.4",
-    "@uiw/react-codemirror": "^4.25.4",
-    "@visx/axis": "^4.0.0",
-    "@visx/curve": "^4.0.0",
-    "@visx/grid": "^4.0.0",
-    "@visx/group": "^4.0.0",
-    "@visx/scale": "^4.0.0",
-    "@visx/shape": "^4.0.0",
-    "@visx/text": "^4.0.0",
-    "clsx": "^1.2.1",
-    "cmdk": "^1.1.1",
-    "d3-scale-chromatic": "^3.0.0",
-    "linkify-it": "^5.0.2",
-    "react-hotkeys-hook": "^4.5.0",
-    "react-virtuoso": "^4.18.6",
-    "tailwind-merge": "^2.6",
-    "tailwindcss-animate": "^1.0.7",
-    "use-debounce": "^9.0.4",
-    "yaml": "^2.8.3"
+    "pack:check": "pnpm build && pnpm verify:package && node scripts/pack.mjs",
+    "release:version": "nx release version",
+    "release:changelog": "nx release changelog",
+    "release:publish": "nx release publish",
+    "design-system": "node packages/components/src/cli.mts",
+    "macaw": "node packages/cli/dist/cli.mjs"
   },
   "devDependencies": {
+    "@langchain/macaw-cli": "workspace:*",
+    "@langchain/macaw-components": "workspace:*",
+    "@langchain/macaw-tokens": "workspace:*",
+    "@nx/js": "23.2.1",
     "@storybook/addon-docs": "^10.2.8",
     "@storybook/addon-links": "^10.2.8",
     "@storybook/react-vite": "^10.2.8",
@@ -398,6 +44,7 @@
     "@visx/tooltip": "^4.0.0",
     "@vitejs/plugin-react": "^6.1.0",
     "jsdom": "30.0.1",
+    "nx": "23.2.1",
     "oxc-parser": "0.137.0",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
@@ -412,18 +59,8 @@
     "vitest": "^4.1.8",
     "vitest-fail-on-console": "^0.10.1"
   },
-  "peerDependencies": {
-    "react": ">=18.2.0 <20",
-    "react-dom": ">=18.2.0 <20",
-    "tailwindcss": "^3.4.4"
-  },
-  "peerDependenciesMeta": {
-    "tailwindcss": {
-      "optional": true
-    }
-  },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18.0"
   },
   "packageManager": "pnpm@10.27.0"
 }

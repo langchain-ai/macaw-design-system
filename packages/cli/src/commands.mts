@@ -1,30 +1,28 @@
 import { spawnSync } from 'node:child_process';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parseArgs, styleText } from 'node:util';
 
-import {
-  componentExports,
-  ComponentSourceError,
-} from './cli-component-exports.mts';
-import { storyTags, StorySourceError } from './cli-story-tags.mts';
-
-const root = fileURLToPath(new URL('../', import.meta.url));
-const componentsRoot = path.join(root, 'src/components');
-const storiesRoot = path.join(root, 'src/stories');
+export type Component = {
+  name: string;
+  family: string;
+  keywords: string;
+  importPath: string;
+  importStatement: string;
+  sourceFiles: string[];
+  stories: string[];
+};
 
 const HELP = `Discover design-system components.
 
-Usage: pnpm design-system <command>
+Usage: macaw <command>
+  init                       Set up agent guidance in this project
   list                       Browse components (↑/↓ scroll, q quit)
   search <query>             Find components by name or capability
   inspect <name>             Show import, source files, and stories
 
 Options: --json, --no-pager, --limit <1–100> (search; default 10), --help (-h)
-For pipeable JSON: pnpm --silent design-system <command> --json`;
+For pipeable JSON: macaw <command> --json`;
 
-class CliError extends Error {
+export class CliError extends Error {
   readonly code: string;
   readonly suggestions: string[];
 
@@ -34,96 +32,6 @@ class CliError extends Error {
     this.suggestions = suggestions;
   }
 }
-
-function relative(file: string) {
-  return path.relative(root, file).split(path.sep).join('/');
-}
-
-function sourceFiles(directory: string): string[] {
-  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    if (entry.name.startsWith('__')) return [];
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) return sourceFiles(file);
-    return /\.(ts|tsx)$/.test(file) && !/\.(test|stories)\.tsx?$/.test(file)
-      ? [relative(file)]
-      : [];
-  });
-}
-
-function catalog() {
-  const keywordsByStory = new Map<string, string>();
-  const entries = fs
-    .readdirSync(componentsRoot, { withFileTypes: true })
-    .filter(
-      (entry) =>
-        /^[A-Z]/.test(entry.name) &&
-        (entry.isDirectory() || /\.tsx?$/.test(entry.name))
-    )
-    .map((entry) => {
-      const name = entry.name.replace(/\.tsx?$/, '');
-      const source = path.join(componentsRoot, entry.name);
-      const entrypoint = entry.isDirectory()
-        ? ['index.ts', 'index.tsx', `${name}.tsx`, `${name}.ts`]
-            .map((file) => path.join(source, file))
-            .find((file) => fs.existsSync(file))
-        : source;
-      if (!entrypoint) {
-        throw new CliError(
-          'ERR_COMPONENT_SOURCE',
-          `No entry point found for ${name}.`
-        );
-      }
-      return {
-        name,
-        entrypoint,
-        sourceFiles: entry.isDirectory()
-          ? sourceFiles(source)
-          : [relative(source)],
-      };
-    });
-  // CodeLite is a public direct import within the Code family.
-  const codeLite = path.join(componentsRoot, 'Code/CodeLite.tsx');
-  if (fs.existsSync(codeLite)) {
-    entries.push({
-      name: 'CodeLite',
-      entrypoint: codeLite,
-      sourceFiles: [relative(codeLite)],
-    });
-  }
-  return entries
-    .flatMap(({ name: family, entrypoint, sourceFiles }) => {
-      const importPath = relative(entrypoint)
-        .replace(/^src\//, '@langchain/macaw-design-system/')
-        .replace(/\.tsx?$/, '')
-        .replace(/\/index$/, '');
-      return componentExports(entrypoint, family, root).map(
-        ({ name, exportName }) => {
-          const story = [name, family]
-            .flatMap((name) => [
-              path.join(path.dirname(entrypoint), `${name}.stories.tsx`),
-              path.join(componentsRoot, family, `${name}.stories.tsx`),
-              path.join(storiesRoot, `${name}.stories.tsx`),
-            ])
-            .find((file) => fs.existsSync(file));
-          if (story && !keywordsByStory.has(story)) {
-            keywordsByStory.set(story, storyTags(story).join(', '));
-          }
-          return {
-            name,
-            family,
-            keywords: story ? (keywordsByStory.get(story) ?? '') : '',
-            importPath,
-            importStatement: `import ${exportName === 'default' ? name : `{ ${name} }`} from '${importPath}';`,
-            sourceFiles: sourceFiles.sort(),
-            stories: story ? [relative(story)] : [],
-          };
-        }
-      );
-    })
-    .sort((left, right) => left.name.localeCompare(right.name));
-}
-
-type Component = ReturnType<typeof catalog>[number];
 
 function words(value: string) {
   return value
@@ -262,7 +170,11 @@ function page(text: string) {
   }
 }
 
-function run(argv: string[]) {
+export function run(
+  argv: string[],
+  catalog: () => Component[],
+  initialize?: () => string
+) {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -293,6 +205,17 @@ function run(argv: string[]) {
   }
   if (values.help || command === undefined) {
     print({ usage: HELP }, HELP);
+    return;
+  }
+  if (command === 'init' && initialize) {
+    if (args.length > 0 || values.limit !== undefined) {
+      throw new CliError(
+        'ERR_INVALID_ARGUMENT',
+        'init does not accept arguments or --limit.'
+      );
+    }
+    const file = initialize();
+    print({ file }, `Created ${file}`);
     return;
   }
   if (!['list', 'search', 'inspect'].includes(command)) {
@@ -359,22 +282,31 @@ function run(argv: string[]) {
   }
 }
 
-try {
-  run(process.argv.slice(2));
-} catch (error) {
-  const payload = {
-    error:
-      error instanceof Error ? error.message : 'The design-system CLI failed.',
-    code:
-      error instanceof CliError ||
-      error instanceof ComponentSourceError ||
-      error instanceof StorySourceError
-        ? error.code
-        : 'ERR_CLI',
-    suggestions: error instanceof CliError ? error.suggestions : [],
-  };
-  process.stderr.write(
-    `${process.argv.includes('--json') ? JSON.stringify(payload) : `${payload.code}: ${payload.error}\n${payload.suggestions.length ? `Try: ${payload.suggestions.join(', ')}` : 'Run with --help for usage.'}`}\n`
-  );
-  process.exitCode = 1;
+export function main(
+  argv: string[],
+  catalog: () => Component[],
+  initialize?: () => string
+) {
+  try {
+    run(argv, catalog, initialize);
+  } catch (error) {
+    const payload = {
+      error:
+        error instanceof Error
+          ? error.message
+          : 'The design-system CLI failed.',
+      code:
+        error instanceof Error &&
+        'code' in error &&
+        typeof error.code === 'string' &&
+        error.code.startsWith('ERR_')
+          ? error.code
+          : 'ERR_CLI',
+      suggestions: error instanceof CliError ? error.suggestions : [],
+    };
+    process.stderr.write(
+      `${argv.includes('--json') ? JSON.stringify(payload) : `${payload.code}: ${payload.error}\n${payload.suggestions.length ? `Try: ${payload.suggestions.join(', ')}` : 'Run with --help for usage.'}`}\n`
+    );
+    process.exitCode = 1;
+  }
 }

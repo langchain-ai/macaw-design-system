@@ -1,18 +1,18 @@
-import { Button, Card, Text } from '@langchain/macaw-design-system';
-import { BarChart } from '@langchain/macaw-design-system/components/BarChart';
-import type { ButtonProps } from '@langchain/macaw-design-system/components/Button';
-import { Code } from '@langchain/macaw-design-system/components/Code';
-import { CodeLite } from '@langchain/macaw-design-system/components/Code/CodeLite';
-import type { CodeLanguageType } from '@langchain/macaw-design-system/components/Code/types';
+import { Button, Card, Text } from '@langchain/macaw-components';
+import { BarChart } from '@langchain/macaw-components/BarChart';
+import type { ButtonProps } from '@langchain/macaw-components/Button';
+import { Code } from '@langchain/macaw-components/Code';
+import { CodeLite } from '@langchain/macaw-components/Code/CodeLite';
+import type { CodeLanguageType } from '@langchain/macaw-components/Code/types';
+import { AppThemeProvider } from '@langchain/macaw-components/hooks/AppThemeProvider';
+import { CheckIcon } from '@langchain/macaw-components/icons';
+import tailwindPreset from '@langchain/macaw-components/tailwind-preset';
 import {
   ThinkingState,
   LoadingIndicator,
-} from '@langchain/macaw-design-system/components/ThinkingState';
-import type { ThinkingStateProps } from '@langchain/macaw-design-system/components/ThinkingState';
-import { AppThemeProvider } from '@langchain/macaw-design-system/hooks/AppThemeProvider';
-import { CheckIcon } from '@langchain/macaw-design-system/icons';
-import tailwindPreset from '@langchain/macaw-design-system/tailwind-preset';
-import { useScrollParent } from '@langchain/macaw-design-system/utils/VirtuosoCustomScrollParentContext/useScrollParent';
+} from '@langchain/macaw-components/ThinkingState';
+import type { ThinkingStateProps } from '@langchain/macaw-components/ThinkingState';
+import { useScrollParent } from '@langchain/macaw-components/utils/VirtuosoCustomScrollParentContext/useScrollParent';
 
 const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';

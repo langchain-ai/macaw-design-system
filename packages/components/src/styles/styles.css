@@ -4,7 +4,7 @@
 @import '@fontsource/inter/700.css';
 @import '@fontsource/fira-code/400.css';
 @import '@fontsource/fira-code/500.css';
-@import './tokens.css';
+@import '@langchain/macaw-tokens/tokens.css';
 @import './base.css';
 @import './utilities.css';
 @import './components.css';

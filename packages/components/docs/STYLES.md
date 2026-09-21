@@ -2,11 +2,11 @@
 
 Tokens flow in one direction: **Primitives → Semantics → Components**.
 
-- **Primitives** (`--neutral-50`, `--brand-400`, …) — raw scale values in `src/styles/tokens.css`. Never reference these in component code.
+- **Primitives** (`--neutral-50`, `--brand-400`, …) — raw scale values in `packages/tokens/src/tokens.css`. Never reference these in component code.
 - **Semantic tokens** (`--bg-surface-level-1`, `--text-secondary`, …) — purpose-driven aliases that switch between light and dark mode automatically. Always use these.
-- **Component tokens** (`--button-primary-bg`, …) — owned by a single component. Some live in `src/styles/base.css` for Tailwind utility compatibility, but consuming code should treat them as private.
+- **Component tokens** (`--button-primary-bg`, …) — owned by a single component. Some live in `packages/components/src/styles/base.css` for Tailwind utility compatibility, but consuming code should treat them as private.
 
-Tailwind maps semantic tokens to utility classes via `tailwind.preset.cjs`. Always reach for the Tailwind class, not the CSS variable directly:
+Tailwind maps semantic tokens to utility classes via `packages/components/tailwind.preset.cjs`. Always reach for the Tailwind class, not the CSS variable directly:
 
 ```tsx
 // Good
@@ -21,7 +21,7 @@ Tailwind maps semantic tokens to utility classes via `tailwind.preset.cjs`. Alwa
 Import the all-in-one stylesheet once in the application entry point:
 
 ```ts
-import '@langchain/macaw-design-system/styles.css';
+import '@langchain/macaw-components/styles.css';
 ```
 
 It loads Inter and Fira Code, the light and dark token values, base and
@@ -29,7 +29,7 @@ component-support rules, and the precompiled utilities needed by the shipped
 components. Its internal `utilities.css` import is generated during the package
 build and is not a public entry point.
 
-Use `@langchain/macaw-design-system/tokens.css` instead only when an application needs
+Use `@langchain/macaw-tokens/tokens.css` instead only when an application needs
 the CSS custom properties without components, fonts, base rules, or utilities.
 Do not import both CSS entries; `styles.css` already includes the tokens.
 
@@ -41,7 +41,7 @@ replace the stylesheet import:
 // tailwind.config.cjs
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
-  presets: [require('@langchain/macaw-design-system/tailwind-preset')],
+  presets: [require('@langchain/macaw-components/tailwind-preset')],
 };
 ```
 
@@ -55,15 +55,15 @@ switch the token values and Tailwind dark variants together. A nested
 - Use semantic Tailwind classes from this file; do not hardcode colors or use primitive tokens in component code.
 - Prefer the design-system component to recreating its styles or private tokens. `--button-*`, `.button-primary-*`, and `.button-secondary-*` are private to the Button implementation; use `Button` or `IconButton`.
 - Use `text-*` for copy and `text-icon-*` for standalone icons.
-- Merge conditional classes with `cn` from `@langchain/macaw-design-system/utils/cn`.
+- Merge conditional classes with `cn` from `@langchain/macaw-components/utils/cn`.
 
-When editing `tailwind.preset.cjs`, preserve `brand.DEFAULT` alongside the numeric
+When editing `packages/components/tailwind.preset.cjs`, preserve `brand.DEFAULT` alongside the numeric
 `brandPalette` entries so both `bg-brand` and existing `bg-brand-10` utilities
 resolve. New component code still uses semantic classes.
 
 ## Component Sizes
 
-`src/utils/componentSizes.ts` defines the target outer-size families
+`packages/components/src/utils/componentSizes.ts` defines the target outer-size families
 and exact rem values for new or migrated components. Existing components may
 still differ; check their source and `Foundations/Component Sizes` in Storybook.
 The same tier name is meaningful only within its family.
@@ -143,26 +143,26 @@ rename classes.
 
 ## Banners
 
-Use `Banner` from `@langchain/macaw-design-system/components/Banner` for page-level notices,
+Use `Banner` from `@langchain/macaw-components/Banner` for page-level notices,
 warnings, and announcements.
 
 - State the important information in one short sentence. Add a specific `action`
   when the user has a next step.
 - Keep `flush` banners to one line and avoid stacking banners on one page.
 
-See `src/components/Banner/Banner.stories.tsx` for examples.
+See `packages/components/src/components/Banner/Banner.stories.tsx` for examples.
 
 ---
 
 ## Cards
 
-Use `Card` from `@langchain/macaw-design-system` for content surfaces. The component
+Use `Card` from `@langchain/macaw-components` for content surfaces. The component
 owns the selected semantic surface, border, radius, and padding; consumers own the
 content and internal layout.
 
 ## Chart Cards
 
-Use `ChartCard` from `@langchain/macaw-design-system/components/ChartCard` for consistent
+Use `ChartCard` from `@langchain/macaw-components/ChartCard` for consistent
 dashboard visualization shells.
 
 - Consumers own charts, legends, data interactions, and empty states. Use the
@@ -177,7 +177,7 @@ dashboard visualization shells.
 
 ## Top Lists
 
-Use `TopList` from `@langchain/macaw-design-system/components/TopList` for ranked top-K
+Use `TopList` from `@langchain/macaw-components/TopList` for ranked top-K
 categorical data. It composes the shared `BarChart` into horizontal rows and
 owns sorting, row limits, truncated category labels, formatted end labels, and
 accessible item interactions. Use `BarChart` directly for grouped, stacked, or
@@ -193,7 +193,7 @@ when a semantic row such as “Other” must stay last regardless of value.
 
 When a chart needs hover or focus details, compose its content with
 `ChartTooltip`, `ChartTooltipHeader`, `ChartTooltipBody`, and
-`ChartTooltipRow` from `@langchain/macaw-design-system`. Do not recreate the elevated surface,
+`ChartTooltipRow` from `@langchain/macaw-components`. Do not recreate the elevated surface,
 spacing, typography, markers, dividers, or numeric alignment in a feature-local
 tooltip component.
 
@@ -214,7 +214,7 @@ is intended for trigger-based explanatory copy, not chart coordinates.
 - Feature-specific charts may compose richer content around these primitives,
   but shared tooltip structure and styling should remain in the design system.
 
-See `src/components/ChartTooltip/ChartTooltip.stories.tsx` for complete examples.
+See `packages/components/src/components/ChartTooltip/ChartTooltip.stories.tsx` for complete examples.
 
 ---
 
@@ -370,7 +370,7 @@ Use status text tokens for run-state and system-state copy. For generic success,
 
 SVG `fill` and `stroke` props cannot consume Tailwind classes, so chart code is
 the documented exception to the Tailwind-only rule: import semantic values from
-`@langchain/macaw-design-system/utils/chartColors`. Do not reference raw `--viz-*` scales or
+`@langchain/macaw-components/utils/chartColors`. Do not reference raw `--viz-*` scales or
 write hex, RGB, or HSL colors in chart code.
 
 | Export                                                           | When to use                                                                                                                          |
@@ -407,7 +407,7 @@ read across large cell areas; they are not chart-series colors.
 
 Icons have a separate color namespace so icon and label colors can diverge independently. Apply to `<Icon>` wrappers or SVG elements directly.
 
-Source general-purpose icon glyphs from server-safe Phosphor leaf modules such as `@phosphor-icons/react/dist/ssr/Check`; do not import from the package root or the legacy local icon tree. Use `<IconButton>` for interactive icons and `<Icon>` from `@langchain/macaw-design-system/components/Icon` when standardized sizing, semantic treatments, or tooltip labels are needed. Direct Phosphor glyphs must set `size` and `weight` explicitly: regular for outline glyphs, fill for intentionally filled states, and bold only where an established direct-rendered glyph must preserve a 2px visual weight.
+Source general-purpose icon glyphs from server-safe Phosphor leaf modules such as `@phosphor-icons/react/dist/ssr/Check`; do not import from the package root or the legacy local icon tree. Use `<IconButton>` for interactive icons and `<Icon>` from `@langchain/macaw-components/Icon` when standardized sizing, semantic treatments, or tooltip labels are needed. Direct Phosphor glyphs must set `size` and `weight` explicitly: regular for outline glyphs, fill for intentionally filled states, and bold only where an established direct-rendered glyph must preserve a 2px visual weight.
 
 | Class                      | When to use                           |
 | -------------------------- | ------------------------------------- |
@@ -468,7 +468,7 @@ Use these instead of Tailwind's built-in `duration-{ms}` scale.
 ### Spacing — `space-*`
 
 4-point scale (`space-1` … `space-9`), the single source of truth is
-`src/utils/spacing.ts`. Use it through Tailwind property prefixes:
+`packages/components/src/utils/spacing.ts`. Use it through Tailwind property prefixes:
 `gap-space-4`, `px-space-6`, `mt-space-2`, `p-space-5`, etc. Do not use
 off-scale spacing — `custom/require-spacing-tokens` suggests exact token
 replacements for raw Tailwind values that map to the scale, and

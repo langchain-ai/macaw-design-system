@@ -23,3 +23,7 @@ __pycache__/
 *.jks
 credentials.json
 token.json
+
+# Nx local cache
+.nx/
+*.tgz

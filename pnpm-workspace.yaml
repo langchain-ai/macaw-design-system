@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+
+onlyBuiltDependencies:
+  - nx
+  - esbuild
+
+overrides:
+  # Nx 23.2.1 pins a version affected by a malformed-TOML denial of service.
+  nx>smol-toml: 1.7.1
