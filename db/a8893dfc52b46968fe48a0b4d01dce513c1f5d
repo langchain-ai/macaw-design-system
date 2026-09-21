@@ -1,0 +1,16 @@
+AGENTS.md
+  h_a27749d4737027 3
+CLAUDE.md
+  h_a27749d4737027 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "dba8893dfc52b46968fe48a0b4d01dce513c1f5d",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
