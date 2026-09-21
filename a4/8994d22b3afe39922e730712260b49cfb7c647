@@ -1,0 +1,41 @@
+scripts/verify-package.mjs
+  s_fefbc607c0f1a2::t_a26a3380537bff 156,158-163,167
+.agents/skills/design-system/SKILL.md
+  s_fefbc607c0f1a2::t_af66baf2d7a6ef 3
+CONTRIBUTING.md
+  s_fefbc607c0f1a2::t_f6b9df4a6761a1 40,57
+README.md
+  s_fefbc607c0f1a2::t_f8efb8bc65e910 26,41,49,55,57,72-74,78-79,85-87,123
+docs/DESIGN.md
+  s_fefbc607c0f1a2::t_acf675c66790c7 12,17,27,37,67,82,98
+docs/STYLES.md
+  s_fefbc607c0f1a2::t_ece6f0035df4c3 24,32,44,58,146,159,165,180,196,373,410
+src/__tests__/cli.test.ts
+  s_fefbc607c0f1a2::t_aa1751598817e7 142,174,298-299,328,349,358,447,465
+src/cli.mts
+  s_fefbc607c0f1a2::t_7ed8b5033fae83 96
+src/components/Code/index.tsx
+  s_fefbc607c0f1a2::t_7d1a917679fcd9 50
+src/components/index.ts
+  s_fefbc607c0f1a2::t_7d4d39b2d78929 92-93,135,142-147,151,155-156
+src/icons/README.md
+  s_fefbc607c0f1a2::t_aebf940afeaabf 24
+tests/consumer/imports.ts
+  s_fefbc607c0f1a2::t_b5246680c6aeb1 1-6,10-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a48994d22b3afe39922e730712260b49cfb7c647",
+  "prompts": {},
+  "sessions": {
+    "s_fefbc607c0f1a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d1944b8a-6aac-4bf2-82e6-4fa73124163d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
