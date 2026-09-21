@@ -33,6 +33,17 @@ jobs:
                   '@langchain-ai/frontend-platform, without path overrides.'
               )
           PY
+      - name: Verify GitHub recognizes the code owner
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          errors=$(gh api "repos/${GITHUB_REPOSITORY}/codeowners/errors" \
+            --method GET -f ref="$REVIEW_REF" --jq '.errors[].message')
+          if [ -n "$errors" ]; then
+            printf '%s\n' "$errors"
+            exit 1
+          fi
 
   validate:
     runs-on: ubuntu-latest
