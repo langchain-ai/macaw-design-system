@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-tokens",
-  "version": "0.1.0-beta.0",
+  "version": "1.0.0-beta.0",
   "description": "Framework-independent CSS design tokens for Macaw.",
   "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
   "bugs": {

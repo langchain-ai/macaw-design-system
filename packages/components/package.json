@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "0.1.0-beta.0",
+  "version": "1.0.0-beta.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
   "bugs": {
