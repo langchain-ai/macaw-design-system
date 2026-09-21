@@ -4,8 +4,21 @@ import './verify-license.mjs';
 
 const tag = process.argv[2];
 const packageJson = JSON.parse(
-  readFileSync(new URL('../package.json', import.meta.url), 'utf8')
+  readFileSync(
+    new URL('../packages/components/package.json', import.meta.url),
+    'utf8'
+  )
 );
+for (const name of ['tokens', 'cli']) {
+  const manifest = JSON.parse(
+    readFileSync(
+      new URL(`../packages/${name}/package.json`, import.meta.url),
+      'utf8'
+    )
+  );
+  if (manifest.version !== packageJson.version)
+    throw new Error('All Macaw packages must have the same release version.');
+}
 const expectedTag = `v${packageJson.version}`;
 const semver =
   '(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)' +

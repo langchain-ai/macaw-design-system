@@ -1,0 +1,52 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "release": {
+    "projects": [
+      "@langchain/macaw-tokens",
+      "@langchain/macaw-components",
+      "@langchain/macaw-cli"
+    ],
+    "projectsRelationship": "fixed",
+    "releaseTag": {
+      "pattern": "v{version}"
+    },
+    "version": {
+      "currentVersionResolver": "disk",
+      "git": {
+        "commit": false,
+        "stageChanges": false,
+        "tag": false
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": false
+      },
+      "git": {
+        "commit": false,
+        "stageChanges": false,
+        "tag": false
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "inputs": ["default", "^default"]
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": [
+      "{workspaceRoot}/scripts/**/*",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/pnpm-lock.yaml",
+      "{workspaceRoot}/pnpm-workspace.yaml",
+      "{workspaceRoot}/vite.config.ts",
+      "{workspaceRoot}/tsconfig*.json",
+      "{workspaceRoot}/tailwind.config.cjs",
+      "{workspaceRoot}/postcss.config.cjs"
+    ]
+  }
+}

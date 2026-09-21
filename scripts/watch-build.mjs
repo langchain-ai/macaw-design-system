@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packageManager = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
-const sourceRoot = fileURLToPath(new URL('../src', import.meta.url));
+const sourceRoot = fileURLToPath(new URL('../packages', import.meta.url));
 
 let build;
 let rebuildRequested = false;
@@ -14,6 +14,7 @@ function sourceSnapshot(directory) {
   return readdirSync(directory, { withFileTypes: true })
     .flatMap((entry) => {
       const path = resolve(directory, entry.name);
+      if (['dist', 'node_modules'].includes(entry.name)) return [];
       if (entry.isDirectory()) {
         return sourceSnapshot(path);
       }

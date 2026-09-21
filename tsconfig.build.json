@@ -5,19 +5,19 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": false,
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "rootDir": "./packages/components/src",
+    "outDir": "./packages/components/dist",
     "types": ["vite/client"]
   },
-  "include": ["src"],
+  "include": ["packages/components/src"],
   "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "src/**/*.stories.ts",
-    "src/**/*.stories.tsx",
-    "src/**/__tests__/**",
-    "src/stories",
-    "src/test-utils.tsx",
-    "src/cli*.mts"
+    "packages/components/src/**/*.test.ts",
+    "packages/components/src/**/*.test.tsx",
+    "packages/components/src/**/*.stories.ts",
+    "packages/components/src/**/*.stories.tsx",
+    "packages/components/src/**/__tests__/**",
+    "packages/components/src/stories",
+    "packages/components/src/test-utils.tsx",
+    "packages/components/src/cli*.mts"
   ]
 }

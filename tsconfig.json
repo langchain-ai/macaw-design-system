@@ -17,13 +17,12 @@
     "types": ["vite/client", "vitest/globals"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./packages/components/src/*"]
     },
     "allowImportingTsExtensions": true
   },
   "include": [
-    "src",
-    ".storybook",
+    "packages",
     "scripts",
     "vite.config.ts",
     "vitest.config.ts",
