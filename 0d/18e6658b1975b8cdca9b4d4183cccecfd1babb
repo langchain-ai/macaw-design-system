@@ -1,0 +1,14 @@
+.agents/skills/link-workspace-packages/SKILL.md
+  h_a27749d4737027 2,12,42,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0d18e6658b1975b8cdca9b4d4183cccecfd1babb",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
