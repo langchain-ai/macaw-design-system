@@ -1,0 +1,14 @@
+packages/components/package.json
+  h_a27749d4737027 530
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "57dde651b7f968595e9bd6ce7ce3ca19b80e7649",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
