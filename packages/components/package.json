@@ -527,7 +527,7 @@
     }
   },
   "publishConfig": {
-    "access": "public",
+    "access": "public"
   },
   "scripts": {
     "build": "node ../../scripts/build.mjs components"
