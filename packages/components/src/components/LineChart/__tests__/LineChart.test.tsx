@@ -9,6 +9,7 @@ import {
   screen,
   within,
 } from '../../../test-utils';
+import { formatMetricDate, formatMetricTime } from '../../MetricChart';
 import { Text } from '../../Text';
 import {
   LineChart,
@@ -857,6 +858,65 @@ describe('LineChart', () => {
     expect(screen.getByText('Bucket 20')).toBeVisible();
     expect(screen.queryByText('Bucket 10')).not.toBeInTheDocument();
   });
+
+  it.each([
+    {
+      name: 'date',
+      format: (value: number) =>
+        formatMetricDate(value, {
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC',
+        }),
+      labels: ['Jan 15', 'Jan 16'],
+    },
+    {
+      name: 'time',
+      format: (value: number) =>
+        formatMetricTime(value, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'UTC',
+        }),
+      labels: ['17:30', '18:45'],
+    },
+  ])(
+    'renders custom $name fields in axis and selection labels',
+    ({ format, labels }) => {
+      const from = Date.UTC(2026, 0, 15, 17, 30);
+      const to = Date.UTC(2026, 0, 16, 18, 45);
+      render(
+        <LineChart
+          aria-label="Formatted timestamps"
+          series={[
+            {
+              id: 'requests',
+              label: 'Requests',
+              points: [
+                { x: from, y: 5 },
+                { x: to, y: 7 },
+              ],
+            },
+          ]}
+          formatXValue={format}
+          selectionRange={{ from, to }}
+          shouldAnimate={false}
+        />
+      );
+
+      const chart = screen.getByRole('graphics-document', {
+        name: 'Formatted timestamps',
+      });
+      for (const label of labels)
+        expect(within(chart).getByText(label)).toBeVisible();
+      expect(
+        screen.getByRole('group', {
+          name: `Selected range from ${labels[0]} to ${labels[1]}`,
+        })
+      ).toBeVisible();
+    }
+  );
 
   it('renders fixed y ticks and an accessible controlled selection range', () => {
     render(
