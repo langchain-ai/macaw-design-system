@@ -15,21 +15,18 @@ import {
   ChartTooltipHeader,
   ChartTooltipRow,
 } from '../ChartTooltip';
+import { formatMetricDate, formatMetricTime } from '../MetricChart';
 import { Text } from '../Text';
 
 const DAY = 24 * 60 * 60 * 1_000;
 const START = Date.UTC(2026, 7, 10);
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-  month: 'short',
-  day: 'numeric',
-  timeZone: 'UTC',
-});
 const numberFormatter = new Intl.NumberFormat('en-US');
 const durationFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0,
 });
 
-const formatDate = (value: number) => dateFormatter.format(value);
+const formatDate = (value: number) =>
+  formatMetricDate(value, { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 const productionSeries: LineChartSeries = {
   id: 'production',
@@ -159,6 +156,33 @@ export const Default: Story = {
       </div>
     );
   },
+};
+
+export const TimeAxis: Story = {
+  render: () => (
+    <div className="mx-auto h-80 w-full max-w-3xl">
+      <LineChart
+        aria-label="Hourly requests"
+        series={[
+          {
+            ...productionSeries,
+            points: productionSeries.points.map((point, index) => ({
+              ...point,
+              x: START + index * 60 * 60 * 1_000,
+            })),
+          },
+        ]}
+        formatXValue={(value) =>
+          formatMetricTime(value, {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'UTC',
+          })
+        }
+      />
+    </div>
+  ),
 };
 
 export const NarrowWithListLegend: Story = {

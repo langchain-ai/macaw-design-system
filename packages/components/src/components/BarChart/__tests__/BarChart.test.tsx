@@ -4,6 +4,7 @@ import type * as MantineHooks from '@mantine/hooks';
 import type * as VisxText from '@visx/text';
 
 import { render, screen, within } from '../../../test-utils';
+import { formatMetricDate, formatMetricTime } from '../../MetricChart';
 import { Text } from '../../Text';
 import { BarChart } from '../BarChart';
 import type {
@@ -82,6 +83,65 @@ const getAbsoluteX = (element: SVGTextElement) => {
 };
 
 describe('BarChart', () => {
+  it.each([
+    {
+      name: 'date',
+      format: (value: number) =>
+        formatMetricDate(value, {
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC',
+        }),
+      labels: ['Jan 15', 'Jan 16'],
+    },
+    {
+      name: 'time',
+      format: (value: number) =>
+        formatMetricTime(value, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'UTC',
+        }),
+      labels: ['17:30', '18:45'],
+    },
+  ])(
+    'renders custom $name fields in axis and selection labels',
+    ({ format, labels }) => {
+      const from = Date.UTC(2026, 0, 15, 17, 30);
+      const to = Date.UTC(2026, 0, 16, 18, 45);
+      render(
+        <BarChart
+          aria-label="Formatted timestamps"
+          series={[
+            {
+              id: 'requests',
+              label: 'Requests',
+              data: [
+                { category: from, value: 5 },
+                { category: to, value: 7 },
+              ],
+            },
+          ]}
+          categoryAxis={{ formatValue: (value) => format(Number(value)) }}
+          selectionRange={{ from, to }}
+          shouldAnimate={false}
+        />
+      );
+
+      const chart = screen.getByRole('graphics-document', {
+        name: 'Formatted timestamps',
+      });
+      for (const label of labels)
+        expect(within(chart).getByText(label)).toBeVisible();
+      expect(
+        screen.getByRole('img', {
+          name: `Selected range from ${labels[0]} to ${labels[1]}`,
+        })
+      ).toBeVisible();
+    }
+  );
+
   it('renders an accessible chart, series, bars, and derived legend', () => {
     render(
       <>

@@ -10,7 +10,7 @@
   <p><strong>The shared UI & Design foundation for the LangChain product suite.</strong></p>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
   <!-- Keep the version badge aligned with packages/components/package.json until the package is published to npm. -->
-  <a href="packages/components/package.json"><img src="https://img.shields.io/badge/version-0.1.0-orange" alt="Package version: 0.1.0"></a>
+  <a href="packages/components/package.json"><img src="https://img.shields.io/badge/version-1.0.0--beta.1-orange" alt="Package version: 1.0.0-beta.1"></a>
   <a href="https://x.com/langchain_oss"><img src="https://img.shields.io/twitter/url/https/twitter.com/langchain_oss.svg?style=social&amp;label=Follow%20%40LangChain" alt="Follow LangChain on X"></a>
   <p>
     <a href="https://langsmith-design-system.vercel.app/">Storybook</a> ·

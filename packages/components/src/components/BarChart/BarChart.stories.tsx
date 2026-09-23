@@ -23,6 +23,7 @@ import {
   ChartTooltipHeader,
   ChartTooltipRow,
 } from '../ChartTooltip';
+import { formatMetricTime } from '../MetricChart';
 
 const categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const numberFormatter = new Intl.NumberFormat('en-US');
@@ -192,6 +193,37 @@ export const Grouped: Story = {
       </div>
     );
   },
+};
+
+export const TimeAxis: Story = {
+  render: () => (
+    <div className="mx-auto h-80 w-full max-w-3xl">
+      <BarChart
+        aria-label="Hourly requests"
+        series={[
+          {
+            id: 'requests',
+            label: 'Requests',
+            data: [820, 910, 875, 1_040, 1_180, 1_120, 1_340].map(
+              (value, index) => ({
+                category: Date.UTC(2026, 7, 10, index),
+                value,
+              })
+            ),
+          },
+        ]}
+        categoryAxis={{
+          formatValue: (value) =>
+            formatMetricTime(Number(value), {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+              timeZone: 'UTC',
+            }),
+        }}
+      />
+    </div>
+  ),
 };
 
 export const FilterableLegend: Story = {
