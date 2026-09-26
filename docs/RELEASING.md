@@ -30,7 +30,9 @@ release. Review and commit the package manifests, lockfile, and changelog, then
 merge through the normal review process. Update the README version badge too.
 
 After merge, create a GitHub release with a tag matching all three package
-versions, such as `v0.1.0`. The publish workflow verifies the tag and licenses,
+versions, such as `v0.1.0`. The tag must point to a commit already merged into
+`main` through the required Frontend Platform review process. The publish
+workflow rejects tags outside `main` history, then verifies the tag and licenses,
 runs the full checks, verifies the tarballs, and publishes with Nx. Nx publishes
 dependencies before dependents and can skip versions already in the registry
 when recovering a partially completed release.
