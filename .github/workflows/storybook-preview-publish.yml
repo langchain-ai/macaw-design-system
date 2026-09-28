@@ -6,7 +6,7 @@ name: Publish Storybook preview
 
 on:
   workflow_run:
-    workflows: ["Build Storybook preview"]
+    workflows: ['Build Storybook preview']
     types: [completed]
 
 permissions:
