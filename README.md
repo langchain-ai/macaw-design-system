@@ -120,3 +120,5 @@ Macaw owns shared, domain-free UI. Keep product routing, data fetching,
 permissions, analytics, and feature workflows in the consuming application.
 
 <!-- preview smoke test -->
+
+<!-- retest after #19 -->
