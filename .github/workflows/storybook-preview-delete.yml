@@ -1,0 +1,53 @@
+# Deletes the preview prefix when a pull request closes.
+# Uses the workflow from the base branch and does not check out pull request
+# code, so the cloud credential is available for fork pull requests without
+# running their code.
+
+name: Delete Storybook preview
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: storybook-preview
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ secrets.MACAW_PREVIEW_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.MACAW_PREVIEW_GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Delete preview prefix
+        env:
+          PREVIEW_BUCKET: ${{ vars.MACAW_PREVIEW_BUCKET }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$PREVIEW_BUCKET" =~ ^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$ ]]; then
+            echo "MACAW_PREVIEW_BUCKET is missing or invalid" >&2
+            exit 1
+          fi
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]{0,8}$ ]]; then
+            echo "refusing to delete without a numeric pull request number" >&2
+            exit 1
+          fi
+          prefix="gs://${PREVIEW_BUCKET}/pr-${PR_NUMBER}/"
+          if ! output=$(gcloud storage ls "$prefix" 2>&1); then
+            if grep -q "matched no objects" <<<"$output"; then
+              exit 0
+            fi
+            printf '%s\n' "$output" >&2
+            exit 1
+          fi
+          gcloud storage rm --recursive "$prefix"
