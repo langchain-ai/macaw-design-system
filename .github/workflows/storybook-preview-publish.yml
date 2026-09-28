@@ -55,11 +55,14 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
+          # No checkout on purpose; gh needs an explicit repo.
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           head_sha=$(jq -r '.workflow_run.head_sha' "$GITHUB_EVENT_PATH")
           head_owner=$(jq -r '.workflow_run.head_repository.owner.login' "$GITHUB_EVENT_PATH")
           head_branch=$(jq -r '.workflow_run.head_branch' "$GITHUB_EVENT_PATH")
+          repo_owner=$(jq -r '.repository.owner.login' "$GITHUB_EVENT_PATH")
           if ! [[ "$head_sha" =~ ^[0-9a-f]{40}$ ]]; then
             echo "unexpected head sha" >&2
             exit 1
@@ -68,8 +71,19 @@ jobs:
             echo "unexpected head owner" >&2
             exit 1
           fi
+          if ! [[ "$repo_owner" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+            echo "unexpected repository owner" >&2
+            exit 1
+          fi
 
-          pr_number=$(gh pr list --state open --head "${head_owner}:${head_branch}" --limit 20 \
+          # Same-repo PRs match --head <branch>; forks need owner:branch.
+          if [ "$head_owner" = "$repo_owner" ]; then
+            head_filter="$head_branch"
+          else
+            head_filter="${head_owner}:${head_branch}"
+          fi
+
+          pr_number=$(gh pr list --state open --head "$head_filter" --limit 20 \
             --json number,headRefOid \
             --jq "map(select(.headRefOid==\"${head_sha}\")) | .[0].number // empty")
           if [ -z "$pr_number" ]; then
