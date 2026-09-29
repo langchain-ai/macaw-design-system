@@ -32,7 +32,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "node ../../scripts/build.mjs tokens"
+    "build": "node ../../scripts/build-tokens.mjs"
   },
   "nx": {
     "targets": {
