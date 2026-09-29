@@ -196,11 +196,14 @@ if (!utilities.includes('.bg-surface-level-1'))
 
 await Promise.all([
   import('@langchain/macaw-components'),
+  import('@langchain/macaw-components/Attachment'),
   import('@langchain/macaw-components/BarChart'),
   import('@langchain/macaw-components/Code'),
   import('@langchain/macaw-components/Logo'),
   import('@langchain/macaw-components/ThinkingState'),
   import('@langchain/macaw-components/SplitViewPane'),
+  import('@langchain/macaw-components/SankeyChart'),
+  import('@langchain/macaw-components/hooks/useDebouncedCommit'),
 ]);
 
 const require = createRequire(import.meta.url);

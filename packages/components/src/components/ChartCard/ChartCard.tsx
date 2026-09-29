@@ -85,10 +85,7 @@ export interface ChartCardProps extends Omit<
 > {
   /** Visible chart title rendered in the card header. */
   title: ReactNode;
-  /**
-   * Optional secondary text rendered beneath the title. Truncated to a single
-   * line to match the title's overflow behavior.
-   */
+  /** Optional secondary text rendered beneath the title. */
   description?: ReactNode;
   /** Visual state of the card. Fetching and retry behavior remain external. */
   state?: ChartCardState;
@@ -226,7 +223,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
                 <Text
                   variant="xs"
                   color="quaternary"
-                  className="min-w-0 truncate"
+                  className="min-w-0 break-words"
                 >
                   {description}
                 </Text>

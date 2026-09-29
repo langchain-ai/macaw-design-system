@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { EnvelopeIcon } from '@phosphor-icons/react/dist/ssr/Envelope';
 import { EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
@@ -5,10 +7,12 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { QuestionIcon } from '@phosphor-icons/react/dist/ssr/Question';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { useDebouncedCommit } from '../../hooks/useDebouncedCommit';
 import {
   ControlSizeMatrix,
   ControlVariantGrid,
 } from '../../stories/ControlSizeMatrix';
+import { Button } from '../Button';
 import { Icon } from '../Icon/Icon';
 import { Text } from '../Text/Text';
 import { Textarea } from './Textarea';
@@ -46,7 +50,6 @@ const meta: Meta<typeof Textarea> = {
     isError: false,
     required: false,
     onChange: () => {},
-    debounceMs: 300,
     rows: 3,
   },
   render: (args) => (
@@ -70,9 +73,6 @@ const meta: Meta<typeof Textarea> = {
     },
     autoFocus: {
       control: 'boolean',
-    },
-    debounceMs: {
-      control: 'number',
     },
     rows: {
       control: 'number',
@@ -256,4 +256,49 @@ export const Resizing: Story = {
       )}
     </ControlVariantGrid>
   ),
+};
+
+export const OrderedPersistence: Story = {
+  name: 'Debounced persistence',
+  render: function Render(args) {
+    const [draft, setDraft] = useState('');
+    const [saved, setSaved] = useState('');
+    const [error, setError] = useState('');
+    const [showEditor, setShowEditor] = useState(true);
+    const { schedule, flush } = useDebouncedCommit({
+      delay: 300,
+      onCommit: async (next: string) => {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        setSaved(next);
+      },
+      onError: (error) => setError(String(error)),
+    });
+
+    return (
+      <div className="flex w-80 flex-col gap-space-3">
+        {showEditor && (
+          <Textarea
+            {...args}
+            value={draft}
+            onChange={(next) => {
+              setDraft(next);
+              schedule(next);
+            }}
+            hintText="Edits update immediately; simulated saves run in order."
+          />
+        )}
+        <Button
+          onClick={() => {
+            flush();
+            setShowEditor(!showEditor);
+          }}
+        >
+          {showEditor ? 'Close editor' : 'Reopen editor'}
+        </Button>
+        <Text>Draft: {draft || '(empty)'}</Text>
+        <Text>Saved: {saved || '(empty)'}</Text>
+        {error && <Text role="alert">{error}</Text>}
+      </div>
+    );
+  },
 };

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { CheckIcon, PlusIcon, XIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import type { OptionRowSize } from '../../utils/componentSizes';
 import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
 import { Badge } from '../Badge';
 import { Icon } from '../Icon';
@@ -106,10 +107,12 @@ export function TypeaheadDefaultOption<TOption>({
   option,
   state,
   getLabel,
+  size,
 }: {
   option: TypeaheadSelectedValue<TOption>;
   state: TypeaheadRenderOptionState;
   getLabel: (option: TypeaheadSelectedValue<TOption>) => string;
+  size: OptionRowSize;
 }) {
   const label = getLabel(option);
   const description = isTypeaheadOption(option)
@@ -130,7 +133,7 @@ export function TypeaheadDefaultOption<TOption>({
           state.selected ? 'opacity-100' : 'opacity-0'
         )}
       />
-      <OptionText label={label} description={description} />
+      <OptionText label={label} description={description} size={size} />
       {rightDecorator && (
         <div className="ml-auto shrink-0">{rightDecorator}</div>
       )}
@@ -141,13 +144,22 @@ export function TypeaheadDefaultOption<TOption>({
 function OptionText({
   label,
   description,
+  size,
 }: {
   label: string;
   description: ReactNode;
+  size: OptionRowSize;
 }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
-      <Text as="span" variant="sm" className="truncate text-primary">
+      <Text
+        as="span"
+        variant={size}
+        className={cn(
+          'truncate tracking-normal text-primary',
+          size === 'sm' ? 'leading-4' : 'leading-5'
+        )}
+      >
         {label}
       </Text>
       {description && (

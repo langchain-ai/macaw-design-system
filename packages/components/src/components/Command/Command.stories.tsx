@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import type { OptionRowSize } from '../../utils/componentSizes';
 import { Text } from '../Text/Text';
 import { Command, CommandInput, CommandItem, CommandList } from './Command';
 import type { CommandMenuItem } from './CommandMenu';
@@ -114,6 +115,37 @@ export const HiddenSearch: Story = {
     onSelect: (_value) => {},
     hideSearch: true,
   },
+};
+
+export const RowSizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-space-4">
+      {(['sm', 'md'] satisfies OptionRowSize[]).map((size) => (
+        <div key={size} className="flex flex-col gap-space-1">
+          <Text as="span" variant="xs" color="secondary">
+            {size} option rows
+          </Text>
+          <div className="rounded-md border border-subtle">
+            <CommandMenu
+              items={[
+                { value: 'selected', label: 'Selected option' },
+                {
+                  value: 'described',
+                  label: 'Option with description',
+                  description: 'Descriptions grow beyond the minimum height.',
+                },
+                { value: 'disabled', label: 'Disabled option', disabled: true },
+              ]}
+              value="selected"
+              onSelect={() => {}}
+              hideSearch
+              itemRowSize={size}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
 };
 
 export const WithDescriptions: Story = {

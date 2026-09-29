@@ -92,6 +92,9 @@ The same tier name is meaningful only within its family.
 - `Input`, `CommandInput`, and `Textarea` default to the `lg` compatibility tier.
   New consumers should choose `md` explicitly.
 
+`Tabs` and `TabLabel` remain intrinsic page navigation; use `GroupedTabs` for
+compact local navigation on the control scale.
+
 ## Label Casing
 
 Use **Title Case** for names of things: field labels, section headings, tabs,
@@ -171,7 +174,7 @@ dashboard visualization shells.
 - Consumers own charts, legends, data interactions, and empty states. Use the
   `state` prop for standard loading and known data-fetching error states; it
   does not catch chart-rendering exceptions.
-- Set `skeletonVariant` to `bar`, `line`, `donut`, `metric`, or `sparkline` to match the chart
+- Set `skeletonVariant` to `bar`, `line`, `donut`, `metric`, `sparkline`, or `sankey` to match the chart
   shape while loading. Use `ChartCardSkeleton` directly for a chart placeholder
   outside a card.
 - Loading and error states have a baseline minimum height. Set an explicit card

@@ -67,6 +67,8 @@ export const Slider = ({
   'data-testid': testId,
 }: SliderProps) => {
   const isRange = Array.isArray(value ?? defaultValue);
+  const thumbValues = toArray(value) ?? toArray(defaultValue) ?? [0];
+  const hasMultipleThumbs = thumbValues.length > 1;
   const labeledSteps = stepLabels?.filter((s) => s.label);
   const hasLabels = !!labeledSteps && labeledSteps.length > 0;
 
@@ -85,9 +87,10 @@ export const Slider = ({
       disabled={disabled}
       onValueChange={(v) => onChange?.(fromArray(v, isRange))}
       onValueCommit={(v) => onChangeCommitted?.(fromArray(v, isRange))}
-      aria-label={ariaLabel}
-      aria-labelledby={ariaLabelledby}
       data-testid={testId}
+      role={hasMultipleThumbs ? 'group' : undefined}
+      aria-label={hasMultipleThumbs ? ariaLabel : undefined}
+      aria-labelledby={hasMultipleThumbs ? ariaLabelledby : undefined}
     >
       <SliderPrimitive.Track
         className={cn(
@@ -105,9 +108,12 @@ export const Slider = ({
         />
       </SliderPrimitive.Track>
 
-      {(toArray(value) ?? toArray(defaultValue) ?? [0]).map((_, i) => (
+      {thumbValues.map((_, i) => (
         <SliderPrimitive.Thumb
           key={i}
+          {...(!hasMultipleThumbs &&
+            ariaLabel !== undefined && { 'aria-label': ariaLabel })}
+          aria-labelledby={hasMultipleThumbs ? undefined : ariaLabelledby}
           className={cn(
             'block rounded-full border-2 shadow transition',
             SELECTION_CONTROL_SIZES.sm.className,

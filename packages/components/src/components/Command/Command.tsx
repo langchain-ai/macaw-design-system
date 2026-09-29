@@ -5,6 +5,10 @@ import { Command as CommandPrimitive } from 'cmdk';
 
 import { cn } from '../../utils/cn';
 import {
+  OPTION_ROW_SIZES,
+  type OptionRowSize,
+} from '../../utils/componentSizes';
+import {
   DECORATOR_CLASSES,
   getInputContainerClasses,
   getInputElementClasses,
@@ -138,14 +142,31 @@ export const CommandSeparator = forwardRef<
 ));
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
+interface CommandItemProps extends ComponentPropsWithoutRef<
+  typeof CommandPrimitive.Item
+> {
+  /**
+   * Controls minimum row height and default label typography.
+   * Rich or multiline content grows intrinsically.
+   */
+  size?: OptionRowSize;
+}
+
+const COMMAND_ITEM_SIZE_CLASSES = {
+  sm: 'py-space-1 text-xs leading-4',
+  md: 'py-space-1 text-sm',
+} satisfies Record<OptionRowSize, string>;
+
 export const CommandItem = forwardRef<
   ElementRef<typeof CommandPrimitive.Item>,
-  ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
->(({ className, ...props }, ref) => (
+  CommandItemProps
+>(({ className, size = 'md', ...props }, ref) => (
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center rounded-md px-space-2 py-1.5 outline-none hover:bg-secondary aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-selected:bg-secondary',
+      'relative flex cursor-pointer select-none items-center rounded-sm px-space-2 outline-none hover:bg-secondary aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-selected:bg-secondary',
+      OPTION_ROW_SIZES[size].minHeightClassName,
+      COMMAND_ITEM_SIZE_CLASSES[size],
       className
     )}
     {...props}

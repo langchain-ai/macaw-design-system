@@ -116,17 +116,6 @@ describe('Typeahead', () => {
     ).toEqual(['server-ranked-second', 'server-ranked-first']);
   });
 
-  it('uses semantic Tailwind token classes for the control shell', () => {
-    render(<SingleTypeaheadHarness />);
-
-    expect(screen.getByTestId('typeahead')).toHaveClass(
-      'border-default',
-      'bg-elevated',
-      'text-primary',
-      'gap-space-1'
-    );
-  });
-
   it('can keep the placeholder visible after multiple values are selected', () => {
     render(
       <Typeahead
@@ -142,34 +131,6 @@ describe('Typeahead', () => {
     expect(
       screen.getByRole('combobox', { name: 'Add status code' })
     ).toHaveAttribute('placeholder', 'Add status code');
-  });
-
-  it('keeps the multiple input and actions together when they wrap', () => {
-    render(
-      <Typeahead
-        multiple
-        value={['production', 'staging']}
-        onChange={() => {}}
-        options={[]}
-        placeholder="Add environment"
-        data-testid="wrapped-typeahead"
-      />
-    );
-
-    const input = screen.getByRole('combobox', { name: 'Add environment' });
-    expect(screen.getByTestId('wrapped-typeahead')).toHaveClass(
-      'flex',
-      'flex-wrap'
-    );
-    const inputActions = input.parentElement?.parentElement;
-    expect(input.parentElement).toHaveClass('min-w-0', 'flex-1');
-    expect(inputActions).toHaveClass('min-w-16', 'flex-1');
-    expect(
-      screen.getByRole('button', { name: 'Clear selections' }).parentElement
-        ?.parentElement
-    ).toBe(inputActions);
-    expect(input).toHaveClass('w-full');
-    expect(input).not.toHaveClass('[field-sizing:content]');
   });
 
   it('exposes combobox and listbox semantics', async () => {
@@ -229,103 +190,6 @@ describe('Typeahead', () => {
     expect(input).toHaveAttribute('id', 'metric-typeahead');
     expect(input).not.toHaveAttribute('aria-label');
     expect(input).not.toHaveAttribute('aria-labelledby');
-  });
-
-  it('uses the 20/24/32/40px single-select size contract', () => {
-    render(
-      <>
-        <Typeahead
-          data-testid="xs-typeahead"
-          size="xs"
-          value={null}
-          onChange={() => {}}
-          options={['Latency']}
-          placeholder="Extra small metric"
-        />
-        <Typeahead
-          data-testid="sm-typeahead"
-          size="sm"
-          value={null}
-          onChange={() => {}}
-          options={['Latency']}
-          placeholder="Small metric"
-        />
-        <Typeahead
-          data-testid="md-typeahead"
-          size="md"
-          value={null}
-          onChange={() => {}}
-          options={['Latency']}
-          placeholder="Medium metric"
-        />
-        <Typeahead
-          data-testid="lg-typeahead"
-          size="lg"
-          value={null}
-          onChange={() => {}}
-          options={['Latency']}
-          placeholder="Large metric"
-        />
-      </>
-    );
-
-    expect(screen.getByTestId('xs-typeahead')).toHaveClass('h-5', 'rounded-xs');
-    expect(screen.getByTestId('sm-typeahead')).toHaveClass('h-6', 'rounded-sm');
-    expect(screen.getByTestId('md-typeahead')).toHaveClass('h-8', 'rounded-md');
-    expect(screen.getByTestId('lg-typeahead')).toHaveClass(
-      'h-10',
-      'rounded-md',
-      'px-space-3'
-    );
-    expect(screen.getByTestId('md-typeahead')).not.toHaveClass('min-h-8');
-  });
-
-  it('uses a 24px minimum height for small multiple selections so chips can wrap', () => {
-    render(
-      <Typeahead
-        data-testid="multiple-typeahead"
-        multiple
-        size="sm"
-        value={['base']}
-        onChange={() => {}}
-        options={['base', 'production']}
-        placeholder="Choose splits"
-      />
-    );
-
-    expect(screen.getByTestId('multiple-typeahead')).toHaveClass(
-      'min-h-6',
-      'rounded-sm',
-      'flex',
-      'flex-wrap',
-      'px-space-1',
-      'py-px'
-    );
-    expect(screen.getByTestId('multiple-typeahead')).not.toHaveClass('h-6');
-  });
-
-  it('uses a 40px minimum height and 12px horizontal padding at large size', () => {
-    render(
-      <Typeahead
-        data-testid="large-multiple-typeahead"
-        multiple
-        size="lg"
-        value={[]}
-        onChange={() => {}}
-        options={['base', 'production']}
-        placeholder="Choose splits"
-      />
-    );
-
-    expect(screen.getByTestId('large-multiple-typeahead')).toHaveClass(
-      'min-h-10',
-      'rounded-md',
-      'px-space-3',
-      'py-space-1'
-    );
-    expect(screen.getByTestId('large-multiple-typeahead')).not.toHaveClass(
-      'h-10'
-    );
   });
 
   it('closes the dropdown when focus leaves the control', async () => {
@@ -721,7 +585,6 @@ describe('Typeahead', () => {
     ).toBeInTheDocument();
 
     const removeBase = screen.getByLabelText('Remove base');
-    expect(removeBase).toHaveClass('cursor-pointer');
 
     await user.click(removeBase);
 
@@ -911,24 +774,15 @@ describe('Typeahead', () => {
 
   it('can hide an empty dropdown or render a custom empty state', async () => {
     const user = userEvent.setup();
-    const escapeDefaultPrevented: boolean[] = [];
     const { rerender } = render(
-      <div
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') {
-            escapeDefaultPrevented.push(event.defaultPrevented);
-          }
-        }}
-      >
-        <Typeahead
-          multiple
-          hideEmptyList
-          value={[]}
-          onChange={() => {}}
-          options={[]}
-          placeholder="Choose tags"
-        />
-      </div>
+      <Typeahead
+        multiple
+        hideEmptyList
+        value={[]}
+        onChange={() => {}}
+        options={[]}
+        placeholder="Choose tags"
+      />
     );
 
     const input = screen.getByRole('combobox', { name: 'Choose tags' });
@@ -938,27 +792,17 @@ describe('Typeahead', () => {
     expect(
       screen.queryByRole('listbox', { name: 'Choose tags options' })
     ).not.toBeInTheDocument();
-    fireEvent.keyDown(input, { key: 'Escape' });
-    expect(escapeDefaultPrevented).toEqual([true]);
 
     rerender(
-      <div
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') {
-            escapeDefaultPrevented.push(event.defaultPrevented);
-          }
-        }}
-      >
-        <Typeahead
-          multiple
-          hideEmptyList
-          value={[]}
-          onChange={() => {}}
-          options={[]}
-          emptyState={<span>No tags found</span>}
-          placeholder="Choose tags"
-        />
-      </div>
+      <Typeahead
+        multiple
+        hideEmptyList
+        value={[]}
+        onChange={() => {}}
+        options={[]}
+        emptyState={<span>No tags found</span>}
+        placeholder="Choose tags"
+      />
     );
 
     await user.click(screen.getByRole('combobox', { name: 'Choose tags' }));

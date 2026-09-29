@@ -55,6 +55,15 @@ export const ReadOnly: Story = {
   },
 };
 
+/** No highlighting, for files with no grammar — a requirements.txt pin list. */
+export const PlainText: Story = {
+  args: {
+    language: 'plaintext',
+    ariaLabel: 'requirements.txt',
+    value: 'scikit-learn==1.7.2\nurllib3==2.0.0\nrapidfuzz==3.0.0',
+  },
+};
+
 /** Compact highlighting without line numbers or selection matching. */
 export const Plain: Story = {
   args: {

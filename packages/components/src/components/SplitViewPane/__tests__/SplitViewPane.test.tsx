@@ -31,6 +31,86 @@ function mockPaneBounds(element: HTMLElement) {
 describe('SplitViewPane', () => {
   afterEach(() => vi.unstubAllGlobals());
 
+  it('renders inline without portaling and makes collapsed content inert', () => {
+    const { container, rerender } = render(
+      <div data-testid="layout">
+        <SplitViewPane open variant="inline">
+          <Button>Pane action</Button>
+        </SplitViewPane>
+      </div>
+    );
+
+    const pane = screen.getByTestId('split-view-pane');
+    expect(container).toContainElement(pane);
+    expect(pane).not.toHaveAttribute('inert');
+    expect(screen.getByRole('button', { name: 'Pane action' })).toBeVisible();
+    expect(
+      screen.queryByRole('separator', { name: 'Resize pane' })
+    ).not.toBeInTheDocument();
+
+    rerender(
+      <div data-testid="layout">
+        <SplitViewPane open={false} variant="inline">
+          <Button>Pane action</Button>
+        </SplitViewPane>
+      </div>
+    );
+
+    expect(pane).toHaveAttribute('inert');
+    expect(screen.getByRole('button', { name: 'Pane action' })).toBeVisible();
+  });
+
+  it.each([{ variant: 'inline' }, { variant: 'overlay' }] as const)(
+    'omits the default header when a $variant pane supplies no header content',
+    ({ variant }) => {
+      render(
+        <SplitViewPane open variant={variant}>
+          Pane content
+        </SplitViewPane>
+      );
+
+      expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Close' })
+      ).not.toBeInTheDocument();
+    }
+  );
+
+  it('still renders the default header for a pane that can close', () => {
+    render(
+      <SplitViewPane open onClose={() => {}}>
+        Pane content
+      </SplitViewPane>
+    );
+
+    expect(screen.getByRole('banner')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeVisible();
+  });
+
+  it('confirms before closing inline panes when required', async () => {
+    const onClose = vi.fn();
+    const { user } = render(
+      <SplitViewPane
+        open
+        variant="inline"
+        title="Details"
+        onClose={onClose}
+        requireConfirmationOnClose
+      >
+        Pane content
+      </SplitViewPane>
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    expect(
+      screen.getByRole('dialog', { name: 'Unsaved Changes' })
+    ).toBeVisible();
+    expect(onClose).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Exit' }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it('fills viewports narrower than the minimum pane width', () => {
     vi.stubGlobal('innerWidth', 400);
 

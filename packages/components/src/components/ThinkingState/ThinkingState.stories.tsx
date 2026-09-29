@@ -36,6 +36,7 @@ const meta = {
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
     tone: { control: 'select', options: ['neutral', 'brand'] },
     motion: { control: 'select', options: ['full', 'subtle', 'none'] },
+    speed: { control: 'select', options: ['normal', 'slow'] },
     label: { control: 'text' },
     showElapsed: { control: 'boolean' },
     elapsedMs: { control: { type: 'number', min: 0, step: 1000 } },
@@ -47,6 +48,7 @@ const meta = {
     size: 'sm',
     tone: 'neutral',
     motion: 'full',
+    speed: 'normal',
     showElapsed: false,
     timerPrecision: 'seconds',
   },
@@ -115,6 +117,8 @@ export const Motion: Story = {
     </div>
   ),
 };
+
+export const Slow: Story = { args: { speed: 'slow' } };
 
 export const WithTimer: Story = { args: { showElapsed: true } };
 

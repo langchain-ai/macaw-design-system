@@ -37,6 +37,7 @@ export interface CodeProps {
   width?: string;
   fontSize?: string;
   placeholder?: string;
+  ariaLabel?: string;
   showCopyButton?: boolean;
   testId?: string;
   variant?: 'plain' | 'full';
@@ -56,6 +57,7 @@ export const Code = ({
   onChange,
   autoFocus,
   placeholder,
+  ariaLabel,
   language,
   extensions,
   converterExtensions,
@@ -112,6 +114,17 @@ export const Code = ({
       decorationStateField,
       EditorView.lineWrapping,
       editorTheme,
+      // Untagged text otherwise uses the syntax theme's dim default.
+      ...(language === 'plaintext'
+        ? [
+            EditorView.theme({
+              '.cm-content': { color: 'var(--text-primary)' },
+            }),
+          ]
+        : []),
+      ...(ariaLabel
+        ? [EditorView.contentAttributes.of({ 'aria-label': ariaLabel })]
+        : []),
       ...(readOnly ? [EditorView.editable.of(false)] : []),
       ...(nonce ? [EditorView.cspNonce.of(nonce)] : []),
     ];
@@ -122,6 +135,8 @@ export const Code = ({
     imageReplacerExtensions,
     langExt,
     editorTheme,
+    language,
+    ariaLabel,
     extensions,
     converterExtensions,
     lineCount,
