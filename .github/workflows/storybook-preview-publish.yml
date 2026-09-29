@@ -1,0 +1,161 @@
+# Uploads the artifact produced by "Build Storybook preview".
+# This file only runs from main. It must not check out the pull request or run
+# pnpm, Storybook, or any other file from that artifact.
+
+name: Publish Storybook preview
+
+on:
+  workflow_run:
+    workflows: ['Build Storybook preview']
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: storybook-preview-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: storybook-preview
+    steps:
+      - name: Download Storybook artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: storybook-static
+          path: storybook-static
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Check artifact
+        run: |
+          set -euo pipefail
+          test -f storybook-static/index.html
+          if find storybook-static -type l | grep -q .; then
+            echo "refusing to publish an artifact that contains symlinks" >&2
+            exit 1
+          fi
+          bytes=$(du -sb storybook-static | cut -f1)
+          if [ "$bytes" -gt 200000000 ]; then
+            echo "refusing to publish an artifact larger than 200MB" >&2
+            exit 1
+          fi
+
+      - name: Resolve pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # No checkout on purpose; gh needs an explicit repo.
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          head_sha=$(jq -r '.workflow_run.head_sha' "$GITHUB_EVENT_PATH")
+          head_owner=$(jq -r '.workflow_run.head_repository.owner.login' "$GITHUB_EVENT_PATH")
+          head_branch=$(jq -r '.workflow_run.head_branch' "$GITHUB_EVENT_PATH")
+          repo_owner=$(jq -r '.repository.owner.login' "$GITHUB_EVENT_PATH")
+          if ! [[ "$head_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "unexpected head sha" >&2
+            exit 1
+          fi
+          if ! [[ "$head_owner" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+            echo "unexpected head owner" >&2
+            exit 1
+          fi
+          if ! [[ "$repo_owner" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+            echo "unexpected repository owner" >&2
+            exit 1
+          fi
+
+          # Same-repo PRs match --head <branch>; forks need owner:branch.
+          if [ "$head_owner" = "$repo_owner" ]; then
+            head_filter="$head_branch"
+          else
+            head_filter="${head_owner}:${head_branch}"
+          fi
+
+          pr_number=$(gh pr list --state open --head "$head_filter" --limit 20 \
+            --json number,headRefOid \
+            --jq "map(select(.headRefOid==\"${head_sha}\")) | .[0].number // empty")
+          if [ -z "$pr_number" ]; then
+            event_number=$(jq -r '.workflow_run.pull_requests[0].number // empty' "$GITHUB_EVENT_PATH")
+            event_sha=$(jq -r '.workflow_run.pull_requests[0].head.sha // empty' "$GITHUB_EVENT_PATH")
+            if [ "$event_sha" = "$head_sha" ]; then
+              pr_number=$event_number
+            fi
+          fi
+          if ! [[ "$pr_number" =~ ^[1-9][0-9]{0,8}$ ]]; then
+            echo "could not resolve an open pull request for ${head_sha}" >&2
+            exit 1
+          fi
+
+          state=$(gh pr view "$pr_number" --json state --jq .state)
+          if [ "$state" != "OPEN" ]; then
+            echo "pull request ${pr_number} is ${state}; skipping publish"
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "number=${pr_number}" >> "$GITHUB_OUTPUT"
+          echo "sha=${head_sha}" >> "$GITHUB_OUTPUT"
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to Google Cloud
+        if: steps.pr.outputs.skipped != 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ secrets.MACAW_PREVIEW_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.MACAW_PREVIEW_GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        if: steps.pr.outputs.skipped != 'true'
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Publish static files
+        if: steps.pr.outputs.skipped != 'true'
+        env:
+          PREVIEW_BUCKET: ${{ vars.MACAW_PREVIEW_BUCKET }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$PREVIEW_BUCKET" =~ ^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$ ]]; then
+            echo "MACAW_PREVIEW_BUCKET is missing or invalid" >&2
+            exit 1
+          fi
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]{0,8}$ ]]; then
+            echo "refusing to publish without a numeric pull request number" >&2
+            exit 1
+          fi
+          gcloud storage rsync storybook-static "gs://${PREVIEW_BUCKET}/pr-${PR_NUMBER}/" \
+            --recursive \
+            --delete-unmatched-destination-objects \
+            --cache-control="no-cache"
+
+      - name: Comment on pull request
+        if: steps.pr.outputs.skipped != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          HEAD_SHA: ${{ steps.pr.outputs.sha }}
+        run: |
+          set -euo pipefail
+          marker="<!-- macaw-storybook-preview -->"
+          body=$(printf '%s\n## Storybook preview\n\nhttps://pr-%s.macaw-preview.langchain.dev\n\nUpdated from `%s`.\n' \
+            "$marker" "$PR_NUMBER" "$HEAD_SHA")
+          existing=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --jq ".[] | select(.body | contains(\"${marker}\")) | .id")
+          existing=${existing%%$'\n'*}
+          if [ -n "$existing" ]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${existing}" -f body="$body" >/dev/null
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body" >/dev/null
+          fi
