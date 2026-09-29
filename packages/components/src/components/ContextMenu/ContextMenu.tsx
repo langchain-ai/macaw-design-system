@@ -3,6 +3,10 @@ import * as React from 'react';
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu';
 
 import { cn } from '../../utils/cn';
+import {
+  OPTION_ROW_SIZES,
+  type OptionRowSize,
+} from '../../utils/componentSizes';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
@@ -39,12 +43,19 @@ export const ContextMenuItem = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Item> & {
     inset?: boolean;
+    /**
+     * Controls minimum row height and default label typography.
+     * Rich or multiline content grows intrinsically.
+     */
+    size?: OptionRowSize;
   }
->(({ className, inset, ...props }, ref) => (
+>(({ className, inset, size = 'md', ...props }, ref) => (
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'flex w-full cursor-default select-none items-center rounded-sm px-space-2 py-space-2 text-sm text-primary outline-none transition-colors focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[highlighted]:bg-elevated-hover data-[disabled]:opacity-50',
+      'flex w-full cursor-default select-none items-center rounded-sm px-space-2 py-space-1 text-primary outline-none transition-colors focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[highlighted]:bg-elevated-hover data-[disabled]:opacity-50',
+      OPTION_ROW_SIZES[size].minHeightClassName,
+      size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset ? 'pl-space-8' : undefined,
       className
     )}

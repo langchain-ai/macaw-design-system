@@ -14,7 +14,7 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 
 import { CaretDownIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
-import { CONTROL_SIZES } from '../../utils/componentSizes';
+import { CONTROL_SIZES, type OptionRowSize } from '../../utils/componentSizes';
 import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
 import { Command, CommandEmpty, CommandItem, CommandList } from '../Command';
 import { Icon } from '../Icon';
@@ -165,6 +165,14 @@ export function TypeaheadView<TOption>({
       event.preventDefault();
     }
   };
+  // Escape inside the input must close this typeahead before ancestor layers
+  // react to it; document-level capture listeners would otherwise dismiss the
+  // enclosing dialog first.
+  const handleEscapeKeyDown = (event: globalThis.KeyboardEvent) => {
+    if (!open) return;
+    event.preventDefault();
+    setOpen(false);
+  };
   const { ref: rootRef, handleBlur, dataTestId, className } = root;
   const { size, disabled, isError, multiple, open, setOpen } = state;
   const {
@@ -210,18 +218,17 @@ export function TypeaheadView<TOption>({
     renderOption,
   } = list;
   const hasValue = selectedValues.length > 0;
-  const visibleItems = open ? items : [];
-  const visibleShowCreateOption = open && createOption.show;
   const showEmptyState =
-    open &&
-    visibleItems.length === 0 &&
-    !visibleShowCreateOption &&
+    items.length === 0 &&
+    !createOption.show &&
     (emptyState != null || !hideEmptyList);
   const controlHeightClass = multiple
     ? CONTROL_SIZES[size].minHeightClassName
     : CONTROL_SIZES[size].heightClassName;
   const controlPaddingClass =
     size === 'xs' || size === 'sm' ? 'px-space-2' : 'px-space-3';
+  const itemRowSize: OptionRowSize =
+    size === 'xs' || size === 'sm' ? 'sm' : 'md';
   const renderedTags =
     multiple &&
     (renderTags
@@ -415,14 +422,10 @@ export function TypeaheadView<TOption>({
 
         <PopoverContent
           ref={popoverContentRef}
-          hidden={!open}
-          className={cn(
-            'w-[var(--radix-popover-trigger-width)] min-w-48 max-w-[calc(100vw-1rem)] bg-elevated p-space-1 text-primary',
-            !open && 'hidden'
-          )}
+          className="w-[var(--radix-popover-trigger-width)] min-w-48 max-w-[calc(100vw-1rem)] bg-elevated p-space-1 text-primary"
           align="start"
           sideOffset={4}
-          forceMount
+          onEscapeKeyDown={handleEscapeKeyDown}
           onOpenAutoFocus={(event) => event.preventDefault()}
           onCloseAutoFocus={(event) => event.preventDefault()}
           onFocusOutside={preventInputDismiss}
@@ -445,7 +448,7 @@ export function TypeaheadView<TOption>({
               </CommandEmpty>
             )}
 
-            {visibleItems.map((item) => {
+            {items.map((item) => {
               const { option } = item;
               const optionKey = getValue(option);
               const optionLabel = getLabel(option);
@@ -469,8 +472,9 @@ export function TypeaheadView<TOption>({
                   }
                   onSelect={() => selectValue(option)}
                   aria-checked={multiple ? selected : undefined}
+                  size={itemRowSize}
                   className={cn(
-                    'flex items-center gap-space-2 rounded-sm px-space-2 py-space-2 text-sm text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2',
+                    'flex items-center gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2',
                     optionDisabled && 'text-disabled'
                   )}
                 >
@@ -481,23 +485,25 @@ export function TypeaheadView<TOption>({
                       option={option}
                       state={optionState}
                       getLabel={getLabel}
+                      size={itemRowSize}
                     />
                   )}
                 </CommandItem>
               );
             })}
 
-            {visibleShowCreateOption && (
+            {createOption.show && (
               <CommandItem
                 value={`__typeahead_create__${createOption.inputValue}`}
                 keywords={[createOption.inputValue]}
                 onSelect={createOption.onCreate}
+                size={itemRowSize}
                 aria-label={
                   createOption.inputValue
                     ? `Add ${createOption.inputValue}`
                     : 'Add new'
                 }
-                className="flex items-center gap-space-2 rounded-sm p-space-2 text-sm text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2"
+                className="flex items-center gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2"
               >
                 <TypeaheadCreateOption
                   inputValue={createOption.inputValue}

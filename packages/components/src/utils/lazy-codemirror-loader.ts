@@ -21,7 +21,6 @@ import type * as CmLegacyShell from '@codemirror/legacy-modes/mode/shell';
 import type * as CmLint from '@codemirror/lint';
 import type * as CmState from '@codemirror/state';
 import type * as CmView from '@codemirror/view';
-import type * as LezerCommon from '@lezer/common';
 import type * as LezerHighlight from '@lezer/highlight';
 import type * as LezerYaml from '@lezer/yaml';
 import type * as TokyoDay from '@uiw/codemirror-theme-tokyo-night-day';
@@ -74,7 +73,6 @@ export type CMBundle = {
   lezerYamlParser: typeof LezerYaml.parser;
   lezerTagHighlighter: typeof LezerHighlight.tagHighlighter;
   lezerHighlighTree: typeof LezerHighlight.highlightTree;
-  lezerCommon: typeof LezerCommon;
 
   // Languages
   langJson: typeof CmLangJson.json;
@@ -103,7 +101,6 @@ export function loadCodeMirror(): Promise<CMBundle> {
     import('@uiw/codemirror-theme-tokyo-night-storm'),
     import('@lezer/highlight'),
     import('@lezer/yaml'),
-    import('@lezer/common'),
     import('@codemirror/lang-json'),
     import('@codemirror/lang-javascript'),
     import('@codemirror/lang-python'),
@@ -123,7 +120,6 @@ export function loadCodeMirror(): Promise<CMBundle> {
         tokyoStorm,
         lezerHighlight,
         lezerYaml,
-        lezerCommonModule,
         cmLangJson,
         cmLangJs,
         cmLangPython,
@@ -162,7 +158,6 @@ export function loadCodeMirror(): Promise<CMBundle> {
           lezerTagHighlighter: lezerHighlight.tagHighlighter,
           lezerHighlighTree: lezerHighlight.highlightTree,
           lezerYamlParser: lezerYaml.parser,
-          lezerCommon: lezerCommonModule,
           langJson: cmLangJson.json,
           langJavascript: cmLangJs.javascript,
           langPython: cmLangPython.python,

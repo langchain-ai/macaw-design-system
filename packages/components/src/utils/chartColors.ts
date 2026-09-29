@@ -8,7 +8,8 @@ import {
 /**
  * Semantic colors for data visualization. These values intentionally remain
  * CSS variable references because SVG fill/stroke props cannot consume
- * Tailwind classes. Theme-specific values live in `src/index.css`.
+ * Tailwind classes. Theme-specific values come from
+ * `@langchain/macaw-tokens/tokens.css`.
  */
 export const CHART_CATEGORICAL_LINE_COLORS = Array.from(
   { length: 20 },

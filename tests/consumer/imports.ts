@@ -1,4 +1,6 @@
-import { Button, Card, Text } from '@langchain/macaw-components';
+import { Attachment, Button, Card, Text } from '@langchain/macaw-components';
+import { AttachmentList } from '@langchain/macaw-components/Attachment';
+import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
 import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
@@ -7,11 +9,14 @@ import { Code } from '@langchain/macaw-components/Code';
 import { CodeLite } from '@langchain/macaw-components/Code/CodeLite';
 import type { CodeLanguageType } from '@langchain/macaw-components/Code/types';
 import { AppThemeProvider } from '@langchain/macaw-components/hooks/AppThemeProvider';
+import { useDebouncedCommit } from '@langchain/macaw-components/hooks/useDebouncedCommit';
 import { CheckIcon } from '@langchain/macaw-components/icons';
 import type {
   InputIconAction,
   InputProps,
 } from '@langchain/macaw-components/Input';
+import { SankeyChart } from '@langchain/macaw-components/SankeyChart';
+import type { SankeyChartProps } from '@langchain/macaw-components/SankeyChart';
 import tailwindPreset from '@langchain/macaw-components/tailwind-preset';
 import {
   ThinkingState,
@@ -24,12 +29,19 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  Attachment,
+  AttachmentList,
+  { name: 'report.pdf', status: 'uploading' } satisfies AttachmentProps,
+  SankeyChart,
+  { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
+  useDebouncedCommit,
   ThinkingState,
   LoadingIndicator,
   {
     showElapsed: true,
     elapsedMs: 1500,
     motion: 'subtle',
+    speed: 'slow',
   } satisfies ThinkingStateProps,
   { size: 'xs', leftIcon: CheckIcon, onChange: () => {} } satisfies InputProps,
   {

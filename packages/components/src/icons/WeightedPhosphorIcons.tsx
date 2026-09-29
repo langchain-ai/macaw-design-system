@@ -26,6 +26,7 @@ import { StarIcon } from '@phosphor-icons/react/dist/ssr/Star';
 import { UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 import { WarningIcon } from '@phosphor-icons/react/dist/ssr/Warning';
 import { WarningOctagonIcon } from '@phosphor-icons/react/dist/ssr/WarningOctagon';
+import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 
 import type { IconComponent, IconWeight } from '../utils/icon-types';
 import {
@@ -130,6 +131,11 @@ export const AlarmFillIcon = /* @__PURE__ */ createWeightedIcon(
   AlarmIcon,
   'fill',
   'AlarmFillIcon'
+);
+export const WrenchFillIcon = /* @__PURE__ */ createWeightedIcon(
+  WrenchIcon,
+  'fill',
+  'WrenchFillIcon'
 );
 export const ChartBarFillIcon = /* @__PURE__ */ createWeightedIcon(
   ChartBarIcon,

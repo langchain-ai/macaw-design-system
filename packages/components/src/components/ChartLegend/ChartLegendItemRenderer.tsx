@@ -158,7 +158,7 @@ export const ChartLegendItemRenderer = ({
       className={cn(
         styles,
         'focus-visible:ring-focus border-transparent shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
-        isList && 'justify-start',
+        isList && 'h-auto justify-start',
         !item.selected && 'bg-transparent'
       )}
       aria-label={ariaLabel}

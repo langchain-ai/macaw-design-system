@@ -1,5 +1,9 @@
 export { MetricChart } from './MetricChart';
-export type { MetricChartProps, MetricChartSize } from './MetricChart';
+export type {
+  MetricChartProps,
+  MetricChartSize,
+  MetricChartUnit,
+} from './MetricChart';
 export {
   formatMetricCurrency,
   formatMetricDate,

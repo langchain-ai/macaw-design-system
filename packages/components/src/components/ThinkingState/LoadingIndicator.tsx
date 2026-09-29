@@ -25,6 +25,7 @@ interface LoadingIndicatorProps extends Omit<
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
   animated?: boolean;
+  speed?: 'normal' | 'slow';
 }
 
 const CHEVRON_DELAYS = [90, 180, 270, 0, 90, 180, 90, 180, 270];
@@ -52,6 +53,7 @@ const LoadingIndicator = forwardRef<HTMLSpanElement, LoadingIndicatorProps>(
       size = 'sm',
       tone = 'neutral',
       animated = true,
+      speed = 'normal',
       className,
       style,
       ...props
@@ -60,7 +62,8 @@ const LoadingIndicator = forwardRef<HTMLSpanElement, LoadingIndicatorProps>(
   ) {
     const pattern = PATTERNS[variant];
     const indicatorStyle: IndicatorStyle = {
-      '--loading-cycle': pattern.duration,
+      '--loading-cycle':
+        speed === 'slow' ? `calc(${pattern.duration} * 2)` : pattern.duration,
       ...style,
     };
 
@@ -88,7 +91,9 @@ const LoadingIndicator = forwardRef<HTMLSpanElement, LoadingIndicatorProps>(
               variant === 'dots' && styles.dot,
               delay === null && styles.inactive
             )}
-            style={{ animationDelay: `${delay ?? 0}ms` }}
+            style={{
+              animationDelay: `${(delay ?? 0) * (speed === 'slow' ? 2 : 1)}ms`,
+            }}
           />
         ))}
       </span>

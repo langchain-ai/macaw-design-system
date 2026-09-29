@@ -195,7 +195,7 @@ describe('ChartCard', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it.each(['bar', 'line', 'donut', 'metric', 'sparkline'] as const)(
+  it.each(['bar', 'line', 'donut', 'metric', 'sparkline', 'sankey'] as const)(
     'renders the %s chart skeleton',
     (skeletonVariant) => {
       render(

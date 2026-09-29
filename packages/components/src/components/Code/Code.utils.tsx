@@ -23,6 +23,7 @@ const passthroughConverter: DataConverter = {
 };
 
 export const DATA_CONVERTERS: Record<CodeLanguageType, DataConverter> = {
+  plaintext: passthroughConverter,
   json: {
     parse: (value) => JSON.parse(value),
     stringify: (value) => JSON.stringify(value, null, 2),
@@ -151,6 +152,7 @@ export function getLanguageExtension(
     legacyModeShell,
   } = cm;
 
+  if (language === 'plaintext') return { language: [] };
   if (language === 'yaml') return buildYamlLanguage(cm);
   if (language === 'json') return { language: langJson() };
   if (language === 'javascript') return { language: langJavascript() };
