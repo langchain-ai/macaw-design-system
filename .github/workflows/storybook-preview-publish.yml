@@ -149,7 +149,7 @@ jobs:
         run: |
           set -euo pipefail
           marker="<!-- macaw-storybook-preview -->"
-          body=$(printf '%s\n## Storybook preview\n\nhttps://pr-%s.macaw-preview.langchain.dev\n\nUpdated from `%s`.\n' \
+          body=$(printf '%s\n## Storybook preview\n\nhttps://pr-%s.macaw-preview.langsmith.net\n\nUpdated from `%s`.\n' \
             "$marker" "$PR_NUMBER" "$HEAD_SHA")
           existing=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
             --jq ".[] | select(.body | contains(\"${marker}\")) | .id")
