@@ -1,0 +1,37 @@
+.github/workflows/ci.yml
+  s_0eb020f6c654dc::t_b084220aefb489 9,12-15,17-47,52
+  s_0eb020f6c654dc::t_1a3bfad8ab84bd 58,116-118,120-121,123,125-128,132-144,157-162,192,194
+  s_0eb020f6c654dc::t_050d2dde859512 84-85
+  s_0eb020f6c654dc::t_7f7540d7986609 88-90,93
+  s_0eb020f6c654dc::t_bb23b6189f990a 99
+  s_0eb020f6c654dc::t_cfe264a0576e8a 60,69-80,82-83,86-87,91-92,94-98,100-115
+  s_0eb020f6c654dc::t_00456944fd3549 119,122,124,129-131,145-156,163-191,193,195-211
+scripts/build-tokens.mjs
+  s_0eb020f6c654dc::t_58bcfa7e664f99 18
+.github/workflows/release.yml
+  s_0eb020f6c654dc::t_f284f034dff6c8 6-11,14,23-24,29,37,40-51
+packages/components/package.json
+  s_0eb020f6c654dc::t_58bcfa7e664f99 6-10,19,525-527,600-602
+nx.json
+  s_0eb020f6c654dc::t_f284f034dff6c8 4-6
+project.json
+  s_0eb020f6c654dc::t_65baf665efb68f 1-15
+scripts/build-cli.mjs
+  s_0eb020f6c654dc::t_58bcfa7e664f99 18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "96099809077fb2d581733be9a1e585b2e41f4174",
+  "prompts": {},
+  "sessions": {
+    "s_0eb020f6c654dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0eaaa-17b3-7661-aa4b-72e83af3254b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
