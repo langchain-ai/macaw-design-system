@@ -13,8 +13,7 @@ permissions:
   actions: read
   contents: read
   id-token: write
-  issues: write
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
   group: storybook-preview-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
