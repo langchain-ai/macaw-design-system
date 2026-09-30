@@ -117,4 +117,8 @@ for the release process and npm trusted-publishing setup.
 ## Scope and ownership
 
 Macaw owns shared, domain-free UI. Keep product routing, data fetching,
-permissions, analytics, and feature workflows in the consuming application.
+permissions, analytics, and feature workflows in the application that uses Macaw.
+
+<!-- preview smoke test -->
+
+<!-- retest after #19 -->
