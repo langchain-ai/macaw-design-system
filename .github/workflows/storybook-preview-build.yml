@@ -39,6 +39,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm build:storybook
+        env:
+          STORYBOOK_BASE_PATH: /pr-${{ github.event.pull_request.number }}/
 
       - name: Require a Storybook index
         run: test -f storybook-static/index.html
