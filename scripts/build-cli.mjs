@@ -15,7 +15,8 @@ const dist = resolve(directory, 'dist');
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
-const { transpileModule, ModuleKind, ScriptTarget } = await import('typescript');
+const { transpileModule, ModuleKind, ScriptTarget } =
+  await import('typescript');
 for (const file of readdirSync(resolve(directory, 'src')).filter((file) =>
   file.endsWith('.mts')
 )) {

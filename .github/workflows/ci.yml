@@ -6,19 +6,58 @@ on:
     branches: [main]
 
 permissions:
+  actions: read
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4
+        with:
+          fail-on-severity: moderate
+
+  codeql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22, 24]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
+      - uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5
       - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f
         with:
           mode: firewall-free
@@ -27,12 +66,146 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: corepack enable
       - run: corepack prepare pnpm@10.27.0 --activate
+      - name: Resolve pnpm store
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.path }}
+            .nx/cache
+          key: ci-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ci-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            ci-${{ runner.os }}-node-${{ matrix.node-version }}-
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
-      - run: pnpm verify:package
-      - run: pnpm build:storybook
-      - run: node scripts/pack.mjs
+      - run: pnpm nx sync:check
+      - name: Run affected Nx tasks
+        env:
+          FORCE_COLOR: '0'
+        run: >-
+          pnpm nx affected
+          -t format:check workspace-lint oxlint vite:typecheck vitest:test
+      - name: Build affected packages
+        run: pnpm nx affected -t build --exclude=macaw-design-system
+      - name: Build every package
+        if: matrix.node-version == 24
+        run: pnpm nx run-many -t build --exclude=macaw-design-system
+      - name: Verify package exports and consumer types
+        if: matrix.node-version == 24
+        run: pnpm verify:package
+      - name: Build Storybook
+        if: matrix.node-version == 24
+        run: pnpm build-storybook
+      - name: Verify packed packages
+        if: matrix.node-version == 24
+        run: node scripts/pack.mjs
+      - name: Preview Nx release
+        if: github.event_name == 'pull_request' && matrix.node-version == 24
+        run: pnpm nx release version --dry-run
+      - name: Upload build artifacts
+        if: always() && matrix.node-version == 24
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: |
+            packages/*/dist
+            storybook-static
+          if-no-files-found: ignore
+          retention-days: 7
+
+  version:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [validate, codeql]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: release
+    permissions:
+      actions: read
+      contents: write
+    concurrency:
+      group: nx-release-main
+      cancel-in-progress: false
+    outputs:
+      released: ${{ steps.version.outputs.released }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f
+        with:
+          mode: firewall-free
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: corepack prepare pnpm@10.27.0 --activate
+      - name: Resolve pnpm store
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.path }}
+            .nx/cache
+          key: ci-${{ runner.os }}-node-24-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ci-${{ runner.os }}-node-24-${{ hashFiles('pnpm-lock.yaml') }}-
+            ci-${{ runner.os }}-node-24-
+      - run: pnpm install --frozen-lockfile
+      - name: Configure release author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Version workspace
+        id: version
+        run: |
+          set -euo pipefail
+          before=$(git rev-parse HEAD)
+          pnpm nx release version \
+            --git-commit \
+            --git-tag \
+            --git-commit-message="chore(release): publish {version} [skip ci]"
+          after=$(git rev-parse HEAD)
+
+          if [ "$before" = "$after" ]; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          mapfile -t release_tags < <(git tag --points-at "$after")
+          if [ "${#release_tags[@]}" -ne 1 ]; then
+            echo "expected exactly one release tag on the version commit" >&2
+            exit 1
+          fi
+
+          tag="${release_tags[0]}"
+          if ! [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Nx created an unexpected release tag" >&2
+            exit 1
+          fi
+
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Push version commit and tag
+        if: steps.version.outputs.released == 'true'
+        run: git push --atomic --follow-tags
+      - name: Create GitHub Release
+        if: steps.version.outputs.released == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: gh release create "$RELEASE_TAG" --verify-tag --generate-notes --title "$RELEASE_TAG"
+
+  publish:
+    if: needs.version.outputs.released == 'true'
+    needs: version
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.version.outputs.tag }}

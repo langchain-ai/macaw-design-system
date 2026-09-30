@@ -15,10 +15,7 @@ rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
 const css = readFileSync(resolve(directory, 'src/tokens.css'), 'utf8');
-copyFileSync(
-  resolve(directory, 'src/tokens.css'),
-  resolve(dist, 'tokens.css')
-);
+copyFileSync(resolve(directory, 'src/tokens.css'), resolve(dist, 'tokens.css'));
 // Preserve selectors and var() references: JSON is a reference, not resolved colors.
 const rules = [
   ...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g),

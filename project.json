@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "name": "macaw-design-system",
+  "root": ".",
+  "targets": {
+    "format:check": {
+      "command": "oxfmt --check .",
+      "cache": true
+    },
+    "workspace-lint": {
+      "command": "oxlint scripts vite.config.ts vitest.config.ts",
+      "cache": true
+    }
+  }
+}

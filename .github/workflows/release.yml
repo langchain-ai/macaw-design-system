@@ -3,8 +3,15 @@ name: Publish to npm
 on:
   release:
     types: [published]
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to verify and publish
+        required: true
+        type: string
 
 permissions:
+  actions: read
   contents: read
   id-token: write
 
@@ -13,11 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: npm
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ env.RELEASE_TAG }}
       - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f
         with:
           mode: firewall-free
@@ -25,9 +34,21 @@ jobs:
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      - run: node scripts/verify-release-tag.mjs "${{ github.event.release.tag_name }}"
+      - run: node scripts/verify-release-tag.mjs "$RELEASE_TAG"
       - run: corepack enable
       - run: corepack prepare pnpm@10.27.0 --activate
+      - name: Resolve pnpm store
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ${{ steps.pnpm-store.outputs.path }}
+            .nx/cache
+          key: release-${{ runner.os }}-node-24-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            release-${{ runner.os }}-node-24-${{ hashFiles('pnpm-lock.yaml') }}-
+            ci-${{ runner.os }}-node-24-${{ hashFiles('pnpm-lock.yaml') }}-
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: node scripts/pack.mjs
