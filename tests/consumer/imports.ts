@@ -5,7 +5,17 @@ import { BarChart } from '@langchain/macaw-components/BarChart';
 import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
-import { Code } from '@langchain/macaw-components/Code';
+import {
+  Code,
+  CodeLanguageSelect,
+  CodeToolbar,
+  resolveCodeLanguage,
+} from '@langchain/macaw-components/Code';
+import type {
+  CodeLanguageSelectProps,
+  CodeProps,
+  CodeToolbarProps,
+} from '@langchain/macaw-components/Code';
 import { CodeLite } from '@langchain/macaw-components/Code/CodeLite';
 import type { CodeLanguageType } from '@langchain/macaw-components/Code/types';
 import { AppThemeProvider } from '@langchain/macaw-components/hooks/AppThemeProvider';
@@ -57,6 +67,21 @@ void [
   Card,
   CheckIcon,
   Code,
+  CodeLanguageSelect,
+  CodeToolbar,
+  resolveCodeLanguage('ts'),
+  {
+    language: 'json',
+    value: '{}',
+    showFoldGutter: false,
+    onUpdate: () => {},
+  } satisfies CodeProps,
+  {
+    value: 'ts',
+    onChange: () => {},
+    'aria-label': 'Snippet language',
+  } satisfies CodeLanguageSelectProps,
+  { language: 'JSON', children: 'Copy' } satisfies CodeToolbarProps,
   CodeLite,
   Text,
   buttonProps,

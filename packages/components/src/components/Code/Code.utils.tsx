@@ -8,6 +8,7 @@ import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 
 import type { CMBundle } from '../../utils/lazy-codemirror-loader';
+import { SPACE_SCALE_PX } from '../../utils/spacing';
 import type { CodeLanguageType } from './types';
 
 export type { Extension, StateEffect };
@@ -190,8 +191,10 @@ export const useEditorTheme = (
   cm: CMBundle | null,
   {
     variant,
+    showFoldGutter = true,
   }: {
     variant?: 'plain' | 'full';
+    showFoldGutter?: boolean;
   }
 ) => {
   const textQuaternary = 'var(--text-quaternary)';
@@ -252,10 +255,10 @@ export const useEditorTheme = (
       },
       ...(variant === 'plain' && {
         '& .cm-content': {
-          padding: '13px',
-          paddingLeft: '0px',
+          padding: showFoldGutter ? '13px' : `${SPACE_SCALE_PX[3]}px`,
+          ...(showFoldGutter && { paddingLeft: '0px' }),
         },
       }),
     });
-  }, [cm, variant, textQuaternary]);
+  }, [cm, variant, showFoldGutter, textQuaternary]);
 };

@@ -31,7 +31,9 @@ const meta = {
     (Story) => (
       <MemoryRouter>
         <TooltipProvider>
-          <Story />
+          <div className="relative h-64 w-full overflow-hidden [contain:layout]">
+            <Story />
+          </div>
         </TooltipProvider>
       </MemoryRouter>
     ),
@@ -43,7 +45,11 @@ type Story = StoryObj<typeof meta>;
 
 function Trigger({ label, config }: { label: string; config: ToastConfig }) {
   const { createToast } = useToast();
-  return <Button onClick={() => createToast(config)}>{label}</Button>;
+  return (
+    <div className="flex size-full items-center justify-center">
+      <Button onClick={() => createToast(config)}>{label}</Button>
+    </div>
+  );
 }
 
 export const Default: Story = {

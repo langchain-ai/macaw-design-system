@@ -3,6 +3,11 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Code } from '.';
+import { CopyButton } from '../CopyButton';
+import { Text } from '../Text';
+import { CODE_LANGUAGES } from './codeLanguages';
+import { CodeLanguageSelect } from './CodeLanguageSelect';
+import { CodeToolbar } from './CodeToolbar';
 
 const SAMPLE_CODE = `type Greeting = {
   message: string;
@@ -20,14 +25,23 @@ const meta = {
     docs: {
       description: {
         component:
-          '`Code` should be used when we want to allow for editable text. If we want to display read-only code snippets, use `CodeLite` instead since its more lightweight',
+          'Editable code with syntax highlighting. Compose `toolbar` with `CodeToolbar`, `CodeLanguageSelect`, and `CopyButton`. Without a toolbar, `showCopyButton` keeps its floating behavior. Prefer `CodeLite` for lightweight read-only snippets.',
       },
     },
   },
-  tags: ['autodocs', 'code', 'editor', 'syntax highlighting', 'json'],
+  tags: [
+    'autodocs',
+    'code',
+    'editor',
+    'syntax highlighting',
+    'json',
+    'toolbar',
+    'language picker',
+  ],
   args: {
     language: 'typescript',
     readOnly: false,
+    showFoldGutter: true,
     value: SAMPLE_CODE,
   },
 } satisfies Meta<typeof Code>;
@@ -70,4 +84,57 @@ export const Plain: Story = {
     readOnly: true,
     variant: 'plain',
   },
+};
+
+export const WithToolbar: Story = {
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-3xl">
+        <Story />
+      </div>
+    ),
+  ],
+  args: {
+    language: 'typescript',
+    ariaLabel: 'Code editor',
+    variant: 'plain',
+    showFoldGutter: false,
+    value: SAMPLE_CODE,
+  },
+  render: (args) => {
+    const [value, setValue] = useState(args.value);
+    const [language, setLanguage] = useState(args.language);
+
+    return (
+      <Code
+        {...args}
+        value={value}
+        onChange={setValue}
+        language={language}
+        toolbar={
+          <CodeToolbar
+            language={
+              args.readOnly ? (
+                <Text as="span" variant="xs" className="mr-space-1">
+                  {
+                    CODE_LANGUAGES.find((item) => item.value === language)
+                      ?.label
+                  }
+                </Text>
+              ) : (
+                <CodeLanguageSelect value={language} onChange={setLanguage} />
+              )
+            }
+          >
+            <CopyButton copy={value ?? ''} variant="icon" />
+          </CodeToolbar>
+        }
+      />
+    );
+  },
+};
+
+export const ReadOnlyWithToolbar: Story = {
+  ...WithToolbar,
+  args: { ...WithToolbar.args, readOnly: true },
 };
