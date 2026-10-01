@@ -56,6 +56,19 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Code editors
+
+Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
+`@langchain/macaw-components/Code`. Use `Code` for editing and the lighter
+`CodeLite` for read-only snippets. Supply a `toolbar` to compose language controls
+and actions above the editor; include `CopyButton` there when needed. Without a
+toolbar, `showCopyButton` keeps the floating copy control.
+
+`CodeLanguageSelect` accepts language aliases such as `ts` and `py`, preserves
+unknown language labels, and reports supported `CodeLanguageType` values.
+`showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
+`onUpdate` when an integration also needs selection or programmatic updates.
+
 ## Tokens
 
 Tokens flow in one direction:

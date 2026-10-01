@@ -21,7 +21,11 @@ const ERROR_DURATION_MS = Infinity;
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   // note this only supports one toast at a time currently
   const [open, setOpen] = React.useState(false);
-  const [config, setConfig] = React.useState<ToastConfig | null>(null);
+  const [toast, setToast] = React.useState<{
+    id: number;
+    config: ToastConfig;
+  } | null>(null);
+  const config = toast?.config;
 
   const createToast = useCallback((titleOrConfig: ToastConfig | string) => {
     const preConfig =
@@ -34,14 +38,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       ...preConfig,
     };
 
-    setConfig(config);
+    setToast((previous) => ({ id: (previous?.id ?? 0) + 1, config }));
     setOpen(true);
   }, []);
 
   return (
     <ToastContext.Provider value={{ createToast }}>
-      <ToastLib.Provider swipeDirection="right">
-        {children}
+      {children}
+      {/* Reset Radix's paused state without remounting application children. */}
+      <ToastLib.Provider key={toast?.id} swipeDirection="right">
         <ZIndexProvider value={zIndices.toast}>
           <Toast
             title={config?.title}
@@ -56,7 +61,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         </ZIndexProvider>
         <ToastLib.Viewport
           className={cn(
-            'fixed bottom-0 right-0 m-0 flex w-[390px] max-w-[100vw] list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]',
+            'fixed bottom-0 right-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]',
             config?.viewPortClassName
           )}
           style={{ zIndex: zIndices.toast }}
@@ -89,22 +94,33 @@ const SURFACE_BY_TYPE = {
 function renderToastIcon(isError: boolean, type: ToastConfig['type']) {
   if (isError)
     return (
-      <Icon icon={ExclamationMarkIcon} weight="regular" rounded color="error" />
+      <Icon
+        icon={ExclamationMarkIcon}
+        weight="regular"
+        size="sm"
+        rounded
+        color="error"
+      />
     );
   if (type === 'success')
-    return <Icon icon={CheckIcon} rounded color="success" />;
+    return <Icon icon={CheckIcon} size="sm" rounded color="success" />;
   if (type === 'warning')
     return (
       <Icon
         icon={ExclamationMarkIcon}
         weight="regular"
+        size="sm"
         rounded
         color="warning"
       />
     );
   if (type === 'info')
-    return <Icon icon={InfoIcon} weight="fill" rounded color="info" />;
-  return <Icon icon={InfoIcon} weight="fill" rounded color="neutral" />;
+    return (
+      <Icon icon={InfoIcon} weight="fill" size="sm" rounded color="info" />
+    );
+  return (
+    <Icon icon={InfoIcon} weight="fill" size="sm" rounded color="neutral" />
+  );
 }
 
 function Toast({
@@ -186,12 +202,17 @@ function Toast({
       duration={duration}
     >
       {hasTitle ? (
-        <div className="flex w-full flex-col gap-space-2 pb-space-1">
+        <div
+          className={cn(
+            'flex w-full flex-col gap-space-1',
+            Boolean(description) && 'pb-space-1'
+          )}
+        >
           <div className="flex w-full items-center">
-            <div className="flex w-full items-center gap-space-2">
+            <div className="flex w-full items-center gap-space-3">
               {renderToastIcon(isError, type)}
               <ToastLib.Title
-                className="cursor-text select-text font-medium text-primary"
+                className="cursor-text select-text text-sm font-medium text-primary"
                 onPointerDown={stopSwipeOnTextSelect}
               >
                 {title}
