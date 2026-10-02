@@ -86,6 +86,18 @@ screenshots for visual changes and call out changes to APIs, tokens, or default
 behavior. Review and understand every change you submit, including generated
 code; PR authors should be able to explain and defend their work.
 
+Every pull request requires approval from
+[`@langchain-ai/frontend-platform`](https://github.com/orgs/langchain-ai/teams/frontend-platform).
+This includes documentation, workflow, and ownership changes. New commits dismiss
+previous approvals and require another review.
+
+CI checks that `.github/CODEOWNERS` assigns all files exclusively to this team,
+without path overrides, and that GitHub recognizes the team as a valid owner.
+GitHub's `main` branch protection enforces the actual
+approval: keep code-owner reviews, stale-review dismissal, administrator
+enforcement, and the `Frontend platform review policy` status check required.
+The team must have explicit write access for GitHub to recognize its ownership.
+
 ## Package boundaries
 
 - `packages/tokens`: token CSS, generated JSON, and framework-independent docs.
