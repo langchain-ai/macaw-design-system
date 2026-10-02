@@ -472,6 +472,23 @@
 
   /* Semantic data-visualization colors. The categorical order deliberately
      alternates distant hues; consumers must not read the raw viz scales. */
+  --bg-categorical-1: var(--viz-brand-25);
+  --text-categorical-1: var(--viz-brand-600);
+  --bg-categorical-2: var(--viz-orange-25);
+  --text-categorical-2: var(--viz-orange-600);
+  --bg-categorical-3: var(--viz-green-25);
+  --text-categorical-3: var(--viz-green-600);
+  --bg-categorical-4: var(--viz-magenta-25);
+  --text-categorical-4: var(--viz-magenta-600);
+  --bg-categorical-5: var(--viz-acid-25);
+  --text-categorical-5: var(--viz-acid-600);
+  --bg-categorical-6: var(--viz-purple-25);
+  --text-categorical-6: var(--viz-purple-600);
+  --bg-categorical-7: var(--viz-sky-25);
+  --text-categorical-7: var(--viz-sky-600);
+  --bg-categorical-8: var(--viz-red-25);
+  --text-categorical-8: var(--viz-red-600);
+
   --chart-categorical-line-1: var(--viz-brand-300);
   --chart-categorical-line-2: var(--viz-orange-100);
   --chart-categorical-line-3: var(--viz-green-200);
@@ -895,6 +912,23 @@ html.dark,
   --border-tertiary: var(--border-muted);
   --border-quaternary: var(--border-faint);
   --text-button-primary: var(--black);
+
+  --bg-categorical-1: var(--viz-brand-800);
+  --text-categorical-1: var(--viz-brand-100);
+  --bg-categorical-2: var(--viz-orange-800);
+  --text-categorical-2: var(--viz-orange-100);
+  --bg-categorical-3: var(--viz-green-800);
+  --text-categorical-3: var(--viz-green-100);
+  --bg-categorical-4: var(--viz-magenta-800);
+  --text-categorical-4: var(--viz-magenta-100);
+  --bg-categorical-5: var(--viz-acid-800);
+  --text-categorical-5: var(--viz-acid-100);
+  --bg-categorical-6: var(--viz-purple-800);
+  --text-categorical-6: var(--viz-purple-100);
+  --bg-categorical-7: var(--viz-sky-800);
+  --text-categorical-7: var(--viz-sky-100);
+  --bg-categorical-8: var(--viz-red-800);
+  --text-categorical-8: var(--viz-red-100);
 
   --chart-categorical-line-1: var(--viz-brand-150);
   --chart-categorical-line-2: var(--viz-orange-100);
