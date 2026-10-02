@@ -8,7 +8,7 @@
     "build": "nx run-many -t build",
     "build:watch": "node scripts/watch-build.mjs",
     "storybook": "storybook dev -p 6006 -c packages/components/.storybook",
-    "build:storybook": "storybook build -c packages/components/.storybook -o storybook-static",
+    "build-storybook": "storybook build -c packages/components/.storybook -o storybook-static",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "lint": "oxlint packages scripts vite.config.ts vitest.config.ts",

@@ -2,10 +2,6 @@
   "name": "@langchain/macaw-components",
   "version": "1.1.0-beta.0",
   "description": "React components and usage guidance for the Macaw Design System.",
-  "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
-  "bugs": {
-    "url": "https://github.com/langchain-ai/macaw-design-system/issues"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -543,11 +539,10 @@
     }
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "scripts": {
-    "build": "node ../../scripts/build.mjs components"
+    "build": "node ../../scripts/build-components.mjs"
   },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",

@@ -24,11 +24,10 @@
   ],
   "type": "module",
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "scripts": {
-    "build": "node ../../scripts/build.mjs cli"
+    "build": "node ../../scripts/build-cli.mjs"
   },
   "engines": {
     "node": ">=22"
