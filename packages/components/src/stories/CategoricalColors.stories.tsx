@@ -63,17 +63,14 @@ export const BadgesAndCards: Story = {
       <div className="grid grid-cols-1 gap-space-3 sm:grid-cols-2 lg:grid-cols-4">
         {labels.map((label, index) => (
           <Card key={label}>
-            <div className="flex flex-col gap-space-3">
-              <div
-                className={`flex items-center gap-space-2 rounded-sm p-space-2 ${palette[index % palette.length]}`}
+            <div className="flex items-center gap-space-3">
+              <span
+                className={`flex shrink-0 items-center justify-center rounded-md p-space-1 ${palette[index % palette.length]}`}
               >
                 <SparkleIcon size={20} weight="regular" aria-hidden />
-                <Text weight="medium" className="text-inherit">
-                  {label}
-                </Text>
-              </div>
-              <Text variant="sm" color="secondary">
-                Palette pair {(index % palette.length) + 1}
+              </span>
+              <Text variant="sm" weight="medium">
+                {label}
               </Text>
             </div>
           </Card>
