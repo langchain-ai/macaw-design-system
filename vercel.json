@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build && pnpm build:storybook",
+  "outputDirectory": "storybook-static",
+  "ignoreCommand": "exit 1",
+  "git": {
+    "deploymentEnabled": true
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "path",
+          "value": "/docs/welcome-to-langsmith-ds--docs"
+        }
+      ],
+      "destination": "/?path=/docs/welcome-to-macaw-design-system--docs",
+      "permanent": false
+    }
+  ]
+}
