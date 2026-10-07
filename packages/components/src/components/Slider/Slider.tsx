@@ -115,7 +115,7 @@ export const Slider = ({
             ariaLabel !== undefined && { 'aria-label': ariaLabel })}
           aria-labelledby={hasMultipleThumbs ? undefined : ariaLabelledby}
           className={cn(
-            'block rounded-full border-2 shadow transition',
+            'block rounded-full border-2 shadow-sm transition',
             SELECTION_CONTROL_SIZES.sm.className,
             SELECTION_CONTROL_HIT_AREA_STYLES,
             'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
