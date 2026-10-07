@@ -10,6 +10,23 @@ The repository root is private. Nx owns coordinated versioning and publication;
 pnpm rewrites the components package's `workspace:*` token dependency to the
 matching release version when packing or publishing.
 
+## v2 alpha track
+
+`release/v2` starts at `2.0.0-alpha.0` and requires React 19, Tailwind v4,
+and Node 26 or newer. Node 26 is required now, not described as LTS.
+The publish script explicitly passes `--tag alpha` to Nx, and all three
+package manifests use `publishConfig.tag: alpha`, so prereleases
+never replace the stable npm `latest` tag. Use matching tags such as
+`v2.0.0-alpha.0`; do not publish until the release checks pass.
+
+For subsequent alphas, use Nx's explicit version flow:
+
+```sh
+pnpm release:version 2.0.0-alpha.1 --dry-run
+pnpm release:version 2.0.0-alpha.1
+pnpm release:publish --tag alpha --dry-run
+```
+
 ## Prepare a release
 
 ```sh
@@ -34,6 +51,10 @@ versions, such as `v0.1.0`. The publish workflow verifies the tag and licenses,
 runs the full checks, verifies the tarballs, and publishes with Nx. Nx publishes
 dependencies before dependents and can skip versions already in the registry
 when recovering a partially completed release.
+
+The existing GitHub workflows still select Node 22/24. They are intentionally
+unchanged in this migration; update them to Node 26 before attempting a release
+or relying on CI as Node 26 verification.
 
 ## One-time npm setup
 

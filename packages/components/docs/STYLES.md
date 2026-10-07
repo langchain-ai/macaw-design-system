@@ -34,16 +34,26 @@ the CSS custom properties without components, fonts, base rules, or utilities.
 Do not import both CSS entries; `styles.css` already includes the tokens.
 
 Applications that author semantic Tailwind classes should also use the optional
-Tailwind v3 preset. The preset deliberately has no `content` paths and does not
+Tailwind v4 preset. The preset deliberately has no `content` paths and does not
 replace the stylesheet import:
 
 ```js
 // tailwind.config.cjs
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   presets: [require('@langchain/macaw-components/tailwind-preset')],
 };
 ```
+
+Load this config explicitly from your application CSS (Tailwind v4 does not
+auto-detect JavaScript config files):
+
+```css
+@import 'tailwindcss';
+@config '../tailwind.config.cjs';
+```
+
+Adjust the relative config path for your stylesheet. Tailwind discovers application
+sources automatically; Macaw component utilities are precompiled.
 
 The precompiled stylesheet already covers classes used inside the package, so
 consumers only need to scan their own source. Add or remove `html.dark` to

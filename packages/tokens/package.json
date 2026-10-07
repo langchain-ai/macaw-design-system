@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-tokens",
-  "version": "1.1.0-beta.0",
+  "version": "2.0.0-alpha.0",
   "description": "Framework-independent CSS design tokens for Macaw.",
   "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
   "bugs": {
@@ -30,10 +30,14 @@
   },
   "publishConfig": {
     "access": "public",
-    "provenance": true
+    "provenance": true,
+    "tag": "alpha"
   },
   "scripts": {
     "build": "node ../../scripts/build.mjs tokens"
+  },
+  "engines": {
+    "node": ">=26"
   },
   "nx": {
     "targets": {
