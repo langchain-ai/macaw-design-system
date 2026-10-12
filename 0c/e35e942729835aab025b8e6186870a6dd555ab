@@ -1,0 +1,18 @@
+CONTRIBUTING.md
+  h_a27749d4737027 21
+package.json
+  h_a27749d4737027 2-3,8-9
+packages/components/package.json
+  h_a27749d4737027 11-14,532
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0ce35e942729835aab025b8e6186870a6dd555ab",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
