@@ -1,0 +1,24 @@
+packages/cli/CHANGELOG.md
+  h_a27749d4737027 1-14
+packages/cli/package.json
+  h_a27749d4737027 3
+packages/components/CHANGELOG.md
+  h_a27749d4737027 1-24
+packages/components/package.json
+  h_a27749d4737027 3
+packages/tokens/CHANGELOG.md
+  h_a27749d4737027 1-14
+packages/tokens/package.json
+  h_a27749d4737027 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "19c009ddc1bc4b38068b9791eb70b487a3992b72",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
