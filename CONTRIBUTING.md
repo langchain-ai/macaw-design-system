@@ -18,7 +18,7 @@ pnpm build
 pnpm storybook
 ```
 
-Storybook runs at <http://localhost:6006>. Build the package with `pnpm build`;
+Storybook runs at <http://localhost:5264>. Build the package with `pnpm build`;
 each package writes its output to `packages/<name>/dist/`.
 
 Read [DESIGN.md](packages/components/docs/DESIGN.md) for component rules and

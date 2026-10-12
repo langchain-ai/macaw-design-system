@@ -1,13 +1,14 @@
 {
-  "name": "macaw-design-system",
-  "version": "1.0.0-beta.0",
+  "name": "@langchain/macaw-design-system",
+  "version": "1.0.0-beta.2",
   "private": true,
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "nx": "nx",
+    "storybook": "nx run @langchain/macaw-components:storybook",
     "build": "nx run-many -t build",
     "build:watch": "node scripts/watch-build.mjs",
-    "storybook": "storybook dev -p 6006 -c packages/components/.storybook",
     "build-storybook": "storybook build -c packages/components/.storybook -o storybook-static",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",

@@ -8,6 +8,10 @@
     "url": "git+https://github.com/langchain-ai/macaw-design-system.git",
     "directory": "packages/components"
   },
+  "scripts": {
+    "build": "node ../../scripts/build-components.mjs",
+    "storybook": "storybook dev -p 5264"
+  },
   "files": [
     "dist",
     "docs",
@@ -525,9 +529,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {
-    "build": "node ../../scripts/build-components.mjs"
-  },
+  
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",
