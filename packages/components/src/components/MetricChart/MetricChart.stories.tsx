@@ -23,7 +23,7 @@ const meta: Meta<typeof MetricChart> = {
     docs: {
       description: {
         component:
-          'Displays a metric value with optional composable secondary content. Use its formatter helpers for compact numbers, currency, dates, times, and durations.',
+          'Displays a metric value with optional composable secondary content. Use its formatter helpers for compact numbers, currency, dates, times, and durations. Date/time helpers also work in chart axis and tooltip callbacks: pass individual Intl fields (for example, month/day or hour/minute) or dateStyle/timeStyle presets, without mixing fields and presets. Defaults are a medium date and a short time; locale and timeZone are configurable.',
       },
     },
   },

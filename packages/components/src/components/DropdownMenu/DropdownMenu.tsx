@@ -4,6 +4,10 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '../../utils/cn';
+import {
+  OPTION_ROW_SIZES,
+  type OptionRowSize,
+} from '../../utils/componentSizes';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
@@ -164,12 +168,19 @@ export const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
     inset?: boolean;
+    /**
+     * Controls minimum row height and default label typography.
+     * Rich or multiline content grows intrinsically.
+     */
+    size?: OptionRowSize;
   }
->(({ className, inset, ...props }, ref) => (
+>(({ className, inset, size = 'md', ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'text-md flex cursor-pointer select-none items-center rounded-sm px-space-2 py-1.5 outline-none transition-colors focus:bg-surface-level-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-none transition-colors focus:bg-surface-level-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      OPTION_ROW_SIZES[size].minHeightClassName,
+      size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
       className
     )}
@@ -196,12 +207,19 @@ export const DropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & {
     inset?: boolean;
+    /**
+     * Controls minimum row height and default label typography.
+     * Rich or multiline content grows intrinsically.
+     */
+    size?: OptionRowSize;
   }
->(({ className, inset, children, ...props }, ref) => (
+>(({ className, inset, children, size = 'md', ...props }, ref) => (
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'text-md flex cursor-pointer select-none items-center rounded-sm px-space-2 py-1.5 outline-none transition-colors focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2',
+      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-none transition-colors focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2',
+      OPTION_ROW_SIZES[size].minHeightClassName,
+      size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
       className
     )}

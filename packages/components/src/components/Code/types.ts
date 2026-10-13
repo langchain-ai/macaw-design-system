@@ -1,4 +1,5 @@
 export type CodeLanguageType =
+  | 'plaintext'
   | 'yaml'
   | 'json'
   | 'javascript'

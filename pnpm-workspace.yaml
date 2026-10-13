@@ -8,6 +8,9 @@ onlyBuiltDependencies:
 overrides:
   # Nx 23.2.1 pins a version affected by a malformed-TOML denial of service.
   nx>smol-toml: 1.7.1
+  # Nx 23.2.1 currently resolves vulnerable transitive versions.
+  axios: 1.20.0
+  brace-expansion: 5.0.12
 
 # These themes import highlight without declaring it in their manifests.
 packageExtensions:

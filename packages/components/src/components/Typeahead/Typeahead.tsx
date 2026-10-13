@@ -140,6 +140,7 @@ function TypeaheadInner<TOption = string>(
     controlledInputValue,
     freeSolo,
     getLabel,
+    getValue,
     multiple,
     open,
     setUncontrolledInputValue,
@@ -388,11 +389,10 @@ function TypeaheadInner<TOption = string>(
     [getValue, removeAtIndex, selectedValues]
   );
 
-  const hasValue = selectedValues.length > 0;
   const showClearButton =
     !disabled &&
     !disableClearable &&
-    (hasValue || (!multiple && inputValue.length > 0));
+    (selectedValues.length > 0 || (!multiple && inputValue.length > 0));
   const selectedSummary = getTypeaheadSelectedSummary(
     selectedValues,
     getLabel,
@@ -410,7 +410,7 @@ function TypeaheadInner<TOption = string>(
     internalInputRef.current = node;
   }, []);
 
-  useTypeaheadDomSync({
+  const setListNode = useTypeaheadDomSync({
     autoComplete,
     commandLabel,
     inputAriaLabel,
@@ -474,7 +474,7 @@ function TypeaheadInner<TOption = string>(
         selectedSummary,
       }}
       list={{
-        ref: listRef,
+        ref: setListNode,
         items: visibleItems,
         emptyText,
         emptyState,

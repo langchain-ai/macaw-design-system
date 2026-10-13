@@ -34,6 +34,10 @@
   animation: shimmer-text 1.4s linear infinite;
 }
 
+.slow {
+  animation-duration: 2.8s;
+}
+
 .brandShimmer {
   @apply via-text-brand-primary to-text-tertiary;
 }

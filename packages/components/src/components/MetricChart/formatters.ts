@@ -63,12 +63,29 @@ export const formatMetricCurrency = (
     ...options,
   }).format(value);
 
+const hasDateTimeComponents = (options: Intl.DateTimeFormatOptions) =>
+  (
+    [
+      'weekday',
+      'era',
+      'year',
+      'month',
+      'day',
+      'dayPeriod',
+      'hour',
+      'minute',
+      'second',
+      'fractionalSecondDigits',
+      'timeZoneName',
+    ] as const
+  ).some((key) => options[key] !== undefined);
+
 export const formatMetricDate = (
   value: Date | number,
   { locale = DEFAULT_LOCALE, ...options }: MetricDateTimeFormatOptions = {}
 ) =>
   new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
+    dateStyle: hasDateTimeComponents(options) ? undefined : 'medium',
     ...options,
   }).format(value);
 
@@ -77,7 +94,7 @@ export const formatMetricTime = (
   { locale = DEFAULT_LOCALE, ...options }: MetricDateTimeFormatOptions = {}
 ) =>
   new Intl.DateTimeFormat(locale, {
-    timeStyle: 'short',
+    timeStyle: hasDateTimeComponents(options) ? undefined : 'short',
     ...options,
   }).format(value);
 

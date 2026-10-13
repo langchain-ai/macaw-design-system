@@ -5,6 +5,10 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 
 import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  OPTION_ROW_SIZES,
+  type OptionRowSize,
+} from '../../utils/componentSizes';
 import { Icon } from '../Icon';
 import type { InputSize, InputVariant } from '../Input/inputStyles';
 import { Text } from '../Text';
@@ -62,6 +66,11 @@ interface CommandMenuBaseProps {
   renderItem?: (item: CommandMenuItem, isSelected: boolean) => ReactNode;
   /** Size variant for the search input */
   inputSize?: InputSize;
+  /**
+   * Controls minimum row height and default label typography.
+   * Descriptions and custom content may grow beyond the minimum height.
+   */
+  itemRowSize?: OptionRowSize;
   /** Visual variant for the search input */
   inputVariant?: InputVariant;
   /** Additional class name for the Command root */
@@ -85,7 +94,7 @@ export type CommandMenuProps = CommandMenuBaseProps &
       }
   );
 
-function TruncatedLabel({ text }: { text: string }) {
+function TruncatedLabel({ text, size }: { text: string; size: OptionRowSize }) {
   const textRef = useRef<HTMLElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
@@ -94,11 +103,19 @@ function TruncatedLabel({ text }: { text: string }) {
     if (el) {
       setIsTruncated(el.scrollWidth > el.clientWidth);
     }
-  }, [text]);
+  }, [text, size]);
 
   return (
     <Tooltip title={isTruncated ? text : undefined}>
-      <Text ref={textRef} as="span" className="truncate">
+      <Text
+        ref={textRef}
+        as="span"
+        variant={size}
+        className={cn(
+          'truncate tracking-normal',
+          size === 'sm' ? 'leading-4' : 'leading-5'
+        )}
+      >
         {text}
       </Text>
     </Tooltip>
@@ -118,6 +135,7 @@ export function CommandMenu({
   onSearchChange,
   renderItem,
   inputSize = 'sm',
+  itemRowSize = 'md',
   inputVariant = 'plain',
   className,
   loading = false,
@@ -149,7 +167,12 @@ export function CommandMenu({
           }
           disabled={item.disabled}
           onSelect={() => onSelect(item.value)}
-          className="gap-space-2"
+          size={itemRowSize}
+          className={cn(
+            'gap-space-2',
+            hideSearch &&
+              'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] aria-selected:after:border-2 aria-selected:after:border-focus'
+          )}
         >
           {renderItem ? (
             renderItem(item, isSelected)
@@ -166,7 +189,7 @@ export function CommandMenu({
                 />
               )}
               <div className="flex min-w-0 flex-1 flex-col">
-                <TruncatedLabel text={label} />
+                <TruncatedLabel text={label} size={itemRowSize} />
                 {item.description && (
                   <Text
                     as="span"
@@ -188,8 +211,9 @@ export function CommandMenu({
 
   return (
     <Command
-      className={cn('flex flex-col gap-1.5 p-1.5', className)}
+      className={cn('flex flex-col gap-1.5 p-space-1 outline-none', className)}
       shouldFilter={disableFilter ? false : undefined}
+      tabIndex={hideSearch ? 0 : -1}
     >
       {!hideSearch && (
         <CommandInput
@@ -202,7 +226,7 @@ export function CommandMenu({
           onValueChange={onSearchChange}
         />
       )}
-      <CommandList onScroll={handleScroll}>
+      <CommandList className="outline-none" onScroll={handleScroll}>
         {!loading && (
           <CommandEmpty>
             <Text variant="sm">{emptyText}</Text>
@@ -222,7 +246,10 @@ export function CommandMenu({
             {Array.from({ length: loadingRows }, (_, i) => (
               <div
                 key={i}
-                className="h-7 animate-pulse rounded-md bg-tertiary"
+                className={cn(
+                  'animate-pulse rounded-md bg-tertiary',
+                  OPTION_ROW_SIZES[itemRowSize].minHeightClassName
+                )}
               />
             ))}
           </div>

@@ -8,6 +8,7 @@ import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 
 import type { CMBundle } from '../../utils/lazy-codemirror-loader';
+import { SPACE_SCALE_PX } from '../../utils/spacing';
 import type { CodeLanguageType } from './types';
 
 export type { Extension, StateEffect };
@@ -23,6 +24,7 @@ const passthroughConverter: DataConverter = {
 };
 
 export const DATA_CONVERTERS: Record<CodeLanguageType, DataConverter> = {
+  plaintext: passthroughConverter,
   json: {
     parse: (value) => JSON.parse(value),
     stringify: (value) => JSON.stringify(value, null, 2),
@@ -151,6 +153,7 @@ export function getLanguageExtension(
     legacyModeShell,
   } = cm;
 
+  if (language === 'plaintext') return { language: [] };
   if (language === 'yaml') return buildYamlLanguage(cm);
   if (language === 'json') return { language: langJson() };
   if (language === 'javascript') return { language: langJavascript() };
@@ -188,8 +191,10 @@ export const useEditorTheme = (
   cm: CMBundle | null,
   {
     variant,
+    showFoldGutter = true,
   }: {
     variant?: 'plain' | 'full';
+    showFoldGutter?: boolean;
   }
 ) => {
   const textQuaternary = 'var(--text-quaternary)';
@@ -250,10 +255,10 @@ export const useEditorTheme = (
       },
       ...(variant === 'plain' && {
         '& .cm-content': {
-          padding: '13px',
-          paddingLeft: '0px',
+          padding: showFoldGutter ? '13px' : `${SPACE_SCALE_PX[3]}px`,
+          ...(showFoldGutter && { paddingLeft: '0px' }),
         },
       }),
     });
-  }, [cm, variant, textQuaternary]);
+  }, [cm, variant, showFoldGutter, textQuaternary]);
 };

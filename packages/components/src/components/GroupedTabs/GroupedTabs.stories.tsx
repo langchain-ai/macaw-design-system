@@ -16,6 +16,12 @@ const meta: Meta<typeof GroupedTabs> = {
   component: GroupedTabs,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Compact local navigation with exact outer heights: xs=20px, sm=24px, and md=32px. The group owns size and every option fills its inner height.',
+      },
+    },
   },
   tags: ['autodocs', 'segmented control', 'view switcher', 'compact tabs'],
   decorators: [

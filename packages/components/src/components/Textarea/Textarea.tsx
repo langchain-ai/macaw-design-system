@@ -2,14 +2,11 @@ import type { ReactNode } from 'react';
 import {
   forwardRef,
   useCallback,
-  useEffect,
   useId,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
-
-import { useDebouncedCallback } from 'use-debounce';
 
 import { cn } from '../../utils/cn';
 import { CONTROL_SIZES } from '../../utils/componentSizes';
@@ -41,12 +38,13 @@ export interface TextareaProps {
   hintText?: string;
   /** Current textarea value */
   value?: string;
-  /** Change handler that will be debounced */
+  /**
+   * Update controlled value synchronously. Keep asynchronous persistence in
+   * the owner, using useDebouncedCommit when writes must be debounced and ordered.
+   */
   onChange: (value: string) => void;
   /** Placeholder text */
   placeholder?: string;
-  /** Debounce delay in milliseconds (default: 300) */
-  debounceMs?: number;
   /** Additional CSS classes */
   className?: string;
   /** Additional CSS classes applied to the inner <textarea> element */
@@ -86,7 +84,6 @@ export const Textarea = forwardRef<
       value,
       onChange,
       placeholder,
-      debounceMs = 0,
       className,
       inputClassName,
       id,
@@ -109,23 +106,8 @@ export const Textarea = forwardRef<
       [hintText ? hintTextId : undefined, ariaDescribedBy]
         .filter(Boolean)
         .join(' ') || undefined;
-    const shouldDebounce = debounceMs > 0;
     const [internalValue, setInternalValue] = useState(value);
-    const debouncedOnChange = useDebouncedCallback(onChange, debounceMs);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    // Update internal value when external value changes
-    useEffect(() => {
-      setInternalValue(value);
-    }, [value]);
-
-    // Flush pending debounced onChange on unmount so the last edit is not lost
-    useEffect(() => {
-      if (!shouldDebounce) return;
-      return () => {
-        debouncedOnChange.flush();
-      };
-    }, [shouldDebounce, debouncedOnChange]);
 
     // Auto-resize: grow with content up to maxHeight.
     // Run on value change and on element resize (e.g. container width change so text wraps).
@@ -152,21 +134,16 @@ export const Textarea = forwardRef<
       const ro = new ResizeObserver(runAutoResize);
       ro.observe(el);
       return () => ro.disconnect();
-    }, [autoResize, internalValue, runAutoResize]);
+    }, [autoResize, value, internalValue, runAutoResize]);
 
     const handleTextareaChange = (
       e: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
       const newValue = e.target.value;
       setInternalValue(newValue);
-      if (shouldDebounce) {
-        debouncedOnChange(newValue);
-      } else {
-        onChange(newValue);
-      }
+      onChange(newValue);
     };
 
-    // Styled container that holds the textarea and decorators
     const textareaContainerClasses = cn(
       'flex w-full gap-space-2',
       variant === 'default' && [
@@ -192,7 +169,6 @@ export const Textarea = forwardRef<
       leftDecorator || rightDecorator ? 'items-start' : 'items-center'
     );
 
-    // Unstyled textarea that fills the container
     const effectiveResize = autoResize ? 'none' : resize;
     const textareaClasses = cn(
       'max-w-full flex-1 border-none bg-transparent p-0 outline-none',
@@ -209,14 +185,11 @@ export const Textarea = forwardRef<
       inputClassName
     );
 
-    // Decorator styles
     const decoratorClasses = cn('flex items-center text-tertiary', {
       'mt-0': size === 'xs' || size === 'sm',
       'mt-0.5': size === 'md',
       'mt-space-1': size === 'lg',
     });
-    const leftDecoratorClasses = cn(decoratorClasses);
-    const rightDecoratorClasses = cn(decoratorClasses);
 
     const labelClasses = cn(
       'mb-space-1 block font-medium text-primary',
@@ -248,14 +221,14 @@ export const Textarea = forwardRef<
 
         <div className={textareaContainerClasses}>
           {leftDecorator && (
-            <div className={leftDecoratorClasses}>{leftDecorator}</div>
+            <div className={decoratorClasses}>{leftDecorator}</div>
           )}
 
           {/* eslint-disable-next-line react/forbid-elements */}
           <textarea
             ref={mergeRefs([textareaRef, ref])}
             id={textareaId}
-            value={internalValue ?? ''}
+            value={value}
             onChange={handleTextareaChange}
             placeholder={placeholder}
             disabled={disabled}
@@ -269,7 +242,7 @@ export const Textarea = forwardRef<
           />
 
           {rightDecorator && (
-            <div className={rightDecoratorClasses}>{rightDecorator}</div>
+            <div className={decoratorClasses}>{rightDecorator}</div>
           )}
         </div>
 

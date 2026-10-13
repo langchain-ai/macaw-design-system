@@ -6,11 +6,23 @@ import { Text } from '../Text';
 
 export type MetricChartSize = 'sm' | 'md' | 'lg' | 'xl';
 
+export type MetricChartUnit =
+  | 'days'
+  | 'hours'
+  | 'issues'
+  | 'milliseconds'
+  | 'minutes'
+  | 'requests'
+  | 'seconds'
+  | 'tokens'
+  | 'traces';
+
 export interface MetricChartProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   value: string | number;
+  unit?: MetricChartUnit;
   secondaryContent?: ReactNode;
   layout?: 'default' | 'centered';
   size?: MetricChartSize;
@@ -34,6 +46,7 @@ export const MetricChart = forwardRef<HTMLDivElement, MetricChartProps>(
   (
     {
       value,
+      unit,
       secondaryContent,
       layout = 'default',
       size = 'md',
@@ -43,6 +56,7 @@ export const MetricChart = forwardRef<HTMLDivElement, MetricChartProps>(
     ref
   ) => {
     const isCentered = layout === 'centered';
+    const hasUnit = unit != null;
 
     return (
       <div
@@ -63,7 +77,10 @@ export const MetricChart = forwardRef<HTMLDivElement, MetricChartProps>(
           color="primary"
           className={cn(
             'min-w-0 max-w-full tabular-nums',
-            size === 'xl' ? 'whitespace-nowrap' : 'break-words',
+            size === 'xl' && 'whitespace-nowrap',
+            size !== 'xl' && !hasUnit && 'break-words',
+            hasUnit &&
+              'flex items-baseline gap-space-1 overflow-hidden whitespace-nowrap',
             isCentered && 'text-center'
           )}
           style={
@@ -72,7 +89,22 @@ export const MetricChart = forwardRef<HTMLDivElement, MetricChartProps>(
               : undefined
           }
         >
-          {value}
+          {hasUnit ? (
+            <>
+              <span className="shrink-0">{value}</span>
+              <Text
+                as="span"
+                variant="xs"
+                weight="normal"
+                color="secondary"
+                className="min-w-0 truncate"
+              >
+                {unit}
+              </Text>
+            </>
+          ) : (
+            value
+          )}
         </Text>
         {secondaryContent != null && (
           <div
