@@ -49,6 +49,13 @@ describe('MetricChart', () => {
     expect(screen.getByText('vs. prev week')).toBeVisible();
   });
 
+  it('renders a smaller unit after the metric value', () => {
+    render(<MetricChart value={29} unit="issues" />);
+
+    expect(screen.getByText('29')).toBeVisible();
+    expect(screen.getByText('issues')).toBeVisible();
+  });
+
   it('centers values without changing the default font size', () => {
     render(<MetricChart layout="centered" value="1,234" />);
 

@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 export function useTypeaheadDomSync({
   autoComplete,
@@ -28,10 +28,24 @@ export function useTypeaheadDomSync({
   resolvedInputId: string;
   selectedSummaryId: string;
 }) {
+  // The portaled list mounts after the input's effects have run.
+  const setListNode = useCallback(
+    (list: HTMLDivElement | null) => {
+      listRef.current = list;
+      list?.setAttribute('id', listId);
+      list?.setAttribute('aria-label', `${commandLabel} options`);
+      if (multiple) {
+        list?.setAttribute('aria-multiselectable', 'true');
+      } else {
+        list?.removeAttribute('aria-multiselectable');
+      }
+    },
+    [commandLabel, listId, listRef, multiple]
+  );
+
   useEffect(() => {
     // cmdk owns these DOM nodes and may rewrite combobox attributes as input changes.
     const input = inputRef.current;
-    const list = listRef.current;
 
     input?.setAttribute('id', resolvedInputId);
     input?.setAttribute('aria-controls', listId);
@@ -54,26 +68,18 @@ export function useTypeaheadDomSync({
     } else {
       input?.removeAttribute('aria-describedby');
     }
-
-    list?.setAttribute('id', listId);
-    list?.setAttribute('aria-label', `${commandLabel} options`);
-    if (multiple) {
-      list?.setAttribute('aria-multiselectable', 'true');
-    } else {
-      list?.removeAttribute('aria-multiselectable');
-    }
   }, [
     autoComplete,
-    commandLabel,
     inputAriaLabel,
     inputRef,
     inputValue,
     isError,
     listId,
-    listRef,
     multiple,
     open,
     resolvedInputId,
     selectedSummaryId,
   ]);
+
+  return setListNode;
 }

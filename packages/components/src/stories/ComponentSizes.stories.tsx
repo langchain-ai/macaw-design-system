@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
@@ -25,10 +26,12 @@ import { Spinner } from '../components/Spinner/Spinner';
 import { Switch } from '../components/Switch';
 import { Text } from '../components/Text/Text';
 import { Typeahead } from '../components/Typeahead';
+import type { TypeaheadOption } from '../components/Typeahead';
 import { cn } from '../utils/cn';
 import {
   CONTROL_SIZES,
   OPTION_ROW_SIZES,
+  type OptionRowSize,
   SELECTION_CONTROL_SIZES,
   VISUAL_ELEMENT_SIZES,
 } from '../utils/componentSizes';
@@ -37,6 +40,16 @@ const noop = () => undefined;
 const options = [
   { value: 'traces', label: 'Traces' },
   { value: 'datasets', label: 'Datasets' },
+];
+const optionRowOptions: TypeaheadOption[] = [
+  { value: 'traces', label: 'Traces' },
+  {
+    value: 'datasets',
+    label: 'Datasets',
+    description: 'Examples for evaluation',
+  },
+  { value: 'prompts', label: 'Prompts' },
+  { value: 'archived', label: 'Archived Projects', disabled: true },
 ];
 const groupedTabOptions = [
   { value: 'traces', display: 'Traces' },
@@ -676,11 +689,63 @@ const SelectionControlMatrix = () => (
   </section>
 );
 
+function OptionRowPickerExamples({ size }: { size: OptionRowSize }) {
+  const [selectValue, setSelectValue] = useState<string | undefined>('traces');
+  const [typeaheadValue, setTypeaheadValue] = useState<
+    string | TypeaheadOption | null | undefined
+  >(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const { rem } = OPTION_ROW_SIZES[size];
+
+  return (
+    <>
+      <GuidedSpecimen label="Select" rem={rem}>
+        <div className="flex w-56 items-center">
+          <Select
+            size={size}
+            options={optionRowOptions}
+            value={selectValue}
+            onChange={setSelectValue}
+            hideSearch={false}
+            aria-label={`${size} select options`}
+          />
+        </div>
+      </GuidedSpecimen>
+      <GuidedSpecimen label="Typeahead" rem={rem}>
+        <div className="w-56">
+          <Typeahead
+            size={size}
+            options={optionRowOptions}
+            value={typeaheadValue}
+            onChange={setTypeaheadValue}
+            placeholder="Search options..."
+            aria-label={`${size} typeahead options`}
+          />
+        </div>
+      </GuidedSpecimen>
+      <GuidedSpecimen label="Typeahead: create options" rem={rem}>
+        <div className="w-64">
+          <Typeahead
+            multiple
+            freeSolo
+            size={size}
+            options={['production', 'staging', 'canary']}
+            value={tags}
+            onChange={setTags}
+            placeholder="Find or add a tag..."
+            aria-label={`${size} typeahead create options`}
+          />
+        </div>
+      </GuidedSpecimen>
+    </>
+  );
+}
+
 const OptionRowMatrix = () => (
   <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Option rows"
-      description="Rows use minimum heights. Multiline content may grow beyond the ruler and must never be clipped."
+      description="Open the Select and Typeahead menus to compare option rows. Type a new tag in the last field to see its create-option row. Descriptions and multiline content may grow beyond the minimum height."
       components="CommandItem, DropdownMenuItem, DropdownMenuSubTrigger, ContextMenuItem, SelectItem, Typeahead option and create-option rows"
     />
     <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
@@ -693,11 +758,7 @@ const OptionRowMatrix = () => (
               <GuidedSpecimen label="Single line" rem={contract.rem}>
                 <Command className="h-auto w-48 bg-transparent">
                   <CommandList className="max-h-none">
-                    <CommandItem className={contract.minHeightClassName}>
-                      <Text as="span" variant="sm">
-                        Dataset
-                      </Text>
-                    </CommandItem>
+                    <CommandItem size={name}>Dataset</CommandItem>
                   </CommandList>
                 </Command>
               </GuidedSpecimen>
@@ -705,10 +766,8 @@ const OptionRowMatrix = () => (
                 <Command className="h-auto w-56 bg-transparent">
                   <CommandList className="max-h-none">
                     <CommandItem
-                      className={cn(
-                        contract.minHeightClassName,
-                        'items-start gap-space-2'
-                      )}
+                      size={name}
+                      className="items-start gap-space-2"
                     >
                       <MagnifyingGlassIcon
                         aria-hidden
@@ -717,7 +776,14 @@ const OptionRowMatrix = () => (
                         weight="regular"
                       />
                       <div className="flex flex-col">
-                        <Text as="span" variant="sm">
+                        <Text
+                          as="span"
+                          variant={name}
+                          className={cn(
+                            'tracking-normal',
+                            name === 'sm' ? 'leading-4' : 'leading-5'
+                          )}
+                        >
                           Search traces
                         </Text>
                         <Text as="span" variant="xs" color="tertiary">
@@ -728,6 +794,7 @@ const OptionRowMatrix = () => (
                   </CommandList>
                 </Command>
               </GuidedSpecimen>
+              <OptionRowPickerExamples size={name} />
             </div>
           );
         })}

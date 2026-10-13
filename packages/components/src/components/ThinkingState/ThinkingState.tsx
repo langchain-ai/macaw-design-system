@@ -22,6 +22,7 @@ interface ThinkingStateProps extends Omit<
   tone?: LoadingIndicatorProps['tone'];
   /** Full animates the grid and label; subtle animates only the grid; none is static. */
   motion?: 'full' | 'subtle' | 'none';
+  speed?: LoadingIndicatorProps['speed'];
   /** Opt in to elapsed time for longer waits. Hidden by default. */
   showElapsed?: boolean;
   /** Supply elapsed milliseconds from the operation to disable the internal clock. */
@@ -39,6 +40,7 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
       size = 'sm',
       tone = 'neutral',
       motion = 'full',
+      speed = 'normal',
       showElapsed = false,
       elapsedMs,
       timerPrecision = 'seconds',
@@ -61,6 +63,7 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
           size={size}
           tone={tone}
           animated={motion !== 'none'}
+          speed={speed}
         />
         <span className="inline-flex min-w-0 items-baseline gap-space-2">
           <Text
@@ -73,7 +76,8 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
             className={cn(
               'min-w-0 break-words leading-4',
               motion === 'full' ? styles.shimmer : 'text-secondary',
-              motion === 'full' && tone === 'brand' && styles.brandShimmer
+              motion === 'full' && tone === 'brand' && styles.brandShimmer,
+              speed === 'slow' && styles.slow
             )}
           >
             {label}

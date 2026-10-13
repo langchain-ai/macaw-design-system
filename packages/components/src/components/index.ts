@@ -20,6 +20,9 @@ export type {
 export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
 
+export { Attachment, AttachmentList } from './Attachment';
+export type { AttachmentProps, AttachmentListProps } from './Attachment';
+
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
 
@@ -110,6 +113,7 @@ export {
 export type {
   MetricChartProps,
   MetricChartSize,
+  MetricChartUnit,
   MetricCurrencyFormatOptions,
   MetricDateTimeFormatOptions,
   MetricDurationFormatOptions,

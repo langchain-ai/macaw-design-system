@@ -1,6 +1,13 @@
 name: Build Storybook
 
-on: workflow_call
+on:
+  workflow_call:
+    inputs:
+      base_path:
+        description: Base path for the generated Storybook site
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -32,6 +39,11 @@ jobs:
 
       - name: Build Storybook
         run: pnpm build-storybook
+        env:
+          STORYBOOK_BASE_PATH: ${{ inputs.base_path }}
+
+      - name: Require a Storybook index
+        run: test -f storybook-static/index.html
 
       - name: Upload Storybook build
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

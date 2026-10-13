@@ -2,10 +2,13 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '../../utils/cn';
+import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import { Text } from '../Text';
 import type { TooltipProps } from '../Tooltip';
 import { Tooltip } from '../Tooltip';
+
+type GroupedTabsSize = Exclude<ControlSize, 'lg'>;
 
 export interface GroupedTabOption<T> {
   display?: ReactNode | ((isActive: boolean) => ReactNode);
@@ -18,7 +21,6 @@ export interface GroupedTabOption<T> {
   leftDecorator?: ReactNode;
   rightDecorator?: ReactNode;
   className?: string;
-  size?: 'xs' | 'sm' | 'md';
   textClassName?: string;
   'aria-label'?: string;
 }
@@ -28,7 +30,8 @@ export type GroupedTabsProps<T extends string | number> = {
   onChange: (value: T) => void;
   options: readonly GroupedTabOption<T>[];
   className?: string;
-  size?: 'xs' | 'sm' | 'md';
+  /** Exact outer group height: xs=20px, sm=24px, md=32px. */
+  size?: GroupedTabsSize;
   disabled?: boolean;
   tooltip?: string | ReactNode;
   selectionClassName?: string;
@@ -86,7 +89,9 @@ export const GroupedTabs = <T extends string | number>({
       <div
         ref={containerRef}
         className={cn(
-          'relative flex w-fit border border-subtle bg-surface-level-1 p-0.5 dark:border-muted',
+          'relative box-border flex w-fit border border-subtle bg-surface-level-1 dark:border-muted',
+          CONTROL_SIZES[size].heightClassName,
+          size === 'md' ? 'p-0.5' : 'p-px',
           size === 'xs' ? 'gap-px' : 'gap-0.5',
           size === 'xs'
             ? 'rounded-[2px]'
@@ -130,12 +135,12 @@ export const GroupedTabs = <T extends string | number>({
               onClick={() => onChange(option.value)}
               disabled={option.disabled || disabled}
               className={cn(
-                'relative flex items-center gap-space-1',
+                'relative flex h-full items-center gap-space-1',
                 'transition-colors duration-fast',
                 {
-                  'rounded-xs px-space-1 py-px': size === 'xs',
-                  'rounded-xs px-space-2 py-0.5': size === 'sm',
-                  'rounded-sm px-space-2 py-space-1': size === 'md',
+                  'rounded-xs px-space-1': size === 'xs',
+                  'rounded-xs px-space-2': size === 'sm',
+                  'rounded-sm px-space-2': size === 'md',
                 },
                 {
                   'text-primary': isActive(option),

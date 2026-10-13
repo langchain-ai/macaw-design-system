@@ -3,7 +3,11 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { CaretDownIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
-import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
+import {
+  CONTROL_SIZES,
+  type ControlSize,
+  type OptionRowSize,
+} from '../../utils/componentSizes';
 import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
 import { Button } from '../Button';
 import { CommandMenu } from '../Command/CommandMenu';
@@ -196,6 +200,8 @@ function OptionSelect<T extends string = string>({
     : undefined;
   const searchInputSize = size === 'xs' ? 'sm' : size === 'lg' ? 'md' : size;
   const triggerButtonSize = size === 'lg' ? 'md' : size;
+  const itemRowSize: OptionRowSize =
+    size === 'xs' || size === 'sm' ? 'sm' : 'md';
 
   const commandMenuSharedProps = {
     value,
@@ -211,6 +217,7 @@ function OptionSelect<T extends string = string>({
     endReachedThresholdPx,
     renderItem,
     inputSize: searchInputSize,
+    itemRowSize,
   };
 
   const triggerContent =
@@ -264,7 +271,6 @@ function OptionSelect<T extends string = string>({
         )}
         side={side}
         align={align}
-        onCloseAutoFocus={(e) => e.preventDefault()}
       >
         {commandGroups ? (
           <CommandMenu groups={commandGroups} {...commandMenuSharedProps} />

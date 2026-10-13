@@ -20,3 +20,5 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/build-storybook.yml
+    with:
+      base_path: /pr-${{ github.event.pull_request.number }}/

@@ -84,5 +84,4 @@ export const OPTION_ROW_SIZES = {
   md: { name: 'md', rem: 2, minHeightClassName: 'min-h-8' },
 } as const;
 
-/** @knipignore Public family type for components adopting this contract. */
 export type OptionRowSize = keyof typeof OPTION_ROW_SIZES;

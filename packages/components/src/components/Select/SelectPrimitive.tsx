@@ -9,6 +9,10 @@ import {
   CheckIcon,
 } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  OPTION_ROW_SIZES,
+  type OptionRowSize,
+} from '../../utils/componentSizes';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
@@ -171,6 +175,11 @@ export const SelectItem = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof RadixSelect.Item> & {
     checkmarkPosition?: 'left' | 'right';
     selectedIndicator?: 'checkmark' | 'background';
+    /**
+     * Controls minimum row height and default label typography.
+     * Rich or multiline content grows intrinsically.
+     */
+    size?: OptionRowSize;
   }
 >(
   (
@@ -179,6 +188,7 @@ export const SelectItem = React.forwardRef<
       children,
       checkmarkPosition = 'left',
       selectedIndicator = 'checkmark',
+      size = 'md',
       ...props
     },
     ref
@@ -186,7 +196,9 @@ export const SelectItem = React.forwardRef<
     <RadixSelect.Item
       ref={ref}
       className={cn(
-        'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pr-space-2 text-sm outline-none focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'relative flex w-full cursor-default select-none items-center rounded-sm py-space-1 pr-space-2 outline-none focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        OPTION_ROW_SIZES[size].minHeightClassName,
+        size === 'sm' ? 'text-xs leading-4' : 'text-sm',
         selectedIndicator === 'background'
           ? 'pl-space-2 data-[state=checked]:bg-selected data-[state=checked]:focus:bg-selected-hover'
           : checkmarkPosition === 'left'

@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.0.0-beta.2",
+  "version": "1.2.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -31,6 +31,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./Attachment": {
+      "types": "./dist/components/Attachment/index.d.ts",
+      "import": "./dist/components/Attachment/index.js"
     },
     "./Avatar": {
       "types": "./dist/components/Avatar/index.d.ts",
@@ -192,6 +196,10 @@
       "types": "./dist/components/RadioGroup/index.d.ts",
       "import": "./dist/components/RadioGroup/index.js"
     },
+    "./SankeyChart": {
+      "types": "./dist/components/SankeyChart/index.d.ts",
+      "import": "./dist/components/SankeyChart/index.js"
+    },
     "./Select": {
       "types": "./dist/components/Select/index.d.ts",
       "import": "./dist/components/Select/index.js"
@@ -300,6 +308,10 @@
     "./components/index": {
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js"
+    },
+    "./components/Attachment": {
+      "types": "./dist/components/Attachment/index.d.ts",
+      "import": "./dist/components/Attachment/index.js"
     },
     "./components/Avatar": {
       "types": "./dist/components/Avatar/index.d.ts",
@@ -461,6 +473,10 @@
       "types": "./dist/components/RadioGroup/index.d.ts",
       "import": "./dist/components/RadioGroup/index.js"
     },
+    "./components/SankeyChart": {
+      "types": "./dist/components/SankeyChart/index.d.ts",
+      "import": "./dist/components/SankeyChart/index.js"
+    },
     "./components/Select": {
       "types": "./dist/components/Select/index.d.ts",
       "import": "./dist/components/Select/index.js"
@@ -529,7 +545,7 @@
   "publishConfig": {
     "access": "public"
   },
-  
+
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",

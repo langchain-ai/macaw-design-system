@@ -11,6 +11,7 @@ export function useTypeaheadUncontrolledInput<TOption>({
   controlledInputValue,
   freeSolo,
   getLabel,
+  getValue,
   multiple,
   open,
   setUncontrolledInputValue,
@@ -20,6 +21,7 @@ export function useTypeaheadUncontrolledInput<TOption>({
   controlledInputValue?: string;
   freeSolo: boolean;
   getLabel: (option: TypeaheadSelectedValue<TOption>) => string;
+  getValue: (option: TypeaheadSelectedValue<TOption>) => string;
   multiple?: boolean;
   open: boolean;
   setUncontrolledInputValue: (value: string) => void;
@@ -28,33 +30,33 @@ export function useTypeaheadUncontrolledInput<TOption>({
   const singleValue: TypeaheadSingleValue<TOption> = Array.isArray(value)
     ? null
     : value;
+  const selectedLabel = singleValue == null ? '' : getLabel(singleValue);
+  const selectedKey = singleValue == null ? null : getValue(singleValue);
 
+  // Equivalent options and recreated callbacks must not replace an active query.
   useEffect(() => {
     if (controlledInputValue !== undefined || multiple) return;
-    setUncontrolledInputValue(singleValue == null ? '' : getLabel(singleValue));
+    setUncontrolledInputValue(selectedLabel);
   }, [
     controlledInputValue,
-    getLabel,
     multiple,
+    selectedKey,
+    selectedLabel,
     setUncontrolledInputValue,
-    singleValue,
   ]);
 
   useEffect(() => {
     if (open || controlledInputValue !== undefined) return;
     if (clearOnBlur ?? !freeSolo) {
-      setUncontrolledInputValue(
-        multiple || singleValue == null ? '' : getLabel(singleValue)
-      );
+      setUncontrolledInputValue(multiple ? '' : selectedLabel);
     }
   }, [
     clearOnBlur,
     controlledInputValue,
     freeSolo,
-    getLabel,
     multiple,
     open,
+    selectedLabel,
     setUncontrolledInputValue,
-    singleValue,
   ]);
 }
