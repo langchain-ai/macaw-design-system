@@ -37,8 +37,8 @@ jobs:
       - run: corepack enable
       - run: corepack prepare pnpm@10.27.0 --activate
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm build:storybook
+      - run: pnpm build-all
+      - run: pnpm build-storybook
 
       - name: Require a Storybook index
         run: test -f storybook-static/index.html

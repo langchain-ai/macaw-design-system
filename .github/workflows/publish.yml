@@ -1,0 +1,132 @@
+name: Publish
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: false
+
+jobs:
+  version:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: release
+    permissions:
+      contents: write
+    outputs:
+      released: ${{ steps.version.outputs.released }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Check out verified CI commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Enable dependency firewall
+        uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f
+        with:
+          mode: firewall-free
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure release author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Version workspace
+        id: version
+        run: |
+          set -euo pipefail
+          before=$(git rev-parse HEAD)
+          pnpm nx release version
+          after=$(git rev-parse HEAD)
+
+          if [ "$before" = "$after" ]; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          unexpected_files=$(git diff --name-only "$before" "$after" \
+            | grep -Ev '^(pnpm-lock\.yaml|packages/[^/]+/package\.json)$' || true)
+          if [ -n "$unexpected_files" ]; then
+            echo "versioning changed files not represented by the CI build:" >&2
+            echo "$unexpected_files" >&2
+            exit 1
+          fi
+
+          mapfile -t release_tags < <(git tag --points-at "$after")
+          if [ "${#release_tags[@]}" -ne 1 ]; then
+            echo "expected exactly one release tag on the version commit" >&2
+            exit 1
+          fi
+
+          tag="${release_tags[0]}"
+          if ! [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Nx created an unexpected release tag" >&2
+            exit 1
+          fi
+
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Push version commit and tag
+        if: steps.version.outputs.released == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: git push --atomic origin HEAD:main "refs/tags/${RELEASE_TAG}"
+
+  publish:
+    if: needs.version.outputs.released == 'true'
+    needs: version
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.version.outputs.tag }}
+      artifact_run_id: ${{ github.event.workflow_run.id }}
+      artifact_name: npm-build-${{ github.event.workflow_run.head_sha }}
+
+  github-release:
+    if: needs.version.outputs.released == 'true'
+    needs: [version, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ needs.version.outputs.tag }}
+    steps:
+      - name: Create GitHub release
+        run: >-
+          gh release create "$RELEASE_TAG"
+          --repo "$GITHUB_REPOSITORY"
+          --verify-tag
+          --generate-notes
+          --title "$RELEASE_TAG"
