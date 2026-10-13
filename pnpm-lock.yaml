@@ -177,7 +177,7 @@ importers:
         specifier: ^2.2.10
         version: 2.2.10(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@langchain/macaw-tokens':
-        specifier: workspace:*
+        specifier: 1.2.0
         version: link:../tokens
       '@lezer/common':
         specifier: ^1.2.1

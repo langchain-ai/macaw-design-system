@@ -7,8 +7,9 @@ The three public packages use one version and a shared `v<version>` release tag:
 - `@langchain/macaw-cli`
 
 The repository root is private. Nx owns coordinated versioning and publication;
-pnpm rewrites the components package's `workspace:*` token dependency to the
-matching release version when packing or publishing.
+the components package pins tokens to the matching release version. Nx updates
+that dependency when versioning the packages. pnpm links the matching workspace
+package during development.
 
 ## Prepare a release
 
@@ -45,7 +46,8 @@ before its trusted publisher can be configured in npm.
 
 Packages request public access and provenance. Do not publish the workspace root
 or use `npm publish` directly on a manifest containing `workspace:*` dependencies;
-the configured Nx/pnpm publication flow performs that conversion.
+public package manifests must contain registry-resolvable versions. The package
+checks verify the tokens dependency in both pnpm and npm tarballs.
 
 ## Validate the release tooling without publishing
 
@@ -56,5 +58,6 @@ node scripts/verify-release-tag.mjs v0.1.0
 ```
 
 Substitute the current version in the last command. `pack:check` creates temporary
-tarballs, tests them in an isolated consumer, and removes them afterward. It does
+pnpm tarballs, tests them in an isolated consumer, verifies the npm-packed
+components dependency, and removes the tarballs afterward. It does
 not publish anything.

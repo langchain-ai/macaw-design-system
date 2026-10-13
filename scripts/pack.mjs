@@ -58,6 +58,30 @@ try {
       'Source tooling must not be required by consumers'
     );
     if (name === 'components') {
+      const npmDirectory = join(temporary, 'npm');
+      mkdirSync(npmDirectory);
+      const [npmArchive] = JSON.parse(
+        run('npm', [
+          'pack',
+          source,
+          '--pack-destination',
+          npmDirectory,
+          '--ignore-scripts',
+          '--json',
+        ])
+      );
+      const npmManifest = JSON.parse(
+        run('tar', [
+          '-xOf',
+          join(npmDirectory, npmArchive.filename),
+          'package/package.json',
+        ])
+      );
+      assert.equal(
+        npmManifest.dependencies['@langchain/macaw-tokens'],
+        npmManifest.version,
+        'npm-packed components must pin the matching tokens release'
+      );
       assert.equal(
         manifest.dependencies['@langchain/macaw-tokens'],
         manifest.version
