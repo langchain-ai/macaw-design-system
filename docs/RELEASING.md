@@ -10,72 +10,74 @@ The repository root is private. Nx owns coordinated versioning and publication;
 pnpm rewrites the components package's `workspace:*` token dependency to the
 matching release version when packing or publishing.
 
-## Prepare a release
+## Automatic releases from main
 
-The public package manifests already target `1.1.0-beta.0`. That version is
-pending publication; changes merged before it is published can join the same
-release without another version bump. The private root package version is not
-published and does not need to match.
+Pushing to `main`, including merging a pull request, starts the Release workflow
+in `.github/workflows/release.yml`:
 
-The release tag configuration allows Nx to use the previous beta tag as its
-baseline, including when preparing a stable release. For beta versioning,
-pass `--preid beta` to select the prerelease identifier explicitly:
+1. Prepare the next version with Nx conventional commits, build the packages,
+   verify package outputs, and upload the built artifacts. This preparation step
+   explicitly disables staging, commits, tags, and pushes.
+2. In the `release` environment, calculate the same version from the verified
+   commit. Nx commits the package manifests and lockfile and creates the shared
+   tag. The workflow pushes the version commit and tag atomically to `main`.
+3. In the `npm` environment, check out that tag, download the built artifacts,
+   verify the release tag and packages, and publish all three packages with Nx.
+4. After publication succeeds, create the matching GitHub release with generated
+   release notes.
 
-```sh
-pnpm release:version 1.1.0-beta.0 --preid beta --dry-run
-pnpm release:version 1.1.0-beta.0 --preid beta
-pnpm release:changelog 1.1.0-beta.0 --dry-run
-pnpm release:changelog 1.1.0-beta.0
-pnpm format
-pnpm check
-pnpm pack:check
-```
+Storybook builds and deploys to GitHub Pages in a parallel path. Branch pushes
+outside `main` run CI without publishing packages.
 
-Choose a new version only when preparing a later release, and review the
-dry-run output. Use `prerelease --preid beta` to advance an existing beta
-sequence; use an explicit stable version when graduating from beta. Use
-`--first-release` only when no previous release tag exists.
+Do not manually bump package versions for ordinary component changes or create a
+GitHub release to trigger publication. Nx determines the version from the merged
+commit history; publishing a GitHub release is now an output of the workflow.
+The private root package version does not need to match the public packages.
 
-The `release.version.git` and `release.changelog.git` settings in `nx.json`
-disable automatic commits, tags, and pushes for these preparation commands.
-Nx may stage the generated files.
-Review and commit the package manifests, lockfile, and changelog, then merge
-through the normal review process. Include the unreleased changelog notes in
-the release entry and update the README version badge too.
-
-After merge, create a GitHub release with a tag matching all three package
-versions, such as `v1.1.0-beta.0`, pointing to the commit containing the release
-changes. Merging a PR alone does not trigger versioning or publication.
-The publish workflow verifies the tag and licenses,
-runs the full checks, verifies the tarballs, and publishes with Nx. Nx publishes
-dependencies before dependents and can skip versions already in the registry
-when recovering a partially completed release.
+The `release.version.git` settings in `nx.json` enable commits and tags because
+the automated version job depends on them. Nx does not push automatically; the
+workflow performs the explicit atomic push. Use `--dry-run` when inspecting
+versioning locally.
 
 The workflow uses npm's default distribution tag (`latest` unless configured
 otherwise). A prerelease version or GitHub's prerelease checkbox does not
 automatically select the npm `beta` tag.
 
-## One-time npm setup
+## Repository and npm setup
+
+The release workflow must be permitted to push its version commit and tag under
+the repository's branch and tag protection rules. A rule requiring every change
+to go through a pull request can reject this step and prevent publication. Keep
+required environment reviews in place and coordinate the release automation's
+repository permissions with the maintainers.
 
 The npm organization must allow publication of all three package names. Configure
 trusted publishing for each package using this repository's `release.yml`
-workflow and the `npm` GitHub environment. Keep any required environment review
-protection in place. A new package may need an owner-managed initial publication
-before its trusted publisher can be configured in npm.
+workflow and the `npm` GitHub environment. A new package may need an owner-managed
+initial publication before its trusted publisher can be configured in npm.
 
-Packages request public access and provenance. Do not publish the workspace root
-or use `npm publish` directly on a manifest containing `workspace:*` dependencies;
-the configured Nx/pnpm publication flow performs that conversion.
+Do not publish the workspace root or use `npm publish` directly on a manifest
+containing `workspace:*` dependencies; the configured Nx/pnpm publication flow
+performs that conversion.
 
-## Validate the release tooling without publishing
+## Validate without publishing
 
 ```sh
-pnpm release:version 1.1.0-beta.0 --preid beta --dry-run
-pnpm release:changelog 1.1.0-beta.0 --dry-run
+pnpm release:version --dry-run
+pnpm format:check
+pnpm lint
+pnpm check
 pnpm pack:check
-node scripts/verify-release-tag.mjs v1.1.0-beta.0
 ```
 
-Substitute the current version in the last command. `pack:check` creates temporary
-tarballs, tests them in an isolated consumer, and removes them afterward. It does
-not publish anything.
+The version dry run previews the coordinated version, commit, and tag without
+creating them. To validate the build preparation path specifically, use:
+
+```sh
+pnpm release:version --stage-changes=false --git-commit=false --git-tag=false --git-push=false --dry-run
+```
+
+`pack:check` creates temporary tarballs, tests them in an isolated consumer, and
+removes them afterward. It does not publish anything. To check a release tag
+against the current package manifests, run
+`node scripts/verify-release-tag.mjs v<version>` with their shared version.

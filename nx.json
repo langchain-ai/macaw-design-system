@@ -1,6 +1,9 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
+    "build": {
+      "cache": true
+    },
     "format": {
       "outputs": ["{projectRoot}/dist"],
       "cache": true
@@ -18,19 +21,6 @@
       "plugin": "@nx/oxlint",
       "options": {
         "targetName": "oxlint"
-      }
-    },
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "vite:build",
-        "serveTargetName": "serve",
-        "devTargetName": "dev",
-        "previewTargetName": "preview",
-        "serveStaticTargetName": "serve-static",
-        "typecheckTargetName": "vite:typecheck",
-        "buildDepsTargetName": "build-deps",
-        "watchDepsTargetName": "watch-deps"
       }
     },
     {
@@ -55,22 +45,31 @@
   ],
   "neverConnectToCloud": true,
   "release": {
+    "projects": ["packages/*"],
+    "projectsRelationship": "fixed",
     "releaseTag": {
-      "strictPreid": false
+      "pattern": "v{version}"
     },
     "version": {
       "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk",
       "git": {
-        "commit": false,
-        "tag": false,
+        "commit": true,
+        "commitMessage": "[ci skip] chore(release): publish {version}",
+        "tag": true,
         "push": false
       }
     },
     "changelog": {
-      "git": {
-        "commit": false,
-        "tag": false,
-        "push": false
+      "automaticFromRef": true,
+      "projectChangelogs": {
+        "createRelease": false,
+        "renderOptions": {
+          "authors": true,
+          "applyUsernameToAuthors": true,
+          "commitReferences": true,
+          "versionTitleDate": true
+        }
       }
     }
   }

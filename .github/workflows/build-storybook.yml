@@ -1,0 +1,54 @@
+name: Build Storybook
+
+on:
+  workflow_call:
+    inputs:
+      base_path:
+        description: Base path for the generated Storybook site
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build-all
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+        env:
+          STORYBOOK_BASE_PATH: ${{ inputs.base_path }}
+
+      - name: Require a Storybook index
+        run: test -f storybook-static/index.html
+
+      - name: Upload Storybook build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: storybook-static
+          path: storybook-static
+          if-no-files-found: error
+          retention-days: 1
