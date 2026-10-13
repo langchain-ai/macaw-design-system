@@ -47,6 +47,9 @@ along main's first-parent history. An existing tag pins retries to that same
 commit. Already published packages are skipped, so a partially published release
 can resume. Older runs do not move npm's `latest` tag backward after a newer
 version has been published.
+Recovered releases built from an older commit omit npm provenance because npm
+otherwise identifies the later workflow-triggering commit as their source.
+Normal releases retain npm's automatic provenance.
 
 Storybook builds and deploys to GitHub Pages in a parallel path. Branch pushes
 outside `main` run CI without publishing packages. Creating a GitHub release

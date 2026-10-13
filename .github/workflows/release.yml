@@ -118,6 +118,10 @@ jobs:
 
       - name: Publish packages
         run: |
+          # npm provenance identifies the triggering commit, not a recovered checkout.
+          if [ "$TARGET_SHA" != "$GITHUB_SHA" ]; then
+            export NPM_CONFIG_PROVENANCE=false
+          fi
           node scripts/release-state.mjs --check-registry
           pnpm release:publish --access public
 
