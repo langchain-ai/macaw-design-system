@@ -21,9 +21,8 @@ pnpm storybook
 Storybook runs at <http://localhost:6006>. Build the package with `pnpm build`;
 each package writes its output to `packages/<name>/dist/`.
 
-Hosted Storybook and PR previews use Vercel. See
-[Storybook deployment](docs/STORYBOOK_DEPLOYMENT.md) for the existing site's
-migration, project settings, and preview troubleshooting.
+See [Storybook deployment](docs/STORYBOOK_DEPLOYMENT.md) for Vercel project
+settings and the separate GitHub Actions preview pipeline.
 
 Read [DESIGN.md](packages/components/docs/DESIGN.md) for component rules and
 [STYLES.md](packages/components/docs/STYLES.md) for tokens. Components live in

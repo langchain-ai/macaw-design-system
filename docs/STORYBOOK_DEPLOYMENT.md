@@ -1,48 +1,26 @@
 # Storybook deployment
 
-Macaw's Storybook is hosted at <https://langsmith-design-system.vercel.app/>.
-The existing Vercel project must be connected to this repository using the
-one-time migration below before Macaw owns that site.
+The Vercel configuration builds the packages and Storybook from the repository
+root and preserves the existing welcome-page link with a redirect.
 
-Vercel's GitHub integration builds production from `main` and creates previews
-for pull requests, including drafts. Each new commit updates the Vercel check,
-deployment link, and preview comment on the PR. There are no path filters;
-`vercel.json` explicitly enables deployments and prevents the ignored-build
-command from skipping updates. Existing Vercel access and fork-approval policies
-still apply.
+## Configure Vercel
 
-The old LangSmith welcome-page URL redirects to Macaw's welcome page so
-existing links to the site continue to work.
-
-## Move the existing project from LangChainPlus
-
-1. Merge Macaw's `vercel.json` configuration into `main`.
-2. Disable the LangChainPlus workflows `Deploy Storybook to Vercel` and
-   `Deploy Storybook Preview to Vercel`, cancel any runs still in progress, and
-   merge their removal. Disconnect any other Vercel project still building
-   LangChainPlus Storybook automatically. The old production workflow must stop
-   before Macaw publishes, or it can overwrite the shared site.
-3. Open the existing Vercel project that owns
-   `langsmith-design-system.vercel.app`. Keep the project and its domain. Under
-   **Settings → Git**, disconnect `langchain-ai/langchainplus` and connect
+1. Connect the project that owns `langsmith-design-system.vercel.app` to
    `langchain-ai/macaw-design-system`. The Vercel GitHub app must have access to
-   the Macaw repository.
-4. Under **Settings → Build and Deployment**, clear the old `smith-frontend`
-   root directory so builds run from the repository root. Use Node.js 24.x and
-   the **Other** framework preset. The committed `vercel.json` supplies the
-   install command, build command, output directory, and ignored-build command.
-   Disable skipping unaffected projects if that monorepo option is enabled.
-5. Set the production environment's tracked branch to `main`. Enable pull
-   request comments in the project's Git settings. Preserve the project's
-   existing deployment protection and domain settings.
-6. Deploy the latest Macaw `main` commit and verify the existing public URL.
-   Open or update a Macaw PR and confirm its Vercel check, deployment link, and
-   preview comment appear. Push another commit and check that the preview
-   updates.
+   this repository. Stop any previous publisher for the same domain before the
+   first production deployment.
+2. Clear the root directory, select Node.js 24.x, and use the **Other** framework
+   preset. The committed `vercel.json` supplies the install command, build
+   command, output directory, and ignored-build command.
+3. Track `main` for production. Enable pull request comments and preserve the
+   project's existing deployment protection and domain settings.
+4. Deploy `main` and verify the site. Confirm a pull request receives a Vercel
+   check and preview URL, and that another commit updates it.
 
-This uses Vercel's existing GitHub integration, so GitHub Actions does not need
-Vercel tokens or access to LangChainPlus's 1Password and Tailscale credentials.
-Macaw's GitHub CI continues to run independently as the merge gate.
+Vercel's GitHub integration handles production and Vercel preview deployments.
+The separate GitHub Actions preview pipeline also builds pull requests and
+publishes them at `https://macaw-preview.langsmith.net/pr-<number>/`. Those
+previews are independent of the Vercel project connection.
 
 ## Build locally
 
@@ -52,18 +30,20 @@ pnpm build
 pnpm build:storybook
 ```
 
-The static site is written to `storybook-static/`. All workspace packages must
-be built first so Storybook can resolve their generated exports.
+The static site is written to `storybook-static/`. Build the workspace packages
+first so Storybook can resolve their generated exports.
 
 ## Troubleshooting
 
-- **No preview on a PR:** check the connected repository, Vercel GitHub app
-  access, deployment author permissions, and any required fork approval.
-- **No PR comment:** enable pull request comments in the Vercel project's Git
+- **No Vercel preview:** check the connected repository, GitHub app access,
+  deployment author permissions, and any required fork approval.
+- **No Vercel comment:** enable pull request comments in the project's Git
   settings; the deployment check still contains the preview link.
-- **Build looks for `smith-frontend`:** clear the project's root directory.
-- **The public site reverts to LangChainPlus:** check for an old production
-  workflow still running or a Vercel project still connected to LangChainPlus.
+- **Wrong build directory:** clear the project's root directory.
+- **Production content changes unexpectedly:** check for another publisher
+  targeting the same domain.
+- **GitHub Actions preview fails:** inspect the separate build and publish
+  workflows; changing Vercel settings does not repair that pipeline.
 
 Vercel references: [GitHub integration](https://vercel.com/docs/git/vercel-for-github)
 and [project configuration](https://vercel.com/docs/project-configuration).
