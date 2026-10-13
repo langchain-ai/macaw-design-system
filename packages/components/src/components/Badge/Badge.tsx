@@ -35,6 +35,9 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
   /** Font weight of text content */
   textWeight?: TextProps['weight'];
+
+  /** Muted, normal-weight text after the content, e.g. a count. */
+  suffix?: string;
 }
 
 type BadgeSize = NonNullable<BadgeProps['size']>;
@@ -84,6 +87,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       className,
       children,
       textWeight,
+      suffix,
       ...props
     },
     ref
@@ -156,6 +160,17 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
           </Text>
         ) : (
           children
+        )}
+        {suffix && <span className="sr-only">, </span>}
+        {suffix && (
+          <Text
+            as="span"
+            variant={SIZE_TEXT_VARIANT[resolvedSize]}
+            weight="normal"
+            className="tracking-tight text-tertiary"
+          >
+            {suffix}
+          </Text>
         )}
         {RightIcon && (
           <RightIcon

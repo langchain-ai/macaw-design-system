@@ -22,9 +22,9 @@ export const buttonStyleMap = {
 
   // Secondary variants - enabled
   'secondary-normal-enabled':
-    'bg-elevated text-secondary border border-subtle dark:border-muted hover:bg-elevated-hover/80',
+    'bg-elevated text-secondary border border-subtle hover:bg-elevated-hover/80',
   'secondary-outlined-enabled':
-    'bg-elevated text-secondary border border-subtle dark:border-muted hover:bg-elevated-hover/80',
+    'bg-elevated text-secondary border border-subtle hover:bg-elevated-hover/80',
   'secondary-plain-enabled':
     'bg-transparent text-secondary border border-transparent hover:bg-elevated-hover/80 dark:hover:bg-elevated-hover/40',
   'secondary-underlined-enabled':

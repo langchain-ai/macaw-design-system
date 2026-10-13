@@ -22,7 +22,14 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  tags: ['autodocs'],
+  tags: [
+    'autodocs',
+    'logo',
+    'brand',
+    'wordmark',
+    'logomark',
+    'product identity',
+  ],
   argTypes: {
     size: {
       control: 'select',

@@ -7,6 +7,7 @@ export type {
   LineChartProps,
   LineChartSelectionRange,
   LineChartSeries,
+  LineChartVerticalMarker,
   LineChartXScale,
   LineChartYBand,
   LineChartYAxis,
