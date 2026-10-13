@@ -107,7 +107,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build release packages
+      - name: Build tagged release packages with Nx
         run: pnpm build-all
 
       - name: Verify package exports and version
@@ -116,7 +116,7 @@ jobs:
       - name: Verify packed packages
         run: node scripts/pack.mjs
 
-      - name: Publish packages
+      - name: Publish packages to npm with Nx
         run: |
           # npm provenance identifies the triggering commit, not a recovered checkout.
           if [ "$TARGET_SHA" != "$GITHUB_SHA" ]; then

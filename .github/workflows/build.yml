@@ -61,6 +61,7 @@ jobs:
       - name: Verify packed packages
         run: node scripts/pack.mjs
 
-      - name: Verify Nx publication without publishing
+      # The publish job in release.yml runs this command without --dry-run.
+      - name: Validate Nx publication (dry run)
         if: matrix.node-version == 24
         run: pnpm release:publish --access public --dry-run
