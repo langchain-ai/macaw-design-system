@@ -25,10 +25,10 @@ jobs:
     environment: release
     permissions:
       contents: write
-      pull-requests: write
     outputs:
-      released: ${{ steps.merged.outputs.released }}
-      tag: ${{ steps.merged.outputs.tag }}
+      released: ${{ steps.release.outputs.released }}
+      tag: ${{ steps.release.outputs.tag }}
+      target_sha: ${{ steps.release.outputs.target_sha }}
     steps:
       - name: Check out verified commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,22 +49,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Configure release author
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Detect merged release PR
-        id: merged
+      - name: Detect unpublished committed version
+        id: release
         env:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/release-state.mjs
 
-      - name: Tag merged release
-        if: steps.merged.outputs.released == 'true'
+      - name: Tag reviewed release commit
+        if: steps.release.outputs.released == 'true'
         env:
-          RELEASE_TAG: ${{ steps.merged.outputs.tag }}
-          TARGET_SHA: ${{ steps.merged.outputs.target_sha }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
         run: |
           set -euo pipefail
           if git rev-parse "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
@@ -73,56 +68,6 @@ jobs:
             git tag "$RELEASE_TAG" "$TARGET_SHA"
             git push origin "refs/tags/$RELEASE_TAG"
           fi
-
-      - name: Version workspace
-        if: steps.merged.outputs.released != 'true'
-        id: version
-        run: |
-          set -euo pipefail
-          before=$(git rev-parse HEAD)
-          pnpm nx release version --git-tag=false --git-commit-message="chore(release): publish {version}"
-          after=$(git rev-parse HEAD)
-
-          if [ "$before" = "$after" ]; then
-            echo "released=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          unexpected_files=$(git diff --name-only "$before" "$after" \
-            | grep -Ev '^(pnpm-lock\.yaml|packages/[^/]+/package\.json)$' || true)
-          if [ -n "$unexpected_files" ]; then
-            echo "versioning changed files not represented by the CI build:" >&2
-            echo "$unexpected_files" >&2
-            exit 1
-          fi
-
-          tag="v$(node -p "require('./packages/components/package.json').version")"
-          node scripts/verify-release-tag.mjs "$tag"
-          echo "released=true" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-
-      - name: Open release PR
-        if: steps.version.outputs.released == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.version.outputs.tag }}
-        run: |
-          set -euo pipefail
-          branch="release/$RELEASE_TAG"
-          existing=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --base main --head "$branch" --json number --jq 'length')
-          if [ "$existing" -gt 0 ]; then
-            echo "Release PR already open for $RELEASE_TAG; merge or close it before preparing another."
-            exit 0
-          fi
-          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
-            git fetch origin "$branch"
-            git diff --exit-code FETCH_HEAD HEAD
-          else
-            git push origin "HEAD:refs/heads/$branch"
-          fi
-          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
-            --title "chore(release): publish $RELEASE_TAG" \
-            --body "Coordinated Nx version update. Review and merge this PR to tag and publish $RELEASE_TAG. GitHub-token-created PRs do not automatically trigger CI: close/reopen this PR as a maintainer to trigger checks before merging."
 
   publish:
     if: needs.version.outputs.released == 'true'
@@ -135,12 +80,14 @@ jobs:
       id-token: write
     env:
       RELEASE_TAG: ${{ needs.version.outputs.tag }}
+      TARGET_SHA: ${{ needs.version.outputs.target_sha }}
     steps:
       - name: Check out release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ env.RELEASE_TAG }}
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
@@ -148,12 +95,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
       - name: Verify release tag
-        run: node scripts/verify-release-tag.mjs "$RELEASE_TAG"
+        run: |
+          test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$TARGET_SHA"
+          node scripts/verify-release-tag.mjs "$RELEASE_TAG"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -168,7 +117,9 @@ jobs:
         run: node scripts/pack.mjs
 
       - name: Publish packages
-        run: pnpm release:publish --access public
+        run: |
+          node scripts/release-state.mjs --check-registry
+          pnpm release:publish --access public
 
   pages:
     needs: storybook
@@ -212,10 +163,19 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       RELEASE_TAG: ${{ needs.version.outputs.tag }}
     steps:
-      - name: Create GitHub release
-        run: >-
-          gh release create "$RELEASE_TAG"
-          --repo "$GITHUB_REPOSITORY"
-          --verify-tag
-          --generate-notes
-          --title "$RELEASE_TAG"
+      - name: Complete GitHub release
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > release.json; then
+            if jq -e '.draft' release.json >/dev/null; then
+              gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+            fi
+          elif jq -e '(.status | tostring) == "404"' release.json >/dev/null; then
+            gh release create "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --generate-notes \
+              --title "$RELEASE_TAG"
+          else
+            exit 1
+          fi

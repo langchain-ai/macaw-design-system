@@ -5,185 +5,231 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 
-import { mergedRelease, releaseState } from './release-state.mjs';
+import {
+  publishedReleaseExists,
+  releaseState,
+  verifyRegistryVersion,
+} from './release-state.mjs';
 
-const repo = { full_name: 'langchain-ai/macaw-design-system' };
-const pr = {
-  merged_at: '2026-10-13T00:00:00Z',
-  merge_commit_sha: 'merged',
-  base: { ref: 'main', repo },
-  head: { ref: 'release/v1.3.0', repo },
-};
-const files = [
-  { filename: 'packages/components/package.json', status: 'modified' },
-];
-
-test('recognizes a merged coordinated release PR', () => {
-  assert.equal(mergedRelease([pr], 'merged', '1.3.0', files), 'v1.3.0');
-});
-
-test('does not publish ordinary, unmerged, stale, foreign, or wrong-version PRs', () => {
-  for (const candidate of [
-    { ...pr, merged_at: null },
-    { ...pr, merge_commit_sha: 'old' },
-    { ...pr, base: { ...pr.base, ref: 'other' } },
-    { ...pr, head: { ...pr.head, ref: 'feature/component' } },
-    { ...pr, head: { ...pr.head, ref: 'release/v1.4.0' } },
-    { ...pr, head: { ...pr.head, repo: { full_name: 'other/fork' } } },
-  ])
-    assert.equal(mergedRelease([candidate], 'merged', '1.3.0', files), null);
-  assert.equal(mergedRelease([], 'merged', '1.3.0', files), null);
-});
-
-test('rejects release PRs with unexpected, added, deleted, or missing files', () => {
-  for (const changes of [
-    [],
-    [{ filename: 'scripts/build-components.mjs', status: 'modified' }],
-    [{ filename: 'packages/components/package.json', status: 'added' }],
-    [{ filename: 'packages/components/package.json', status: 'removed' }],
-  ])
-    assert.throws(() => mergedRelease([pr], 'merged', '1.3.0', changes));
-});
+const packages = ['components', 'tokens', 'cli'];
 
 function fixture(t) {
   const cwd = mkdtempSync(join(tmpdir(), 'macaw-release-state-'));
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
   const git = (...args) =>
-    execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
-  git('init', '-q');
+    execFileSync('git', args, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  git('init', '-q', '--initial-branch=main');
   git('config', 'user.name', 'Release test');
   git('config', 'user.email', 'release@example.invalid');
-  const writeVersions = (version) => {
-    for (const name of ['components', 'tokens', 'cli']) {
-      const dir = join(cwd, 'packages', name);
-      mkdirSync(dir, { recursive: true });
-      writeFileSync(join(dir, 'package.json'), JSON.stringify({ version }));
-    }
+  git('config', 'commit.gpgsign', 'false');
+  git('config', 'core.hooksPath', '/dev/null');
+  const writeManifest = (name, version, extra = {}) => {
+    const dir = join(cwd, 'packages', name);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, 'package.json'),
+      JSON.stringify({ version, ...extra })
+    );
   };
   const commit = (message) => {
     git('add', '.');
     git('commit', '-qm', message);
     return git('rev-parse', 'HEAD');
   };
-  writeVersions('1.2.0');
+  for (const name of packages) writeManifest(name, '1.2.0');
   const before = commit('Initial version');
-  writeVersions('1.3.0');
-  const merged = commit('Coordinated release');
+  git('switch', '-qc', 'feature');
+  for (const name of packages) writeManifest(name, '1.3.0');
+  const feature = commit('Feature and coordinated version bump');
+  git('switch', '-q', 'main');
+  writeFileSync(join(cwd, 'main.txt'), 'Independent main change');
+  commit('Advance main');
+  git('merge', '--no-ff', 'feature', '-qm', 'Merge feature');
+  const merged = git('rev-parse', 'HEAD');
   writeFileSync(join(cwd, 'component.txt'), 'Later component change');
-  const sha = commit('Later main change');
-  const candidate = { ...pr, number: 7, merge_commit_sha: merged };
-  const state = ({
-    prs = [candidate],
-    changes = files,
-    current = [],
-    ...options
-  } = {}) =>
+  commit('Later source change');
+  writeManifest('components', '1.3.0', { description: 'Updated description' });
+  const sha = commit('Later manifest change without a bump');
+  const state = (options = {}) =>
     releaseState({
-      repo: repo.full_name,
       sha,
-      version: '1.3.0',
+      mainSha: sha,
       git,
-      api: (path) => {
-        if (path.includes('/commits/')) return current;
-        if (path.includes('/pulls?')) return prs;
-        if (path.endsWith('/files?per_page=100')) return changes;
-        if (path.endsWith('/pulls/7')) return { changed_files: changes.length };
-        throw new Error(`Unexpected API path: ${path}`);
-      },
+      releaseExists: () => false,
       ...options,
     });
-  return { git, before, merged, sha, candidate, state };
+  return { git, writeManifest, commit, before, feature, merged, sha, state };
 }
 
-test('recovers a missed release at its ancestor commit, without publishing later changes', (t) => {
-  const { state, merged, sha } = fixture(t);
+test('recovers the first-parent release merge after later source and manifest changes', (t) => {
+  const { state, merged, feature, sha } = fixture(t);
+  assert.notEqual(merged, feature);
   assert.notEqual(merged, sha);
+  for (const trigger of [merged, sha])
+    assert.deepEqual(state({ sha: trigger }), {
+      tag: 'v1.3.0',
+      targetSha: merged,
+    });
+});
+
+test('retries an incomplete tagged release and skips a completed release', (t) => {
+  const { state, git, merged } = fixture(t);
+  git('tag', 'v1.3.0', merged);
   assert.deepEqual(state(), { tag: 'v1.3.0', targetSha: merged });
+  assert.equal(state({ releaseExists: () => true }), null);
 });
 
-test('detects a release when commit-to-PR association is not yet available', (t) => {
-  const { state, merged } = fixture(t);
-  assert.deepEqual(state({ sha: merged }), {
-    tag: 'v1.3.0',
-    targetSha: merged,
-  });
+test('rejects conflicting tags and completed releases without a tag', (t) => {
+  const { state, git, before } = fixture(t);
+  assert.throws(() => state({ releaseExists: () => true }), /has no local tag/);
+  git('tag', 'v1.3.0', before);
+  assert.throws(() => state(), /already points to a different commit/);
 });
 
-test('does not recover unmerged, foreign, wrong-version or non-ancestor releases', (t) => {
-  const { state, git, before, candidate, merged } = fixture(t);
-  const unrelated = git(
-    'commit-tree',
-    git('rev-parse', `${merged}^{tree}`),
-    '-p',
-    before,
-    '-m',
-    'Unrelated release'
+test('rejects uncoordinated trigger versions', (t) => {
+  const { state, writeManifest, commit } = fixture(t);
+  writeManifest('tokens', '1.4.0');
+  const sha = commit('Mismatched versions');
+  assert.throws(
+    () => state({ sha, mainSha: sha }),
+    /same valid release version/
   );
-  for (const invalid of [
-    { ...candidate, merged_at: null },
-    {
-      ...candidate,
-      head: { ...candidate.head, repo: { full_name: 'other/fork' } },
-    },
-    { ...candidate, head: { ...candidate.head, ref: 'release/v1.4.0' } },
-    { ...candidate, merge_commit_sha: unrelated },
-  ])
-    assert.equal(state({ prs: [invalid] }), null);
 });
 
-test('recovery applies the file allowlist and rejects an incomplete file list', (t) => {
-  const { state, candidate } = fixture(t);
+test('rejects an uncoordinated release source even after later manifests are repaired', (t) => {
+  const { state, writeManifest, commit } = fixture(t);
+  for (const name of ['components', 'cli']) writeManifest(name, '1.4.0');
+  commit('Incomplete coordinated bump');
+  writeManifest('tokens', '1.4.0');
+  const sha = commit('Repair remaining package version');
+  assert.throws(
+    () => state({ sha, mainSha: sha }),
+    /same valid release version/
+  );
+});
+
+test('skips an obsolete run after main advances to a new version', (t) => {
+  const { state, writeManifest, commit } = fixture(t);
+  for (const name of packages) writeManifest(name, '1.4.0');
+  const mainSha = commit('Next release');
+  assert.equal(state({ mainSha }), null);
+});
+
+test('rejects a commit outside main ancestry', (t) => {
+  const { state, git, before, writeManifest, commit } = fixture(t);
+  git('switch', '-qc', 'unmerged', before);
+  for (const name of packages) writeManifest(name, '1.4.0');
+  const sha = commit('Unmerged release');
+  assert.throws(() => state({ sha }), { status: 1 });
+});
+
+test('propagates release API failures instead of treating them as an unpublished version', (t) => {
+  const { state } = fixture(t);
+  const failure = new Error('GitHub unavailable');
   assert.throws(
     () =>
       state({
-        changes: [
-          { filename: 'scripts/build-components.mjs', status: 'modified' },
-        ],
-      }),
-    /only package versions and lockfile/
-  );
-  assert.throws(
-    () =>
-      state({
-        api: (path) => {
-          if (path.includes('/commits/')) return [];
-          if (path.includes('/pulls?')) return [candidate];
-          if (path.endsWith('/files?per_page=100')) return files;
-          return { changed_files: 2 };
+        releaseExists: () => {
+          throw failure;
         },
       }),
-    /file list is incomplete/
+    (error) => error === failure
   );
 });
 
-test('checks coordinated versions at the release commit', (t) => {
-  const { state, before, candidate } = fixture(t);
+test('recognizes published releases, drafts, and GitHub numeric or string 404 responses', () => {
+  const exists = (run) => publishedReleaseExists('owner/repo', 'v1.3.0', run);
+  for (const status of [404, '404'])
+    assert.equal(
+      exists(() => {
+        throw Object.assign(new Error('Not found'), {
+          stdout: JSON.stringify({ status }),
+        });
+      }),
+      false
+    );
+  for (const [release, expected] of [
+    [{ draft: true, published_at: '2026-10-13T00:00:00Z' }, false],
+    [{ draft: false, published_at: null }, false],
+    [{ draft: false, published_at: '2026-10-13T00:00:00Z' }, true],
+  ])
+    assert.equal(
+      exists(() => JSON.stringify(release)),
+      expected
+    );
+});
+
+test('propagates non-404 and malformed GitHub API responses', () => {
+  for (const status of [401, 403, 500]) {
+    const failure = Object.assign(new Error('GitHub unavailable'), {
+      stdout: JSON.stringify({ status }),
+    });
+    assert.throws(
+      () =>
+        publishedReleaseExists('owner/repo', 'v1.3.0', () => {
+          throw failure;
+        }),
+      (error) => error === failure
+    );
+  }
   assert.throws(
-    () => state({ prs: [{ ...candidate, merge_commit_sha: before }] }),
-    /Release commit package versions must match/
+    () => publishedReleaseExists('owner/repo', 'v1.3.0', () => 'invalid JSON'),
+    SyntaxError
   );
 });
 
-test('skips a tagged ancestor but allows retrying its original release run', (t) => {
-  const { state, git, merged, candidate } = fixture(t);
-  git('tag', 'v1.3.0', merged);
-  assert.equal(state(), null);
-  assert.deepEqual(state({ sha: merged, current: [candidate] }), {
-    tag: 'v1.3.0',
-    targetSha: merged,
-  });
+function metadata(latest, status = 200) {
+  return new Response(JSON.stringify({ 'dist-tags': { latest } }), { status });
+}
+
+test('allows new, already published, and missing packages without rolling back latest', async () => {
+  for (const latest of ['1.2.0', '1.3.0-beta.1', '1.3.0', undefined])
+    await verifyRegistryVersion('1.3.0', async () => metadata(latest));
+  await verifyRegistryVersion('1.3.0', async () => metadata(undefined, 404));
 });
 
-test('rejects a tag pointing to another commit', (t) => {
-  const { state, git, before, merged, candidate } = fixture(t);
-  git('tag', 'v1.3.0', before);
-  assert.throws(
-    () => state({ sha: merged, current: [candidate] }),
-    /already points to a different commit/
+test('rejects a newer latest version on any public package', async () => {
+  for (const name of packages)
+    await assert.rejects(
+      verifyRegistryVersion('1.3.0', async (url) =>
+        metadata(
+          decodeURIComponent(url).endsWith(`macaw-${name}`) ? '1.4.0' : '1.3.0'
+        )
+      ),
+      new RegExp(`Refusing to move @langchain/macaw-${name} latest`)
+    );
+});
+
+test('rejects invalid release and registry versions', async () => {
+  await assert.rejects(
+    verifyRegistryVersion('invalid', async () => metadata('1.2.0')),
+    /Invalid release version/
+  );
+  await assert.rejects(
+    verifyRegistryVersion('1.3.0', async () => metadata('invalid')),
+    /Refusing to move/
   );
 });
 
-test('allows preparing the first release PR from previously untagged versions', (t) => {
-  const { state } = fixture(t);
-  assert.equal(state({ prs: [] }), null);
+test('propagates npm HTTP, network, and malformed-response failures', async () => {
+  for (const status of [401, 403, 429, 500])
+    await assert.rejects(
+      verifyRegistryVersion('1.3.0', async () => metadata(undefined, status)),
+      new RegExp(`npm returned ${status}`)
+    );
+  const failure = new Error('Network unavailable');
+  await assert.rejects(
+    verifyRegistryVersion('1.3.0', async () => {
+      throw failure;
+    }),
+    (error) => error === failure
+  );
+  await assert.rejects(
+    verifyRegistryVersion('1.3.0', async () => new Response('invalid JSON')),
+    SyntaxError
+  );
 });

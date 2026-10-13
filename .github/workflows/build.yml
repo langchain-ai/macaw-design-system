@@ -2,12 +2,6 @@ name: Build
 
 on:
   workflow_call:
-    inputs:
-      prepare_release:
-        description: Build packages with the next release version
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -37,14 +31,10 @@ jobs:
       - name: Test release automation
         run: node --test scripts/*.test.mjs
 
-      - name: Prepare release version
-        if: inputs.prepare_release
-        run: >-
-          pnpm nx release version
-          --stage-changes=false
-          --git-commit=false
-          --git-tag=false
-          --git-push=false
+      - name: Verify coordinated version
+        run: |
+          version=$(node -p "require('./packages/components/package.json').version")
+          node scripts/verify-release-tag.mjs "v$version"
 
       - name: Build packages
         run: pnpm build-all

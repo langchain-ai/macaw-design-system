@@ -10,38 +10,47 @@ The repository root is private. Nx owns coordinated versioning and publication;
 pnpm rewrites the components package's `workspace:*` token dependency to the
 matching release version when packing or publishing.
 
-## Automatic releases from main
+## Include the version bump in your PR
 
-Pushing to `main`, including merging a pull request, starts the Release workflow
-in `.github/workflows/release.yml`:
+For a change that should publish a new release, use Nx on your feature branch to
+update all three public package versions and the lockfile together. Choose the
+next version explicitly; for example:
 
-1. Build and verify the committed package versions without predicting another bump.
-2. In the `release` environment, use Nx conventional commits to prepare coordinated
-   manifest and lockfile updates on `release/v<version>` and open a release PR.
-   No release tag is pushed and no packages are published at this stage. An
-   existing open PR for that version is left unchanged; merge or close it first.
-3. Review and merge the release PR through the normal protected-branch process.
-   The next main workflow verifies the merged PR's branch, repository, merge SHA,
-   changed-file allowlist, and coordinated version, then tags that main commit.
-   If that run is missed, a later main run recovers the untagged version by
-   finding its merged release PR and verifying that its merge commit is an
-   ancestor of the current commit. The tag still points to the release merge.
-4. In the `npm` environment, check out the tag, build its committed package
-   versions, verify the packages, and publish with Nx. Recovery never uses
-   artifacts from a later main commit.
-5. After publication succeeds, create the matching GitHub release.
+```sh
+pnpm release:version 1.3.0 --stage-changes=false --git-commit=false --git-tag=false --git-push=false
+```
+
+Include those changes in the same PR as the implementation. These flags leave
+staging and committing to you and leave release tags to CI. The private root
+package version does not need to match the public packages.
+
+## Automatic publication from main
+
+Merging a PR into `main` starts the Release workflow in
+`.github/workflows/release.yml`:
+
+1. Build and verify the committed package versions without calculating another bump.
+2. In the `release` environment, identify the main-branch commit that introduced
+   the coordinated version and create its `v<version>` tag.
+3. In the `npm` environment, check out the tagged commit by its immutable SHA,
+   build and verify its committed package versions, and publish with Nx.
+4. After publication succeeds, create the matching GitHub release.
+
+Main remains protected: CI writes release tags and publishes packages without
+pushing commits to main or creating another PR. Its package manifests reflect
+the published version once publication succeeds; they can temporarily be ahead
+while publication is pending or has failed. Merges without a version bump do
+not publish a new version.
+
+If a release run is missed, a later main run finds the version's original commit
+along main's first-parent history. An existing tag pins retries to that same
+commit. Already published packages are skipped, so a partially published release
+can resume. Older runs do not move npm's `latest` tag backward after a newer
+version has been published.
 
 Storybook builds and deploys to GitHub Pages in a parallel path. Branch pushes
-outside `main` run CI without publishing packages.
-
-Do not manually bump package versions for ordinary component changes or create a
-GitHub release to trigger publication. Nx determines the version from the merged
-commit history; publishing a GitHub release is now an output of the workflow.
-The private root package version does not need to match the public packages.
-
-The `release.version.git` settings in `nx.json` provide the local defaults.
-The workflow overrides tag creation and the skip-CI commit message while preparing
-release PRs. Nx does not push automatically. Use `--dry-run` locally.
+outside `main` run CI without publishing packages. Creating a GitHub release
+manually does not trigger publication.
 
 The workflow uses npm's default distribution tag (`latest` unless configured
 otherwise). A prerelease version or GitHub's prerelease checkbox does not
@@ -50,15 +59,8 @@ automatically select the npm `beta` tag.
 ## Repository and npm setup
 
 Keep main's PR requirement and required environment reviews enabled. The workflow
-needs permission to push release branches and tags, not a main-branch bypass.
-Enable **Settings → Actions → General → Workflow permissions → Allow GitHub
-Actions to create and approve pull requests** (the workflow never approves PRs).
-Organization policy may need a maintainer to permit this setting.
-
-PRs created with `GITHUB_TOKEN` do not trigger pull-request CI automatically.
-A maintainer must close/reopen the generated PR to trigger checks before merging;
-do not bypass required checks. If a release PR becomes stale, close it and delete
-its release branch before rerunning preparation; the workflow never force-pushes.
+needs permission to push release tags and create GitHub releases. It does not
+need permission to create PRs or bypass main's protection.
 
 Enable **Settings → Pages → Source: GitHub Actions**; do not add a suggested
 Jekyll or Static HTML workflow. Pages artifacts are named by `github.run_attempt`
@@ -70,6 +72,8 @@ The npm organization must allow publication of all three package names. Configur
 trusted publishing for each package using this repository's `release.yml`
 workflow and the `npm` GitHub environment. A new package may need an owner-managed
 initial publication before its trusted publisher can be configured in npm.
+The publish job uses Node 24 for its bundled npm version, which supports trusted
+publishing (npm 11.5.1 or newer).
 
 Do not publish the workspace root or use `npm publish` directly on a manifest
 containing `workspace:*` dependencies; the configured Nx/pnpm publication flow
@@ -78,19 +82,15 @@ performs that conversion.
 ## Validate without publishing
 
 ```sh
-pnpm release:version --dry-run
+pnpm release:version 1.3.0 --stage-changes=false --git-commit=false --git-tag=false --git-push=false --dry-run
 pnpm format:check
 pnpm lint
 pnpm check
 pnpm pack:check
 ```
 
-The version dry run previews the coordinated version, commit, and tag without
-creating them. To validate the build preparation path specifically, use:
-
-```sh
-pnpm release:version --stage-changes=false --git-commit=false --git-tag=false --git-push=false --dry-run
-```
+Replace `1.3.0` with your intended version. The dry run previews the coordinated
+manifest and lockfile changes without modifying them.
 
 `pack:check` creates temporary tarballs, tests them in an isolated consumer, and
 removes them afterward. It does not publish anything. To check a release tag
