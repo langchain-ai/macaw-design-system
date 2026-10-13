@@ -54,9 +54,9 @@
       "conventionalCommits": true,
       "fallbackCurrentVersionResolver": "disk",
       "git": {
-        "stageChanges": false,
-        "commit": false,
-        "tag": false,
+        "commit": true,
+        "commitMessage": "[ci skip] chore(release): publish {version}",
+        "tag": true,
         "push": false
       }
     },

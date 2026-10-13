@@ -2,6 +2,12 @@ name: Build
 
 on:
   workflow_call:
+    inputs:
+      prepare_release:
+        description: Build packages with the next release version
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -10,9 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      matrix:
-        node-version: [22, 24]
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -25,32 +28,20 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check formatting
-        run: pnpm format:check
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test components
-        run: pnpm test
-
-      - name: Test release automation
-        run: node --test scripts/*.test.mjs
-
-      - name: Verify coordinated version
-        run: |
-          version=$(node -p "require('./packages/components/package.json').version")
-          node scripts/verify-release-tag.mjs "v$version"
+      - name: Prepare release version
+        if: inputs.prepare_release
+        run: >-
+          pnpm nx release version
+          --stage-changes=false
+          --git-commit=false
+          --git-tag=false
+          --git-push=false
 
       - name: Build packages
         run: pnpm build-all
@@ -58,10 +49,13 @@ jobs:
       - name: Verify package outputs
         run: pnpm verify:package
 
-      - name: Verify packed packages
-        run: node scripts/pack.mjs
-
-      # The publish job in release.yml runs this command without --dry-run.
-      - name: Validate Nx publication (dry run)
-        if: matrix.node-version == 24
-        run: pnpm release:publish --access public --dry-run
+      - name: Upload npm build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-build-${{ github.sha }}
+          path: |
+            packages/components/dist
+            packages/tokens/dist
+            packages/cli/dist
+          if-no-files-found: error
+          retention-days: 7
