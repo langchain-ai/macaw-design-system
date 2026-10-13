@@ -1,0 +1,224 @@
+packages/components/src/components/SankeyChart/SankeyChart.utils.ts
+  s_5118294265db53::t_293ec92693d69f 1-493
+packages/components/src/components/MetricChart/__tests__/MetricChart.test.tsx
+  s_5118294265db53::t_293ec92693d69f 52-58
+packages/components/src/components/SplitViewPane/useSplitViewPaneResize.ts
+  s_5118294265db53::t_293ec92693d69f 1-224
+scripts/verify-package.mjs
+  s_5118294265db53::t_293ec92693d69f 199,205-206
+packages/components/src/components/SankeyChart/AnimatedSankeyNode.tsx
+  s_5118294265db53::t_293ec92693d69f 1-88
+packages/components/src/components/Typeahead/__tests__/Typeahead.test.tsx
+  s_5118294265db53::t_293ec92693d69f 778-785,797-805
+packages/components/src/components/Attachment/render-attachment-icon.tsx
+  s_5118294265db53::t_293ec92693d69f 1-55
+packages/components/src/icons/WeightedPhosphorIcons.tsx
+  s_5118294265db53::t_293ec92693d69f 29,135-138
+  s_5118294265db53::t_502b4792e93331 139
+packages/components/src/components/Slider/__tests__/Slider.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-39
+.github/workflows/storybook-preview-publish.yml
+  s_5118294265db53::t_293ec92693d69f 16,151
+packages/components/src/components/DropdownMenu/DropdownMenu.tsx
+  s_5118294265db53::t_293ec92693d69f 7-10,171-175,177,181-183,210-214,216,220-222
+packages/components/docs/STYLES.md
+  s_5118294265db53::t_293ec92693d69f 95-97,177
+packages/components/src/components/Command/Command.tsx
+  s_5118294265db53::t_293ec92693d69f 8-10,145-159,162-163,167-169
+  s_5118294265db53::t_49573eb3b34ae1 7
+packages/components/src/icons/file-types/IMGIcon.svg
+  s_5118294265db53::t_293ec92693d69f 1-10
+packages/components/src/components/Attachment/AttachmentList.tsx
+  s_5118294265db53::t_293ec92693d69f 1-76
+packages/components/src/components/Code/__tests__/CodeLanguageSelect.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-30
+packages/components/src/components/Code/CodeToolbar.tsx
+  s_5118294265db53::t_293ec92693d69f 1-29
+packages/components/src/components/Attachment/Attachment.tsx
+  s_5118294265db53::t_293ec92693d69f 1-322
+packages/components/.storybook/main.ts
+  s_5118294265db53::t_293ec92693d69f 23-25
+packages/components/src/components/ThinkingState/LoadingIndicator.tsx
+  s_5118294265db53::t_293ec92693d69f 28,56,65-66,94-96
+packages/components/src/components/SplitViewPane/SplitViewPane.tsx
+  s_5118294265db53::t_293ec92693d69f 29-36,51,53,55-57,60-62,64-78,81-92,94-100,108,146,161,170,210-213,223,254-258,275-280,282-311,336-347,384-385
+packages/components/src/components/Typeahead/useTypeaheadDomSync.ts
+  s_5118294265db53::t_293ec92693d69f 2,31-45,83-84
+packages/components/src/components/Attachment/index.ts
+  s_5118294265db53::t_293ec92693d69f 1-4
+packages/components/src/icons/file-types/MP3Icon.svg
+  s_5118294265db53::t_293ec92693d69f 1-15
+packages/components/src/components/SankeyChart/SankeyNodeLabel.tsx
+  s_5118294265db53::t_293ec92693d69f 1-53
+packages/components/src/stories/ComponentSizes.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 2,29,34,44-53,692-743,748,761,769-770,779-786,797
+pnpm-workspace.yaml
+  s_5118294265db53::t_293ec92693d69f 11-13
+packages/tokens/package.json
+  s_5118294265db53::t_56c29e47edb5b9 3
+packages/components/src/components/Select/Select.tsx
+  s_5118294265db53::t_293ec92693d69f 6-10,203-204,220
+packages/components/src/components/Textarea/__tests__/Textarea.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-3,9-61
+packages/components/src/components/Toast/Toast.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 34-36,48-52
+packages/components/src/icons/file-types/CSVIcon.svg
+  s_5118294265db53::t_293ec92693d69f 1-4
+packages/components/src/components/SplitViewPane/SplitViewPane.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 1,19,52-108,124-125,129-134,149-186
+packages/components/src/components/Typeahead/TypeaheadView.tsx
+  s_5118294265db53::t_293ec92693d69f 17,168-175,222-223,230-231,425,428,451,475,477,488,495,500,506
+packages/components/src/components/ChartLegend/ChartLegendItemRenderer.tsx
+  s_5118294265db53::t_293ec92693d69f 161
+packages/components/src/components/Code/Code.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 6-10,28,32-40,44,72-80,88-140
+packages/cli/package.json
+  s_5118294265db53::t_56c29e47edb5b9 3
+packages/components/src/components/Command/Command.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 6,120-148
+  s_5118294265db53::t_28ece1b74be996 149-150
+packages/components/src/components/SankeyChart/__tests__/SankeyChart.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-512
+packages/components/src/components/Code/types.ts
+  s_5118294265db53::t_293ec92693d69f 2
+packages/components/src/components/Attachment/Attachment.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 1-451
+packages/components/src/components/Code/__tests__/codeLanguages.test.ts
+  s_5118294265db53::t_293ec92693d69f 1-19
+packages/components/src/components/SankeyChart/__tests__/SankeyChart.utils.test.ts
+  s_5118294265db53::t_293ec92693d69f 1-555
+.github/workflows/storybook-preview-build.yml
+  s_5118294265db53::t_9eb6e3c87d861b 23-24
+packages/components/src/components/Textarea/Textarea.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 1-2,10,15,260-303
+  s_5118294265db53::t_b410467afe270f 304
+packages/components/src/components/Typeahead/Typeahead.tsx
+  s_5118294265db53::t_293ec92693d69f 143,395,413,477
+packages/components/src/hooks/useDebouncedCommit.ts
+  s_5118294265db53::t_293ec92693d69f 1-46
+packages/components/src/components/MetricChart/MetricChart.tsx
+  s_5118294265db53::t_293ec92693d69f 9-19,25,49,59,80-83,92-107
+packages/components/src/components/Code/Code.utils.tsx
+  s_5118294265db53::t_293ec92693d69f 11,27,156,194,197,258-259,263
+packages/components/src/components/SankeyChart/constants.ts
+  s_5118294265db53::t_293ec92693d69f 1-32
+packages/components/src/components/GroupedTabs/GroupedTabs.tsx
+  s_5118294265db53::t_293ec92693d69f 5,11-12,33-34,92-94,138,141-143
+packages/components/src/components/SplitViewPane/useShowChildren.ts
+  s_5118294265db53::t_293ec92693d69f 1-19
+packages/components/src/components/Textarea/Textarea.tsx
+  s_5118294265db53::t_293ec92693d69f 41-44,137,144,224,231,245
+packages/components/src/icons/file-types/HTMLIcon.svg
+  s_5118294265db53::t_293ec92693d69f 1-5
+packages/components/src/components/SankeyChart/SankeyNodeLabel.utils.ts
+  s_5118294265db53::t_293ec92693d69f 1-68
+packages/components/src/hooks/__tests__/useDebouncedCommit.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-208
+CHANGELOG.md
+  s_5118294265db53::t_293ec92693d69f 1-20
+packages/components/src/icons/file-types/PDFIcon.svg
+  s_5118294265db53::t_293ec92693d69f 1-5
+packages/components/src/icons/PaddedPhosphorIcons.tsx
+  s_5118294265db53::t_293ec92693d69f 11,98-103
+.github/workflows/build-storybook.yml
+  s_5118294265db53::t_9eb6e3c87d861b 3-10,42-46
+packages/components/src/components/Command/CommandMenu.tsx
+  s_5118294265db53::t_293ec92693d69f 8-11,69-73,97,106,110-118,138,170-175,192,214,216,229,249-252
+packages/components/src/components/MetricChart/index.ts
+  s_5118294265db53::t_293ec92693d69f 2-6
+packages/components/src/components/Code/codeLanguages.ts
+  s_5118294265db53::t_293ec92693d69f 1-26
+packages/components/src/components/ChartCard/ChartCard.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 534-545,557-566
+packages/components/src/components/Typeahead/__tests__/Typeahead.input.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-161
+packages/components/src/icons/file-types/MP4Icon.svg
+  s_5118294265db53::t_293ec92693d69f 1-10
+README.md
+  s_5118294265db53::t_9023e1ea1c71b3 13
+packages/components/src/components/ChartCard/__tests__/ChartCard.test.tsx
+  s_5118294265db53::t_293ec92693d69f 198
+packages/components/src/components/ThinkingState/ThinkingState.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 39,51,121
+  s_5118294265db53::t_f999bb9058b9cd 122
+packages/components/src/components/SplitViewPane/__tests__/SplitViewPane.test.tsx
+  s_5118294265db53::t_293ec92693d69f 34-113
+packages/components/src/components/ContextMenu/ContextMenu.tsx
+  s_5118294265db53::t_293ec92693d69f 6-9,46-50,52,56-58
+packages/components/src/components/ThinkingState/ThinkingState.tsx
+  s_5118294265db53::t_293ec92693d69f 25,43,66,79-80
+packages/components/src/components/SankeyChart/SankeyChart.types.ts
+  s_5118294265db53::t_293ec92693d69f 1-100
+packages/components/src/components/SankeyChart/index.ts
+  s_5118294265db53::t_293ec92693d69f 1-15
+packages/components/src/components/Toast/index.tsx
+  s_5118294265db53::t_293ec92693d69f 24-28,41,47-49,64,97-103,106,112,118-123,205-210,212,215
+packages/components/src/icons/file-types/TXTIcon.svg
+  s_5118294265db53::t_293ec92693d69f 1-5
+packages/components/src/components/GroupedTabs/GroupedTabs.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 19-24
+packages/components/src/components/Slider/Slider.tsx
+  s_5118294265db53::t_293ec92693d69f 70-71,91-93,111,114-116
+packages/components/src/components/Select/SelectPrimitive.tsx
+  s_5118294265db53::t_293ec92693d69f 12-15,178-182,191,199-201
+packages/components/src/components/Code/CodeLanguageSelect.tsx
+  s_5118294265db53::t_293ec92693d69f 1-48
+packages/components/src/components/ChartCard/ChartCardSkeleton.tsx
+  s_5118294265db53::t_293ec92693d69f 11-12,79-104
+  s_5118294265db53::t_aab4e400e065f6 105-106
+packages/components/src/components/ChartCard/ChartCard.tsx
+  s_5118294265db53::t_293ec92693d69f 88,226
+packages/components/src/components/index.ts
+  s_5118294265db53::t_293ec92693d69f 23-25,116
+packages/components/src/components/ThinkingState/ThinkingState.module.css
+  s_5118294265db53::t_293ec92693d69f 37-40
+packages/components/src/components/Select/__tests__/Select.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-79
+packages/components/package.json
+  s_5118294265db53::t_9eb6e3c87d861b 548
+  s_5118294265db53::t_56c29e47edb5b9 3
+  s_5118294265db53::t_293ec92693d69f 35-38,199-202,312-315,476-479
+packages/components/docs/DESIGN.md
+  s_5118294265db53::t_293ec92693d69f 45,53,59-71,99
+  s_5118294265db53::t_71c0aa1102cf0c 100
+packages/components/src/components/Toast/__tests__/Toast.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-94
+packages/components/src/icons/file-types/JSONIcon.svg
+  s_5118294265db53::t_293ec92693d69f 1-5
+packages/components/src/utils/chartColors.ts
+  s_5118294265db53::t_293ec92693d69f 11-12
+packages/components/src/components/Typeahead/useTypeaheadUncontrolledInput.ts
+  s_5118294265db53::t_293ec92693d69f 14,24,33-34,36,39,43-44,51,59
+packages/components/src/components/Typeahead/TypeaheadParts.tsx
+  s_5118294265db53::t_293ec92693d69f 5,110,115,136,147,151,155-162
+packages/components/src/components/SankeyChart/SankeyChart.tsx
+  s_5118294265db53::t_293ec92693d69f 1-358
+packages/components/src/components/SankeyChart/AnimatedSankeyLink.tsx
+  s_5118294265db53::t_293ec92693d69f 1-90
+packages/components/src/components/SankeyChart/SankeyChart.stories.tsx
+  s_5118294265db53::t_293ec92693d69f 1-692
+packages/components/src/components/Code/index.tsx
+  s_5118294265db53::t_293ec92693d69f 1,4,26-32,47-49,51,55-56,72,82,85,87,103,132-142,153-154,165-235,240-246,248-256,258-271
+tests/consumer/imports.ts
+  s_5118294265db53::t_293ec92693d69f 1-3,8-18,22,28-29,42-47,54,70-84
+packages/components/src/components/Attachment/__tests__/Attachment.test.tsx
+  s_5118294265db53::t_293ec92693d69f 1-249
+pnpm-lock.yaml
+  s_5118294265db53::t_38a17960187cb6 9-10,3324-3325,3401-3402,8511,8603,9519,9523,9571,9575
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4f3a0722003367135a341ee62825f7d12512ed2a",
+  "prompts": {},
+  "sessions": {
+    "s_5118294265db53": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1339c-165b-76b3-acd2-b2756596ecd4",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
