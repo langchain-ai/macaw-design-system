@@ -12,28 +12,48 @@ matching release version when packing or publishing.
 
 ## Prepare a release
 
+The public package manifests already target `1.1.0-beta.0`. That version is
+pending publication; changes merged before it is published can join the same
+release without another version bump. The private root package version is not
+published and does not need to match.
+
+The release tag configuration allows Nx to use the previous beta tag as its
+baseline, including when preparing a stable release. For beta versioning,
+pass `--preid beta` to select the prerelease identifier explicitly:
+
 ```sh
-pnpm release:version patch --dry-run
-pnpm release:version patch
-pnpm release:changelog <new-version>
+pnpm release:version 1.1.0-beta.0 --preid beta --dry-run
+pnpm release:version 1.1.0-beta.0 --preid beta
+pnpm release:changelog 1.1.0-beta.0 --dry-run
+pnpm release:changelog 1.1.0-beta.0
 pnpm format
 pnpm check
 pnpm pack:check
 ```
 
-Use an explicit version or `minor`/`major` when appropriate. Nx follows its
-pre-1.0 SemVer rules while the packages are at 0.x; review the dry-run output.
-For the first changelog, use `--first-release`.
+Choose a new version only when preparing a later release, and review the
+dry-run output. Use `prerelease --preid beta` to advance an existing beta
+sequence; use an explicit stable version when graduating from beta. Use
+`--first-release` only when no previous release tag exists.
 
-These commands do not automatically commit, tag, push, or create a GitHub
-release. Review and commit the package manifests, lockfile, and changelog, then
-merge through the normal review process. Update the README version badge too.
+The `release.version.git` and `release.changelog.git` settings in `nx.json`
+disable automatic commits, tags, and pushes for these preparation commands.
+Nx may stage the generated files.
+Review and commit the package manifests, lockfile, and changelog, then merge
+through the normal review process. Include the unreleased changelog notes in
+the release entry and update the README version badge too.
 
 After merge, create a GitHub release with a tag matching all three package
-versions, such as `v0.1.0`. The publish workflow verifies the tag and licenses,
+versions, such as `v1.1.0-beta.0`, pointing to the commit containing the release
+changes. Merging a PR alone does not trigger versioning or publication.
+The publish workflow verifies the tag and licenses,
 runs the full checks, verifies the tarballs, and publishes with Nx. Nx publishes
 dependencies before dependents and can skip versions already in the registry
 when recovering a partially completed release.
+
+The workflow uses npm's default distribution tag (`latest` unless configured
+otherwise). A prerelease version or GitHub's prerelease checkbox does not
+automatically select the npm `beta` tag.
 
 ## One-time npm setup
 
@@ -50,9 +70,10 @@ the configured Nx/pnpm publication flow performs that conversion.
 ## Validate the release tooling without publishing
 
 ```sh
-pnpm release:version patch --dry-run
+pnpm release:version 1.1.0-beta.0 --preid beta --dry-run
+pnpm release:changelog 1.1.0-beta.0 --dry-run
 pnpm pack:check
-node scripts/verify-release-tag.mjs v0.1.0
+node scripts/verify-release-tag.mjs v1.1.0-beta.0
 ```
 
 Substitute the current version in the last command. `pack:check` creates temporary

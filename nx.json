@@ -55,8 +55,23 @@
   ],
   "neverConnectToCloud": true,
   "release": {
+    "releaseTag": {
+      "strictPreid": false
+    },
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "git": {
+        "commit": false,
+        "tag": false,
+        "push": false
+      }
+    },
+    "changelog": {
+      "git": {
+        "commit": false,
+        "tag": false,
+        "push": false
+      }
     }
   }
 }
