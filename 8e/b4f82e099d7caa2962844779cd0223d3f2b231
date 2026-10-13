@@ -1,0 +1,22 @@
+.github/workflows/build.yml
+  s_5118294265db53::t_3ad11f117197ef 1-3,11-15
+  s_5118294265db53::t_9e110498b9b062 4-10,16-61
+.github/workflows/build-storybook.yml
+  s_5118294265db53::t_9e110498b9b062 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8eb4f82e099d7caa2962844779cd0223d3f2b231",
+  "prompts": {},
+  "sessions": {
+    "s_5118294265db53": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1339c-165b-76b3-acd2-b2756596ecd4",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
