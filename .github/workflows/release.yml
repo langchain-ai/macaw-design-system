@@ -14,8 +14,6 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
-    with:
-      prepare_release: true
 
   storybook:
     uses: ./.github/workflows/build-storybook.yml
@@ -27,9 +25,10 @@ jobs:
     environment: release
     permissions:
       contents: write
+      pull-requests: write
     outputs:
-      released: ${{ steps.version.outputs.released }}
-      tag: ${{ steps.version.outputs.tag }}
+      released: ${{ steps.merged.outputs.released }}
+      tag: ${{ steps.merged.outputs.tag }}
     steps:
       - name: Check out verified commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,12 +54,32 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Detect merged release PR
+        id: merged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-state.mjs
+
+      - name: Tag merged release
+        if: steps.merged.outputs.released == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.merged.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if git rev-parse "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$GITHUB_SHA"
+          else
+            git tag "$RELEASE_TAG" "$GITHUB_SHA"
+            git push origin "refs/tags/$RELEASE_TAG"
+          fi
+
       - name: Version workspace
+        if: steps.merged.outputs.released != 'true'
         id: version
         run: |
           set -euo pipefail
           before=$(git rev-parse HEAD)
-          pnpm nx release version
+          pnpm nx release version --git-tag=false --git-commit-message="chore(release): publish {version}"
           after=$(git rev-parse HEAD)
 
           if [ "$before" = "$after" ]; then
@@ -76,26 +95,33 @@ jobs:
             exit 1
           fi
 
-          mapfile -t release_tags < <(git tag --points-at "$after")
-          if [ "${#release_tags[@]}" -ne 1 ]; then
-            echo "expected exactly one release tag on the version commit" >&2
-            exit 1
-          fi
-
-          tag="${release_tags[0]}"
-          if ! [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-            echo "Nx created an unexpected release tag" >&2
-            exit 1
-          fi
-
+          tag="v$(node -p "require('./packages/components/package.json').version")"
+          node scripts/verify-release-tag.mjs "$tag"
           echo "released=true" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Push version commit and tag
+      - name: Open release PR
         if: steps.version.outputs.released == 'true'
         env:
+          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
-        run: git push --atomic origin HEAD:main "refs/tags/${RELEASE_TAG}"
+        run: |
+          set -euo pipefail
+          branch="release/$RELEASE_TAG"
+          existing=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --base main --head "$branch" --json number --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "Release PR already open for $RELEASE_TAG; merge or close it before preparing another."
+            exit 0
+          fi
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            git fetch origin "$branch"
+            git diff --exit-code FETCH_HEAD HEAD
+          else
+            git push origin "HEAD:refs/heads/$branch"
+          fi
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
+            --title "chore(release): publish $RELEASE_TAG" \
+            --body "Coordinated Nx version update. Review and merge this PR to tag and publish $RELEASE_TAG. GitHub-token-created PRs do not automatically trigger CI: close/reopen this PR as a maintainer to trigger checks before merging."
 
   publish:
     if: needs.version.outputs.released == 'true'
@@ -170,10 +196,13 @@ jobs:
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: storybook-static
+          name: github-pages-${{ github.run_attempt }}
 
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
 
   github-release:
     if: needs.version.outputs.released == 'true'

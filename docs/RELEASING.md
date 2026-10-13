@@ -15,16 +15,17 @@ matching release version when packing or publishing.
 Pushing to `main`, including merging a pull request, starts the Release workflow
 in `.github/workflows/release.yml`:
 
-1. Prepare the next version with Nx conventional commits, build the packages,
-   verify package outputs, and upload the built artifacts. This preparation step
-   explicitly disables staging, commits, tags, and pushes.
-2. In the `release` environment, calculate the same version from the verified
-   commit. Nx commits the package manifests and lockfile and creates the shared
-   tag. The workflow pushes the version commit and tag atomically to `main`.
-3. In the `npm` environment, check out that tag, download the built artifacts,
-   verify the release tag and packages, and publish all three packages with Nx.
-4. After publication succeeds, create the matching GitHub release with generated
-   release notes.
+1. Build and verify the committed package versions without predicting another bump.
+2. In the `release` environment, use Nx conventional commits to prepare coordinated
+   manifest and lockfile updates on `release/v<version>` and open a release PR.
+   No release tag is pushed and no packages are published at this stage. An
+   existing open PR for that version is left unchanged; merge or close it first.
+3. Review and merge the release PR through the normal protected-branch process.
+   The next main workflow verifies the merged PR's branch, repository, merge SHA,
+   changed-file allowlist, and coordinated version, then tags that main commit.
+4. In the `npm` environment, check out the tag, download artifacts built from the
+   merged commit's actual versions, verify the packages, and publish with Nx.
+5. After publication succeeds, create the matching GitHub release.
 
 Storybook builds and deploys to GitHub Pages in a parallel path. Branch pushes
 outside `main` run CI without publishing packages.
@@ -34,10 +35,9 @@ GitHub release to trigger publication. Nx determines the version from the merged
 commit history; publishing a GitHub release is now an output of the workflow.
 The private root package version does not need to match the public packages.
 
-The `release.version.git` settings in `nx.json` enable commits and tags because
-the automated version job depends on them. Nx does not push automatically; the
-workflow performs the explicit atomic push. Use `--dry-run` when inspecting
-versioning locally.
+The `release.version.git` settings in `nx.json` provide the local defaults.
+The workflow overrides tag creation and the skip-CI commit message while preparing
+release PRs. Nx does not push automatically. Use `--dry-run` locally.
 
 The workflow uses npm's default distribution tag (`latest` unless configured
 otherwise). A prerelease version or GitHub's prerelease checkbox does not
@@ -45,11 +45,22 @@ automatically select the npm `beta` tag.
 
 ## Repository and npm setup
 
-The release workflow must be permitted to push its version commit and tag under
-the repository's branch and tag protection rules. A rule requiring every change
-to go through a pull request can reject this step and prevent publication. Keep
-required environment reviews in place and coordinate the release automation's
-repository permissions with the maintainers.
+Keep main's PR requirement and required environment reviews enabled. The workflow
+needs permission to push release branches and tags, not a main-branch bypass.
+Enable **Settings → Actions → General → Workflow permissions → Allow GitHub
+Actions to create and approve pull requests** (the workflow never approves PRs).
+Organization policy may need a maintainer to permit this setting.
+
+PRs created with `GITHUB_TOKEN` do not trigger pull-request CI automatically.
+A maintainer must close/reopen the generated PR to trigger checks before merging;
+do not bypass required checks. If a release PR becomes stale, close it and delete
+its release branch before rerunning preparation; the workflow never force-pushes.
+
+Enable **Settings → Pages → Source: GitHub Actions**; do not add a suggested
+Jekyll or Static HTML workflow. Pages artifacts are named by `github.run_attempt`
+and deployment selects that exact name so reruns cannot pick an older artifact.
+An old run using the previous workflow must be replaced by a new main run after
+this change merges; rerunning an old workflow does not adopt the fix.
 
 The npm organization must allow publication of all three package names. Configure
 trusted publishing for each package using this repository's `release.yml`
