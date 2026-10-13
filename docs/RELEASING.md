@@ -23,8 +23,12 @@ in `.github/workflows/release.yml`:
 3. Review and merge the release PR through the normal protected-branch process.
    The next main workflow verifies the merged PR's branch, repository, merge SHA,
    changed-file allowlist, and coordinated version, then tags that main commit.
-4. In the `npm` environment, check out the tag, download artifacts built from the
-   merged commit's actual versions, verify the packages, and publish with Nx.
+   If that run is missed, a later main run recovers the untagged version by
+   finding its merged release PR and verifying that its merge commit is an
+   ancestor of the current commit. The tag still points to the release merge.
+4. In the `npm` environment, check out the tag, build its committed package
+   versions, verify the packages, and publish with Nx. Recovery never uses
+   artifacts from a later main commit.
 5. After publication succeeds, create the matching GitHub release.
 
 Storybook builds and deploys to GitHub Pages in a parallel path. Branch pushes

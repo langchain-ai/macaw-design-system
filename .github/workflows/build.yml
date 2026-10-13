@@ -34,6 +34,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test release automation
+        run: node --test scripts/*.test.mjs
+
       - name: Prepare release version
         if: inputs.prepare_release
         run: >-

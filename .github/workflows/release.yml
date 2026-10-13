@@ -64,12 +64,13 @@ jobs:
         if: steps.merged.outputs.released == 'true'
         env:
           RELEASE_TAG: ${{ steps.merged.outputs.tag }}
+          TARGET_SHA: ${{ steps.merged.outputs.target_sha }}
         run: |
           set -euo pipefail
           if git rev-parse "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
-            test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$GITHUB_SHA"
+            test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$TARGET_SHA"
           else
-            git tag "$RELEASE_TAG" "$GITHUB_SHA"
+            git tag "$RELEASE_TAG" "$TARGET_SHA"
             git push origin "refs/tags/$RELEASE_TAG"
           fi
 
@@ -130,7 +131,6 @@ jobs:
     timeout-minutes: 30
     environment: npm
     permissions:
-      actions: read
       contents: read
       id-token: write
     env:
@@ -158,11 +158,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Download CI build
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: npm-build-${{ github.sha }}
-          path: packages
+      - name: Build release packages
+        run: pnpm build-all
 
       - name: Verify package exports and version
         run: pnpm verify:package

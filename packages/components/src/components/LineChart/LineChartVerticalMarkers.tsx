@@ -30,7 +30,8 @@ const MarkerLabel = ({
   x: number;
   innerWidth: number;
 }) => {
-  const width = getStringWidth(label, { fontSize: CHART_TICK_FONT_SIZE }) ?? 0;
+  const width =
+    getStringWidth(label, { fontSize: `${CHART_TICK_FONT_SIZE}px` }) ?? 0;
   const placeLeft =
     x + LABEL_OFFSET + width > innerWidth && x - LABEL_OFFSET - width >= 0;
   return (
