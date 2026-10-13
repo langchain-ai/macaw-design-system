@@ -73,6 +73,22 @@ export type LineChartGrid = {
   columns?: boolean;
 };
 
+export type LineChartVerticalMarkerVariant = 'default' | 'error';
+
+/**
+ * A dashed vertical marker for a moment on the x axis, such as a deploy or an
+ * incident. Drawn under the series so it annotates the data rather than
+ * competing with it.
+ */
+export type LineChartVerticalMarker = {
+  id: string;
+  x: number;
+  /** Defaults to `default`. Use `error` for an incident or failure. */
+  variant?: LineChartVerticalMarkerVariant;
+  /** Rendered at the top of the marker. */
+  label?: string;
+};
+
 export type LineChartYBand = {
   id: string;
   /** Defaults to the primary y axis. */
@@ -149,6 +165,8 @@ export type LineChartProps = Omit<
     selectionRange?: LineChartSelectionRange;
     /** Background ranges such as warning or threshold regions. */
     yBands?: readonly LineChartYBand[];
+    /** Vertical markers for moments on the x axis, such as a deploy. */
+    verticalMarkers?: readonly LineChartVerticalMarker[];
     /**
      * Rendered inside the plot's relative container at the resolved activeX
      * position (SVG-container-relative pixels). Only invoked when activeX is

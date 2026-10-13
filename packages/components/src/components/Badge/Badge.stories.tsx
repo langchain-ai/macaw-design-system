@@ -197,3 +197,10 @@ export const AllColors: Story = {
     </div>
   ),
 };
+
+export const WithSuffix: Story = {
+  args: {
+    children: 'Selected',
+    suffix: '12',
+  },
+};

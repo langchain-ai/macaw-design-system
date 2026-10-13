@@ -41,6 +41,7 @@ export type {
   LineChartProps,
   LineChartSelectionRange,
   LineChartSeries,
+  LineChartVerticalMarker,
   LineChartXScale,
   LineChartYBand,
   LineChartYAxis,
@@ -146,6 +147,7 @@ export const LineChart = ({
   activeLegendItemId,
   selectionRange,
   yBands = [],
+  verticalMarkers = [],
   renderActiveOverlay,
   shouldAnimate = true,
   isRendering = true,
@@ -220,6 +222,15 @@ export const LineChart = ({
       activeX <= resolvedXDomain[1])
       ? activeX
       : undefined;
+  // A band scale extrapolates past its outer buckets, so a marker just outside
+  // the domain can still project inside the plot.
+  const renderedVerticalMarkers =
+    xScaleType === 'band'
+      ? verticalMarkers.filter(
+          (marker) =>
+            marker.x >= resolvedXDomain[0] && marker.x <= resolvedXDomain[1]
+        )
+      : verticalMarkers;
   const axisLayouts = resolveAxisLayouts(
     renderedSeries,
     yAxes,
@@ -325,6 +336,7 @@ export const LineChart = ({
         activeLegendItemId={renderedActiveLegendItemId}
         selectionRange={selectionRange}
         yBands={yBands}
+        verticalMarkers={renderedVerticalMarkers}
         shouldAnimate={shouldAnimate}
         isRendering={isRendering}
         {...ariaProps}

@@ -983,4 +983,120 @@ describe('LineChart', () => {
         .getElementsByTagName('circle')
     ).toHaveLength(1);
   });
+  const getMarkers = (chartName: string, stroke: string) =>
+    Array.from(
+      screen
+        .getByRole('graphics-document', { name: chartName })
+        .getElementsByTagName('line')
+    ).filter((line) => line.getAttribute('stroke') === stroke);
+
+  it('draws a dashed vertical marker at an x value', () => {
+    render(
+      <LineChart
+        aria-label="Marked metrics"
+        series={series}
+        verticalMarkers={[{ id: 'deploy', x: 10 }]}
+      />
+    );
+
+    const markers = getMarkers('Marked metrics', 'var(--border-strong)');
+    expect(markers).toHaveLength(1);
+    expect(markers[0].getAttribute('x1')).toBe(markers[0].getAttribute('x2'));
+    expect(markers[0]).toHaveAttribute('stroke-dasharray');
+  });
+
+  it('draws an error marker in the error border color', () => {
+    render(
+      <LineChart
+        aria-label="Incident metrics"
+        series={series}
+        verticalMarkers={[{ id: 'incident', x: 10, variant: 'error' }]}
+      />
+    );
+
+    expect(
+      getMarkers('Incident metrics', 'var(--border-error-strong)')
+    ).toHaveLength(1);
+  });
+
+  it('labels a marker, flipping the label left at the right edge', () => {
+    render(
+      <LineChart
+        aria-label="Labelled markers"
+        series={series}
+        verticalMarkers={[
+          { id: 'deploy', x: 10, label: 'Deploy' },
+          { id: 'rollback', x: 20, label: 'Rollback' },
+        ]}
+      />
+    );
+
+    const [deploy, rollback] = getMarkers(
+      'Labelled markers',
+      'var(--border-strong)'
+    );
+    const deployLabel = screen.getByText('Deploy');
+    const rollbackLabel = screen.getByText('Rollback');
+
+    expect(deployLabel).toHaveAttribute('text-anchor', 'start');
+    expect(Number(deployLabel.getAttribute('x'))).toBeGreaterThan(
+      Number(deploy.getAttribute('x1'))
+    );
+    expect(rollbackLabel).toHaveAttribute('text-anchor', 'end');
+    expect(Number(rollbackLabel.getAttribute('x'))).toBeLessThan(
+      Number(rollback.getAttribute('x1'))
+    );
+  });
+
+  it('keeps a label right of the marker when it fits neither side', () => {
+    const label = 'A label wider than the whole plot '.repeat(4);
+    render(
+      <LineChart
+        aria-label="Long label"
+        series={series}
+        verticalMarkers={[{ id: 'start', x: 0, label }]}
+      />
+    );
+
+    expect(screen.getByText(label.trim())).toHaveAttribute(
+      'text-anchor',
+      'start'
+    );
+  });
+
+  it('drops a marker outside the drawn domain instead of clamping it', () => {
+    render(
+      <LineChart
+        aria-label="Out of range markers"
+        series={series}
+        verticalMarkers={[
+          { id: 'before', x: -500 },
+          { id: 'after', x: 500 },
+        ]}
+      />
+    );
+
+    expect(
+      getMarkers('Out of range markers', 'var(--border-strong)')
+    ).toHaveLength(0);
+  });
+
+  // A band scale extrapolates past its first bucket, which sits inside the
+  // plot, so a marker just before the domain would otherwise still draw.
+  it('drops a marker just outside the domain of a band scale', () => {
+    render(
+      <LineChart
+        aria-label="Band markers"
+        series={series}
+        xScale="band"
+        xDomain={[0, 20]}
+        verticalMarkers={[
+          { id: 'before', x: -1 },
+          { id: 'inside', x: 10 },
+        ]}
+      />
+    );
+
+    expect(getMarkers('Band markers', 'var(--border-strong)')).toHaveLength(1);
+  });
 });
