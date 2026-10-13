@@ -1,0 +1,47 @@
+.github/workflows/release.yml
+  s_5118294265db53::t_d2a0f41a90c9d3 12-21,36-37,41-46,48-49,51-53,55-99
+package.json
+  s_5118294265db53::t_8173d91c50d3c9 21-22
+.github/workflows/storybook-preview-build.yml
+  s_5118294265db53::t_8173d91c50d3c9 40-41
+.github/workflows/publish.yml
+  s_5118294265db53::t_528ae11c153f85 1-132
+nx.json
+  s_74f9161f22a131::t_595e66abbbcea7 50,52,62
+  s_74f9161f22a131::t_33084e7de82d5a 54
+  s_5118294265db53::t_022864abc92841 49,51,55-61,73
+  s_5118294265db53::t_8a673015361500 66
+  s_74f9161f22a131::t_b6807424685917 64
+  s_5118294265db53::t_02b91ce00ff709 48
+  s_74f9161f22a131::t_cb143d41558d55 63
+  s_5118294265db53::t_aa04b4b1848b75 67-72
+  s_5118294265db53::t_a07c6521d53838 65
+.github/workflows/ci.yml
+  s_5118294265db53::t_e9792175008bb8 34-37,39-41,43-44,46-47,49-58
+  s_5118294265db53::t_873b778c6e74fd 38
+  s_5118294265db53::t_92d8f68f03f277 3,9,12-13,17-18,20-21,23-24,26-27,31-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9a86a96673381ae2e9bdb3c9242da8ecf32d2c8f",
+  "prompts": {},
+  "sessions": {
+    "s_5118294265db53": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1339c-165b-76b3-acd2-b2756596ecd4",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    },
+    "s_74f9161f22a131": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "38d265fd-9bd9-476e-8fc3-f44483a37f3a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
