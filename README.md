@@ -13,7 +13,7 @@
   <a href="packages/components/package.json"><img src="https://img.shields.io/badge/version-1.2.0-orange" alt="Package version: 1.2.0"></a>
   <a href="https://x.com/langchain_oss"><img src="https://img.shields.io/twitter/url/https/twitter.com/langchain_oss.svg?style=social&amp;label=Follow%20%40LangChain" alt="Follow LangChain on X"></a>
   <p>
-    <a href="https://langsmith-design-system.vercel.app/">Storybook</a> ·
+    <a href="https://langchain-ai.github.io/macaw-design-system/">Storybook</a> ·
     <a href="https://langsmith-design-system.vercel.app/?path=/docs/foundations-text--docs">Component Overview</a> ·
     <a href="https://langsmith-design-system.vercel.app/?path=/docs/foundations-icon-library--docs">Icon Overview</a>
   </p>
