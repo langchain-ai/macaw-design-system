@@ -48,6 +48,10 @@
       "types": "./dist/components/Banner/index.d.ts",
       "import": "./dist/components/Banner/index.js"
     },
+    "./RadarChart": {
+      "types": "./dist/components/RadarChart/index.d.ts",
+      "import": "./dist/components/RadarChart/index.js"
+    },
     "./BarChart": {
       "types": "./dist/components/BarChart/index.d.ts",
       "import": "./dist/components/BarChart/index.js"
