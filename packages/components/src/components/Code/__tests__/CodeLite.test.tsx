@@ -40,4 +40,19 @@ describe('CodeLite', () => {
     );
     expect(await screen.findByTestId('child')).toBeVisible();
   });
+  it('exposes code lines separately from gutters for document search', async () => {
+    render(<CodeLite value={'hello\nworld'} language="python" />);
+    await screen.findByText('world');
+
+    expect(screen.getByRole('table')).toHaveAttribute('data-code-lite');
+    const cells = screen.getAllByRole('cell');
+    const lines = cells.filter((cell) => cell.hasAttribute('data-code-line'));
+    expect(lines.map((cell) => cell.textContent).join('\n')).toBe(
+      'hello\nworld'
+    );
+    const gutters = cells.filter((cell) =>
+      cell.hasAttribute('data-search-ignore')
+    );
+    expect(gutters.map((cell) => cell.textContent)).toEqual(['1', '2']);
+  });
 });

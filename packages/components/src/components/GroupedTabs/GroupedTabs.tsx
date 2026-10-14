@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '../../utils/cn';
 import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
@@ -55,15 +55,19 @@ export const GroupedTabs = <T extends string | number>({
   const [clipState, setClipState] = useState<{
     path: string;
     isFirst: boolean;
-    animate: boolean;
-  }>({ path: '', isFirst: true, animate: false });
+    shouldAnimate: boolean;
+  }>({ path: '', isFirst: true, shouldAnimate: false });
+  const activeIndex = useMemo(
+    () => options.findIndex((option) => option.value === value),
+    [options, value]
+  );
 
-  useEffect(() => {
-    const container = containerRef.current;
-    const activeIndex = options.findIndex((option) => option.value === value);
-    const activeButton = buttonRefs.current[activeIndex];
-
-    if (activeButton && container) {
+  const updateClipState = useCallback(
+    (
+      container: HTMLDivElement,
+      activeButton: HTMLButtonElement,
+      shouldAnimate: boolean
+    ) => {
       const containerRect = container.getBoundingClientRect();
       const buttonRect = activeButton.getBoundingClientRect();
       const roundValue = size === 'xs' ? '1px' : size === 'sm' ? '2px' : '4px';
@@ -75,13 +79,35 @@ export const GroupedTabs = <T extends string | number>({
       const right =
         containerRect.right - buttonRect.right - container.clientLeft;
 
-      setClipState((prev) => ({
-        path: `inset(${top}px ${right}px ${bottom}px ${left}px round ${roundValue})`,
-        isFirst: false,
-        animate: !prev.isFirst,
-      }));
-    }
-  }, [size, value, options]);
+      const path = `inset(${top}px ${right}px ${bottom}px ${left}px round ${roundValue})`;
+      setClipState((prev) =>
+        prev.path === path
+          ? prev
+          : {
+              path,
+              isFirst: false,
+              shouldAnimate: shouldAnimate && !prev.isFirst,
+            }
+      );
+    },
+    [size]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const activeButton = buttonRefs.current[activeIndex];
+    if (!activeButton || !container) return;
+
+    updateClipState(container, activeButton, true);
+
+    const observer = new ResizeObserver(() =>
+      updateClipState(container, activeButton, false)
+    );
+    observer.observe(container);
+    observer.observe(activeButton);
+
+    return () => observer.disconnect();
+  }, [activeIndex, updateClipState, value]);
 
   const isActive = (option: GroupedTabOption<T>) => option.value === value;
   return (
@@ -112,7 +138,7 @@ export const GroupedTabs = <T extends string | number>({
             )}
             style={{
               clipPath: clipState.path,
-              transition: clipState.animate
+              transition: clipState.shouldAnimate
                 ? 'clip-path 0.25s ease-out, background-color 0.25s ease-out'
                 : 'none',
             }}

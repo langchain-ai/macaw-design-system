@@ -91,7 +91,7 @@ export const CodeLite = memo((props: CodeLiteProps) => {
   const itemContent = (_index: number, line: ParsedFile['file'][number]) => (
     <>
       {showGutter && (
-        <td className="select-none py-0 align-top">
+        <td data-search-ignore="" className="select-none py-0 align-top">
           <div className="flex items-center justify-between gap-space-1 whitespace-pre font-mono text-quaternary">
             <span className="min-w-8 pl-2.5 text-right">{line.n}</span>
 
@@ -112,6 +112,7 @@ export const CodeLite = memo((props: CodeLiteProps) => {
       )}
 
       <td
+        data-code-line=""
         className={cn(
           'px-1.5 py-0 font-mono',
           wrapLines ? 'whitespace-pre-wrap' : 'whitespace-pre'
@@ -167,6 +168,7 @@ export const CodeLite = memo((props: CodeLiteProps) => {
     return (
       <>
         <table
+          data-code-lite=""
           className={cn(
             'w-fit border-spacing-0 [overflow-anchor:none]',
             className
