@@ -1,0 +1,19 @@
+.github/workflows/build.yml
+  s_218decf582ddaf::t_7b11bcadb0869a 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3b3b288b327fde40e64b991151c35233479834ca",
+  "prompts": {},
+  "sessions": {
+    "s_218decf582ddaf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13973-c2c2-79c1-aa1c-6d28be93ec49",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
