@@ -40,6 +40,15 @@
         "outputs": [
           "{projectRoot}/dist"
         ]
+      },
+      "nx-release-publish": {
+        "executor": "@nx/js:release-publish",
+        "dependsOn": [
+          "^nx-release-publish"
+        ],
+        "options": {
+          "packageRoot": "release-packages/tokens"
+        }
       }
     }
   }

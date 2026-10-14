@@ -1,9 +1,6 @@
 packages:
   - packages/*
 
-# Keep versioned internal dependencies linked during development.
-linkWorkspacePackages: true
-
 onlyBuiltDependencies:
   - nx
   - esbuild

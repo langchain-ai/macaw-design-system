@@ -560,7 +560,7 @@
     "@fontsource/fira-code": "^5.2.7",
     "@fontsource/inter": "^5.2.8",
     "@headlessui/react": "^2.2.10",
-    "@langchain/macaw-tokens": "1.0.0-beta.3",
+    "@langchain/macaw-tokens": "workspace:*",
     "@lezer/common": "^1.2.1",
     "@lezer/highlight": "^1.2.0",
     "@lezer/yaml": "^1.0.4",
@@ -626,6 +626,15 @@
         "outputs": [
           "{projectRoot}/dist"
         ]
+      },
+      "nx-release-publish": {
+        "executor": "@nx/js:release-publish",
+        "dependsOn": [
+          "^nx-release-publish"
+        ],
+        "options": {
+          "packageRoot": "release-packages/components"
+        }
       }
     }
   }

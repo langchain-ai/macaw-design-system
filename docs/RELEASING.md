@@ -7,9 +7,11 @@ The three public packages use one version and a shared `v<version>` release tag:
 - `@langchain/macaw-cli`
 
 The repository root is private. Nx owns coordinated versioning and publication;
-the components package pins tokens to the matching release version. Nx updates
-that dependency when versioning the packages. pnpm links the matching workspace
-package during development.
+the components package uses `workspace:*` to link to tokens during development.
+pnpm replaces that reference with the matching version when packing.
+`pnpm release:publish` validates those tarballs, prepares their contents under
+`release-packages/`, and asks Nx to publish from those prepared directories.
+Nx never publishes the source manifest containing `workspace:*`.
 
 ## Prepare a release
 
@@ -46,8 +48,9 @@ before its trusted publisher can be configured in npm.
 
 Packages request public access and provenance. Do not publish the workspace root
 or use `npm publish` directly on a manifest containing `workspace:*` dependencies;
-public package manifests must contain registry-resolvable versions. The package
-checks verify the tokens dependency in both pnpm and npm tarballs.
+the prepared packages must contain registry-resolvable versions. The checks
+verify the tokens dependency in the pnpm tarball and in an npm tarball packed
+from its extracted contents.
 
 ## Validate the release tooling without publishing
 
@@ -59,5 +62,14 @@ node scripts/verify-release-tag.mjs v0.1.0
 
 Substitute the current version in the last command. `pack:check` creates temporary
 pnpm tarballs, tests them in an isolated consumer, verifies the npm-packed
-components dependency, and removes the tarballs afterward. It does
-not publish anything.
+components dependency from the prepared contents, and removes the tarballs
+afterward. It does not publish anything.
+
+To exercise the same preparation and Nx publication path without publishing:
+
+```sh
+pnpm release:publish --dry-run --first-release
+```
+
+`--first-release` skips registry lookups during this dry run. Publication normally
+checks for already published versions so a partial release can be retried.

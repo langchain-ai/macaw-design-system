@@ -141,10 +141,7 @@ jobs:
       - name: Verify package exports and version
         run: pnpm verify:package
 
-      - name: Verify packed packages
-        run: node scripts/pack.mjs
-
-      - name: Publish packages
+      - name: Verify and publish packages
         run: pnpm release:publish --access public
 
   pages:
