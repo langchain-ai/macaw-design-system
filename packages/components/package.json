@@ -1,16 +1,12 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.2.0",
+  "version": "1.0.0-beta.3",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/langchain-ai/macaw-design-system.git",
     "directory": "packages/components"
-  },
-  "scripts": {
-    "build": "node ../../scripts/build-components.mjs",
-    "storybook": "storybook dev -p 5264"
   },
   "files": [
     "dist",
@@ -545,7 +541,10 @@
   "publishConfig": {
     "access": "public"
   },
-
+  "scripts": {
+    "build": "node ../../scripts/build-components.mjs",
+    "storybook": "storybook dev -p 5264"
+  },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",
@@ -627,6 +626,15 @@
         "outputs": [
           "{projectRoot}/dist"
         ]
+      },
+      "nx-release-publish": {
+        "executor": "@nx/js:release-publish",
+        "dependsOn": [
+          "^nx-release-publish"
+        ],
+        "options": {
+          "packageRoot": "release-packages/components"
+        }
       }
     }
   }

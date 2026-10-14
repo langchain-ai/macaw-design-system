@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-design-system",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -22,7 +22,7 @@
     "pack:check": "pnpm build-all && pnpm verify:package && node scripts/pack.mjs",
     "release:version": "nx release version",
     "release:changelog": "nx release changelog",
-    "release:publish": "nx release publish",
+    "release:publish": "node scripts/pack.mjs --release && nx release publish",
     "design-system": "node packages/components/src/cli.mts",
     "macaw": "node packages/cli/dist/cli.mjs"
   },

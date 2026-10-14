@@ -7,8 +7,11 @@ The three public packages use one version and a shared `v<version>` release tag:
 - `@langchain/macaw-cli`
 
 The repository root is private. Nx owns coordinated versioning and publication;
-pnpm rewrites the components package's `workspace:*` token dependency to the
-matching release version when packing or publishing.
+the components package uses `workspace:*` to link to tokens during development.
+pnpm replaces that reference with the matching version when packing.
+`pnpm release:publish` validates those tarballs, prepares their contents under
+`release-packages/`, and asks Nx to publish from those prepared directories.
+Nx never publishes the source manifest containing `workspace:*`.
 
 ## Prepare a release
 
@@ -45,7 +48,9 @@ before its trusted publisher can be configured in npm.
 
 Packages request public access and provenance. Do not publish the workspace root
 or use `npm publish` directly on a manifest containing `workspace:*` dependencies;
-the configured Nx/pnpm publication flow performs that conversion.
+the prepared packages must contain registry-resolvable versions. The checks
+verify the tokens dependency in the pnpm tarball and in an npm tarball packed
+from its extracted contents.
 
 ## Validate the release tooling without publishing
 
@@ -56,5 +61,15 @@ node scripts/verify-release-tag.mjs v0.1.0
 ```
 
 Substitute the current version in the last command. `pack:check` creates temporary
-tarballs, tests them in an isolated consumer, and removes them afterward. It does
-not publish anything.
+pnpm tarballs, tests them in an isolated consumer, verifies the npm-packed
+components dependency from the prepared contents, and removes the tarballs
+afterward. It does not publish anything.
+
+To exercise the same preparation and Nx publication path without publishing:
+
+```sh
+pnpm release:publish --dry-run --first-release
+```
+
+`--first-release` skips registry lookups during this dry run. Publication normally
+checks for already published versions so a partial release can be retried.

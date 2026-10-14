@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -17,6 +18,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const temporary = mkdtempSync(join(tmpdir(), 'macaw-pack-'));
+const release = process.argv.includes('--release');
+const releaseDirectory = join(root, 'release-packages');
+if (release) rmSync(releaseDirectory, { recursive: true, force: true });
 function run(command, args, cwd = root) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8' });
   assert.equal(
@@ -43,6 +47,11 @@ try {
     const unpacked = join(temporary, name);
     mkdirSync(unpacked);
     run('tar', ['-xzf', join(temporary, archive), '-C', unpacked]);
+    if (release) {
+      cpSync(join(unpacked, 'package'), join(temporary, 'prepared', name), {
+        recursive: true,
+      });
+    }
     symlinkSync(
       join(unpacked, 'package'),
       join(modules, '@langchain', `macaw-${name}`),
@@ -58,6 +67,30 @@ try {
       'Source tooling must not be required by consumers'
     );
     if (name === 'components') {
+      const npmDirectory = join(temporary, 'npm');
+      mkdirSync(npmDirectory);
+      const [npmArchive] = JSON.parse(
+        run('npm', [
+          'pack',
+          join(unpacked, 'package'),
+          '--pack-destination',
+          npmDirectory,
+          '--ignore-scripts',
+          '--json',
+        ])
+      );
+      const npmManifest = JSON.parse(
+        run('tar', [
+          '-xOf',
+          join(npmDirectory, npmArchive.filename),
+          'package/package.json',
+        ])
+      );
+      assert.equal(
+        npmManifest.dependencies['@langchain/macaw-tokens'],
+        npmManifest.version,
+        'Prepared components must publish the matching tokens release'
+      );
       assert.equal(
         manifest.dependencies['@langchain/macaw-tokens'],
         manifest.version
@@ -178,6 +211,10 @@ try {
     css.includes('--bg-surface-level-1') && css.includes('html.dark'),
     'The consumer bundle must include both token themes'
   );
+  if (release) {
+    cpSync(join(temporary, 'prepared'), releaseDirectory, { recursive: true });
+    console.log('Prepared verified package contents for Nx publication.');
+  }
   console.log(
     `Verified all three tarballs, ${catalog.length} catalog imports, isolated CLI discovery/setup, runtime imports, and a consumer CSS build.`
   );
