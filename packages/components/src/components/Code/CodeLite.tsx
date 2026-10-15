@@ -239,6 +239,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
   );
 
   const className = cn('font-mono text-xs', props.className);
+  const accessibleLabel = props.label?.trim() || 'Code block';
 
   const focusClassName =
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
@@ -253,7 +254,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
         isBlock && wrapLines && '[&_table]:w-full [&_table]:table-fixed'
       )}
       role={isBlock ? 'region' : undefined}
-      aria-label={isBlock ? 'Code block' : undefined}
+      aria-label={isBlock ? accessibleLabel : undefined}
       itemContent={itemContent}
     />
   ) : (
@@ -301,7 +302,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
       )}
       <div
         role={props.virtualize ? undefined : 'region'}
-        aria-label={props.virtualize ? undefined : 'Code block'}
+        aria-label={props.virtualize ? undefined : accessibleLabel}
         tabIndex={props.virtualize ? undefined : 0}
         className={cn(
           'p-space-3 min-w-0',

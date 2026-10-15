@@ -95,6 +95,37 @@ describe('CodeLite', () => {
     expect(await navigator.clipboard.readText()).toBe(updated);
   });
 
+  it.each([false, true])(
+    'names the block region from its label (virtualize=%s)',
+    (virtualize) => {
+      const { rerender } = render(
+        <CodeLite
+          value="result"
+          language="plaintext"
+          variant="block"
+          label="output.txt"
+          virtualize={virtualize}
+        />
+      );
+      expect(screen.getByRole('region', { name: 'output.txt' })).toBeVisible();
+
+      for (const label of [undefined, '', '   ']) {
+        rerender(
+          <CodeLite
+            value="result"
+            language="plaintext"
+            variant="block"
+            label={label}
+            virtualize={virtualize}
+          />
+        );
+        expect(
+          screen.getByRole('region', { name: 'Code block' })
+        ).toBeVisible();
+      }
+    }
+  );
+
   it('allows keyboard focus to reach the code scroll region', async () => {
     const { user } = render(
       <CodeLite
