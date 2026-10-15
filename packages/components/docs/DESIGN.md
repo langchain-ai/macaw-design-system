@@ -99,7 +99,7 @@ Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Im
 
 Import `SankeyChart` from `@langchain/macaw-components/SankeyChart` for weighted flow diagrams. Compose it with `ChartCard`, `ChartLegend`, and `ChartTooltip`; consumers own data, value formatting, tooltips, and navigation.
 
-Import `HeatmapChart` and `HeatmapBlock` from `@langchain/macaw-components/HeatmapChart` for percentage matrices. Supply `getBlockLabel` for meaningful row and column names; cells expose details on hover and keyboard focus.
+Import `HeatmapChart` and `HeatmapBlock` from `@langchain/macaw-components/HeatmapChart` for percentage matrices. Supply `getBlockLabel` for meaningful row and column names; cells expose details on hover and keyboard focus. The matrix has one Tab stop; arrow keys move between cells, Home/End move within a row, and Ctrl+Home/End move to the first/last cell.
 
 ## Icons
 

@@ -10,7 +10,15 @@ const meta = {
   title: 'Components/Charts/HeatmapChart',
   component: HeatmapChart,
   tags: ['autodocs', 'heatmap', 'matrix', 'opacity', 'chart'],
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'A percentage matrix with one Tab stop. Use arrow keys to move between cells, Home/End within a row, and Ctrl+Home/End across the matrix. Each cell shows its label on hover or focus.',
+      },
+    },
+  },
   args: { data, size: 'md', color: 'green' },
   argTypes: {
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
