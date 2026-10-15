@@ -129,7 +129,7 @@ export const Overflow: Story = {
   render: (args) => {
     if (args.variant === 'diff') return <CodeLite {...args} />;
     return (
-      <div className="gap-space-6 grid sm:grid-cols-2">
+      <div className="gap-space-6 grid sm:grid-cols-2 lg:grid-cols-3">
         <section className="w-72 max-w-full min-w-0">
           <Text as="h3" variant="sm" className="mb-space-3">
             Scroll long lines
@@ -141,6 +141,22 @@ export const Overflow: Story = {
             Wrap long lines
           </Text>
           <CodeLite {...args} wrapLines />
+        </section>
+        <section className="w-72 max-w-full min-w-0">
+          <Text as="h3" variant="sm" className="mb-space-3">
+            Scroll many lines
+          </Text>
+          <CodeLite
+            {...args}
+            language="plaintext"
+            label="search.log"
+            virtualize
+            className="!h-48"
+            value={Array.from(
+              { length: 40 },
+              (_, index) => `Result ${index + 1}: document retrieved`
+            ).join('\n')}
+          />
         </section>
       </div>
     );
