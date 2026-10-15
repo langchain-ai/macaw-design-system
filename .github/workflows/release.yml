@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 30
     environment: release
     permissions:
-      contents: write
+      contents: read
     outputs:
       released: ${{ steps.version.outputs.released }}
       tag: ${{ steps.version.outputs.tag }}
@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
           ref: ${{ github.sha }}
 
       - name: Set up pnpm
@@ -91,11 +91,25 @@ jobs:
           echo "released=true" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      - name: Create release app token
+        if: steps.version.outputs.released == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ vars.LANGCHAIN_ACTIONS_PR_BOT_PUBLIC_APP_ID }}
+          private-key: ${{ secrets.LANGCHAIN_ACTIONS_PR_BOT_PUBLIC_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Push version commit and tag
         if: steps.version.outputs.released == 'true'
         env:
+          GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
-        run: git push --atomic origin HEAD:main "refs/tags/${RELEASE_TAG}"
+        run: |
+          set -euo pipefail
+          auth_header=$(printf 'x-access-token:%s' "$GH_APP_TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
+            push --atomic origin HEAD:main "refs/tags/${RELEASE_TAG}"
 
   publish:
     if: needs.version.outputs.released == 'true'
@@ -124,7 +138,6 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org
 
       - name: Verify release tag
         run: node scripts/verify-release-tag.mjs "$RELEASE_TAG"

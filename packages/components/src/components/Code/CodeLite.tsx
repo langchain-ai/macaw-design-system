@@ -151,6 +151,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
     <>
       {showGutter && (
         <td
+          data-search-ignore=""
           className={cn(
             'py-0 align-top select-none',
             isBlock && wrapLines && 'w-12'
@@ -182,6 +183,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
       )}
 
       <td
+        data-code-line=""
         className={cn(
           'px-1.5 py-0 font-mono',
           wrapLines ? 'whitespace-pre-wrap' : 'whitespace-pre',
@@ -256,6 +258,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
     />
   ) : (
     <table
+      data-code-lite=""
       className={cn(
         'w-fit border-spacing-0 [overflow-anchor:none]',
         isBlock && '!table',
