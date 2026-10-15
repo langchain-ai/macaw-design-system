@@ -263,13 +263,6 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         aria-label={name}
         {...props}
         aria-disabled={disabled || undefined}
-        onClick={(event) => {
-          // Extend the preview button to the card's padding and gaps only.
-          if (!disabled && onOpen && event.target === event.currentTarget) {
-            event.stopPropagation();
-            onOpen();
-          }
-        }}
         className={cn(
           'box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
           isThumbnail
@@ -280,7 +273,6 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               ]
             : [sizeStyles.height, sizeStyles.padding],
           status === 'error' && 'border-error',
-          onOpen && !disabled && 'cursor-pointer',
           disabled && 'cursor-not-allowed opacity-50',
           className
         )}

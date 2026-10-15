@@ -71,40 +71,40 @@ describe('Attachment', () => {
     { variant: 'file' },
     { variant: 'thumbnail' },
   ])(
-    'opens the $variant card surface while isolating actions',
+    'opens the $variant preview only from its button while isolating actions',
     async ({ variant }) => {
       const { user } = render(<AttachmentDemo variant={variant} />);
       const previewCount = screen.getByLabelText('Previews opened');
 
       // Padding, borders, and layout gaps target the card itself.
       await user.click(screen.getByRole('group', { name: 'report.pdf' }));
-      expect(previewCount).toHaveTextContent('1');
+      expect(previewCount).toHaveTextContent('0');
 
       await user.click(screen.getByRole('button', { name: 'View report.pdf' }));
-      expect(previewCount).toHaveTextContent('2');
+      expect(previewCount).toHaveTextContent('1');
 
       await user.keyboard('{Enter}');
-      expect(previewCount).toHaveTextContent('3');
+      expect(previewCount).toHaveTextContent('2');
 
       await user.keyboard(' ');
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
 
       await user.click(
         screen.getByRole('group', { name: 'Actions for report.pdf' })
       );
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
 
       await user.click(screen.getByRole('button', { name: 'Download' }));
       expect(screen.getByLabelText('Last action')).toHaveTextContent(
         'Downloaded'
       );
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
 
       await user.click(
         screen.getByRole('button', { name: 'Remove report.pdf' })
       );
       expect(screen.getByLabelText('Last action')).toHaveTextContent('Removed');
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
     }
   );
 
@@ -159,6 +159,8 @@ describe('Attachment', () => {
       rerender(<AttachmentDemo variant={variant} />);
       expect(card).not.toHaveAttribute('aria-disabled');
       await user.click(card);
+      expect(screen.getByLabelText('Previews opened')).toHaveTextContent('0');
+      await user.click(open);
       expect(screen.getByLabelText('Previews opened')).toHaveTextContent('1');
       await user.click(download);
       expect(screen.getByLabelText('Last action')).toHaveTextContent(
