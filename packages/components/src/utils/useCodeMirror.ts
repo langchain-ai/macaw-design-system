@@ -7,15 +7,15 @@ import {
 } from './lazy-codemirror-loader';
 
 /**
- * Returns the CodeMirror bundle once loaded, or null if still loading.
+ * Loads CodeMirror when enabled and returns the cached bundle or null.
  * Initializes synchronously from cache if CM was already loaded (no flicker
  * on subsequent mounts after the first load).
  */
-export function useCodeMirror(): CMBundle | null {
+export function useCodeMirror(enabled = true): CMBundle | null {
   const [cm, setCm] = useState<CMBundle | null>(() => getCodeMirror());
 
   useEffect(() => {
-    if (cm) return;
+    if (!enabled || cm) return;
 
     let cancelled = false;
 
@@ -32,7 +32,7 @@ export function useCodeMirror(): CMBundle | null {
     return () => {
       cancelled = true;
     };
-  }, [cm]);
+  }, [cm, enabled]);
 
   return cm;
 }

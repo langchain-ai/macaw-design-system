@@ -65,6 +65,14 @@ Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
 and actions above the editor; include `CopyButton` there when needed. Without a
 toolbar, `showCopyButton` keeps the floating copy control.
 
+Import `CodeLite` from `@langchain/macaw-components/Code/CodeLite`. Its default
+plain variant renders read-only code; `variant="block"` adds a label and copy
+toolbar. Set `label` for a filename, replace the toolbar with `toolbar`, or hide
+it with `toolbar={null}`. `variant="diff"` compares `oldString` and `newString`,
+with an optional `fileName` and `contextLines`; the diff renderer loads on demand.
+The diff toolbar remains visible when there are no changes, with an empty body.
+Use `language="plaintext"` to skip syntax highlighting.
+
 `CodeLanguageSelect` accepts language aliases such as `ts` and `py`, preserves
 unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
