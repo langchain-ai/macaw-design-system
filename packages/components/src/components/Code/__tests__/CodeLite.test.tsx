@@ -172,15 +172,25 @@ describe('CodeLite', () => {
     ).toBeVisible();
   });
 
-  it('shows an unchanged diff and preserves its children', async () => {
-    render(
-      <CodeLite variant="diff" oldString="hello" newString="hello">
-        <p>Review complete</p>
-      </CodeLite>
-    );
-    expect(await screen.findByText('No changes')).toBeVisible();
-    expect(screen.getByText('Review complete')).toBeVisible();
-  });
+  it.each(['hello', ''])(
+    'keeps the toolbar and children for an unchanged diff (%j)',
+    async (value) => {
+      render(
+        <CodeLite
+          variant="diff"
+          fileName="notes.txt"
+          oldString={value}
+          newString={value}
+        >
+          <p>Review complete</p>
+        </CodeLite>
+      );
+      expect(await screen.findByText('notes.txt')).toBeVisible();
+      expect(screen.getByText('No changes')).toBeVisible();
+      expect(screen.queryByText('hello')).not.toBeInTheDocument();
+      expect(screen.getByText('Review complete')).toBeVisible();
+    }
+  );
 
   it('switches between code and diff previews', async () => {
     const { rerender } = render(

@@ -4,16 +4,33 @@ import { Text } from '../Text';
 import { CodeLite } from './CodeLite';
 
 const SAMPLE_CODE = `{
-  "name": "example-agent",
-  "tools": [
-    "search",
-    "calculator"
+  "name": "docs-search",
+  "sources": [
+    "guides",
+    "reference"
   ],
   "settings": {
-    "streaming": true,
-    "maxIterations": 10
+    "limit": 10,
+    "includeSources": true
   }
 }`;
+
+const ORIGINAL_CODE = `export function buildSearchRequest(query: string) {
+  return {
+    query: query.trim(),
+    limit: 5,
+  };
+}
+`;
+
+const UPDATED_CODE = `export function buildSearchRequest(query: string) {
+  return {
+    query: query.trim(),
+    limit: 10,
+    includeSources: true,
+  };
+}
+`;
 
 const meta = {
   title: 'Components/Display/CodeLite',
@@ -25,7 +42,7 @@ const meta = {
         component: [
           '- Lightweight read-only code with optional gutters, folding, and virtualization. Use `Code` for editing.',
           '- `variant="block"` adds a label, copy toolbar, and keyboard-accessible scrolling; plain is the default.',
-          '- `variant="diff"` compares `oldString` and `newString` with an optional filename toolbar; the diff renderer loads on demand.',
+          '- `variant="diff"` compares `oldString` and `newString`; the toolbar stays visible when there are no changes. The diff renderer loads on demand.',
           '- Set `label` for a filename or language name; replace the header with `toolbar` (`null` hides it).',
           '- Use `plaintext` for unhighlighted text and `wrapLines` for long lines. `className` styles the content; virtualized content needs a height.',
         ].join('\n'),
@@ -64,7 +81,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const Variants: Story = {
-  args: { label: 'response.json', showGutter: false },
+  args: { label: 'search-config.json', showGutter: false },
   render: (args) => {
     if (args.variant === 'diff') return <CodeLite {...args} />;
     return (
@@ -147,19 +164,30 @@ export const VirtualizedBlock: Story = {
 
 export const Diff: Story = {
   render: () => (
-    <CodeLite
-      variant="diff"
-      fileName="greeting.ts"
-      oldString={'const greeting = "Hello";\n'}
-      newString={'const greeting = "Hello, world!";\n'}
-    />
-  ),
-  parameters: { controls: { disable: true } },
-};
-
-export const DiffWithoutChanges: Story = {
-  render: () => (
-    <CodeLite variant="diff" oldString={SAMPLE_CODE} newString={SAMPLE_CODE} />
+    <div className="gap-space-6 flex w-full max-w-3xl min-w-0 flex-col">
+      <section className="gap-space-3 flex min-w-0 flex-col">
+        <Text as="h3" variant="sm">
+          With changes
+        </Text>
+        <CodeLite
+          variant="diff"
+          fileName="search.ts"
+          oldString={ORIGINAL_CODE}
+          newString={UPDATED_CODE}
+        />
+      </section>
+      <section className="gap-space-3 flex min-w-0 flex-col">
+        <Text as="h3" variant="sm">
+          Without changes
+        </Text>
+        <CodeLite
+          variant="diff"
+          fileName="search.ts"
+          oldString={UPDATED_CODE}
+          newString={UPDATED_CODE}
+        />
+      </section>
+    </div>
   ),
   parameters: { controls: { disable: true } },
 };

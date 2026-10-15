@@ -26,7 +26,7 @@ export const CodeLiteDiff = ({
 }: CodeLiteDiffProps) => {
   const { resolvedMode } = useColorScheme();
 
-  const fileDiff = useMemo(() => {
+  const { fileDiff, additions, deletions } = useMemo(() => {
     const name = fileName || 'file';
     const oldFile: FileContents = {
       name,
@@ -36,77 +36,90 @@ export const CodeLiteDiff = ({
       name,
       contents: withTrailingNewline(newString),
     };
-    return parseDiffFromFile(
+    const fileDiff = parseDiffFromFile(
       oldFile,
       newFile,
       contextLines != null ? { context: contextLines } : undefined
     );
+
+    let additions = 0;
+    let deletions = 0;
+    for (const hunk of fileDiff.hunks) {
+      additions += hunk.additionLines;
+      deletions += hunk.deletionLines;
+    }
+    return { fileDiff, additions, deletions };
   }, [oldString, newString, fileName, contextLines]);
 
-  const { additions, deletions } = useMemo(() => {
-    let adds = 0;
-    let dels = 0;
-    for (const hunk of fileDiff.hunks) {
-      adds += hunk.additionLines;
-      dels += hunk.deletionLines;
-    }
-    return { additions: adds, deletions: dels };
-  }, [fileDiff]);
-
   const displayFileName = fileName ? fileName.split('/').pop() : null;
-
-  if (fileDiff.hunks.length === 0) {
-    return (
-      <Text variant="sm" color="secondary">
-        No changes
-      </Text>
-    );
-  }
+  const hasChanges = fileDiff.hunks.length > 0;
 
   return (
     <div
       className={cn(
-        'border-subtle bg-surface-level-3 w-full overflow-hidden rounded-md border',
+        'border-subtle bg-surface-level-1 w-full min-w-0 overflow-hidden rounded-lg border',
         className
       )}
     >
-      {displayFileName && (
-        <CodeToolbar
-          className="border-0"
-          language={
+      <CodeToolbar
+        className={cn(
+          'bg-surface-level-1 px-space-4',
+          hasChanges ? 'min-h-9' : 'min-h-11 border-0'
+        )}
+        language={
+          displayFileName && (
             <span className="gap-space-2 flex min-w-0 items-center">
               <Icon
                 icon={FileCodeIcon}
-                size="lg"
+                size="md"
                 weight="regular"
                 aria-hidden
                 className="text-icon-tertiary"
               />
               <span className="min-w-0 break-all">{displayFileName}</span>
             </span>
-          }
-        >
-          <Text as="span" variant="xs" className="text-success-secondary">
-            +{additions}
+          )
+        }
+      >
+        {hasChanges ? (
+          <>
+            <Text
+              as="span"
+              variant="xs"
+              className="text-success-secondary tabular-nums"
+            >
+              +{additions}
+            </Text>
+            <Text
+              as="span"
+              variant="xs"
+              className="text-error-secondary tabular-nums"
+            >
+              -{deletions}
+            </Text>
+          </>
+        ) : (
+          <Text as="span" variant="xs" color="tertiary">
+            No changes
           </Text>
-          <Text as="span" variant="xs" className="text-error-secondary">
-            -{deletions}
-          </Text>
-        </CodeToolbar>
+        )}
+      </CodeToolbar>
+      {hasChanges && (
+        <div className="bg-brand-muted py-space-3 pl-space-3 max-h-64 min-w-0 overflow-auto text-xs">
+          <FileDiff
+            className="[--diffs-bg:var(--bg-brand-muted)] [--diffs-gap-block:0px] [--diffs-overflow-override:auto]"
+            fileDiff={fileDiff}
+            disableWorkerPool
+            options={{
+              diffStyle: 'unified',
+              theme: DIFF_THEME,
+              themeType: resolvedMode,
+              preferredHighlighter: 'shiki-js',
+              disableFileHeader: true,
+            }}
+          />
+        </div>
       )}
-      <div className="max-h-64 overflow-auto text-xs">
-        <FileDiff
-          fileDiff={fileDiff}
-          disableWorkerPool
-          options={{
-            diffStyle: 'unified',
-            theme: DIFF_THEME,
-            themeType: resolvedMode,
-            preferredHighlighter: 'shiki-js',
-            disableFileHeader: true,
-          }}
-        />
-      </div>
     </div>
   );
 };

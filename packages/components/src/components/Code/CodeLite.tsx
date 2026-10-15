@@ -287,9 +287,10 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
   }
 
   return (
-    <div className="bg-brand-muted w-full max-w-full min-w-0 overflow-hidden rounded-lg">
+    <div className="border-subtle bg-surface-level-1 w-full max-w-full min-w-0 overflow-hidden rounded-lg border">
       {props.toolbar === undefined ? (
         <CodeToolbar
+          className="bg-surface-level-1 pl-space-4 pr-space-3 min-h-8"
           language={
             props.label ??
             (props.language === 'plaintext' ? 'text' : props.language)
@@ -305,7 +306,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
         aria-label={props.virtualize ? undefined : accessibleLabel}
         tabIndex={props.virtualize ? undefined : 0}
         className={cn(
-          'p-space-3 min-w-0',
+          'bg-brand-muted p-space-3 min-w-0',
           !props.virtualize && 'overflow-x-auto',
           !props.virtualize && focusClassName
         )}
