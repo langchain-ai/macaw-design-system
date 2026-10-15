@@ -20,6 +20,14 @@ export type {
 export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
 
+export { HeatmapChart, HeatmapBlock } from './HeatmapChart';
+export type {
+  HeatmapChartProps,
+  HeatmapBlockProps,
+  HeatmapBlockSize,
+  HeatmapBlockColor,
+} from './HeatmapChart';
+
 export { Attachment, AttachmentList } from './Attachment';
 export type { AttachmentProps, AttachmentListProps } from './Attachment';
 

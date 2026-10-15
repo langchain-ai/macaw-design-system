@@ -32,6 +32,8 @@ export interface AttachmentProps extends Omit<
   /** File-row height: sm=24px, md=32px, lg=48px. Thumbnails use larger tiles. */
   size?: 'sm' | 'md' | 'lg';
   status?: 'ready' | 'loading' | 'uploading' | 'error';
+  /** Disables opening, removal, and custom actions. */
+  disabled?: boolean;
   onOpen?: () => void;
   openLabel?: string;
   onRemove?: () => void;
@@ -71,6 +73,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
       variant = 'file',
       size = 'md',
       status = 'ready',
+      disabled = false,
       onOpen,
       openLabel = `View ${name}`,
       onRemove,
@@ -110,6 +113,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               : 'size-3.5'
         }
         label={`Remove ${name}`}
+        disabled={disabled}
         color="secondary"
         variant={isThumbnail ? 'normal' : 'plain'}
         round={isThumbnail}
@@ -125,7 +129,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         size={size === 'sm' ? 'xxs' : size === 'md' ? 'xs' : 'sm'}
         onClick={(event) => {
           event.stopPropagation();
-          onRemove();
+          if (!disabled) onRemove();
         }}
       />
     ) : null;
@@ -258,9 +262,10 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         role="group"
         aria-label={name}
         {...props}
+        aria-disabled={disabled || undefined}
         onClick={(event) => {
           // Extend the preview button to the card's padding and gaps only.
-          if (onOpen && event.target === event.currentTarget) {
+          if (!disabled && onOpen && event.target === event.currentTarget) {
             event.stopPropagation();
             onOpen();
           }
@@ -275,7 +280,8 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               ]
             : [sizeStyles.height, sizeStyles.padding],
           status === 'error' && 'border-error',
-          onOpen && 'cursor-pointer',
+          onOpen && !disabled && 'cursor-pointer',
+          disabled && 'cursor-not-allowed opacity-50',
           className
         )}
       >
@@ -285,6 +291,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             color="secondary"
             variant="plain"
             aria-label={openLabel}
+            disabled={disabled}
             aria-describedby={description ? statusId : undefined}
             className={cn(
               'min-w-0 flex-1 justify-start p-0 text-left',
@@ -294,7 +301,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             )}
             onClick={(event) => {
               event.stopPropagation();
-              onOpen();
+              if (!disabled) onOpen();
             }}
           >
             {content}
@@ -305,6 +312,8 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         {isThumbnail && removeButton}
         {(actions != null || (!isThumbnail && onRemove)) && (
           <fieldset
+            disabled={disabled}
+            inert={disabled || undefined}
             aria-label={`Actions for ${name}`}
             className={cn(
               'm-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',

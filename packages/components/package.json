@@ -8,10 +8,6 @@
     "url": "git+https://github.com/langchain-ai/macaw-design-system.git",
     "directory": "packages/components"
   },
-  "scripts": {
-    "build": "node ../../scripts/build-components.mjs",
-    "storybook": "storybook dev -p 5264"
-  },
   "files": [
     "dist",
     "docs",
@@ -131,6 +127,10 @@
     "./GroupedTabs": {
       "types": "./dist/components/GroupedTabs/index.d.ts",
       "import": "./dist/components/GroupedTabs/index.js"
+    },
+    "./HeatmapChart": {
+      "types": "./dist/components/HeatmapChart/index.d.ts",
+      "import": "./dist/components/HeatmapChart/index.js"
     },
     "./Icon": {
       "types": "./dist/components/Icon/index.d.ts",
@@ -409,6 +409,10 @@
       "types": "./dist/components/GroupedTabs/index.d.ts",
       "import": "./dist/components/GroupedTabs/index.js"
     },
+    "./components/HeatmapChart": {
+      "types": "./dist/components/HeatmapChart/index.d.ts",
+      "import": "./dist/components/HeatmapChart/index.js"
+    },
     "./components/Icon": {
       "types": "./dist/components/Icon/index.d.ts",
       "import": "./dist/components/Icon/index.js"
@@ -545,7 +549,10 @@
   "publishConfig": {
     "access": "public"
   },
-
+  "scripts": {
+    "build": "node ../../scripts/build-components.mjs",
+    "storybook": "storybook dev -p 5264"
+  },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",
