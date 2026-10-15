@@ -138,7 +138,6 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org
 
       - name: Verify release tag
         run: node scripts/verify-release-tag.mjs "$RELEASE_TAG"
