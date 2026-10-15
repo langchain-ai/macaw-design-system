@@ -14,11 +14,11 @@ Use Node 22 or 24 and pnpm 10.27.0 (`corepack enable`).
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build
+pnpm build-all
 pnpm storybook
 ```
 
-Storybook runs at <http://localhost:5264>. Build the package with `pnpm build`;
+Storybook runs at <http://localhost:5264>. Build the packages with `pnpm build-all`;
 each package writes its output to `packages/<name>/dist/`.
 
 Read [DESIGN.md](packages/components/docs/DESIGN.md) for component rules and
@@ -46,7 +46,7 @@ version. First, follow the [consumer setup](README.md#install) in that project.
 ```sh
 # Terminal 1: your Macaw checkout
 cd /path/to/macaw-design-system
-pnpm build:watch
+pnpm build-all
 
 # Terminal 2: the consuming application's package directory
 cd /path/to/your-project
@@ -55,8 +55,9 @@ pnpm dev
 ```
 
 Replace the paths with your local directories and use your application's dev
-command in place of `pnpm dev` if it differs. Wait for the initial Macaw build to
-finish before starting the application; the watcher rebuilds subsequent changes.
+command in place of `pnpm dev` if it differs. Wait for the Macaw build to finish
+before starting the application. After editing Macaw source, rerun `pnpm build-all`
+from the Macaw checkout to update the linked packages.
 
 Relative paths work too. For example, if `langchainplus` and `macaw-design-system`
 are sibling checkouts, run this from `langchainplus/smith-frontend`:
