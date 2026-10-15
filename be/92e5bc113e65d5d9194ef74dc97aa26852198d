@@ -1,0 +1,23 @@
+packages/components/package.json
+  s_218decf582ddaf::t_9228ad3bbb634b 552-554
+  s_218decf582ddaf::t_e620f231644a69 155-158,436-439
+  s_218decf582ddaf::t_300563e9a97469 555
+packages/components/src/components/index.ts
+  s_218decf582ddaf::t_e620f231644a69 105-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "be92e5bc113e65d5d9194ef74dc97aa26852198d",
+  "prompts": {},
+  "sessions": {
+    "s_218decf582ddaf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13973-c2c2-79c1-aa1c-6d28be93ec49",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
