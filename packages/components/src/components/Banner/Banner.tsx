@@ -164,7 +164,7 @@ export const Banner = ({
           {iconElement}
         </div>
       )}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 text-xs leading-tight tracking-snug">
         {titleElement}
         {contentElement}
       </div>
