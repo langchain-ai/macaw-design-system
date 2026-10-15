@@ -106,6 +106,30 @@ export const SizesAndStates: Story = {
   ),
 };
 
+export const Disabled: Story = {
+  args: { disabled: true },
+  render: (args) => (
+    <AttachmentList layout="stack">
+      {(['file', 'thumbnail'] satisfies Array<'file' | 'thumbnail'>).map(
+        (variant) => (
+          <Attachment
+            {...args}
+            key={variant}
+            variant={variant}
+            onOpen={() => {}}
+            onRemove={() => {}}
+            actions={
+              <Button size="xs" color="secondary" onClick={() => {}}>
+                Download
+              </Button>
+            }
+          />
+        )
+      )}
+    </AttachmentList>
+  ),
+};
+
 export const Thumbnails: Story = {
   render: () => (
     <div className="flex flex-wrap items-start gap-space-4">

@@ -198,6 +198,7 @@ await Promise.all([
   import('@langchain/macaw-components'),
   import('@langchain/macaw-components/Attachment'),
   import('@langchain/macaw-components/BarChart'),
+  import('@langchain/macaw-components/HeatmapChart'),
   import('@langchain/macaw-components/Code'),
   import('@langchain/macaw-components/Logo'),
   import('@langchain/macaw-components/ThinkingState'),

@@ -18,6 +18,11 @@ import type {
 } from '@langchain/macaw-components/Code';
 import { CodeLite } from '@langchain/macaw-components/Code/CodeLite';
 import type { CodeLanguageType } from '@langchain/macaw-components/Code/types';
+import {
+  HeatmapChart,
+  HeatmapBlock,
+} from '@langchain/macaw-components/HeatmapChart';
+import type { HeatmapChartProps } from '@langchain/macaw-components/HeatmapChart';
 import { AppThemeProvider } from '@langchain/macaw-components/hooks/AppThemeProvider';
 import { useDebouncedCommit } from '@langchain/macaw-components/hooks/useDebouncedCommit';
 import { CheckIcon } from '@langchain/macaw-components/icons';
@@ -32,7 +37,10 @@ import {
   ThinkingState,
   LoadingIndicator,
 } from '@langchain/macaw-components/ThinkingState';
-import type { ThinkingStateProps } from '@langchain/macaw-components/ThinkingState';
+import type {
+  LoadingIndicatorProps,
+  ThinkingStateProps,
+} from '@langchain/macaw-components/ThinkingState';
 import { useScrollParent } from '@langchain/macaw-components/utils/VirtuosoCustomScrollParentContext/useScrollParent';
 
 const buttonProps: ButtonProps = { children: 'Continue' };
@@ -41,16 +49,29 @@ const language: CodeLanguageType = 'json';
 void [
   Attachment,
   AttachmentList,
-  { name: 'report.pdf', status: 'uploading' } satisfies AttachmentProps,
+  {
+    name: 'report.pdf',
+    status: 'uploading',
+    disabled: true,
+  } satisfies AttachmentProps,
+  HeatmapChart,
+  HeatmapBlock,
+  {
+    data: [[0, 50, 100]],
+    size: 'sm',
+    color: 'blue',
+  } satisfies HeatmapChartProps,
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   useDebouncedCommit,
   ThinkingState,
   LoadingIndicator,
+  { size: 'xs' } satisfies LoadingIndicatorProps,
   {
     showElapsed: true,
     elapsedMs: 1500,
     motion: 'subtle',
+    size: 'xs',
     speed: 'slow',
   } satisfies ThinkingStateProps,
   { size: 'xs', leftIcon: CheckIcon, onChange: () => {} } satisfies InputProps,

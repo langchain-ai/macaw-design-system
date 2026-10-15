@@ -6,7 +6,7 @@ interface ThinkingStateTimerProps {
   visible: boolean;
   elapsedMs?: number;
   precision: 'seconds' | 'tenths';
-  size: 'sm' | 'md' | 'lg';
+  size: 'xs' | 'sm' | 'md' | 'lg';
 }
 
 /** Keeps clock updates local to the timer, without rerendering the label or grid. */
@@ -47,7 +47,7 @@ export function ThinkingStateTimer({
   return (
     <Text
       as="span"
-      variant={size === 'sm' ? 'xs' : 'sm'}
+      variant={size === 'xs' || size === 'sm' ? 'xs' : 'sm'}
       color="tertiary"
       role="timer"
       aria-label="Elapsed time"
