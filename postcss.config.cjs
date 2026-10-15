@@ -3,7 +3,7 @@
 module.exports = {
   plugins: {
     tailwindcss: {
-      config: './tailwind.config.cjs',
+      config: require.resolve('./tailwind.config.cjs'),
     },
   },
 };
