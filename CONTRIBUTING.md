@@ -14,11 +14,11 @@ Use Node 22 or 24 and pnpm 10.27.0 (`corepack enable`).
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build
+pnpm build-all
 pnpm storybook
 ```
 
-Storybook runs at <http://localhost:5264>. Build the package with `pnpm build`;
+Storybook runs at <http://localhost:5264>. Build the packages with `pnpm build-all`;
 each package writes its output to `packages/<name>/dist/`.
 
 Read [DESIGN.md](packages/components/docs/DESIGN.md) for component rules and
@@ -37,32 +37,48 @@ Use `pnpm design-system search <capability>` and
 colocated stories. This contributor command reads live source and story tags. The published `macaw`
 command reads the built catalog instead. Builds require Node 22.18+ or Node 24.
 
-## Link to LangChainPlus
+## Link to a consuming project
 
-Once `smith-frontend` has `@langchain/macaw-components` as a dependency, link the
-local checkout instead of publishing a test version. With the repositories as
-sibling directories:
+To test local Macaw changes in any project that depends on
+`@langchain/macaw-components`, link your checkout instead of publishing a test
+version. First, follow the [consumer setup](README.md#install) in that project.
 
 ```sh
-# Terminal 1: macaw-design-system
-pnpm build:watch
+# Terminal 1: your Macaw checkout
+cd /path/to/macaw-design-system
+pnpm build-all
 
-# Terminal 2: langchainplus/smith-frontend
-pnpm link ../../macaw-design-system/packages/components
+# Terminal 2: the consuming application's package directory
+cd /path/to/your-project
+pnpm link /path/to/macaw-design-system/packages/components
 pnpm dev
 ```
 
-Use an absolute path in `pnpm link` if the repositories are not siblings. Link
-`packages/tokens` too when testing direct token imports. For publication checks,
-`pnpm pack:check` tests all three tarballs in an isolated consumer. To
-return to the version in `package.json` and the lockfile:
+Replace the paths with your local directories and use your application's dev
+command in place of `pnpm dev` if it differs. Wait for the Macaw build to finish
+before starting the application. After editing Macaw source, rerun `pnpm build-all`
+from the Macaw checkout to update the linked packages.
+
+Relative paths work too. For example, if `langchainplus` and `macaw-design-system`
+are sibling checkouts, run this from `langchainplus/smith-frontend`:
+
+```sh
+pnpm link ../../macaw-design-system/packages/components
+```
+
+Link `packages/tokens` too when testing direct imports from
+`@langchain/macaw-tokens`. Only code that imports Macaw packages will use the
+linked changes; linking does not replace a project's own components.
+
+For publication checks, run `pnpm pack:check` from the Macaw checkout to test all
+three tarballs in an isolated consumer. To return to the version in the consuming
+project's `package.json` and lockfile, run this from its package directory:
 
 ```sh
 pnpm unlink @langchain/macaw-components
 ```
 
-The current extraction does not yet migrate `smith-frontend` imports to the
-package, so linking it alone will not change existing design-system screens.
+Unlink `@langchain/macaw-tokens` too if you linked it.
 
 ## Before opening a pull request
 
