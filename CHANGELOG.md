@@ -1,4 +1,8 @@
-## Unreleased
+## 1.0.0 (Unreleased)
+
+- Graduate the components, tokens, and CLI packages from beta to stable `1.0.0`, published to npm `latest`.
+- Require Tailwind v4, React 19, and Node 26 or newer; update consumer CSS configuration accordingly.
+- Preserve component appearance through the Tailwind migration, including outlines, gradients, shadows, typography, and Storybook layouts.
 
 - Add labeled vertical event markers to LineChart, including band-scale alignment and clipped plot bounds.
 - Add muted badge suffixes with an accessible separator.

@@ -4,7 +4,7 @@ React components, styles, icons, and usage guidance for the Macaw Design System.
 Requires React 19 and Node 26 or newer. Includes `@langchain/macaw-tokens` as a dependency.
 
 ```sh
-pnpm add @langchain/macaw-components@alpha
+pnpm add @langchain/macaw-components@1.0.0
 ```
 
 ```tsx

@@ -37,12 +37,17 @@ jobs:
 
       - name: Prepare release version
         if: inputs.prepare_release
-        run: >-
-          pnpm nx release version
-          --stage-changes=false
-          --git-commit=false
-          --git-tag=false
-          --git-push=false
+        run: |
+          set -euo pipefail
+          version_args=()
+          if ! git show-ref --verify --quiet refs/tags/v1.0.0; then
+            version_args=(1.0.0)
+          fi
+          pnpm nx release version "${version_args[@]}" \
+            --stage-changes=false \
+            --git-commit=false \
+            --git-tag=false \
+            --git-push=false
 
       - name: Build packages
         run: pnpm build-all

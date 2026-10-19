@@ -10,51 +10,53 @@ The repository root is private. Nx owns coordinated versioning and publication;
 pnpm rewrites the components package's `workspace:*` token dependency to the
 matching release version when packing or publishing.
 
-## v2 alpha track
+## First stable release: 1.0.0
 
-`release/v2` starts at `2.0.0-alpha.0` and requires React 19, Tailwind v4,
-and Node 26 or newer. Node 26 is required now, not described as LTS.
-The publish script explicitly passes `--tag alpha` to Nx, and all three
-package manifests use `publishConfig.tag: alpha`, so prereleases
-never replace the stable npm `latest` tag. Use matching tags such as
-`v2.0.0-alpha.0`; do not publish until the release checks pass.
+`1.0.0` graduates the beta packages to the stable npm `latest` tag. It requires
+React 19, Tailwind v4, and Node 26 or newer. Consumers using Tailwind v3 must
+upgrade their Tailwind setup alongside Macaw; removing the prerelease suffix
+does not remove these compatibility changes.
 
-For subsequent alphas, use Nx's explicit version flow:
+All three package manifests and the publish script explicitly select `latest`.
+Install the stable release with:
 
 ```sh
-pnpm release:version 2.0.0-alpha.1 --dry-run
-pnpm release:version 2.0.0-alpha.1
-pnpm release:publish --tag alpha --dry-run
+pnpm add @langchain/macaw-components@1.0.0
+pnpm add -D @langchain/macaw-cli@1.0.0
 ```
 
-## Prepare a release
+Until `v1.0.0` exists, the build and release workflows explicitly select `1.0.0`
+so conventional commits do not bump the first stable version again. The version
+job can tag the verified merge commit when its manifests already contain the
+release version. Subsequent releases use Nx's conventional-commit versioning.
+
+## Release workflow
+
+Merge reviewed changes through the normal pull request process. On `main`, the
+release workflow:
+
+1. Prepares the release version and builds the packages with Node 26.
+2. Uses Nx to create any version commit and the shared release tag, then pushes
+   them atomically through the configured release app.
+3. Verifies the tag, licenses, package exports, types, and packed consumers.
+4. Publishes all three packages to npm `latest` and creates the GitHub release.
+
+Nx publishes dependencies before dependents and can skip versions already in
+the registry when recovering a partially completed publication. The `release`
+and `npm` GitHub environments retain their configured approval requirements.
+
+Before merging release changes, run:
 
 ```sh
-pnpm release:version patch --dry-run
-pnpm release:version patch
-pnpm release:changelog <new-version>
-pnpm format
 pnpm check
 pnpm pack:check
 ```
 
-Use an explicit version or `minor`/`major` when appropriate. Nx follows its
-pre-1.0 SemVer rules while the packages are at 0.x; review the dry-run output.
-For the first changelog, use `--first-release`.
-
-These commands do not automatically commit, tag, push, or create a GitHub
-release. Review and commit the package manifests, lockfile, and changelog, then
-merge through the normal review process. Update the README version badge too.
-
-After merge, create a GitHub release with a tag matching all three package
-versions, such as `v0.1.0`. The publish workflow verifies the tag and licenses,
-runs the full checks, verifies the tarballs, and publishes with Nx. Nx publishes
-dependencies before dependents and can skip versions already in the registry
-when recovering a partially completed release.
-
-The existing GitHub workflows still select Node 22/24. They are intentionally
-unchanged in this migration; update them to Node 26 before attempting a release
-or relying on CI as Node 26 verification.
+Update the package changelogs and README version badge when preparing an explicit
+release. After `1.0.0`, review Nx's planned version with
+`pnpm release:version --dry-run`; use `patch`, `minor`, or `major` explicitly when
+needed. `release:version` normally creates a local commit and tag, so use
+`--dry-run` for inspection.
 
 ## One-time npm setup
 
@@ -68,14 +70,15 @@ Packages request public access and provenance. Do not publish the workspace root
 or use `npm publish` directly on a manifest containing `workspace:*` dependencies;
 the configured Nx/pnpm publication flow performs that conversion.
 
-## Validate the release tooling without publishing
+## Validate without publishing
 
 ```sh
-pnpm release:version patch --dry-run
+pnpm release:version 1.0.0 --dry-run
 pnpm pack:check
-node scripts/verify-release-tag.mjs v0.1.0
+node scripts/verify-release-tag.mjs v1.0.0
+pnpm release:publish --dry-run --access public
 ```
 
-Substitute the current version in the last command. `pack:check` creates temporary
-tarballs, tests them in an isolated consumer, and removes them afterward. It does
-not publish anything.
+Substitute the intended release version in the version and tag commands for later
+releases. `pack:check` creates temporary tarballs, tests them in an isolated
+consumer, and removes them afterward. These checks do not publish anything.

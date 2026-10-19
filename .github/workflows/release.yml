@@ -60,12 +60,22 @@ jobs:
         run: |
           set -euo pipefail
           before=$(git rev-parse HEAD)
-          pnpm nx release version
+          first_stable=false
+          if git show-ref --verify --quiet refs/tags/v1.0.0; then
+            pnpm nx release version
+          else
+            first_stable=true
+            pnpm nx release version 1.0.0
+          fi
           after=$(git rev-parse HEAD)
 
           if [ "$before" = "$after" ]; then
-            echo "released=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            if [ "$first_stable" = true ]; then
+              git tag v1.0.0
+            else
+              echo "released=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
           fi
 
           unexpected_files=$(git diff --name-only "$before" "$after" \

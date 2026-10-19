@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "2.0.0-alpha.0",
+  "version": "1.0.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -549,7 +549,7 @@
   "publishConfig": {
     "access": "public",
     "provenance": true,
-    "tag": "alpha"
+    "tag": "latest"
   },
   "scripts": {
     "build": "node ../../scripts/build-components.mjs",
