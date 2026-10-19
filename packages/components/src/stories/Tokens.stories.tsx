@@ -850,7 +850,7 @@ const NamingConvention = () => (
             <th className="px-space-3 py-space-2 font-semibold">State</th>
           </tr>
         </thead>
-        <tbody className="[&>:not([hidden])~:not([hidden])]:border-t [&>*]:border-secondary bg-surface-level-1">
+        <tbody className="*:not-first:border-t *:border-secondary bg-surface-level-1">
           {tokenRows.map((token) => (
             <tr key={token.name}>
               <td className="px-space-3 py-space-2 font-mono text-xs text-primary">
@@ -900,7 +900,7 @@ const SelectedTokenDemo = () => {
             <div>Name</div>
             <div>State</div>
           </div>
-          <div className="[&>:not([hidden])~:not([hidden])]:border-t [&>*]:border-secondary bg-surface-level-1">
+          <div className="*:not-first:border-t *:border-secondary bg-surface-level-1">
             {selectedRows.map((row) => {
               const isSelected = row.id === selectedId;
               return (
