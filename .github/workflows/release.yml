@@ -71,7 +71,9 @@ jobs:
 
           if [ "$before" = "$after" ]; then
             if [ "$first_stable" = true ]; then
-              git tag v1.0.0
+              if ! git show-ref --verify --quiet refs/tags/v1.0.0; then
+                git tag v1.0.0
+              fi
             else
               echo "released=false" >> "$GITHUB_OUTPUT"
               exit 0
