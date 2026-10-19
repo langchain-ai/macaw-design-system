@@ -50,9 +50,10 @@ export function createJsonHighlighterExtension(
 
           const isActiveVariable = activeVariable === variableName;
 
+          // Tailwind v3 yellow-200/800 and green-100/950; v4 redefines that palette.
           const highlightClass = isActiveVariable
-            ? 'bg-yellow-200 dark:bg-yellow-800'
-            : 'bg-green-100 dark:bg-green-950';
+            ? 'bg-[#fef08a] dark:bg-[#854d0e]'
+            : 'bg-[#dcfce7] dark:bg-[#052e16]';
 
           if (path === dataType) {
             this.addDecoration(
