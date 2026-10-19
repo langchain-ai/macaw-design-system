@@ -180,7 +180,7 @@ if (
   !existsSync(resolve(repositoryRoot, 'dist/components.css'))
 )
   fail('styles.css must load compiled component styles');
-// This entry is also imported directly by applications still using Tailwind v3.
+// Keep component CSS from globally registering Tailwind's gradient properties.
 if (
   /@property\s+--tw-gradient-/.test(
     readFileSync(resolve(repositoryRoot, 'dist/components.css'), 'utf8')
