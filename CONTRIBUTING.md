@@ -113,5 +113,4 @@ code; PR authors should be able to explain and defend their work.
 
 Keep behavior and visuals unchanged when moving files across these boundaries.
 A public contract change needs the matching export map, documentation, and
-consumer verification updates. Releases use a shared version; see
-[RELEASING.md](docs/RELEASING.md).
+consumer verification updates. Releases use a shared version.

@@ -59,7 +59,7 @@ const WaveOverlay = () => (
         y="2"
         fill="url(#wave-gradient)"
         fillOpacity=".60"
-        className="blur-[4px]"
+        className="blur-xs"
         style={{ animation: 'wave-move 10s linear -8s infinite' }}
       />
       <use

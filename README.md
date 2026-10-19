@@ -111,8 +111,7 @@ Please report vulnerabilities privately through [SECURITY.md](SECURITY.md).
 ## Releases
 
 Nx coordinates versioning across all three packages. Publication runs from a
-matching GitHub release tag after validation. See [RELEASING.md](docs/RELEASING.md)
-for the release process and npm trusted-publishing setup.
+matching GitHub release tag after validation.
 
 ## Scope and ownership
 
