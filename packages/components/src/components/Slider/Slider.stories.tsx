@@ -179,7 +179,7 @@ export const AllVariants: Story = {
     const [stepValue, setStepValue] = useState(50);
     return (
       <div className="flex w-72 flex-col gap-space-6">
-        <div className="[&>:not([hidden])~:not([hidden])]:mt-space-2">
+        <div className="*:not-first:mt-space-2">
           <Text variant="h3" className="font-medium">
             Single thumb
           </Text>
@@ -194,7 +194,7 @@ export const AllVariants: Story = {
           />
         </div>
 
-        <div className="[&>:not([hidden])~:not([hidden])]:mt-space-2">
+        <div className="*:not-first:mt-space-2">
           <Text variant="h3" className="font-medium">
             Range (two thumbs)
           </Text>
@@ -209,7 +209,7 @@ export const AllVariants: Story = {
           />
         </div>
 
-        <div className="[&>:not([hidden])~:not([hidden])]:mt-space-2">
+        <div className="*:not-first:mt-space-2">
           <Text variant="h3" className="font-medium">
             With labeled steps
           </Text>
@@ -229,7 +229,7 @@ export const AllVariants: Story = {
           />
         </div>
 
-        <div className="[&>:not([hidden])~:not([hidden])]:mt-space-2">
+        <div className="*:not-first:mt-space-2">
           <Text variant="h3" className="font-medium">
             Disabled
           </Text>
