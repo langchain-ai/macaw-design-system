@@ -153,7 +153,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
         <td
           data-search-ignore=""
           className={cn(
-            'py-0 align-top select-none',
+            'px-px py-0 align-top select-none',
             isBlock && wrapLines && 'w-12'
           )}
         >

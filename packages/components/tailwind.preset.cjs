@@ -618,6 +618,15 @@ module.exports = {
           borderColor: 'var(--button-secondary-color-border-hover)',
         },
 
+        '.button-error-border': {
+          borderColor: 'var(--button-error-border)',
+        },
+        '.button-error-outlined-border': {
+          borderColor: 'var(--button-error-outlined-border)',
+        },
+        '.button-error-bg-hover': {
+          backgroundColor: 'var(--button-error-bg-hover)',
+        },
         '.button-error-underlined-foreground-hover': {
           color: 'var(--button-error-underlined-foreground-hover)',
         },

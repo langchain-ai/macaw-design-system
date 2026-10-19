@@ -89,7 +89,10 @@
     --button-secondary-color-bg-hover: var(--brand-50);
     --button-secondary-color-border: var(--brand-700);
     --button-secondary-color-border-hover: var(--brand-300);
-    /* Button-owned tokens for exact error variant colors. */
+    /* Button-owned error colors retain the v3 appearance in both themes. */
+    --button-error-border: #dc2626;
+    --button-error-outlined-border: #b91c1c;
+    --button-error-bg-hover: #b91c1c;
     --button-error-underlined-foreground-hover: var(--red-400);
     --button-error-underlined-border: var(--red-600);
     --button-error-underlined-border-hover: var(--red-400);
