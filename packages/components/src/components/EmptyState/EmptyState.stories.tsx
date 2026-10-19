@@ -109,7 +109,7 @@ export const SizesAndVariants: Story = {
     title: 'No automation rules',
   },
   render: () => (
-    <div className="grid grid-cols-1 gap-space-5 lg:grid-cols-3">
+    <div className="gap-space-5 grid grid-cols-1 lg:grid-cols-3">
       {emptyStateVariants.map((variant) =>
         emptyStateSizes.map((size) => (
           <EmptyState

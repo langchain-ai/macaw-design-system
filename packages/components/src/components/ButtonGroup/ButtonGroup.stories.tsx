@@ -109,7 +109,7 @@ export const MixedButtons: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div className="flex flex-col items-start gap-space-3">
+    <div className="gap-space-3 flex flex-col items-start">
       <ButtonGroup size="xs" color="secondary" variant="outlined">
         <Button>Extra small</Button>
         <IconButton icon={CaretDownIcon} label="Extra small options" />

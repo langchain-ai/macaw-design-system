@@ -63,8 +63,8 @@ function MenuItemRow({
       : 'size-4 text-icon-secondary';
 
   return (
-    <div className="flex w-full items-center justify-between gap-space-4">
-      <div className="flex items-center gap-space-2">
+    <div className="gap-space-4 flex w-full items-center justify-between">
+      <div className="gap-space-2 flex items-center">
         <Icon className={iconClassName} />
         <Text
           as="span"
@@ -75,7 +75,7 @@ function MenuItemRow({
         </Text>
       </div>
       {EndIcon ? (
-        <EndIcon className="size-4 text-icon-tertiary" />
+        <EndIcon className="text-icon-tertiary size-4" />
       ) : shortcut ? (
         <Text as="span" variant="xs" color="tertiary">
           {shortcut}
@@ -87,7 +87,7 @@ function MenuItemRow({
 
 function ActionStatus({ action }: { action: string }) {
   return (
-    <div className="rounded-lg border border-subtle bg-surface-level-1 p-space-4">
+    <div className="border-subtle bg-surface-level-1 p-space-4 rounded-lg border">
       <Text variant="xs" color="secondary">
         Last action: {action}
       </Text>
@@ -100,7 +100,7 @@ export const Default: Story = {
     const [lastAction, setLastAction] = useState('Nothing selected');
 
     return (
-      <div className="flex flex-col gap-space-4">
+      <div className="gap-space-4 flex flex-col">
         <ActionStatus action={lastAction} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -153,7 +153,7 @@ export const WithSubmenu: Story = {
     const [lastAction, setLastAction] = useState('Nothing selected');
 
     return (
-      <div className="flex flex-col gap-space-4">
+      <div className="gap-space-4 flex flex-col">
         <ActionStatus action={lastAction} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -219,13 +219,13 @@ export const PreventClickThrough: Story = {
     const [rowClicks, setRowClicks] = useState(0);
 
     return (
-      <div className="flex w-[22rem] flex-col gap-space-4">
+      <div className="gap-space-4 flex w-[22rem] flex-col">
         <ActionStatus action={lastAction} />
         <div
-          className="flex items-center justify-between rounded-lg border border-default bg-surface-level-2 p-space-4"
+          className="border-default bg-surface-level-2 p-space-4 flex items-center justify-between rounded-lg border"
           onClick={() => setRowClicks((count) => count + 1)}
         >
-          <div className="flex flex-col gap-space-1">
+          <div className="gap-space-1 flex flex-col">
             <Text variant="sm" weight="semibold">
               Project row
             </Text>

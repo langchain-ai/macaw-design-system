@@ -79,9 +79,9 @@ export const Sizes: Story = {
       { size: 'xl', px: 48 },
     ];
     return (
-      <div className="flex items-end gap-space-4">
+      <div className="gap-space-4 flex items-end">
         {sizes.map(({ size, px }) => (
-          <div key={size} className="flex flex-col items-center gap-space-2">
+          <div key={size} className="gap-space-2 flex flex-col items-center">
             <Avatar label="Ada Lovelace" size={size} />
             <Text variant="xs" color="tertiary">
               {size} · {px}px
@@ -96,7 +96,7 @@ export const Sizes: Story = {
 /** Square (members, orgs) vs circle (reviewers, feedback users). */
 export const Shapes: Story = {
   render: () => (
-    <div className="flex items-center gap-space-4">
+    <div className="gap-space-4 flex items-center">
       <Avatar label="LangChain" size="md" shape="square" />
       <Avatar label="Grace Hopper" size="md" shape="circle" />
     </div>
@@ -106,7 +106,7 @@ export const Shapes: Story = {
 /** An image (e.g. a member's `avatar_url`) replaces the initial when present. */
 export const Image: Story = {
   render: () => (
-    <div className="flex items-center gap-space-4">
+    <div className="gap-space-4 flex items-center">
       <Avatar
         label="Harrison Chase"
         imageUrl="https://github.com/hwchase17.png"
@@ -143,7 +143,7 @@ export const WithFallbackIcon: Story = {
       shape="circle"
       size="md"
       fallbackIcon={
-        <span className="inline-flex shrink-0 text-brand-on-fill">
+        <span className="text-brand-on-fill inline-flex shrink-0">
           <UserIcon size={16} weight="regular" />
         </span>
       }
@@ -154,7 +154,7 @@ export const WithFallbackIcon: Story = {
 /** `active` highlights the current user's own feedback/notes with the brand fill. */
 export const Active: Story = {
   render: () => (
-    <div className="flex items-center gap-space-4">
+    <div className="gap-space-4 flex items-center">
       <Avatar label="Alan Turing" shape="circle" size="md" />
       <Avatar label="Alan Turing" shape="circle" size="md" active />
     </div>

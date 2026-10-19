@@ -56,7 +56,7 @@ const TopListValueLabel = ({
       y={y}
       dominantBaseline="middle"
       textAnchor={isNegative ? 'end' : 'start'}
-      className="fill-current font-mono text-xs text-secondary"
+      className="text-secondary fill-current font-mono text-xs"
     >
       {label}
     </animated.text>
@@ -155,7 +155,7 @@ const TopListOverlay = <Item extends TopListItem>({
           width={categoryLabelWidth}
           height={bandwidth}
         >
-          <div className="flex size-full min-w-0 items-center justify-end overflow-hidden pr-space-3">
+          <div className="pr-space-3 flex size-full min-w-0 items-center justify-end overflow-hidden">
             <Text
               as="span"
               variant="xs"

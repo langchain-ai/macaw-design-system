@@ -45,7 +45,7 @@ export type ChartCardState = 'ready' | 'loading' | 'error';
 const ChartCardLoadingState = () => (
   <div
     role="status"
-    className="flex min-h-[13.5rem] flex-1 flex-col gap-space-2"
+    className="gap-space-2 flex min-h-[13.5rem] flex-1 flex-col"
   >
     <div className="relative min-h-0 flex-1">
       <Skeleton className="size-full rounded-md" />
@@ -57,7 +57,7 @@ const ChartCardLoadingState = () => (
         Loading...
       </Text>
     </div>
-    <div aria-hidden="true" className="flex min-w-0 items-center gap-space-2">
+    <div aria-hidden="true" className="gap-space-2 flex min-w-0 items-center">
       <Skeleton className="h-4 w-20" />
       <Skeleton className="h-4 w-24" />
       <Skeleton className="h-4 w-40" />
@@ -181,13 +181,13 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
         aria-labelledby={ariaLabelledBy ?? titleId}
         aria-busy={ariaBusy ?? (isLoading || undefined)}
         className={cn(
-          'flex min-w-0 flex-col overflow-hidden border border-muted bg-surface-level-1',
+          'border-muted bg-surface-level-1 flex min-w-0 flex-col overflow-hidden border',
           isFullWidth && 'w-full',
           className
         )}
         {...props}
       >
-        <div className="flex min-w-0 items-center justify-between gap-space-3 pl-space-3 pr-space-2 pt-space-2">
+        <div className="gap-space-3 pl-space-3 pr-space-2 pt-space-2 flex min-w-0 items-center justify-between">
           <div className="flex min-w-0 flex-1 items-center">
             {showDragHandle && (
               <IconButton
@@ -209,7 +209,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
                 }}
               />
             )}
-            <div className="flex min-w-0 flex-1 flex-col gap-space-1">
+            <div className="gap-space-1 flex min-w-0 flex-1 flex-col">
               <Text
                 id={titleId}
                 as="h3"
@@ -239,7 +239,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
               )}
             >
               {!!headerActions && (
-                <div className="flex items-center pr-space-1">
+                <div className="pr-space-1 flex items-center">
                   {headerActions}
                 </div>
               )}
@@ -304,7 +304,7 @@ export const ChartCard = forwardRef<HTMLElement, ChartCardProps>(
 
         <div
           className={cn(
-            'flex min-h-0 flex-1 flex-col gap-space-2 px-space-3 py-space-2',
+            'gap-space-2 px-space-3 py-space-2 flex min-h-0 flex-1 flex-col',
             contentClassName
           )}
         >

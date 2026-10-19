@@ -251,13 +251,13 @@ export function TypeaheadView<TOption>({
   const inputField = (
     <div
       className={cn(
-        'flex items-center gap-space-2',
+        'gap-space-2 flex items-center',
         multiple ? 'min-w-0 flex-1' : 'flex-1',
         !multiple && (size === 'xs' ? 'min-w-12' : 'min-w-16')
       )}
     >
       {leftDecorator != null ? (
-        <div className="flex min-w-0 shrink items-center text-icon-tertiary">
+        <div className="text-icon-tertiary flex min-w-0 shrink items-center">
           {leftDecorator}
         </div>
       ) : !multiple && !hasValue ? (
@@ -302,7 +302,7 @@ export function TypeaheadView<TOption>({
         aria-describedby={multiple ? selectedSummaryId : undefined}
         aria-label={inputAriaLabel}
         className={cn(
-          'min-w-0 max-w-full border-none bg-transparent p-0 outline-none placeholder:text-placeholder',
+          'placeholder:text-placeholder max-w-full min-w-0 border-none bg-transparent p-0 outline-none',
           INPUT_TEXT_CLASSES[size],
           disabled && 'cursor-not-allowed',
           multiple
@@ -315,7 +315,7 @@ export function TypeaheadView<TOption>({
   const actionControls = (
     <div
       className={cn(
-        'flex shrink-0 items-center gap-space-1 text-icon-tertiary',
+        'gap-space-1 text-icon-tertiary flex shrink-0 items-center',
         multiple ? 'self-center' : 'ml-auto'
       )}
       style={{
@@ -365,10 +365,10 @@ export function TypeaheadView<TOption>({
             data-testid={dataTestId}
             onBlur={handleBlur}
             className={cn(
-              'w-full cursor-text border border-default bg-elevated text-primary transition-colors',
+              'border-default bg-elevated text-primary w-full cursor-text border transition-colors',
               multiple
-                ? 'flex flex-wrap items-center gap-space-1'
-                : 'flex items-center gap-space-1 overflow-hidden',
+                ? 'gap-space-1 flex flex-wrap items-center'
+                : 'gap-space-1 flex items-center overflow-hidden',
               'focus-within:border-focus focus-within:bg-elevated hover:bg-elevated-hover',
               controlHeightClass,
               multiple && {
@@ -381,7 +381,7 @@ export function TypeaheadView<TOption>({
               CONTROL_RADIUS_CLASSES[size],
               isError && 'border-error focus-within:border-error',
               disabled &&
-                'cursor-not-allowed border-disabled bg-disabled text-disabled opacity-70',
+                'border-disabled bg-disabled text-disabled cursor-not-allowed opacity-70',
               className
             )}
             onClick={(event) => {
@@ -395,7 +395,7 @@ export function TypeaheadView<TOption>({
             {multiple ? (
               <>
                 {renderedTags}
-                <div className="flex min-w-16 flex-1 items-center gap-space-1">
+                <div className="gap-space-1 flex min-w-16 flex-1 items-center">
                   {inputField}
                   {actionControls}
                 </div>
@@ -422,7 +422,7 @@ export function TypeaheadView<TOption>({
 
         <PopoverContent
           ref={popoverContentRef}
-          className="w-[var(--radix-popover-trigger-width)] min-w-48 max-w-[calc(100vw-1rem)] bg-elevated p-space-1 text-primary"
+          className="bg-elevated p-space-1 text-primary w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-1rem)] min-w-48"
           align="start"
           sideOffset={4}
           onEscapeKeyDown={handleEscapeKeyDown}
@@ -474,7 +474,7 @@ export function TypeaheadView<TOption>({
                   aria-checked={multiple ? selected : undefined}
                   size={itemRowSize}
                   className={cn(
-                    'flex items-center gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2',
+                    'gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2 flex items-center',
                     optionDisabled && 'text-disabled'
                   )}
                 >
@@ -503,7 +503,7 @@ export function TypeaheadView<TOption>({
                     ? `Add ${createOption.inputValue}`
                     : 'Add new'
                 }
-                className="flex items-center gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2"
+                className="gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2 flex items-center"
               >
                 <TypeaheadCreateOption
                   inputValue={createOption.inputValue}

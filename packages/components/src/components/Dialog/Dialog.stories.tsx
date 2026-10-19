@@ -50,7 +50,7 @@ export const Default: Story = {
             <Text variant="sm" color="secondary">
               This is the dialog body. Put any content here.
             </Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -77,7 +77,7 @@ export const WithDescription: Story = {
             <Text variant="sm" color="secondary">
               Dialog body content goes here.
             </Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -98,8 +98,8 @@ export const WithCustomHeader: Story = {
         <Button onClick={() => setOpen(true)}>Open custom dialog</Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent showClose={false} childrenClassName="gap-space-5">
-            <div className="flex items-start justify-between gap-space-4">
-              <div className="flex flex-col gap-space-1">
+            <div className="gap-space-4 flex items-start justify-between">
+              <div className="gap-space-1 flex flex-col">
                 <DialogTitle asChild>
                   <Text variant="h3" weight="semibold">
                     Custom dialog title
@@ -138,7 +138,7 @@ export const WithForm: Story = {
             title="Create project"
             description="Create a project from scratch."
           >
-            <div className="flex flex-col gap-space-3">
+            <div className="gap-space-3 flex flex-col">
               <Input
                 label="Project name"
                 placeholder="Enter project name..."
@@ -150,7 +150,7 @@ export const WithForm: Story = {
                 onChange={() => {}}
               />
             </div>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -182,7 +182,7 @@ export const WithScrollableContent: Story = {
                 onChange={() => {}}
               />
             ))}
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -207,7 +207,7 @@ export const WithoutClose: Story = {
               This dialog hides the close button, forcing the user to use the
               action buttons to dismiss it.
             </Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -241,7 +241,7 @@ export const WithIconError: Story = {
             <Text variant="body" color="secondary">
               You have unsaved changes that will be lost if you leave.
             </Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -275,7 +275,7 @@ export const WithIconWarning: Story = {
             <Text variant="body" color="secondary">
               You have unsaved changes that will be lost if you leave.
             </Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Stay
               </Button>
@@ -311,7 +311,7 @@ export const WithIconInfo: Story = {
             <Text variant="body" color="secondary">
               This is an example for an info variant.
             </Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setOpen(false)}>
                 Cancel
               </Button>

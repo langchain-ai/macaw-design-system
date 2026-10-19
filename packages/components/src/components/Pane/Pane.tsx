@@ -89,7 +89,7 @@ function PlainPane({
           <RadixDialog.Overlay
             data-pane-interaction-boundary
             className={cn(
-              'fixed inset-0 bg-overlay',
+              'bg-overlay fixed inset-0',
               animation &&
                 'data-[state=open]:animate-overlay-in data-[state=closed]:animate-overlay-out motion-reduce:animate-none',
               transparentBackdrop ? 'bg-transparent' : ''
@@ -101,7 +101,7 @@ function PlainPane({
             <RadixDialog.Content
               ref={mergeRefs([scrollParentRef, setContentNode])}
               className={cn(
-                'relative flex h-[100vh] flex-col items-stretch overflow-y-auto bg-elevated shadow-lg',
+                'bg-elevated relative flex h-[100vh] flex-col items-stretch overflow-y-auto shadow-lg',
                 'focus:outline-none focus-visible:outline-none',
                 animation &&
                   'data-[state=open]:animate-slide-left data-[state=closed]:animate-slide-right motion-reduce:animate-none'
@@ -221,7 +221,7 @@ export function Pane({
       >
         <header
           className={cn(
-            'sticky top-0 flex items-center gap-space-1 border-b border-b-subtle bg-elevated py-1.5 pl-[10px] pr-space-4',
+            'gap-space-1 border-b-subtle bg-elevated pr-space-4 sticky top-0 flex items-center border-b py-1.5 pl-[10px]',
             headerClassName
           )}
           data-testid={`pane-header-${title}`}
@@ -237,7 +237,7 @@ export function Pane({
               iconClassName="size-5 text-quaternary"
             />
           )}
-          <div className="flex min-w-0 flex-col gap-space-1">
+          <div className="gap-space-1 flex min-w-0 flex-col">
             <RadixDialog.Title asChild>
               <Text
                 as="h2"
@@ -261,14 +261,14 @@ export function Pane({
               </RadixDialog.Description>
             )}
           </div>
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-space-2">
+          <div className="gap-space-2 flex min-w-0 flex-1 items-center justify-end">
             {topBarRightElement}
-            <TopBarPaneSlot.Slot className="flex items-center gap-space-2 empty:hidden" />
+            <TopBarPaneSlot.Slot className="gap-space-2 flex items-center empty:hidden" />
           </div>
         </header>
         <div
           className={cn(
-            'flex-1 pb-space-8 pl-space-7 pr-space-4 pt-space-4',
+            'pb-space-8 pl-space-7 pr-space-4 pt-space-4 flex-1',
             className
           )}
         >

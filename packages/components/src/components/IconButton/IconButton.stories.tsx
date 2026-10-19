@@ -129,7 +129,7 @@ export const AllVariants: Story = {
       {/* Primary variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Primary Color</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <IconButton
             color="primary"
             variant="normal"
@@ -161,7 +161,7 @@ export const AllVariants: Story = {
       {/* Secondary variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Secondary Color</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <IconButton
             color="secondary"
             variant="normal"
@@ -193,7 +193,7 @@ export const AllVariants: Story = {
       {/* Error variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Error Color</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <IconButton
             color="error"
             variant="normal"
@@ -225,7 +225,7 @@ export const AllVariants: Story = {
       {/* Round variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Round Variants</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <IconButton variant="normal" round icon={PlusIcon} label="Add" />
           <IconButton
             variant="outlined"
@@ -247,7 +247,7 @@ export const AllVariants: Story = {
       {/* Sizes variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Size Variants</h3>
-        <div className="flex flex-wrap items-center gap-space-4">
+        <div className="gap-space-4 flex flex-wrap items-center">
           <IconButton
             size="xxs"
             variant="outlined"
@@ -292,7 +292,7 @@ export const AllVariants: Story = {
       {/* Different icons */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Different Icons</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <IconButton icon={PlusIcon} label="Add" />
           <IconButton icon={PencilSimpleIcon} label="Edit" />
           <IconButton icon={TrashIcon} label="Delete" />
@@ -307,7 +307,7 @@ export const AllVariants: Story = {
       {/* Disabled states */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Disabled States</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <IconButton
             disabled
             color="primary"
@@ -352,7 +352,7 @@ export const InteractiveExample: Story = {
   render: () => (
     <div className="space-y-space-4">
       <h3 className="text-lg font-semibold">Interactive Examples</h3>
-      <div className="flex flex-wrap gap-space-4">
+      <div className="gap-space-4 flex flex-wrap">
         <IconButton
           icon={PlusIcon}
           onClick={() => alert('Add clicked!')}

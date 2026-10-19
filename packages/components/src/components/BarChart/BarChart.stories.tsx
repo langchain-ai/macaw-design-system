@@ -90,7 +90,7 @@ const BarChartStoryTooltip = ({
   activeBarId?: string | null;
 }) => (
   <div
-    className="pointer-events-none absolute top-0 mt-space-6 -translate-x-1/2 p-space-2"
+    className="mt-space-6 p-space-2 pointer-events-none absolute top-0 -translate-x-1/2"
     style={{ left: datum.xPosition }}
   >
     <ChartTooltip>
@@ -169,7 +169,7 @@ export const Grouped: Story = {
     const [activeBarId, setActiveBarId] = useState<string | null>(null);
 
     return (
-      <div className="mx-auto flex h-80 w-full max-w-3xl flex-col gap-space-2">
+      <div className="gap-space-2 mx-auto flex h-80 w-full max-w-3xl flex-col">
         <ChartLegend
           aria-label="Requests by environment legend"
           items={getLegendItems(args.series)}
@@ -234,7 +234,7 @@ export const FilterableLegend: Story = {
     );
 
     return (
-      <div className="mx-auto flex h-80 w-full max-w-3xl flex-col gap-space-2">
+      <div className="gap-space-2 mx-auto flex h-80 w-full max-w-3xl flex-col">
         <ChartLegend
           aria-label="Requests by environment legend"
           items={getLegendItems(args.series, selectedIds)}
@@ -271,7 +271,7 @@ export const StackedWithConsumerTooltip: Story = {
           description="Click a bucket to pin or unpin its tooltip"
           className="h-96"
         >
-          <div className="flex size-full min-h-0 min-w-0 flex-col gap-space-2">
+          <div className="gap-space-2 flex size-full min-h-0 min-w-0 flex-col">
             <ChartLegend
               aria-label="Stacked requests by environment legend"
               items={getLegendItems(requestSeries)}
@@ -386,7 +386,7 @@ export const MultipleAxes: Story = {
     ];
 
     return (
-      <div className="mx-auto flex h-80 w-full max-w-3xl flex-col gap-space-2">
+      <div className="gap-space-2 mx-auto flex h-80 w-full max-w-3xl flex-col">
         <ChartLegend
           aria-label="Daily spend and request count legend"
           items={getLegendItems(series)}

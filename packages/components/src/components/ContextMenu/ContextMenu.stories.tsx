@@ -53,12 +53,12 @@ const TriggerPanel = forwardRef<
     <div
       ref={ref}
       className={cn(
-        'flex min-h-40 w-[22rem] cursor-context-menu items-center justify-center rounded-lg border border-default bg-surface-level-2 p-space-6 text-center',
+        'border-default bg-surface-level-2 p-space-6 flex min-h-40 w-[22rem] cursor-context-menu items-center justify-center rounded-lg border text-center',
         className
       )}
       {...props}
     >
-      <div className="flex flex-col items-center gap-space-2">
+      <div className="gap-space-2 flex flex-col items-center">
         <Text variant="sm" weight="semibold">
           {title}
         </Text>
@@ -84,13 +84,13 @@ function MenuItemRow({
   const Icon = icon;
 
   return (
-    <div className="flex w-full items-center justify-between gap-space-3">
-      <div className="flex items-center gap-space-2">
+    <div className="gap-space-3 flex w-full items-center justify-between">
+      <div className="gap-space-2 flex items-center">
         <Icon
           className={
             tone === 'destructive'
-              ? 'size-4 text-error-secondary'
-              : 'size-4 text-icon-secondary'
+              ? 'text-error-secondary size-4'
+              : 'text-icon-secondary size-4'
           }
         />
         <Text
@@ -115,8 +115,8 @@ export const Default: Story = {
     const [lastAction, setLastAction] = useState('Nothing selected');
 
     return (
-      <div className="flex flex-col gap-space-4">
-        <div className="rounded-lg border border-subtle bg-surface-level-1 p-space-4">
+      <div className="gap-space-4 flex flex-col">
+        <div className="border-subtle bg-surface-level-1 p-space-4 rounded-lg border">
           <Text variant="xs" color="secondary">
             Last action: {lastAction}
           </Text>
@@ -163,8 +163,8 @@ export const FileActions: Story = {
     const [lastAction, setLastAction] = useState('Nothing selected');
 
     return (
-      <div className="flex flex-col gap-space-4">
-        <div className="rounded-lg border border-subtle bg-surface-level-1 p-space-4">
+      <div className="gap-space-4 flex flex-col">
+        <div className="border-subtle bg-surface-level-1 p-space-4 rounded-lg border">
           <Text variant="xs" color="secondary">
             Last action: {lastAction}
           </Text>

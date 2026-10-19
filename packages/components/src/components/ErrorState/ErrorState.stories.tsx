@@ -22,7 +22,7 @@ const meta: Meta<typeof ErrorState> = {
   },
   decorators: [
     (Story) => (
-      <div className="h-[600px] w-full bg-surface-level-1">
+      <div className="bg-surface-level-1 h-[600px] w-full">
         <Story />
       </div>
     ),

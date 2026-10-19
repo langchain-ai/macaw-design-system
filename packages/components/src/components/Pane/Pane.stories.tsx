@@ -55,7 +55,7 @@ export const Default: Story = {
         <Button onClick={() => setOpen(true)}>Open pane</Button>
         <Pane open={open} onClose={() => setOpen(false)} title="Create sandbox">
           <TopBarPaneSlot.Fill>
-            <div className="flex gap-space-2">
+            <div className="gap-space-2 flex">
               <Button
                 color="secondary"
                 size="sm"
@@ -68,7 +68,7 @@ export const Default: Story = {
               </Button>
             </div>
           </TopBarPaneSlot.Fill>
-          <div className="flex flex-col gap-space-4">
+          <div className="gap-space-4 flex flex-col">
             <Input
               label="Name"
               placeholder="Enter a name..."
@@ -92,7 +92,7 @@ export const Animated: Story = {
     const [nonAnimatedOpen, setNonAnimatedOpen] = useState(false);
     return (
       <>
-        <div className="flex gap-space-2">
+        <div className="gap-space-2 flex">
           <Button onClick={() => setAnimatedOpen(true)}>
             Open animated pane
           </Button>

@@ -19,35 +19,6 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f
-        with:
-          mode: firewall-free
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 22
-
-      - run: corepack enable
-      - run: corepack prepare pnpm@10.27.0 --activate
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm build:storybook
-        env:
-          STORYBOOK_BASE_PATH: /pr-${{ github.event.pull_request.number }}/
-
-      - name: Require a Storybook index
-        run: test -f storybook-static/index.html
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: storybook-static
-          path: storybook-static
-          if-no-files-found: error
-          retention-days: 1
+    uses: ./.github/workflows/build-storybook.yml
+    with:
+      base_path: /pr-${{ github.event.pull_request.number }}/

@@ -254,12 +254,12 @@ export const AllVariants: Story = {
       {/* Size variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Size Variants</h3>
-        <div className="flex flex-wrap items-center gap-space-4">
+        <div className="gap-space-4 flex flex-wrap items-center">
           <Button size="xs">Extra Small Button</Button>
           <Button size="sm">Small Button</Button>
           <Button size="md">Medium Button</Button>
         </div>
-        <div className="flex flex-wrap items-center gap-space-4">
+        <div className="gap-space-4 flex flex-wrap items-center">
           <Button size="xs" leftDecorator={PlusIcon}>
             Extra Small with Icon
           </Button>
@@ -275,7 +275,7 @@ export const AllVariants: Story = {
       {/* Primary variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Primary Color</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <Button color="primary" variant="normal">
             Normal
           </Button>
@@ -294,7 +294,7 @@ export const AllVariants: Story = {
       {/* Secondary variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Secondary Color</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <Button color="secondary" variant="normal">
             Normal
           </Button>
@@ -313,7 +313,7 @@ export const AllVariants: Story = {
       {/* Error variants */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Error Color</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <Button color="error" variant="normal">
             Normal
           </Button>
@@ -332,7 +332,7 @@ export const AllVariants: Story = {
       {/* With decorators */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">With Decorators</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <Button leftDecorator={PlusIcon}>Add</Button>
           <Button rightDecorator={ArrowRightIcon}>Continue</Button>
           <Button
@@ -347,7 +347,7 @@ export const AllVariants: Story = {
       {/* With tags */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">With Tags</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <Button tagText="New">Button with Right Tag</Button>
           <Button tagText="Beta" tagPosition="left">
             Button with Left Tag
@@ -358,7 +358,7 @@ export const AllVariants: Story = {
       {/* Disabled states */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Disabled States</h3>
-        <div className="flex flex-wrap gap-space-4">
+        <div className="gap-space-4 flex flex-wrap">
           <Button disabled color="primary" variant="normal">
             Disabled Primary Normal
           </Button>
@@ -394,7 +394,7 @@ export const InteractiveExample: Story = {
   render: () => (
     <div className="space-y-space-4">
       <h3 className="text-lg font-semibold">Interactive Examples</h3>
-      <div className="flex flex-wrap gap-space-4">
+      <div className="gap-space-4 flex flex-wrap">
         <Button leftDecorator={PlusIcon} onClick={() => alert('Add clicked!')}>
           Add Item
         </Button>

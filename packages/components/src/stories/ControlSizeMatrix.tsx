@@ -14,9 +14,9 @@ export function ControlVariantGrid<Variant extends string>({
   children,
 }: ControlVariantGridProps<Variant>) {
   return (
-    <div className="grid w-[48rem] max-w-full grid-cols-1 gap-space-6 sm:grid-cols-2">
+    <div className="gap-space-6 grid w-[48rem] max-w-full grid-cols-1 sm:grid-cols-2">
       {variants.map(({ value, label }) => (
-        <div key={value} className="flex min-w-0 flex-col gap-space-5">
+        <div key={value} className="gap-space-5 flex min-w-0 flex-col">
           <Text as="h3" weight="medium">
             {label}
           </Text>
@@ -40,7 +40,7 @@ export function ControlSizeMatrix<Variant extends string>({
     <ControlVariantGrid variants={variants}>
       {(variant) =>
         Object.values(CONTROL_SIZES).map(({ name }) => (
-          <div key={name} className="flex min-w-0 flex-col gap-space-2">
+          <div key={name} className="gap-space-2 flex min-w-0 flex-col">
             <Text variant="xs" color="secondary">
               {name}
             </Text>

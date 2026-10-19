@@ -58,7 +58,7 @@ export const Controlled: Story = {
   render: function ControlledRadioGroup() {
     const [value, setValue] = useState('option1');
     return (
-      <div className="flex flex-col gap-space-3">
+      <div className="gap-space-3 flex flex-col">
         <RadioGroup value={value} onValueChange={setValue}>
           <RadioButton value="option1" label="Option 1" />
           <RadioButton value="option2" label="Option 2" />
@@ -96,7 +96,7 @@ export const HorizontalLayout: Story = {
       <RadioGroup
         value={value}
         onValueChange={setValue}
-        className="flex-row gap-space-6"
+        className="gap-space-6 flex-row"
       >
         <RadioButton value="option1" label="Option 1" />
         <RadioButton value="option2" label="Option 2" />
@@ -127,11 +127,11 @@ function SelectableRow({
   return (
     <label
       className={cn(
-        'flex cursor-pointer items-center gap-space-3 rounded-lg border p-space-4',
+        'gap-space-3 p-space-4 flex cursor-pointer items-center rounded-lg border',
         selected ? 'border-brand' : 'border-subtle'
       )}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-space-1">
+      <div className="gap-space-1 flex min-w-0 flex-1 flex-col">
         <Text weight="medium">{label}</Text>
         <Text variant="sm" color="tertiary">
           {description}

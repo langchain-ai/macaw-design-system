@@ -59,7 +59,7 @@ function RunList({
   onSelect: (index: number) => void;
 }) {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-space-3">
+    <div className="gap-space-3 mx-auto flex max-w-3xl flex-col">
       <div className="flex items-center justify-between">
         <div>
           <Text variant="h2">Runs</Text>
@@ -70,14 +70,14 @@ function RunList({
         {action}
       </div>
 
-      <div className="rounded-lg border border-subtle bg-surface-level-1">
+      <div className="border-subtle bg-surface-level-1 rounded-lg border">
         {runs.map((run, index) => (
           <Button
             key={run.name}
             variant="plain"
             color="secondary"
             aria-label={`Open ${run.name} details`}
-            className="w-full justify-between rounded-none border-0 border-b border-subtle px-space-4 py-space-3 text-left first:rounded-t-lg last:rounded-b-lg last:border-b-0"
+            className="border-subtle px-space-4 py-space-3 w-full justify-between rounded-none border-0 border-b text-left first:rounded-t-lg last:rounded-b-lg last:border-b-0"
             onClick={() => onSelect(index)}
           >
             <Text variant="sm" weight="medium">
@@ -95,8 +95,8 @@ function RunList({
 
 function RunSummary({ run }: { run: Run | undefined }) {
   return (
-    <div className="flex flex-col gap-space-5 p-space-5">
-      <div className="flex flex-col gap-space-1">
+    <div className="gap-space-5 p-space-5 flex flex-col">
+      <div className="gap-space-1 flex flex-col">
         <Text variant="h2">{run?.name}</Text>
         <Text variant="sm" color="secondary">
           {run?.status} · {run?.latency}
@@ -120,7 +120,7 @@ export const RunDetails: StoryObj<typeof SplitViewPane> = {
         : undefined;
 
     return (
-      <div className="min-h-screen bg-surface-level-2 p-space-6">
+      <div className="bg-surface-level-2 p-space-6 min-h-screen">
         <RunList
           action={
             <Button size="sm" onClick={() => setOpen(true)}>
@@ -167,8 +167,8 @@ export const Inline: StoryObj<typeof SplitViewPane> = {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     return (
-      <div className="flex h-screen bg-surface-level-2">
-        <div className="min-w-0 flex-1 overflow-y-auto p-space-6">
+      <div className="bg-surface-level-2 flex h-screen">
+        <div className="p-space-6 min-w-0 flex-1 overflow-y-auto">
           <RunList
             action={
               <Button size="sm" onClick={() => setOpen((value) => !value)}>
@@ -182,7 +182,7 @@ export const Inline: StoryObj<typeof SplitViewPane> = {
           />
         </div>
         <SplitViewPane open={open} variant="inline">
-          <div className="h-full w-96 border-l border-subtle bg-elevated">
+          <div className="border-subtle bg-elevated h-full w-96 border-l">
             <RunSummary run={runs[selectedIndex]} />
           </div>
         </SplitViewPane>

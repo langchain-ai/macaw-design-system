@@ -91,7 +91,7 @@ export const RadioCard = forwardRef<HTMLButtonElement, RadioCardProps>(
           // Named group so nested collapsible content can reference it safely
           // even when RadioCards are nested inside other groups.
           'group/rc',
-          'flex items-center rounded-lg border-2 border-secondary p-space-4 transition-colors has-[[role=radio][data-state=checked]]:border-brand',
+          'border-secondary p-space-4 has-[[role=radio][data-state=checked]]:border-brand flex items-center rounded-lg border-2 transition-colors',
           size === 'sm' ? 'gap-space-3' : 'gap-space-4',
           disabled ? 'cursor-not-allowed' : 'cursor-pointer',
           !disabled && 'hover:bg-primary-hover',
@@ -107,7 +107,7 @@ export const RadioCard = forwardRef<HTMLButtonElement, RadioCardProps>(
           radioPosition === 'left' && radioItem
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col gap-space-2">
+        <div className="gap-space-2 flex min-w-0 flex-1 flex-col">
           {children}
           {collapsible != null && (
             <div className="hidden group-has-[[role=radio][data-state=checked]]/rc:block">

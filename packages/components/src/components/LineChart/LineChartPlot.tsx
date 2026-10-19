@@ -30,9 +30,11 @@ import type {
   LineChartDisplaySeries,
   LineChartInteractionDatum,
   LineChartSelectionRange,
+  LineChartVerticalMarker,
   LineChartYBand,
 } from './LineChart.types';
 import { getLineSegments, getSelectionBounds } from './LineChart.utils';
+import { LineChartVerticalMarkers } from './LineChartVerticalMarkers';
 
 const defaultFormatValue = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
@@ -81,6 +83,7 @@ type LineChartPlotProps = {
   activeLegendItemId?: string | null;
   selectionRange?: LineChartSelectionRange;
   yBands: readonly LineChartYBand[];
+  verticalMarkers: readonly LineChartVerticalMarker[];
   shouldAnimate: boolean;
   isRendering: boolean;
   'aria-describedby'?: AriaAttributes['aria-describedby'];
@@ -124,6 +127,7 @@ export const LineChartPlot = ({
   activeLegendItemId,
   selectionRange,
   yBands,
+  verticalMarkers,
   shouldAnimate,
   isRendering,
   onDatumPointerDown,
@@ -303,6 +307,12 @@ export const LineChartPlot = ({
               strokeDasharray={CHART_DASHED_STROKE_DASHARRAY}
             />
           )}
+          <LineChartVerticalMarkers
+            verticalMarkers={verticalMarkers}
+            innerWidth={innerWidth}
+            innerHeight={innerHeight}
+            getXPosition={getXPosition}
+          />
           <AxisBottom
             scale={xScale}
             top={innerHeight}
@@ -372,7 +382,7 @@ export const LineChartPlot = ({
                           strokeWidth={item.strokeWidth}
                           strokeDasharray={item.strokeDasharray}
                           opacity={getSeriesOpacity(item)}
-                          className="transition-opacity duration-fast motion-reduce:transition-none"
+                          className="duration-fast transition-opacity motion-reduce:transition-none"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           x={(point) => getXPosition(point.x)}
@@ -398,7 +408,7 @@ export const LineChartPlot = ({
                             r={2.5}
                             fill={item.color}
                             opacity={getSeriesOpacity(item)}
-                            className="transition-opacity duration-fast motion-reduce:transition-none"
+                            className="duration-fast transition-opacity motion-reduce:transition-none"
                           />,
                         ]
                   );
@@ -453,7 +463,7 @@ export const LineChartPlot = ({
                       r={3}
                       fill={item.color}
                       opacity={getSeriesOpacity(item)}
-                      className="transition-opacity duration-fast motion-reduce:transition-none"
+                      className="duration-fast transition-opacity motion-reduce:transition-none"
                       stroke="var(--bg-surface-level-1)"
                       strokeWidth={1.5}
                     />,

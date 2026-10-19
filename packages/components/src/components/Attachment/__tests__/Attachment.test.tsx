@@ -8,8 +8,10 @@ import { Button } from '../../Button';
 
 function AttachmentDemo({
   variant = 'file',
+  disabled = false,
 }: {
   variant?: 'file' | 'thumbnail';
+  disabled?: boolean;
 }) {
   const [action, setAction] = useState('No action');
   const [previewCount, setPreviewCount] = useState(0);
@@ -18,6 +20,7 @@ function AttachmentDemo({
       <Attachment
         name="report.pdf"
         variant={variant}
+        disabled={disabled}
         metadata="PDF · 7 MB"
         onOpen={() => {
           setAction('Preview opened');
@@ -126,6 +129,45 @@ describe('Attachment', () => {
     await user.click(screen.getByRole('button', { name: 'Remove report.pdf' }));
     expect(screen.getByLabelText('Last action')).toHaveTextContent('Removed');
   });
+
+  it.each(['file', 'thumbnail'] satisfies Array<'file' | 'thumbnail'>)(
+    'disables %s opening, removal, and custom actions until re-enabled',
+    async (variant) => {
+      const { user, rerender } = render(
+        <AttachmentDemo variant={variant} disabled />
+      );
+      const card = screen.getByRole('group', { name: 'report.pdf' });
+      const open = screen.getByRole('button', { name: 'View report.pdf' });
+      const remove = screen.getByRole('button', { name: 'Remove report.pdf' });
+      const download = screen.getByRole('button', { name: 'Download' });
+
+      expect(card).toHaveAttribute('aria-disabled', 'true');
+      for (const button of [open, remove, download]) {
+        expect(button).toBeDisabled();
+        await user.click(button);
+      }
+      await user.click(card);
+      await user.tab();
+      expect(open).not.toHaveFocus();
+      expect(remove).not.toHaveFocus();
+      expect(download).not.toHaveFocus();
+      expect(screen.getByLabelText('Last action')).toHaveTextContent(
+        'No action'
+      );
+      expect(screen.getByLabelText('Previews opened')).toHaveTextContent('0');
+
+      rerender(<AttachmentDemo variant={variant} />);
+      expect(card).not.toHaveAttribute('aria-disabled');
+      await user.click(card);
+      expect(screen.getByLabelText('Previews opened')).toHaveTextContent('1');
+      await user.click(download);
+      expect(screen.getByLabelText('Last action')).toHaveTextContent(
+        'Downloaded'
+      );
+      await user.click(remove);
+      expect(screen.getByLabelText('Last action')).toHaveTextContent('Removed');
+    }
+  );
 
   it('renders inert files without introducing an open action', () => {
     render(<Attachment name="notes.txt" metadata="TXT" />);

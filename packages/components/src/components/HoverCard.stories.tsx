@@ -46,7 +46,7 @@ export const Default: Story = {
         </Button>
       </HoverCardTrigger>
       <HoverCardContent>
-        <div className="flex flex-col gap-space-2">
+        <div className="gap-space-2 flex flex-col">
           <Text variant="sm" weight="semibold">
             Hover card title
           </Text>
@@ -72,7 +72,7 @@ export const RichPreview: Story = {
       </HoverCardTrigger>
       <HoverCardContent className="w-[18.75rem] p-0">
         <div className="flex flex-col">
-          <div className="flex flex-col gap-space-1 px-space-4 pb-space-2 pt-space-3">
+          <div className="gap-space-1 px-space-4 pb-space-2 pt-space-3 flex flex-col">
             <Text variant="sm" weight="semibold">
               Support Agent
             </Text>
@@ -84,7 +84,7 @@ export const RichPreview: Story = {
               Updated 2h ago
             </Text>
           </div>
-          <div className="flex flex-wrap gap-space-1 px-space-4 pb-space-3">
+          <div className="gap-space-1 px-space-4 pb-space-3 flex flex-wrap">
             <Badge color="secondary" size="xs">
               Gmail
             </Badge>
@@ -95,7 +95,7 @@ export const RichPreview: Story = {
               +3
             </Badge>
           </div>
-          <div className="flex gap-space-1 border-t border-default px-space-2 py-space-1">
+          <div className="gap-space-1 border-default px-space-2 py-space-1 flex border-t">
             <Button
               variant="plain"
               color="secondary"

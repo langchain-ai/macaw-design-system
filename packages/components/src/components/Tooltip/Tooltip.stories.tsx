@@ -99,7 +99,7 @@ export const Inverted: Story = {
 export const WithJSXTitle: Story = {
   args: {
     title: (
-      <div className="flex items-center gap-space-2">
+      <div className="gap-space-2 flex items-center">
         <InfoIcon size={12} weight="regular" />
         <span>Custom Title</span>
       </div>
@@ -142,7 +142,7 @@ export const MultipleTooltips: Story = {
     children: <Button>Demo</Button>,
   },
   render: () => (
-    <div className="flex gap-space-4">
+    <div className="gap-space-4 flex">
       <Tooltip title="First Tooltip" description="This is the first tooltip">
         <Button>First</Button>
       </Tooltip>

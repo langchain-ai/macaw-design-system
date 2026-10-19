@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      prepare_release:
+        description: Build packages with the next release version
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare release version
+        if: inputs.prepare_release
+        run: >-
+          pnpm nx release version
+          --stage-changes=false
+          --git-commit=false
+          --git-tag=false
+          --git-push=false
+
+      - name: Build packages
+        run: pnpm build-all
+
+      - name: Verify package outputs
+        run: pnpm verify:package
+
+      - name: Upload npm build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-build-${{ github.sha }}
+          path: |
+            packages/components/dist
+            packages/tokens/dist
+            packages/cli/dist
+          if-no-files-found: error
+          retention-days: 7

@@ -290,14 +290,14 @@ export function SplitViewPane({
         <div
           inert={!open}
           className={cn(
-            'grid shrink-0 transition-[grid-template-columns] duration-normal ease-out motion-reduce:transition-none',
+            'duration-normal grid shrink-0 transition-[grid-template-columns] ease-out motion-reduce:transition-none',
             open ? 'grid-cols-[1fr]' : 'grid-cols-[0fr]'
           )}
           data-testid="split-view-pane"
           role={titleId ? 'region' : undefined}
           aria-labelledby={titleId}
         >
-          <div className="flex min-w-0 flex-col overflow-y-auto overflow-x-hidden">
+          <div className="flex min-w-0 flex-col overflow-x-hidden overflow-y-auto">
             <PaneBody
               paneZIndex={paneZIndex}
               depth={depth}
@@ -329,7 +329,7 @@ export function SplitViewPane({
                 >
                   <div
                     className={cn(
-                      'relative flex flex-col items-stretch bg-elevated',
+                      'bg-elevated relative flex flex-col items-stretch',
                       scrollContainer === 'outer' ? 'min-h-full' : 'h-full'
                     )}
                   >
@@ -373,7 +373,7 @@ export function SplitViewPane({
                   onKeyDown={onKeyDown}
                 >
                   <div
-                    className="absolute inset-y-0 w-0 border-l border-subtle transition-all duration-normal group-hover:border-l-2 group-focus-visible:border-l-2 group-focus-visible:border-l-brand group-data-[resize-handle-active]:border-l-brand motion-reduce:transition-none"
+                    className="border-subtle duration-normal group-focus-visible:border-l-brand group-data-[resize-handle-active]:border-l-brand absolute inset-y-0 w-0 border-l transition-all group-hover:border-l-2 group-focus-visible:border-l-2 motion-reduce:transition-none"
                     style={{ left: RESIZE_HANDLE_OUTSET_PX }}
                   />
                 </div>

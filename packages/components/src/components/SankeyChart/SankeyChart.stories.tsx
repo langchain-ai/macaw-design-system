@@ -92,7 +92,7 @@ type FlowTooltipTarget =
 const FlowTooltip = ({ node, link }: FlowTooltipTarget) => {
   const mark = node ?? link;
   return (
-    <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+    <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <ChartTooltip>
         <ChartTooltipHeader
           title={
@@ -278,7 +278,7 @@ export const InChartCardWithTooltip: Story = {
             {tooltip != null && <FlowTooltip {...tooltip} />}
           </div>
         </ChartCard>
-        <div className="mt-space-2 flex items-center gap-space-2">
+        <div className="mt-space-2 gap-space-2 flex items-center">
           <Text as="p" variant="xs" color="secondary" role="status">
             {pinnedNode == null
               ? 'Click a stage to pin its tooltip and flows.'
@@ -334,7 +334,7 @@ export const UpdatingFlows: Story = {
   render: (args) => {
     const [includeSdk, setIncludeSdk] = useState(true);
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-space-2">
+      <div className="gap-space-2 mx-auto flex w-full max-w-3xl flex-col">
         <Button
           className="self-start"
           onClick={() => setIncludeSdk((current) => !current)}
@@ -370,7 +370,7 @@ export const LongLabels: Story = {
       value: 12345,
     }));
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-space-4">
+      <div className="gap-space-4 mx-auto flex w-full max-w-3xl flex-col">
         {(['justified', 'left'] as const).map((alignment) => (
           <div key={alignment} className="h-80">
             <SankeyChart
@@ -428,13 +428,13 @@ export const CostFlow: Story = {
 export const AlignmentStrategies: Story = {
   name: 'Column alignment strategies',
   render: () => (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-space-4">
+    <div className="gap-space-4 mx-auto flex w-full max-w-4xl flex-col">
       {(['justified', 'center', 'left', 'right'] as const).map((alignment) => (
-        <div key={alignment} className="flex flex-col gap-space-1">
+        <div key={alignment} className="gap-space-1 flex flex-col">
           <Text variant="xs" color="secondary">
             alignment=&quot;{alignment}&quot;
           </Text>
-          <div className="h-56 w-full border border-faint">
+          <div className="border-faint h-56 w-full border">
             <SankeyChart
               aria-label={`${alignment} aligned trace flow`}
               nodes={trafficNodes}
@@ -460,7 +460,7 @@ export const FilterableLegend: Story = {
     );
 
     return (
-      <div className="mx-auto flex h-[26rem] w-full max-w-3xl flex-col gap-space-2">
+      <div className="gap-space-2 mx-auto flex h-[26rem] w-full max-w-3xl flex-col">
         <SankeyChart
           {...args}
           selectedIds={selectedIds}
@@ -536,7 +536,7 @@ export const CompactContainers: Story = {
       label: `Source ${index + 1}`,
     }));
     return (
-      <div className="flex flex-col gap-space-4">
+      <div className="gap-space-4 flex flex-col">
         {[
           { width: 100, height: 160 },
           { width: 320, height: 66 },
@@ -544,11 +544,11 @@ export const CompactContainers: Story = {
           { width: 640, height: 66 },
           { width: 640, height: 24 },
         ].map(({ width, height }) => (
-          <div key={width + ':' + height} className="flex flex-col gap-space-2">
+          <div key={width + ':' + height} className="gap-space-2 flex flex-col">
             <Text variant="sm">
               {width} × {height}px
             </Text>
-            <div style={{ width, height }} className="border border-faint">
+            <div style={{ width, height }} className="border-faint border">
               <SankeyChart
                 aria-label={`Compact flow ${width} by ${height}`}
                 nodes={[...sources, { id: 'target', label: 'Target' }]}
@@ -572,7 +572,7 @@ export const SparseCrowdedColumn: Story = {
   name: 'Crowded column at a fractional height',
   render: () => (
     <div
-      className="w-full max-w-3xl border border-faint"
+      className="border-faint w-full max-w-3xl border"
       style={{ height: 48.0625 }}
     >
       <SankeyChart

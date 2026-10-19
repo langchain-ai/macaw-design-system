@@ -53,7 +53,7 @@ const InteractiveTopList = () => {
   const [activatedLabel, setActivatedLabel] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto flex h-72 w-full max-w-2xl flex-col gap-space-2">
+    <div className="gap-space-2 mx-auto flex h-72 w-full max-w-2xl flex-col">
       <div className="min-h-0 flex-1">
         <TopList
           aria-label="Interactive top models by runs"

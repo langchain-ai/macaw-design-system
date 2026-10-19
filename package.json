@@ -1,14 +1,14 @@
 {
-  "name": "macaw-design-system",
+  "name": "@langchain/macaw-design-system",
   "version": "2.0.0-alpha.0",
   "private": true,
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "nx run-many -t build",
-    "build:watch": "node scripts/watch-build.mjs",
-    "storybook": "storybook dev -p 6006 -c packages/components/.storybook",
-    "build:storybook": "storybook build -c packages/components/.storybook -o storybook-static",
+    "nx": "nx",
+    "storybook": "nx run @langchain/macaw-components:storybook",
+    "build-all": "nx run-many -t build",
+    "build-storybook": "storybook build -c packages/components/.storybook -o storybook-static",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "lint": "oxlint packages scripts vite.config.ts vitest.config.ts",
@@ -18,8 +18,8 @@
     "verify:types:nodenext": "tsc --noEmit -p tests/consumer/tsconfig.nodenext.json",
     "verify:types": "pnpm verify:types:bundler && pnpm verify:types:nodenext",
     "verify:package": "node scripts/verify-package.mjs && pnpm verify:types",
-    "check": "pnpm typecheck && pnpm test && pnpm build && pnpm verify:package && pnpm build:storybook",
-    "pack:check": "pnpm build && pnpm verify:package && node scripts/pack.mjs",
+    "check": "pnpm typecheck && pnpm test && pnpm build-all && pnpm verify:package && pnpm build-storybook",
+    "pack:check": "pnpm build-all && pnpm verify:package && node scripts/pack.mjs",
     "release:version": "nx release version",
     "release:changelog": "nx release changelog",
     "release:publish": "nx release publish --tag alpha",
@@ -71,5 +71,5 @@
   "engines": {
     "node": ">=26"
   },
-  "packageManager": "pnpm@10.27.0"
+  "packageManager": "pnpm@11.28.2"
 }

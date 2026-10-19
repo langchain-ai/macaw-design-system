@@ -52,7 +52,7 @@ Use existing components for their interaction contracts, not just their appearan
 
 - Use `Button` for actions and `Link` for navigation.
 - Use `IconButton` for an icon-only action and provide its `label`.
-- Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations.
+- Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
 - Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
@@ -60,6 +60,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
+- Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
 - Set `speed="slow"` on `ThinkingState` or `LoadingIndicator` for a slower animation; reduced-motion preferences still take precedence.
 - Use `Spinner` for routine saves, fetches, or refreshes, even within AI screens (e.g. fetching chat history).
 - Use `Skeleton` for known content shapes, `LinearProgress` for regional loading, and `ProgressBar` for measurable completion.
@@ -73,6 +74,14 @@ Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
 `CodeLite` for read-only snippets. Supply a `toolbar` to compose language controls
 and actions above the editor; include `CopyButton` there when needed. Without a
 toolbar, `showCopyButton` keeps the floating copy control.
+
+Import `CodeLite` from `@langchain/macaw-components/Code/CodeLite`. Its default
+plain variant renders read-only code; `variant="block"` adds a label and copy
+toolbar. Set `label` for a filename, replace the toolbar with `toolbar`, or hide
+it with `toolbar={null}`. `variant="diff"` compares `oldString` and `newString`,
+with an optional `fileName` and `contextLines`; the diff renderer loads on demand.
+The diff toolbar remains visible when there are no changes, with an empty body.
+Use `language="plaintext"` to skip syntax highlighting.
 
 `CodeLanguageSelect` accepts language aliases such as `ts` and `py`, preserves
 unknown language labels, and reports supported `CodeLanguageType` values.
@@ -107,6 +116,8 @@ Choose color by meaning:
 Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
 
 Import `SankeyChart` from `@langchain/macaw-components/SankeyChart` for weighted flow diagrams. Compose it with `ChartCard`, `ChartLegend`, and `ChartTooltip`; consumers own data, value formatting, tooltips, and navigation.
+
+Import `HeatmapChart` and `HeatmapBlock` from `@langchain/macaw-components/HeatmapChart` for percentage matrices. Supply `getBlockLabel` for meaningful row and column names; cells expose details on hover and keyboard focus. The matrix has one Tab stop; arrow keys move between cells, Home/End move within a row, and Ctrl+Home/End move to the first/last cell.
 
 ## Icons
 

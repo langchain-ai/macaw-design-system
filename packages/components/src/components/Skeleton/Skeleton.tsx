@@ -15,7 +15,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   return (
     <Component
       className={cn(
-        'h-4 w-full animate-pulse rounded bg-surface-level-3',
+        'bg-surface-level-3 h-4 w-full animate-pulse rounded',
         className
       )}
       style={style}
@@ -33,7 +33,7 @@ export const SkeletonRows = ({
   skeletonClassName?: string;
 }) => {
   return (
-    <div className={cn('flex flex-col gap-space-2', className)}>
+    <div className={cn('gap-space-2 flex flex-col', className)}>
       {Array.from({ length: rows }).map((_, index) => (
         <Skeleton key={index} className={skeletonClassName} />
       ))}
@@ -45,7 +45,7 @@ export const CircleSkeleton = ({ className, style }: SkeletonProps) => {
   return (
     <div
       className={cn(
-        'h-5 w-5 animate-pulse rounded-full bg-surface-level-3',
+        'bg-surface-level-3 h-5 w-5 animate-pulse rounded-full',
         className
       )}
       style={style}

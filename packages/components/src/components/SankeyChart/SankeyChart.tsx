@@ -346,7 +346,7 @@ export const SankeyChart = ({
   return (
     <div
       className={cn(
-        'flex size-full min-h-0 min-w-0 flex-col gap-space-2 @container',
+        'gap-space-2 @container flex size-full min-h-0 min-w-0 flex-col',
         className
       )}
       {...rest}

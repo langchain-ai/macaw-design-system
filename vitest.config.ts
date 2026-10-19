@@ -14,6 +14,8 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Use jsdom storage instead of Node's native Web Storage.
+    execArgv: ['--no-experimental-webstorage'],
     globals: true,
     css: true,
     maxWorkers: 2,

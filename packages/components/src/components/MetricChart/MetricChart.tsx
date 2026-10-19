@@ -76,11 +76,11 @@ export const MetricChart = forwardRef<HTMLDivElement, MetricChartProps>(
           weight="semibold"
           color="primary"
           className={cn(
-            'min-w-0 max-w-full tabular-nums',
+            'max-w-full min-w-0 tabular-nums',
             size === 'xl' && 'whitespace-nowrap',
             size !== 'xl' && !hasUnit && 'break-words',
             hasUnit &&
-              'flex items-baseline gap-space-1 overflow-hidden whitespace-nowrap',
+              'gap-space-1 flex items-baseline overflow-hidden whitespace-nowrap',
             isCentered && 'text-center'
           )}
           style={
@@ -109,7 +109,7 @@ export const MetricChart = forwardRef<HTMLDivElement, MetricChartProps>(
         {secondaryContent != null && (
           <div
             className={cn(
-              'flex min-w-0 flex-wrap items-center gap-space-1',
+              'gap-space-1 flex min-w-0 flex-wrap items-center',
               isCentered && 'justify-center text-center'
             )}
           >

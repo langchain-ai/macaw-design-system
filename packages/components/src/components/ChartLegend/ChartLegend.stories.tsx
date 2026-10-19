@@ -72,7 +72,7 @@ const legendItems: readonly ChartLegendItem[] = [
 
 /** Stands in for the chart the legend belongs to. */
 const ChartPreview = () => (
-  <div className="flex h-40 items-center justify-center rounded-md bg-surface-level-2">
+  <div className="bg-surface-level-2 flex h-40 items-center justify-center rounded-md">
     <Text variant="xs" color="quaternary">
       Chart preview
     </Text>
@@ -117,7 +117,7 @@ export const Default: Story = {
     );
 
     return (
-      <div className="flex w-[48rem] max-w-[90vw] flex-col gap-space-4">
+      <div className="gap-space-4 flex w-[48rem] max-w-[90vw] flex-col">
         <ChartPreview />
         <ChartLegend
           items={sourceItems.map((item) => ({
@@ -144,12 +144,12 @@ export const Overflow: Story = {
     );
 
     return (
-      <div className="flex flex-col gap-space-2">
+      <div className="gap-space-2 flex flex-col">
         <Text variant="xs" color="secondary">
           Drag the card’s bottom-right edge to resize it, or use the +N badge to
           view hidden legends.
         </Text>
-        <div className="flex w-[32rem] min-w-64 max-w-[80vw] resize-x flex-col gap-space-4 overflow-auto">
+        <div className="gap-space-4 flex w-[32rem] max-w-[80vw] min-w-64 resize-x flex-col overflow-auto">
           <ChartPreview />
           <ChartLegend
             items={sourceItems.map((item) => ({
@@ -178,7 +178,7 @@ export const List: Story = {
     );
 
     return (
-      <div className="flex w-96 max-w-[90vw] flex-col gap-space-4">
+      <div className="gap-space-4 flex w-96 max-w-[90vw] flex-col">
         <ChartPreview />
         <ChartLegend
           items={sourceItems.map((item) => ({

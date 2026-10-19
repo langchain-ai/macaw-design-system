@@ -61,7 +61,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         </ZIndexProvider>
         <ToastLib.Viewport
           className={cn(
-            'fixed bottom-0 right-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]',
+            'fixed right-0 bottom-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]',
             config?.viewPortClassName
           )}
           style={{ zIndex: zIndices.toast }}
@@ -156,10 +156,10 @@ function Toast({
     <ToastLib.Description asChild>
       <div
         className={cn(
-          'max-h-32 cursor-text select-text overflow-y-auto whitespace-pre-wrap',
+          'max-h-32 cursor-text overflow-y-auto whitespace-pre-wrap select-text',
           hasTitle
             ? 'ml-space-6 text-xxs text-secondary'
-            : 'text-sm text-primary'
+            : 'text-primary text-sm'
         )}
         onPointerDown={stopSwipeOnTextSelect}
       >
@@ -169,7 +169,7 @@ function Toast({
   );
 
   const trailingButtons = (
-    <div className="flex gap-space-2">
+    <div className="gap-space-2 flex">
       {copyText && (
         <CopyIconButton
           size="xs"
@@ -192,10 +192,10 @@ function Toast({
   return (
     <ToastLib.Root
       className={cn(
-        'flex items-start gap-space-2 rounded-md border p-space-3',
+        'gap-space-2 p-space-3 flex items-start rounded-md border',
         surface,
         'shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px]',
-        'data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=closed]:animate-hide data-[state=open]:animate-slideIn data-[swipe=end]:animate-swipeOut data-[swipe=cancel]:transition-[transform_200ms_ease-out]'
+        'data-[state=closed]:animate-hide data-[state=open]:animate-slideIn data-[swipe=end]:animate-swipeOut data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]'
       )}
       open={open}
       onOpenChange={setOpen}
@@ -204,15 +204,15 @@ function Toast({
       {hasTitle ? (
         <div
           className={cn(
-            'flex w-full flex-col gap-space-1',
+            'gap-space-1 flex w-full flex-col',
             Boolean(description) && 'pb-space-1'
           )}
         >
           <div className="flex w-full items-center">
-            <div className="flex w-full items-center gap-space-3">
+            <div className="gap-space-3 flex w-full items-center">
               {renderToastIcon(isError, type)}
               <ToastLib.Title
-                className="cursor-text select-text text-sm font-medium text-primary"
+                className="text-primary cursor-text text-sm font-medium select-text"
                 onPointerDown={stopSwipeOnTextSelect}
               >
                 {title}
@@ -224,9 +224,9 @@ function Toast({
           {action && <div className="ml-space-6">{action}</div>}
         </div>
       ) : (
-        <div className="flex w-full items-start gap-space-2">
+        <div className="gap-space-2 flex w-full items-start">
           {renderToastIcon(isError, type)}
-          <div className="flex flex-1 flex-col gap-space-2">
+          <div className="gap-space-2 flex flex-1 flex-col">
             {descriptionNode}
             {action}
           </div>

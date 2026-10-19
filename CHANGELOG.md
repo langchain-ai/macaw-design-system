@@ -1,3 +1,10 @@
+## Unreleased
+
+- Add labeled vertical event markers to LineChart, including band-scale alignment and clipped plot bounds.
+- Add muted badge suffixes with an accessible separator.
+- Use the subtle border consistently for secondary buttons in dark mode.
+- Correct the orientation of Engine logo and badge marks.
+
 ## 1.1.0-beta.0 (2026-10-01)
 
 ### 🚀 Features

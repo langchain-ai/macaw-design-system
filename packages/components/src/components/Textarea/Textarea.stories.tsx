@@ -187,7 +187,7 @@ export const States: Story = {
             size="md"
             variant={variant}
             label={
-              <div className="flex items-center gap-space-2">
+              <div className="gap-space-2 flex items-center">
                 <Text as="span">Required</Text>
                 <Icon icon={QuestionIcon} size="md" className="text-tertiary" />
               </div>
@@ -275,7 +275,7 @@ export const OrderedPersistence: Story = {
     });
 
     return (
-      <div className="flex w-80 flex-col gap-space-3">
+      <div className="gap-space-3 flex w-80 flex-col">
         {showEditor && (
           <Textarea
             {...args}

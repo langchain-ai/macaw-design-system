@@ -41,6 +41,7 @@ export type {
   LineChartProps,
   LineChartSelectionRange,
   LineChartSeries,
+  LineChartVerticalMarker,
   LineChartXScale,
   LineChartYBand,
   LineChartYAxis,
@@ -146,6 +147,7 @@ export const LineChart = ({
   activeLegendItemId,
   selectionRange,
   yBands = [],
+  verticalMarkers = [],
   renderActiveOverlay,
   shouldAnimate = true,
   isRendering = true,
@@ -220,6 +222,15 @@ export const LineChart = ({
       activeX <= resolvedXDomain[1])
       ? activeX
       : undefined;
+  // A band scale extrapolates past its outer buckets, so a marker just outside
+  // the domain can still project inside the plot.
+  const renderedVerticalMarkers =
+    xScaleType === 'band'
+      ? verticalMarkers.filter(
+          (marker) =>
+            marker.x >= resolvedXDomain[0] && marker.x <= resolvedXDomain[1]
+        )
+      : verticalMarkers;
   const axisLayouts = resolveAxisLayouts(
     renderedSeries,
     yAxes,
@@ -325,6 +336,7 @@ export const LineChart = ({
         activeLegendItemId={renderedActiveLegendItemId}
         selectionRange={selectionRange}
         yBands={yBands}
+        verticalMarkers={renderedVerticalMarkers}
         shouldAnimate={shouldAnimate}
         isRendering={isRendering}
         {...ariaProps}
@@ -355,7 +367,7 @@ export const LineChart = ({
 
   return (
     <div
-      className={cn('size-full min-h-0 min-w-0 @container', className)}
+      className={cn('@container size-full min-h-0 min-w-0', className)}
       {...rootProps}
     >
       {hasLegend ? (
@@ -363,13 +375,13 @@ export const LineChart = ({
           className={cn(
             'grid size-full min-h-0 min-w-0 grid-cols-1',
             legendLayout === 'list'
-              ? 'grid-rows-[minmax(0,1fr)_minmax(0,35%)] gap-space-3 @[560px]:grid-cols-[minmax(0,1fr)_minmax(10rem,30%)] @[560px]:grid-rows-1 @[560px]:gap-space-5'
-              : 'grid-rows-[minmax(0,1fr)_auto] gap-space-2'
+              ? 'gap-space-3 @[560px]:gap-space-5 grid-rows-[minmax(0,1fr)_minmax(0,35%)] @[560px]:grid-cols-[minmax(0,1fr)_minmax(10rem,30%)] @[560px]:grid-rows-1'
+              : 'gap-space-2 grid-rows-[minmax(0,1fr)_auto]'
           )}
         >
           {plot}
           {legendLayout === 'list' ? (
-            <div className="scroll-mask-t scroll-mask-b min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
+            <div className="scroll-mask-t scroll-mask-b min-h-0 min-w-0 overflow-x-hidden overflow-y-auto">
               {legend}
             </div>
           ) : (

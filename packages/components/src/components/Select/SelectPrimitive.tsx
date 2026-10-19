@@ -49,7 +49,7 @@ export const SelectTrigger = React.forwardRef<
       <RadixSelect.Trigger
         ref={ref}
         className={cn(
-          'flex items-center justify-between gap-space-2 rounded-md border border-default bg-transparent p-1.5 px-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-secondary [&>span]:line-clamp-1',
+          'gap-space-2 border-default data-[placeholder]:text-secondary flex items-center justify-between rounded-md border bg-transparent p-1.5 px-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
           className
         )}
         {...props}
@@ -63,7 +63,7 @@ export const SelectTrigger = React.forwardRef<
     <RadixSelect.Trigger
       ref={ref}
       className={cn(
-        'flex items-center justify-between gap-space-2 rounded-md border border-default bg-transparent p-1.5 px-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-secondary [&>span]:line-clamp-1',
+        'gap-space-2 border-default data-[placeholder]:text-secondary flex items-center justify-between rounded-md border bg-transparent p-1.5 px-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
         className
       )}
       {...props}
@@ -72,7 +72,7 @@ export const SelectTrigger = React.forwardRef<
       <RadixSelect.Icon asChild>
         <span
           aria-hidden
-          className={cn('inline-flex h-4 w-4 text-icon-primary', iconClassName)}
+          className={cn('text-icon-primary inline-flex h-4 w-4', iconClassName)}
         >
           <CaretDownIcon size="100%" weight="regular" />
         </span>
@@ -89,7 +89,7 @@ const SelectScrollUpButton = React.forwardRef<
   <RadixSelect.ScrollUpButton
     ref={ref}
     className={cn(
-      'flex cursor-default items-center justify-center py-space-1',
+      'py-space-1 flex cursor-default items-center justify-center',
       className
     )}
     {...props}
@@ -106,7 +106,7 @@ const SelectScrollDownButton = React.forwardRef<
   <RadixSelect.ScrollDownButton
     ref={ref}
     className={cn(
-      'flex cursor-default items-center justify-center py-space-1',
+      'py-space-1 flex cursor-default items-center justify-center',
       className
     )}
     {...props}
@@ -127,7 +127,7 @@ export const SelectContent = React.forwardRef<
       <RadixSelect.Content
         ref={ref}
         className={cn(
-          'relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-default bg-elevated shadow-md',
+          'border-default bg-elevated relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border shadow-md',
           position === 'popper' &&
             'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
           className
@@ -162,7 +162,7 @@ export const SelectLabel = React.forwardRef<
   <RadixSelect.Label
     ref={ref}
     className={cn(
-      'py-1.5 pl-space-6 pr-space-2 text-sm font-semibold',
+      'pl-space-6 pr-space-2 py-1.5 text-sm font-semibold',
       className
     )}
     {...props}
@@ -196,7 +196,7 @@ export const SelectItem = React.forwardRef<
     <RadixSelect.Item
       ref={ref}
       className={cn(
-        'relative flex w-full cursor-default select-none items-center rounded-sm py-space-1 pr-space-2 outline-none focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'py-space-1 pr-space-2 focus:bg-elevated-hover relative flex w-full cursor-default items-center rounded-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         OPTION_ROW_SIZES[size].minHeightClassName,
         size === 'sm' ? 'text-xs leading-4' : 'text-sm',
         selectedIndicator === 'background'
@@ -234,7 +234,7 @@ export const SelectSeparator = React.forwardRef<
   <RadixSelect.Separator
     ref={ref}
     className={cn(
-      '-mx-space-1 my-space-1 h-px border-b border-subtle',
+      '-mx-space-1 my-space-1 border-subtle h-px border-b',
       className
     )}
     {...props}

@@ -81,7 +81,7 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
       <div
         ref={ref}
         className={cn(
-          'relative inline-flex shrink-0 cursor-default items-center justify-center text-center font-medium uppercase text-white/90 transition-all',
+          'relative inline-flex shrink-0 cursor-default items-center justify-center text-center font-medium text-white/90 uppercase transition-all',
           rounding,
           BOX_SIZE[size],
           TEXT_SIZE[size],
@@ -113,10 +113,10 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         {badge && (
           <div
             className={cn(
-              'absolute rounded-full border-current bg-error-strong outline-transparent',
+              'bg-error-strong absolute rounded-full border-current outline-transparent',
               size === 'xxs'
-                ? '-right-0.5 -top-0.5 size-1.5 border'
-                : '-right-1 -top-1 size-3 border-2'
+                ? '-top-0.5 -right-0.5 size-1.5 border'
+                : '-top-1 -right-1 size-3 border-2'
             )}
           />
         )}

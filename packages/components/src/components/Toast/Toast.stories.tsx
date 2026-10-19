@@ -136,7 +136,7 @@ export const WithAction: Story = {
           description:
             'This feature is disabled until the end of the month or the limit is increased.',
           action: (
-            <div className="flex gap-space-2">
+            <div className="gap-space-2 flex">
               <Button
                 as={<RouterLink to="/settings/billing" />}
                 color="secondary"

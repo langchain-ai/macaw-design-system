@@ -228,7 +228,7 @@ export const States: Story = {
             size="md"
             variant={variant}
             label={
-              <div className="flex items-center gap-space-2">
+              <div className="gap-space-2 flex items-center">
                 <Text as="span">Required</Text>
                 <QuestionIcon size={16} weight="regular" />
               </div>
@@ -302,7 +302,7 @@ export const InputTypes: Story = {
     controls: { include: ['size', 'variant', 'disabled', 'isError'] },
   },
   render: (args) => (
-    <div className="grid w-[48rem] max-w-full grid-cols-1 gap-space-5 sm:grid-cols-2">
+    <div className="gap-space-5 grid w-[48rem] max-w-full grid-cols-1 sm:grid-cols-2">
       {inputTypeExamples.map((example) => (
         <InputExample key={example.type} {...args} {...example} />
       ))}
@@ -328,7 +328,7 @@ export const IconsAndActions: Story = {
   render: (args) => (
     <ControlSizeMatrix variants={variants}>
       {(size, variant) => (
-        <div className="flex flex-col gap-space-4">
+        <div className="gap-space-4 flex flex-col">
           <InputExample
             {...args}
             size={size}

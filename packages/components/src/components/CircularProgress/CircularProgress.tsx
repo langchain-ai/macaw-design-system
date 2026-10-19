@@ -158,7 +158,7 @@ export function CircularProgress({
               strokeDashoffset={strokeDashoffset}
               className={cn(
                 segmentVariantClasses[segment.variant],
-                'transition-[stroke-dashoffset,transform] duration-slower ease-in-out motion-reduce:transition-none'
+                'duration-slower transition-[stroke-dashoffset,transform] ease-in-out motion-reduce:transition-none'
               )}
               style={{
                 transform: `rotate(${rotation}deg)`,

@@ -266,7 +266,7 @@ function OptionSelect<T extends string = string>({
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          'w-max min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-1rem))] p-0 text-primary',
+          'text-primary w-max max-w-[min(24rem,calc(100vw-1rem))] min-w-[var(--radix-popover-trigger-width)] p-0',
           contentClassName
         )}
         side={side}

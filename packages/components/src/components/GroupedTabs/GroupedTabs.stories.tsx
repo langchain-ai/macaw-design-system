@@ -27,7 +27,7 @@ const meta: Meta<typeof GroupedTabs> = {
   decorators: [
     (Story) => (
       <TooltipProvider>
-        <div className="w-[37.5rem] p-space-4">
+        <div className="p-space-4 w-[37.5rem]">
           <Story />
         </div>
       </TooltipProvider>
@@ -58,7 +58,7 @@ export const Sizes: Story = {
     ];
 
     return (
-      <div className="flex flex-col gap-space-3">
+      <div className="gap-space-3 flex flex-col">
         <GroupedTabs
           value={xsValue}
           onChange={setXsValue}
@@ -117,7 +117,7 @@ export const TabsWithIcons: Story = {
     ];
 
     return (
-      <div className="flex flex-col gap-space-3">
+      <div className="gap-space-3 flex flex-col">
         <GroupedTabs
           value={xsValue}
           onChange={setXsValue}
@@ -202,7 +202,7 @@ export const IconOnlyTabs: Story = {
     ];
 
     return (
-      <div className="flex flex-col gap-space-3">
+      <div className="gap-space-3 flex flex-col">
         <GroupedTabs
           value={xsValue}
           onChange={setXsValue}

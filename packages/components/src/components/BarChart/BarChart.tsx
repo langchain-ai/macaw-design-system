@@ -458,7 +458,7 @@ export const BarChart = ({
 
   return (
     <div
-      className={cn('size-full min-h-0 min-w-0 @container', className)}
+      className={cn('@container size-full min-h-0 min-w-0', className)}
       {...rest}
     >
       {hasLegend ? (
@@ -466,14 +466,14 @@ export const BarChart = ({
           className={cn(
             'grid size-full min-h-0 min-w-0 grid-cols-1',
             legendLayout === 'list'
-              ? 'grid-rows-[minmax(0,1fr)_minmax(0,35%)] gap-space-3 @[560px]:grid-cols-[minmax(0,1fr)_minmax(10rem,30%)] @[560px]:grid-rows-1 @[560px]:gap-space-5'
-              : 'grid-rows-[auto_minmax(0,1fr)] gap-space-2'
+              ? 'gap-space-3 @[560px]:gap-space-5 grid-rows-[minmax(0,1fr)_minmax(0,35%)] @[560px]:grid-cols-[minmax(0,1fr)_minmax(10rem,30%)] @[560px]:grid-rows-1'
+              : 'gap-space-2 grid-rows-[auto_minmax(0,1fr)]'
           )}
         >
           {legendLayout === 'list' ? (
             <>
               {plot}
-              <div className="scroll-mask-t scroll-mask-b min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
+              <div className="scroll-mask-t scroll-mask-b min-h-0 min-w-0 overflow-x-hidden overflow-y-auto">
                 {legend}
               </div>
             </>

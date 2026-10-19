@@ -107,7 +107,7 @@ export const Switch = ({
   const switchId = id ?? generatedId;
 
   return (
-    <div className={cn('flex items-center gap-space-2', className)}>
+    <div className={cn('gap-space-2 flex items-center', className)}>
       {labelPosition === 'left' && label && (
         <SwitchLabel
           htmlFor={switchId}
@@ -120,11 +120,11 @@ export const Switch = ({
 
       <SwitchPrimitive.Root
         className={cn(
-          'inline-flex items-center rounded-full bg-surface-level-4 transition',
+          'bg-surface-level-4 inline-flex items-center rounded-full transition',
           'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
           SELECTION_CONTROL_HIT_AREA_STYLES,
           disabled
-            ? 'cursor-not-allowed data-[state=checked]:bg-brand-subtle'
+            ? 'data-[state=checked]:bg-brand-subtle cursor-not-allowed'
             : 'data-[state=checked]:bg-control-active hover:data-[state=checked]:bg-control-active-hover',
           ROOT_SIZE_CLASSES[size ?? 'sm']
         )}
@@ -137,7 +137,7 @@ export const Switch = ({
       >
         <SwitchPrimitive.Thumb
           className={cn(
-            'translate-x-[2px] rounded-full bg-control-thumb transition',
+            'bg-control-thumb translate-x-[2px] rounded-full transition',
             THUMB_SIZE_CLASSES[size ?? 'sm'],
             disabled &&
               'bg-disabled data-[state=checked]:bg-control-thumb dark:data-[state=checked]:bg-disabled'

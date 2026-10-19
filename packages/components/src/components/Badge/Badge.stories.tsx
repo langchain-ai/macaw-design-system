@@ -91,7 +91,7 @@ export const WithSvgOnly: Story = {
 
 export const Rounded: Story = {
   render: () => (
-    <div className="flex items-center gap-space-4">
+    <div className="gap-space-4 flex items-center">
       <Badge size="md" rounded="none">
         None
       </Badge>
@@ -116,8 +116,8 @@ export const Rounded: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div className="flex items-center gap-space-4">
-      <div className="flex flex-col items-center gap-space-2">
+    <div className="gap-space-4 flex items-center">
+      <div className="gap-space-2 flex flex-col items-center">
         <Badge size="xxs">Extra Extra Small</Badge>
         <Badge
           size="xxs"
@@ -131,7 +131,7 @@ export const Sizes: Story = {
           Less rounded
         </Badge>
       </div>
-      <div className="flex flex-col items-center gap-space-2">
+      <div className="gap-space-2 flex flex-col items-center">
         <Badge size="xs">Extra Small</Badge>
         <Badge
           size="xs"
@@ -145,7 +145,7 @@ export const Sizes: Story = {
           Less rounded
         </Badge>
       </div>
-      <div className="flex flex-col items-center gap-space-2">
+      <div className="gap-space-2 flex flex-col items-center">
         <Badge size="sm">Small</Badge>
         <Badge
           size="sm"
@@ -159,7 +159,7 @@ export const Sizes: Story = {
           Less rounded
         </Badge>
       </div>
-      <div className="flex flex-col items-center gap-space-2">
+      <div className="gap-space-2 flex flex-col items-center">
         <Badge size="md">Medium</Badge>
         <Badge
           size="md"
@@ -179,7 +179,7 @@ export const Sizes: Story = {
 
 export const AllColors: Story = {
   render: () => (
-    <div className="flex flex-wrap items-center gap-space-2">
+    <div className="gap-space-2 flex flex-wrap items-center">
       <Badge color="secondary">Secondary</Badge>
       <Badge color="primary">Primary</Badge>
       <Badge color="success">Success</Badge>
@@ -196,4 +196,11 @@ export const AllColors: Story = {
       </Badge>
     </div>
   ),
+};
+
+export const WithSuffix: Story = {
+  args: {
+    children: 'Selected',
+    suffix: '12',
+  },
 };

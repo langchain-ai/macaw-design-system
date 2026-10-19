@@ -93,7 +93,7 @@ export const WithLeftDecorator: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-space-4">
+    <div className="gap-space-4 flex flex-col">
       <Link href="/example" variant="h1">
         Heading 1 link
       </Link>
@@ -124,7 +124,7 @@ export const AllVariants: Story = {
 
 export const WithDecoratorAllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-space-4">
+    <div className="gap-space-4 flex flex-col">
       <Link
         href="/example"
         variant="h1"
@@ -187,7 +187,7 @@ export const WithDecoratorAllVariants: Story = {
 
 export const InlineWithText: Story = {
   render: () => (
-    <div className="flex max-w-sm flex-col gap-space-3">
+    <div className="gap-space-3 flex max-w-sm flex-col">
       <Link href="/home" variant="h1">
         Home
       </Link>

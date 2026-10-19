@@ -104,7 +104,7 @@ export const Banner = ({
         weight="medium"
         color="primary"
         className={cn(
-          'whitespace-normal break-words',
+          'break-words whitespace-normal',
           children != null && 'mr-space-2'
         )}
       >
@@ -119,7 +119,7 @@ export const Banner = ({
         variant="sm"
         weight="normal"
         color="secondary"
-        className="whitespace-normal break-words"
+        className="break-words whitespace-normal"
       >
         {children}
       </Text>
@@ -135,7 +135,7 @@ export const Banner = ({
       variant="plain"
       icon={XIcon}
       label="Close"
-      className="shrink-0 self-center text-secondary hover:bg-transparent"
+      className="text-secondary shrink-0 self-center hover:bg-transparent"
       onClick={() => {
         setShow(false);
         onDismiss?.();
@@ -147,7 +147,7 @@ export const Banner = ({
   return (
     <div
       className={cn(
-        'm-0 flex items-center gap-space-2 border border-transparent px-space-4 py-space-3 text-sm',
+        'gap-space-2 px-space-4 py-space-3 m-0 flex items-center border border-transparent text-sm',
         shadow && 'shadow-lg',
         intent === 'warning' && 'bg-warning',
         intent === 'info' && 'bg-brand-subtle-gradient',
@@ -164,10 +164,10 @@ export const Banner = ({
           {iconElement}
         </div>
       )}
-      <div className="min-w-0 flex-1">
+      <Text as="div" variant="sm" className="min-w-0 flex-1">
         {titleElement}
         {contentElement}
-      </div>
+      </Text>
       {action ? (
         <div className="flex shrink-0 items-center">{action}</div>
       ) : null}

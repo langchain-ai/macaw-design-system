@@ -33,7 +33,7 @@ const meta = {
   ],
   argTypes: {
     variant: { control: 'select', options: ['drive', 'dots', 'orbit'] },
-    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg'] },
     tone: { control: 'select', options: ['neutral', 'brand'] },
     motion: { control: 'select', options: ['full', 'subtle', 'none'] },
     speed: { control: 'select', options: ['normal', 'slow'] },
@@ -61,7 +61,7 @@ export const Default: Story = {};
 
 export const Variants: Story = {
   render: (args) => (
-    <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
+    <div className="gap-x-space-6 gap-y-space-5 grid grid-cols-[auto_1fr] items-center">
       <Text variant="sm" color="secondary">
         Drive
       </Text>
@@ -81,7 +81,11 @@ export const Variants: Story = {
 export const Sizes: Story = {
   args: { tone: 'brand', label: 'Gathering context', showElapsed: true },
   render: (args) => (
-    <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
+    <div className="gap-x-space-6 gap-y-space-5 grid grid-cols-[auto_1fr] items-center">
+      <Text variant="sm" color="secondary">
+        Extra Small
+      </Text>
+      <ThinkingState {...args} size="xs" />
       <Text variant="sm" color="secondary">
         Small
       </Text>
@@ -101,7 +105,7 @@ export const Sizes: Story = {
 export const Motion: Story = {
   args: { tone: 'brand' },
   render: (args) => (
-    <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
+    <div className="gap-x-space-6 gap-y-space-5 grid grid-cols-[auto_1fr] items-center">
       <Text variant="sm" color="secondary">
         Full
       </Text>
@@ -116,6 +120,16 @@ export const Motion: Story = {
       <ThinkingState {...args} motion="none" />
     </div>
   ),
+};
+
+export const ExtraSmall: Story = {
+  args: {
+    size: 'xs',
+    label: 'Gathering context',
+    motion: 'subtle',
+    showElapsed: true,
+    elapsedMs: 12_500,
+  },
 };
 
 export const Slow: Story = { args: { speed: 'slow' } };
@@ -134,7 +148,7 @@ export const ControlledTimer: Story = {
 
 export const IndicatorOnly: Story = {
   render: ({ variant, size, tone, motion }) => (
-    <div role="status" className="flex items-center gap-space-2">
+    <div role="status" className="gap-space-2 flex items-center">
       <LoadingIndicator
         variant={variant}
         size={size}
@@ -149,7 +163,7 @@ export const IndicatorOnly: Story = {
 export const InContext: Story = {
   args: { tone: 'brand', motion: 'subtle', showElapsed: true },
   render: (args) => (
-    <Card className="flex w-80 max-w-full flex-col gap-space-4">
+    <Card className="gap-space-4 flex w-80 max-w-full flex-col">
       <Text variant="h3">Evaluation</Text>
       <ThinkingState {...args} label="Running AI evaluators" />
       <Text variant="sm" color="tertiary">
@@ -174,14 +188,14 @@ function TimerDemo() {
   const [operation, setOperation] = useState(0);
   const [showElapsed, setShowElapsed] = useState(true);
   return (
-    <div className="flex flex-col items-start gap-space-4">
+    <div className="gap-space-4 flex flex-col items-start">
       <ThinkingState
         key={operation}
         label="Gathering context"
         tone="brand"
         showElapsed={showElapsed}
       />
-      <div className="flex gap-space-2">
+      <div className="gap-space-2 flex">
         <Button color="secondary" onClick={() => setShowElapsed(!showElapsed)}>
           {showElapsed ? 'Hide timer' : 'Show timer'}
         </Button>

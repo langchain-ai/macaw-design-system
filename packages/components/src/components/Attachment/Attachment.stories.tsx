@@ -69,9 +69,9 @@ export const Default: Story = {};
 
 export const SizesAndStates: Story = {
   render: (args) => (
-    <div className="flex flex-col gap-space-4">
+    <div className="gap-space-4 flex flex-col">
       {sizes.map(({ size, label }) => (
-        <div key={size} className="flex flex-col gap-space-2">
+        <div key={size} className="gap-space-2 flex flex-col">
           <Text variant="xs" color="secondary">
             {label}
           </Text>
@@ -106,11 +106,35 @@ export const SizesAndStates: Story = {
   ),
 };
 
+export const Disabled: Story = {
+  args: { disabled: true },
+  render: (args) => (
+    <AttachmentList layout="stack">
+      {(['file', 'thumbnail'] satisfies Array<'file' | 'thumbnail'>).map(
+        (variant) => (
+          <Attachment
+            {...args}
+            key={variant}
+            variant={variant}
+            onOpen={() => {}}
+            onRemove={() => {}}
+            actions={
+              <Button size="xs" color="secondary" onClick={() => {}}>
+                Download
+              </Button>
+            }
+          />
+        )
+      )}
+    </AttachmentList>
+  ),
+};
+
 export const Thumbnails: Story = {
   render: () => (
-    <div className="flex flex-wrap items-start gap-space-4">
+    <div className="gap-space-4 flex flex-wrap items-start">
       {sizes.map(({ size }) => (
-        <div key={size} className="flex min-w-0 flex-col gap-space-2">
+        <div key={size} className="gap-space-2 flex min-w-0 flex-col">
           <Text variant="xs" color="secondary">
             {size}
           </Text>
@@ -207,7 +231,7 @@ function FileActionsDemo() {
   const [notice, setNotice] = useState('');
 
   return (
-    <div className="flex min-w-0 flex-col gap-space-3">
+    <div className="gap-space-3 flex min-w-0 flex-col">
       {removed ? (
         <Button color="secondary" onClick={() => setRemoved(false)}>
           Restore example
@@ -294,7 +318,7 @@ function FileActionsDemo() {
       >
         <DialogContent title="Rename Attachment">
           <form
-            className="flex flex-col gap-space-4"
+            className="gap-space-4 flex flex-col"
             onSubmit={(event) => {
               event.preventDefault();
               if (!draftName.trim()) {
@@ -313,7 +337,7 @@ function FileActionsDemo() {
               isError={!!renameError}
               hintText={renameError || undefined}
             />
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button
                 type="button"
                 color="secondary"
@@ -331,9 +355,9 @@ function FileActionsDemo() {
         onOpenChange={(open) => !open && setDialog(null)}
       >
         <DialogContent title="Delete Attachment">
-          <div className="flex flex-col gap-space-4">
+          <div className="gap-space-4 flex flex-col">
             <Text variant="sm">Delete {name} from this example?</Text>
-            <div className="flex justify-end gap-space-2">
+            <div className="gap-space-2 flex justify-end">
               <Button color="secondary" onClick={() => setDialog(null)}>
                 Cancel
               </Button>
@@ -395,14 +419,14 @@ function ThumbnailsDemo() {
 
 export const PreviewAndActions: Story = {
   render: () => (
-    <div className="flex flex-col gap-space-5">
-      <div className="flex flex-col gap-space-2">
+    <div className="gap-space-5 flex flex-col">
+      <div className="gap-space-2 flex flex-col">
         <Text as="h3" variant="sm" weight="medium">
           File actions
         </Text>
         <FileActionsDemo />
       </div>
-      <div className="flex flex-col gap-space-2">
+      <div className="gap-space-2 flex flex-col">
         <Text as="h3" variant="sm" weight="medium">
           Image previews and removal
         </Text>
@@ -414,14 +438,14 @@ export const PreviewAndActions: Story = {
 
 export const Layouts: Story = {
   render: () => (
-    <div className="flex flex-col gap-space-5">
-      <div className="flex flex-col gap-space-2">
+    <div className="gap-space-5 flex flex-col">
+      <div className="gap-space-2 flex flex-col">
         <Text as="h3" variant="sm" weight="medium">
           Wrapping and removal
         </Text>
         <ComposerAttachmentsDemo />
       </div>
-      <div className="flex w-80 max-w-full flex-col gap-space-2">
+      <div className="gap-space-2 flex w-80 max-w-full flex-col">
         <Text as="h3" variant="sm" weight="medium">
           Horizontal scrolling
         </Text>
@@ -436,7 +460,7 @@ export const Layouts: Story = {
           ))}
         </AttachmentList>
       </div>
-      <div className="flex w-64 max-w-full flex-col gap-space-2">
+      <div className="gap-space-2 flex w-64 max-w-full flex-col">
         <Text as="h3" variant="sm" weight="medium">
           Narrow surface
         </Text>

@@ -34,7 +34,7 @@
     "tag": "alpha"
   },
   "scripts": {
-    "build": "node ../../scripts/build.mjs tokens"
+    "build": "node ../../scripts/build-tokens.mjs"
   },
   "engines": {
     "node": ">=26"

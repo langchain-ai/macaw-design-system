@@ -145,9 +145,9 @@ export const StandardData: Story = {
 
 export const ColorVariants: Story = {
   render: () => (
-    <div className="grid gap-space-5 sm:grid-cols-2">
+    <div className="gap-space-5 grid sm:grid-cols-2">
       {sparkLineColors.map((color) => (
-        <div key={color} className="flex flex-col gap-space-2">
+        <div key={color} className="gap-space-2 flex flex-col">
           <Text variant="sm" weight="medium">
             {color}
           </Text>
@@ -165,8 +165,8 @@ export const ColorVariants: Story = {
 
 export const FlatAndNegativeData: Story = {
   render: () => (
-    <div className="grid gap-space-5 sm:grid-cols-2">
-      <div className="flex flex-col gap-space-2">
+    <div className="gap-space-5 grid sm:grid-cols-2">
+      <div className="gap-space-2 flex flex-col">
         <Text variant="sm" color="secondary">
           Flat domain
         </Text>
@@ -180,7 +180,7 @@ export const FlatAndNegativeData: Story = {
           aria-label="Flat negative trend"
         />
       </div>
-      <div className="flex flex-col gap-space-2">
+      <div className="gap-space-2 flex flex-col">
         <Text variant="sm" color="secondary">
           Mixed negative values
         </Text>
@@ -201,7 +201,7 @@ export const FlatAndNegativeData: Story = {
 
 export const InlineTableExample: Story = {
   render: () => (
-    <div className="max-w-xl overflow-x-auto rounded-md border border-subtle">
+    <div className="border-subtle max-w-xl overflow-x-auto rounded-md border">
       <table className="w-full border-collapse">
         <thead className="bg-surface-level-2">
           <tr>
@@ -222,7 +222,7 @@ export const InlineTableExample: Story = {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-secondary bg-surface-level-1">
+        <tbody className="divide-secondary bg-surface-level-1 divide-y">
           {inlineTableRows.map((row) => (
             <tr key={row.label}>
               <td className="px-space-3 py-space-2">
@@ -230,7 +230,7 @@ export const InlineTableExample: Story = {
                   {row.label}
                 </Text>
               </td>
-              <td className="w-32 px-space-3 py-space-2">
+              <td className="px-space-3 py-space-2 w-32">
                 <SparkLineChart
                   data={row.data}
                   color={row.color}

@@ -32,10 +32,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Horizontal: Story = {
   render: (args) => (
-    <div className="flex w-96 flex-col gap-space-4 rounded-md border border-subtle bg-surface-level-2 p-space-4">
-      <span className="text-sm text-primary">Section content</span>
+    <div className="gap-space-4 border-subtle bg-surface-level-2 p-space-4 flex w-96 flex-col rounded-md border">
+      <span className="text-primary text-sm">Section content</span>
       <Divider {...args} />
-      <span className="text-sm text-secondary">Separated content</span>
+      <span className="text-secondary text-sm">Separated content</span>
     </div>
   ),
   args: {
@@ -45,10 +45,10 @@ export const Horizontal: Story = {
 
 export const Vertical: Story = {
   render: (args) => (
-    <div className="flex h-20 items-center gap-space-4 rounded-md border border-subtle bg-surface-level-2 p-space-4">
-      <span className="text-sm text-primary">Left</span>
+    <div className="gap-space-4 border-subtle bg-surface-level-2 p-space-4 flex h-20 items-center rounded-md border">
+      <span className="text-primary text-sm">Left</span>
       <Divider {...args} />
-      <span className="text-sm text-secondary">Right</span>
+      <span className="text-secondary text-sm">Right</span>
     </div>
   ),
   args: {
@@ -66,10 +66,10 @@ export const Strong: Story = {
 
 export const AccessibleSeparator: Story = {
   render: (args) => (
-    <div className="flex w-96 flex-col gap-space-4 rounded-md border border-subtle bg-surface-level-2 p-space-4">
-      <span className="text-sm text-primary">Primary actions</span>
+    <div className="gap-space-4 border-subtle bg-surface-level-2 p-space-4 flex w-96 flex-col rounded-md border">
+      <span className="text-primary text-sm">Primary actions</span>
       <Divider {...args} />
-      <span className="text-sm text-secondary">Secondary actions</span>
+      <span className="text-secondary text-sm">Secondary actions</span>
     </div>
   ),
   args: {

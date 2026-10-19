@@ -50,7 +50,7 @@ export function SplitViewPaneHeader({
   return (
     <header
       className={cn(
-        'sticky top-0 flex items-center gap-space-1 border-b border-subtle bg-elevated px-space-4 py-1.5 text-base font-semibold text-secondary',
+        'gap-space-1 border-subtle bg-elevated px-space-4 text-secondary sticky top-0 flex items-center border-b py-1.5 text-base font-semibold',
         headerClassName
       )}
       style={{ zIndex: zIndices.stickyHeader }}
@@ -82,7 +82,7 @@ export function SplitViewPaneHeader({
       )}
       {!hideArrows && (
         <>
-          <div className="mx-space-1 h-5 border-r border-default" />
+          <div className="mx-space-1 border-default h-5 border-r" />
           <IconButton
             label="Navigate down"
             tooltipProps={{
@@ -136,7 +136,7 @@ export function SplitViewPaneHeader({
         </Text>
       )}
 
-      <HeaderTitleActionSlot.Slot className="flex flex-1 items-center justify-end gap-space-2 empty:hidden" />
+      <HeaderTitleActionSlot.Slot className="gap-space-2 flex flex-1 items-center justify-end empty:hidden" />
     </header>
   );
 }

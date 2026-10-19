@@ -102,7 +102,7 @@ export const RadioButton = forwardRef<HTMLButtonElement, RadioButtonProps>(
     const id = useId();
 
     return (
-      <div className={cn('flex items-center gap-space-2', className)}>
+      <div className={cn('gap-space-2 flex items-center', className)}>
         <RadioGroupPrimitive.Item
           ref={ref}
           className={cn(
@@ -135,7 +135,7 @@ export const RadioButton = forwardRef<HTMLButtonElement, RadioButtonProps>(
             // wraps, so the row's `items-center` aligns the label against the
             // control instead of against a taller, invisible line box.
             className={cn(
-              'flex cursor-pointer items-center peer-data-[disabled]:cursor-not-allowed peer-data-[disabled]:text-tertiary'
+              'peer-data-[disabled]:text-tertiary flex cursor-pointer items-center peer-data-[disabled]:cursor-not-allowed'
             )}
           >
             <Text variant="sm" className={labelClassName}>

@@ -174,7 +174,7 @@ function FileSelection({
         aria-hidden
         as="span"
         weight="medium"
-        className={cn(textClasses, 'shrink-0 text-secondary')}
+        className={cn(textClasses, 'text-secondary shrink-0')}
       >
         Browse
       </Text>
@@ -408,7 +408,7 @@ export const Input = forwardRef<
             as="label"
             htmlFor={inputId}
             className={cn(
-              'mb-space-1 block text-sm font-medium text-primary',
+              'mb-space-1 text-primary block text-sm font-medium',
               disabled && 'text-disabled'
             )}
             variant="xs"

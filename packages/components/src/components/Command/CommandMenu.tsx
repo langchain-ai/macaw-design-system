@@ -171,7 +171,7 @@ export function CommandMenu({
           className={cn(
             'gap-space-2',
             hideSearch &&
-              'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] aria-selected:after:border-2 aria-selected:after:border-focus'
+              'aria-selected:after:border-focus after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] aria-selected:after:border-2'
           )}
         >
           {renderItem ? (
@@ -194,7 +194,7 @@ export function CommandMenu({
                   <Text
                     as="span"
                     variant="xs"
-                    className="truncate text-tertiary"
+                    className="text-tertiary truncate"
                   >
                     {item.description}
                   </Text>
@@ -211,7 +211,7 @@ export function CommandMenu({
 
   return (
     <Command
-      className={cn('flex flex-col gap-1.5 p-space-1 outline-none', className)}
+      className={cn('p-space-1 flex flex-col gap-1.5 outline-none', className)}
       shouldFilter={disableFilter ? false : undefined}
       tabIndex={hideSearch ? 0 : -1}
     >
@@ -242,12 +242,12 @@ export function CommandMenu({
           </Fragment>
         ))}
         {loading && (
-          <div className="flex flex-col gap-space-1 px-space-2 py-space-1">
+          <div className="gap-space-1 px-space-2 py-space-1 flex flex-col">
             {Array.from({ length: loadingRows }, (_, i) => (
               <div
                 key={i}
                 className={cn(
-                  'animate-pulse rounded-md bg-tertiary',
+                  'bg-tertiary animate-pulse rounded-md',
                   OPTION_ROW_SIZES[itemRowSize].minHeightClassName
                 )}
               />

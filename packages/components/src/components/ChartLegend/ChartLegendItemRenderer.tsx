@@ -61,7 +61,7 @@ export const ChartLegendItemRenderer = ({
         weight={item.selected ? 'fill' : undefined}
         size="xs"
         className={cn(
-          'size-3 shrink-0 text-icon-tertiary transition-opacity duration-fast',
+          'text-icon-tertiary duration-fast size-3 shrink-0 transition-opacity',
           item.selected
             ? 'opacity-100'
             : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
@@ -77,7 +77,7 @@ export const ChartLegendItemRenderer = ({
         variant="xs"
         className={cn(
           'min-w-0 flex-1 text-left',
-          isList ? 'whitespace-normal break-words' : 'truncate'
+          isList ? 'break-words whitespace-normal' : 'truncate'
         )}
       >
         {item.label}
@@ -114,10 +114,10 @@ export const ChartLegendItemRenderer = ({
   );
 
   const styles = cn(
-    'group relative min-w-0 items-center rounded-xs py-space-1 text-primary transition-colors duration-fast',
+    'group py-space-1 text-primary duration-fast relative min-w-0 items-center rounded-xs transition-colors',
     isList
-      ? 'col-span-full grid w-full grid-cols-subgrid gap-space-2 px-space-2'
-      : 'flex max-w-full shrink-0 gap-space-1 px-space-1',
+      ? 'gap-space-2 px-space-2 col-span-full grid w-full grid-cols-subgrid'
+      : 'gap-space-1 px-space-1 flex max-w-full shrink-0',
     item.selected
       ? 'bg-surface-level-3 hover:bg-surface-level-3'
       : (onClick != null || onActiveChange != null) &&
@@ -131,7 +131,7 @@ export const ChartLegendItemRenderer = ({
         className={cn(
           styles,
           onActiveChange != null &&
-            'focus-visible:ring-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset'
+            'focus-visible:ring-focus focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset'
         )}
         role={onActiveChange == null ? undefined : 'group'}
         aria-label={onActiveChange == null ? undefined : ariaLabel}
@@ -157,7 +157,7 @@ export const ChartLegendItemRenderer = ({
       variant="plain"
       className={cn(
         styles,
-        'focus-visible:ring-focus border-transparent shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
+        'focus-visible:ring-focus border-transparent shadow-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
         isList && 'h-auto justify-start',
         !item.selected && 'bg-transparent'
       )}

@@ -32,6 +32,8 @@ export interface AttachmentProps extends Omit<
   /** File-row height: sm=24px, md=32px, lg=48px. Thumbnails use larger tiles. */
   size?: 'sm' | 'md' | 'lg';
   status?: 'ready' | 'loading' | 'uploading' | 'error';
+  /** Disables opening, removal, and custom actions. */
+  disabled?: boolean;
   onOpen?: () => void;
   openLabel?: string;
   onRemove?: () => void;
@@ -71,6 +73,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
       variant = 'file',
       size = 'md',
       status = 'ready',
+      disabled = false,
       onOpen,
       openLabel = `View ${name}`,
       onRemove,
@@ -110,14 +113,15 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               : 'size-3.5'
         }
         label={`Remove ${name}`}
+        disabled={disabled}
         color="secondary"
         variant={isThumbnail ? 'normal' : 'plain'}
         round={isThumbnail}
         className={cn(
           isThumbnail && [
-            'absolute right-0 top-0',
-            'border-0 shadow-none hover:bg-elevated-hover',
-            'transition-opacity duration-fast motion-reduce:transition-none',
+            'absolute top-0 right-0',
+            'hover:bg-elevated-hover border-0 shadow-none',
+            'duration-fast transition-opacity motion-reduce:transition-none',
             '[@media(hover:hover)]:group-[:not(:is(:hover,:focus-within))]/attachment:pointer-events-none',
             '[@media(hover:hover)]:group-[:not(:is(:hover,:focus-within))]/attachment:opacity-0',
           ]
@@ -125,7 +129,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         size={size === 'sm' ? 'xxs' : size === 'md' ? 'xs' : 'sm'}
         onClick={(event) => {
           event.stopPropagation();
-          onRemove();
+          if (!disabled) onRemove();
         }}
       />
     ) : null;
@@ -190,7 +194,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         <span
           className={cn(
             'flex min-w-0 flex-1',
-            stackedText ? 'flex-col gap-space-1' : 'items-baseline gap-space-2',
+            stackedText ? 'gap-space-1 flex-col' : 'gap-space-2 items-baseline',
             isThumbnail && 'w-full max-w-full flex-none'
           )}
         >
@@ -199,7 +203,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             dir="rtl"
             variant={size === 'sm' ? 'xs' : size === 'md' ? 'sm' : 'md'}
             className={cn(
-              'min-w-0 max-w-48 truncate text-left text-primary',
+              'text-primary max-w-48 min-w-0 truncate text-left',
               isThumbnail && 'w-full max-w-full'
             )}
             title={name}
@@ -212,7 +216,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               variant="xs"
               color="quaternary"
               className={cn(
-                'min-w-0 max-w-48 truncate',
+                'max-w-48 min-w-0 truncate',
                 isThumbnail && 'w-full max-w-full'
               )}
               title={typeof metadata === 'string' ? metadata : undefined}
@@ -226,7 +230,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             aria-live="polite"
             aria-atomic="true"
             className={cn(
-              description ? 'min-w-0 max-w-full' : 'sr-only',
+              description ? 'max-w-full min-w-0' : 'sr-only',
               description &&
                 status === 'error' &&
                 !stackedText &&
@@ -239,7 +243,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
                 variant="xs"
                 title={description}
                 className={cn(
-                  'block truncate text-tertiary',
+                  'text-tertiary block truncate',
                   status === 'error' && 'text-error-secondary'
                 )}
               >
@@ -258,15 +262,16 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         role="group"
         aria-label={name}
         {...props}
+        aria-disabled={disabled || undefined}
         onClick={(event) => {
           // Extend the preview button to the card's padding and gaps only.
-          if (onOpen && event.target === event.currentTarget) {
+          if (!disabled && onOpen && event.target === event.currentTarget) {
             event.stopPropagation();
             onOpen();
           }
         }}
         className={cn(
-          'box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
+          'gap-space-2 border-subtle bg-surface-level-1 box-border flex max-w-full min-w-0 shrink-0 items-center rounded-xs border',
           isThumbnail
             ? [
                 sizeStyles.thumbnail,
@@ -275,7 +280,8 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               ]
             : [sizeStyles.height, sizeStyles.padding],
           status === 'error' && 'border-error',
-          onOpen && 'cursor-pointer',
+          onOpen && !disabled && 'cursor-pointer',
+          disabled && 'cursor-not-allowed opacity-50',
           className
         )}
       >
@@ -285,6 +291,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             color="secondary"
             variant="plain"
             aria-label={openLabel}
+            disabled={disabled}
             aria-describedby={description ? statusId : undefined}
             className={cn(
               'min-w-0 flex-1 justify-start p-0 text-left',
@@ -294,7 +301,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             )}
             onClick={(event) => {
               event.stopPropagation();
-              onOpen();
+              if (!disabled) onOpen();
             }}
           >
             {content}
@@ -305,9 +312,11 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         {isThumbnail && removeButton}
         {(actions != null || (!isThumbnail && onRemove)) && (
           <fieldset
+            disabled={disabled}
+            inert={disabled || undefined}
             aria-label={`Actions for ${name}`}
             className={cn(
-              'm-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',
+              'gap-space-1 m-0 flex max-w-full min-w-0 shrink-0 items-center justify-end border-0 p-0',
               isThumbnail && 'flex-wrap'
             )}
             onClick={(event) => event.stopPropagation()}

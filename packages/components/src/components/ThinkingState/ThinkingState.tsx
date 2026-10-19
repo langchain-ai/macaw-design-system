@@ -54,7 +54,7 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
         {...props}
         ref={ref}
         className={cn(
-          'inline-flex max-w-full items-center gap-space-2 align-middle',
+          'gap-space-2 inline-flex max-w-full items-center align-middle',
           className
         )}
       >
@@ -65,16 +65,17 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
           animated={motion !== 'none'}
           speed={speed}
         />
-        <span className="inline-flex min-w-0 items-baseline gap-space-2">
+        <span className="gap-space-2 inline-flex min-w-0 items-baseline">
           <Text
             as="span"
-            variant={size === 'sm' ? 'sm' : 'md'}
-            weight="medium"
+            variant={size === 'xs' ? 'xs' : size === 'sm' ? 'sm' : 'md'}
+            weight={size === 'xs' ? 'normal' : 'medium'}
             role="status"
             aria-live="polite"
             aria-atomic="true"
             className={cn(
-              'min-w-0 break-words leading-4',
+              'min-w-0 break-words',
+              size === 'xs' ? 'leading-snug tracking-normal' : 'leading-4',
               motion === 'full' ? styles.shimmer : 'text-secondary',
               motion === 'full' && tone === 'brand' && styles.brandShimmer,
               speed === 'slow' && styles.slow

@@ -307,6 +307,46 @@ export const ThresholdBand: Story = {
   ),
 };
 
+export const VerticalMarkers: Story = {
+  name: 'Vertical markers for events',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Mark a moment on the x axis, such as a deploy. Use the `error` ' +
+          'variant for an incident or failure.',
+      },
+    },
+  },
+  render: () => (
+    <div className="mx-auto h-80 w-full max-w-3xl">
+      <LineChart
+        aria-label="Production requests around a deploy"
+        series={[productionSeries]}
+        showLegend={false}
+        yAxes={[
+          {
+            id: 'requests',
+            label: 'Requests',
+            formatValue: numberFormatter.format,
+          },
+        ]}
+        verticalMarkers={[
+          { id: 'deploy', x: START + 2 * DAY, label: 'Deploy' },
+          {
+            id: 'incident',
+            x: START + 6 * DAY,
+            variant: 'error',
+            label: 'Incident',
+          },
+        ]}
+        xTickValues={[0, 2, 4, 6].map((index) => START + index * DAY)}
+        formatXValue={formatDate}
+      />
+    </div>
+  ),
+};
+
 export const SeriesStyles: Story = {
   name: 'Per-series styles and active markers',
   parameters: {
@@ -387,7 +427,7 @@ export const BandScaleWithBrushSelection: Story = {
       });
 
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-space-2">
+      <div className="gap-space-2 mx-auto flex w-full max-w-3xl flex-col">
         <div className="h-80 min-w-0">
           <LineChart
             aria-label="Production requests with a selected bucket range"
@@ -467,7 +507,7 @@ export const InChartCard: Story = {
             />
             {hovered != null && (
               <div
-                className="pointer-events-none absolute top-0 -translate-x-1/2 p-space-2"
+                className="p-space-2 pointer-events-none absolute top-0 -translate-x-1/2"
                 style={{ left: hovered.xPosition }}
               >
                 <ChartTooltip>

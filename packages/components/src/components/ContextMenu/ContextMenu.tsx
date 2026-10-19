@@ -26,7 +26,7 @@ export const ContextMenuContent = React.forwardRef<
       <ContextMenuPrimitive.Content
         ref={ref}
         className={cn(
-          'min-w-[8rem] overflow-hidden rounded-md border border-default bg-elevated p-space-1 text-primary shadow-md',
+          'border-default bg-elevated p-space-1 text-primary min-w-[8rem] overflow-hidden rounded-md border shadow-md',
           className
         )}
         {...props}
@@ -53,7 +53,7 @@ export const ContextMenuItem = React.forwardRef<
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'flex w-full cursor-default select-none items-center rounded-sm px-space-2 py-space-1 text-primary outline-none transition-colors focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[highlighted]:bg-elevated-hover data-[disabled]:opacity-50',
+      'px-space-2 py-space-1 text-primary focus:bg-elevated-hover data-[highlighted]:bg-elevated-hover flex w-full cursor-default items-center rounded-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset ? 'pl-space-8' : undefined,
@@ -70,7 +70,7 @@ export const ContextMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.Separator
     ref={ref}
-    className={cn('-mx-space-1 my-space-1 border-b border-subtle', className)}
+    className={cn('-mx-space-1 my-space-1 border-subtle border-b', className)}
     {...props}
   />
 ));

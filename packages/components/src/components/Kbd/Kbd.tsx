@@ -24,8 +24,8 @@ const Kbd = forwardRef<HTMLElement, KbdProps>(
       <kbd
         ref={ref}
         className={cn(
-          'box-border inline-flex items-center justify-center rounded-xs border font-sans text-[0.625rem] font-medium leading-none',
-          isSingleGlyph ? 'size-4 px-0' : 'h-4 min-w-4 px-space-1',
+          'box-border inline-flex items-center justify-center rounded-xs border font-sans text-[0.625rem] leading-none font-medium',
+          isSingleGlyph ? 'size-4 px-0' : 'px-space-1 h-4 min-w-4',
           VARIANT_CLASSES[variant],
           className
         )}
@@ -49,7 +49,7 @@ const KbdGroup = forwardRef<HTMLElement, KbdGroupProps>(
   ({ className, children, ...props }, ref) => (
     <kbd
       ref={ref}
-      className={cn('inline-flex items-center gap-space-1', className)}
+      className={cn('gap-space-1 inline-flex items-center', className)}
       {...props}
     >
       {children}

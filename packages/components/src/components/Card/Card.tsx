@@ -23,7 +23,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        'rounded-lg border p-space-4',
+        'p-space-4 rounded-lg border',
         intentClasses[intent],
         className
       )}
