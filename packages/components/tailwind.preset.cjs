@@ -78,6 +78,7 @@ module.exports = {
             letterSpacing: '-0.01em', // tracking-tight
           },
         ],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
       },
       fontFamily: {
         mono: [
