@@ -7,6 +7,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
   Dialog,
+  ModalProvider,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -14,6 +15,7 @@ import {
 } from '.';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
+import { Pane } from '../Pane';
 import { Text } from '../Text/Text';
 
 const meta = {
@@ -341,6 +343,37 @@ export const NoTitle: Story = {
           </DialogContent>
         </Dialog>
       </>
+    );
+  },
+};
+
+export const TwoModalLayers: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [name, setName] = useState('Draft profile');
+    return (
+      <ModalProvider>
+        <Button onClick={() => setOpen(true)}>Open preferences</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            title="Preferences"
+            description="Manage your preferences"
+          >
+            <Text>The background dims further while editing.</Text>
+            <Button onClick={() => setEditorOpen(true)}>Edit profile</Button>
+            <Pane
+              open={editorOpen}
+              onClose={() => setEditorOpen(false)}
+              title="Profile"
+              description="Edit your profile"
+              requireConfirmationOnClose
+            >
+              <Input label="Name" value={name} onChange={setName} />
+            </Pane>
+          </DialogContent>
+        </Dialog>
+      </ModalProvider>
     );
   },
 };
