@@ -64,6 +64,8 @@ to limit it to two visible modal layers. Dialog and modal Pane share the stack
 across portals and sibling roots. A further dialog replaces the foreground layer;
 dismissing it restores the editor with its mounted state. Popovers, tooltips,
 and non-modal SplitViewPane panels do not consume a layer.
+Popover collision handling uses its enclosing Dialog as the boundary by default;
+pass an explicit `collisionBoundary` to override it.
 
 The base backdrop uses 75% of the semantic overlay color. The foreground layer
 adds 50% of that color, giving a visible increase in dimming in both themes.

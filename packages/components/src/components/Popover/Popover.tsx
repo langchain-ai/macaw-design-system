@@ -69,6 +69,7 @@ export const PopoverContent = forwardRef<
           sideOffset={sideOffset}
           forceMount={forceMount}
           className={cn(popoverSurfaceClassName, className)}
+          collisionBoundary={dialogContainer ?? undefined}
           {...props}
           style={{ zIndex, ...props.style }}
         >
