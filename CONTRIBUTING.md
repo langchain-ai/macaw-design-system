@@ -103,24 +103,6 @@ screenshots for visual changes and call out changes to APIs, tokens, or default
 behavior. Review and understand every change you submit, including generated
 code; PR authors should be able to explain and defend their work.
 
-## Releases
-
-The Release workflow runs on pushes to `main`, using Nx conventional commits to
-choose the next shared version. Nx owns version commits and tags; a new tag can
-represent a release even when the manifests already contain that version.
-
-For the first stable release, run **Actions → Release → Run workflow** on `main`
-and enter the intended stable version in `release_version`. Until a stable tag
-exists in the branch history, automatic release preparation stops and requests
-this explicit version rather than deriving a bump from the full beta history.
-The same input is used for build preparation and release versioning.
-
-Leave `release_version` empty for conventional-commit releases, or provide an
-exact stable `X.Y.Z` for an intentional override. Prerelease inputs are rejected
-because this workflow publishes to npm's `latest` dist-tag. Existing release
-tags are never overwritten; dispatching from a branch other than `main` skips
-release and deployment jobs.
-
 ## Package boundaries
 
 - `packages/tokens`: token CSS, generated JSON, and framework-independent docs.

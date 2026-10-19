@@ -3,12 +3,6 @@ name: Release
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      release_version:
-        description: Optional stable version (X.Y.Z); empty uses conventional commits
-        required: false
-        type: string
 
 permissions:
   contents: read
@@ -19,14 +13,11 @@ concurrency:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/build.yml
     with:
       prepare_release: true
-      release_version: ${{ inputs.release_version || '' }}
 
   storybook:
-    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/build-storybook.yml
 
   version:
@@ -66,30 +57,27 @@ jobs:
 
       - name: Version workspace
         id: version
-        env:
-          RELEASE_VERSION: ${{ inputs.release_version || '' }}
-          LC_ALL: C
         run: |
           set -euo pipefail
-          version_args=()
-          if [ -n "$RELEASE_VERSION" ]; then
-            if ! [[ "$RELEASE_VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
-              echo "release_version must be a stable version (X.Y.Z)" >&2
-              exit 1
-            fi
-            version_args=("$RELEASE_VERSION")
-          fi
           before=$(git rev-parse HEAD)
-          tags_before=$(git tag --list)
-          pnpm nx release version "${version_args[@]}"
+          first_stable=false
+          if git show-ref --verify --quiet refs/tags/v1.0.0; then
+            pnpm nx release version
+          else
+            first_stable=true
+            pnpm nx release version 1.0.0
+          fi
           after=$(git rev-parse HEAD)
-          mapfile -t release_tags < <(comm -13 \
-            <(printf '%s\n' "$tags_before" | sort) \
-            <(git tag --list | sort))
 
-          if [ "${#release_tags[@]}" -eq 0 ] && [ "$before" = "$after" ]; then
-            echo "released=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          if [ "$before" = "$after" ]; then
+            if [ "$first_stable" = true ]; then
+              if ! git show-ref --verify --quiet refs/tags/v1.0.0; then
+                git tag v1.0.0
+              fi
+            else
+              echo "released=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
           fi
 
           unexpected_files=$(git diff --name-only "$before" "$after" \
@@ -100,6 +88,7 @@ jobs:
             exit 1
           fi
 
+          mapfile -t release_tags < <(git tag --points-at "$after")
           if [ "${#release_tags[@]}" -ne 1 ]; then
             echo "expected exactly one release tag on the version commit" >&2
             exit 1
@@ -110,12 +99,6 @@ jobs:
             echo "Nx created an unexpected release tag" >&2
             exit 1
           fi
-
-          if [ "$(git rev-parse "${tag}^{commit}")" != "$after" ]; then
-            echo "release tag does not point to the version commit" >&2
-            exit 1
-          fi
-          node scripts/verify-release-tag.mjs "$tag"
 
           echo "released=true" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
