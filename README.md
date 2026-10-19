@@ -10,7 +10,7 @@
   <p><strong>The shared UI & Design foundation for the LangChain product suite.</strong></p>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
   <!-- Keep the version badge aligned with packages/components/package.json until the package is published to npm. -->
-  <a href="packages/components/package.json"><img src="https://img.shields.io/badge/version-1.2.0-orange" alt="Package version: 1.2.0"></a>
+  <a href="packages/components/package.json"><img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Package version: 1.0.0"></a>
   <a href="https://x.com/langchain_oss"><img src="https://img.shields.io/twitter/url/https/twitter.com/langchain_oss.svg?style=social&amp;label=Follow%20%40LangChain" alt="Follow LangChain on X"></a>
   <p>
     <a href="https://langchain-ai.github.io/macaw-design-system/">Storybook</a> ·
@@ -47,13 +47,13 @@ All three packages share a version and are released together with Nx.
 ## Install
 
 ```sh
-pnpm add @langchain/macaw-components
-pnpm add -D @langchain/macaw-cli
+pnpm add @langchain/macaw-components@1.0.0
+pnpm add -D @langchain/macaw-cli@1.0.0
 ```
 
 Components include tokens as a dependency. For a tokens-only integration, or
 when importing token exports directly, add `@langchain/macaw-tokens` explicitly.
-React 18 and 19 are supported.
+React 19 and Node 26 or newer are required.
 
 ## Use
 
@@ -72,7 +72,7 @@ subpaths. The stylesheet includes Inter, Fira Code, theme tokens, and compiled
 component styles. Add `dark` to `html` to activate the dark theme.
 
 - `@langchain/macaw-components/styles.css`: complete component stylesheet.
-- `@langchain/macaw-components/tailwind-preset`: optional Tailwind v3 mapping.
+- `@langchain/macaw-components/tailwind-preset`: optional Tailwind v4 mapping.
 - `@langchain/macaw-tokens/tokens.css`: variables without components or fonts.
 - `@langchain/macaw-tokens/tokens.json`: token values and selectors for tooling.
 
@@ -111,8 +111,7 @@ Please report vulnerabilities privately through [SECURITY.md](SECURITY.md).
 ## Releases
 
 Nx coordinates versioning across all three packages. Publication runs from a
-matching GitHub release tag after validation. See [RELEASING.md](docs/RELEASING.md)
-for the release process and npm trusted-publishing setup.
+matching GitHub release tag after validation.
 
 ## Scope and ownership
 

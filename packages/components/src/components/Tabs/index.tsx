@@ -62,7 +62,7 @@ export function TabLabel({
       onClick={onClick}
       onBlur={onBlur}
       className={cn(
-        'group relative flex items-center gap-space-2 border-b-2 border-b-transparent pb-5 text-primary outline-none transition-[color] duration-normal',
+        'group relative flex items-center gap-space-2 border-b-2 border-b-transparent pb-5 text-primary outline-hidden transition-[color] duration-normal',
         'after:pointer-events-none after:invisible after:absolute after:inset-x-0 after:-bottom-0.5 after:mx-auto after:h-0.5 after:w-full after:rounded-full after:border-b-2 after:border-current',
         'data-[selected]:after:visible data-[selected]:after:animate-tab-indicator-expand motion-reduce:after:animate-none',
         'hover:text-brand-secondary data-[selected]:hover:after:border-b-brand-strong',
@@ -107,7 +107,7 @@ export function TabPanel({
 }) {
   return (
     <HeadlessTabPanel
-      className={cn('outline-none', className)}
+      className={cn('outline-hidden', className)}
       onScroll={onScroll}
       ref={panelRef}
       unmount={unmount}

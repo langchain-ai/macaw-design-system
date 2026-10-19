@@ -28,8 +28,6 @@ run('vite', ['build']);
 run('tsc', ['-p', 'tsconfig.build.json']);
 await import('./rewrite-declaration-specifiers.mjs');
 run('tailwindcss', [
-  '-c',
-  'tailwind.config.cjs',
   '-i',
   'packages/components/src/styles/tailwind.css',
   '-o',

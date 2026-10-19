@@ -102,7 +102,7 @@ function PlainPane({
               ref={mergeRefs([scrollParentRef, setContentNode])}
               className={cn(
                 'relative flex h-[100vh] flex-col items-stretch overflow-y-auto bg-elevated shadow-lg',
-                'focus:outline-none focus-visible:outline-none',
+                'focus:outline-hidden focus-visible:outline-hidden',
                 animation &&
                   'data-[state=open]:animate-slide-left data-[state=closed]:animate-slide-right motion-reduce:animate-none'
               )}

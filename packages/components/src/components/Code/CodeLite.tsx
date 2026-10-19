@@ -153,7 +153,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
         <td
           data-search-ignore=""
           className={cn(
-            'py-0 align-top select-none',
+            'px-px py-0 align-top select-none',
             isBlock && wrapLines && 'w-12'
           )}
         >
@@ -242,7 +242,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
   const accessibleLabel = props.label?.trim() || 'Code block';
 
   const focusClassName =
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
+    'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
   const content = props.virtualize ? (
     <TableVirtuoso

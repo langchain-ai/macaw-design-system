@@ -98,64 +98,64 @@ export const AllVariants: Story = {
   },
   render: () => (
     <div className="flex max-w-2xl flex-col gap-space-5">
-      <div className="space-y-space-2">
+      <div>
         <Text variant="h1">H1 - Main Page Title</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font weight: 500 | Font size: 24px | Line height: 100% | Letter
           Spacing: -4%
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="h2">H2 - LCP Query Runs</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font weight: 500 | Font size: 18px | Line height: 120% | Letter
           Spacing: -4%
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="h3">H3 - Runs</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font weight: 600 | Font size: 16px | Line height: 120% | Letter
           Spacing: -3%
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="h4">H4 - Section Label</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font weight: 400 | Font size: 14px | Line height: 120% | Letter
           Spacing: -3% | Uppercase
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="md">Medium - Primary CTA</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font size: 14px | Line height: 150% | Letter Spacing: -4%
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="sm">Small - LCP-Query-Runs</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font size: 13px | Line height: 120% | Letter Spacing: -2%
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="xs">Extra Small - Caption text</Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font size: 12px | Line height: 100% | Letter Spacing: 0%
         </p>
       </div>
 
-      <div className="space-y-space-2">
+      <div>
         <Text variant="body">
           Body - This is body text for longer paragraphs and content.
         </Text>
-        <p className="text-xs text-tertiary">
+        <p className="mt-space-2 text-xs text-tertiary">
           Font size: 14px | Line height: 150% | Letter Spacing: 0%
         </p>
       </div>

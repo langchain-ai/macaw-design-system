@@ -1,3 +1,9 @@
+## 1.0.0 (Unreleased)
+
+- First stable release with Tailwind v4, React 19, and Node 26 or newer.
+- Update token utilities, opacity modifiers, CSS compilation, and class merging while preserving component appearance.
+- Use the coordinated `@langchain/macaw-tokens` version `1.0.0`.
+
 ## 1.0.0-beta.2 (2026-10-12)
 
 ### 🚀 Features

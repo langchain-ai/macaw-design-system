@@ -1,3 +1,5 @@
+@reference "../../styles/tailwind.css";
+
 /* Adapted from TurboKach/ai-native-react-components (MIT). See NOTICE. */
 .grid {
   display: inline-grid;
@@ -29,7 +31,14 @@
 }
 
 .shimmer {
-  @apply bg-gradient-to-r from-text-tertiary from-35% via-text-primary via-50% to-text-tertiary to-65% bg-clip-text text-transparent;
+  --macaw-shimmer-highlight: var(--text-primary);
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(
+    to right,
+    var(--text-tertiary) 35%,
+    var(--macaw-shimmer-highlight) 50%,
+    var(--text-tertiary) 65%
+  );
   background-size: 200% 100%;
   animation: shimmer-text 1.4s linear infinite;
 }
@@ -39,7 +48,7 @@
 }
 
 .brandShimmer {
-  @apply via-text-brand-primary to-text-tertiary;
+  --macaw-shimmer-highlight: var(--text-brand-primary);
 }
 
 @keyframes pixel-on {

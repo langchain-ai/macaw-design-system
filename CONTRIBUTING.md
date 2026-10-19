@@ -10,7 +10,8 @@ All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Develop locally
 
-Use Node 22 or 24 and pnpm 10.27.0 (`corepack enable`).
+Use the Node.js version supported by `engines.node` and the pnpm version pinned
+in `packageManager` in the root [package.json](package.json).
 
 ```sh
 pnpm install --frozen-lockfile
@@ -35,7 +36,7 @@ export map and consumer examples when changing the public API.
 Use `pnpm design-system search <capability>` and
 `pnpm --silent design-system inspect <name> --json` to find exact imports and
 colocated stories. This contributor command reads live source and story tags. The published `macaw`
-command reads the built catalog instead. Builds require Node 22.18+ or Node 24.
+command reads the built catalog instead.
 
 ## Link to a consuming project
 
@@ -112,5 +113,4 @@ code; PR authors should be able to explain and defend their work.
 
 Keep behavior and visuals unchanged when moving files across these boundaries.
 A public contract change needs the matching export map, documentation, and
-consumer verification updates. Releases use a shared version; see
-[RELEASING.md](docs/RELEASING.md).
+consumer verification updates. Releases use a shared version.

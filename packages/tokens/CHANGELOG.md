@@ -1,3 +1,8 @@
+## 1.0.0 (Unreleased)
+
+- First stable release of the framework-independent design tokens.
+- Publish with the coordinated Macaw version `1.0.0` on npm `latest`; require Node 26 or newer.
+
 ## 1.0.0-beta.2 (2026-10-12)
 
 ### 🚀 Features

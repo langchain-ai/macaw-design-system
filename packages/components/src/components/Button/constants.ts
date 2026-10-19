@@ -41,9 +41,9 @@ export const buttonStyleMap = {
 
   // Error variants - enabled
   'error-normal-enabled':
-    'bg-error-strong dark:bg-error-secondary text-white border border-red-600 hover:bg-red-700 dark:hover:bg-error',
+    'bg-error-strong dark:bg-error-secondary text-white border button-error-border hover:button-error-bg-hover dark:hover:bg-error',
   'error-outlined-enabled':
-    'bg-transparent text-error-secondary border border-red-700 hover:bg-error',
+    'bg-transparent text-error-secondary border button-error-outlined-border hover:bg-error',
   'error-plain-enabled':
     'bg-transparent text-error-secondary border border-transparent hover:bg-error/80',
   'error-underlined-enabled':

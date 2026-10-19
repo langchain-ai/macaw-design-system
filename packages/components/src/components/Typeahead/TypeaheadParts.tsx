@@ -91,7 +91,7 @@ export function TypeaheadDefaultTag<TOption>({
           : undefined
       }
       className={cn(
-        'min-w-0 max-w-full justify-start border-default bg-surface-level-2 px-space-1 text-primary [&>span]:min-w-0 [&>span]:truncate [&>span]:text-xxs',
+        'min-w-0 max-w-full justify-start border-default bg-surface-level-2 px-space-1 text-primary [&>span]:min-w-0 [&>span]:truncate [&>span]:text-xxs [&>span]:leading-[1.125rem]',
         size === 'xs' && 'border-0 py-0',
         !disabled &&
           'cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]',

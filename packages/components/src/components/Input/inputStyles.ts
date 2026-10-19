@@ -48,7 +48,7 @@ export function getInputContainerClasses({
     CONTROL_SIZES[size].heightClassName,
     INPUT_HORIZONTAL_PADDING_CLASSES[size],
     INPUT_RADIUS_CLASSES[size],
-    'focus-within:outline-none',
+    'focus-within:outline-hidden',
     {
       'border border-subtle bg-transparent': variant === 'outlined',
       'border border-transparent bg-surface-level-3': variant === 'plain',
@@ -84,7 +84,7 @@ export function getInputElementClasses({
   className?: string;
 }) {
   return cn(
-    'min-w-0 max-w-full flex-1 border-none bg-transparent p-0 outline-none',
+    'min-w-0 max-w-full flex-1 border-none bg-transparent p-0 outline-hidden',
     INPUT_TEXT_CLASSES[size],
     'placeholder:text-placeholder',
     disabled && 'cursor-not-allowed',

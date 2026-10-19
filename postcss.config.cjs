@@ -2,8 +2,6 @@
 // Consumers use the package's precompiled CSS and do not need to copy it.
 module.exports = {
   plugins: {
-    tailwindcss: {
-      config: require.resolve('./tailwind.config.cjs'),
-    },
+    '@tailwindcss/postcss': {},
   },
 };

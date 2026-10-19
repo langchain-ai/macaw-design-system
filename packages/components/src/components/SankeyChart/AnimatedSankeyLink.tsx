@@ -58,7 +58,7 @@ export const AnimatedSankeyLink = ({
       fill={link.color}
       opacity={opacity}
       className={cn(
-        'transition-opacity duration-fast focus:outline-none focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:opacity-100 motion-reduce:transition-none',
+        'transition-opacity duration-fast focus:outline-hidden focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:opacity-100 motion-reduce:transition-none',
         isInteractive && 'cursor-pointer'
       )}
       aria-label={ariaLabel}

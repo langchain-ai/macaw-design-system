@@ -32,6 +32,8 @@ const buttonBorderColorClasses = [
   'button-primary-underlined-border-hover',
   'button-secondary-underlined-border',
   'button-secondary-underlined-border-hover',
+  'button-error-border',
+  'button-error-outlined-border',
   'button-error-underlined-border',
   'button-error-underlined-border-hover',
   'button-error-disabled-border',
@@ -60,6 +62,7 @@ const customTwMerge = extendTailwindMerge({
   extend: {
     theme: {
       spacing: SPACE_SCALE_STEPS,
+      shadow: ['slider-thumb'],
     },
     classGroups: {
       // Extend font-size to include custom display and caps classes
@@ -120,6 +123,7 @@ const customTwMerge = extendTailwindMerge({
         'bg-error-primary',
         'bg-error-secondary',
         'bg-error-strong',
+        'button-error-bg-hover',
         'bg-warning',
         'bg-warning-subtle',
         'bg-warning-primary',

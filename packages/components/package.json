@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.0.0-beta.9",
+  "version": "1.0.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -547,7 +547,9 @@
     }
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true,
+    "tag": "latest"
   },
   "scripts": {
     "build": "node ../../scripts/build-components.mjs",
@@ -590,7 +592,6 @@
     "@radix-ui/react-tooltip": "^1.2.6",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@react-spring/web": "^10.1.2",
-    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.7",
     "@uiw/codemirror-theme-tokyo-night-day": "^4.25.4",
     "@uiw/codemirror-theme-tokyo-night-storm": "^4.25.4",
@@ -608,15 +609,15 @@
     "linkify-it": "^5.0.2",
     "react-hotkeys-hook": "^4.5.0",
     "react-virtuoso": "^4.18.6",
-    "tailwind-merge": "^2.6",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^9.0.4",
     "yaml": "^2.8.3"
   },
   "peerDependencies": {
-    "react": ">=18.2.0 <20",
-    "react-dom": ">=18.2.0 <20",
-    "tailwindcss": "^3.4.4"
+    "react": ">=19 <20",
+    "react-dom": ">=19 <20",
+    "tailwindcss": "^4.3.3"
   },
   "peerDependenciesMeta": {
     "tailwindcss": {
@@ -624,7 +625,7 @@
     }
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=26"
   },
   "nx": {
     "targets": {
