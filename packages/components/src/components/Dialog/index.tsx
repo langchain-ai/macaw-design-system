@@ -119,7 +119,7 @@ export function Dialog({
       <DialogPortal>
         <DialogOverlay
           className={cn(
-            'bg-overlay fixed inset-0',
+            'fixed inset-0 bg-overlay',
             'data-[state=open]:animate-overlay-in data-[state=closed]:animate-overlay-out motion-reduce:animate-none',
             className
           )}
@@ -168,7 +168,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       <RadixDialogContent
         ref={mergeRefs([ref, setContentNode])}
         className={cn(
-          'bg-background fixed top-[50%] left-[50%] flex max-h-[calc(100vh-2rem)] w-[37.5rem] translate-x-[-50%] translate-y-[-50%] flex-col rounded-lg',
+          'fixed left-[50%] top-[50%] flex max-h-[calc(100vh-2rem)] w-[37.5rem] translate-x-[-50%] translate-y-[-50%] flex-col rounded-lg bg-background',
           'fade-in',
           'data-[state=closed]:fade-out',
           className
@@ -184,9 +184,9 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         <ZIndexProvider value={dialogZIndex}>
           <DialogContainerContext.Provider value={contentNode}>
             {hasHeader && (
-              <div className="p-space-4 m-0 min-h-14 shrink-0">
-                <div className="gap-space-4 flex items-center justify-between">
-                  <div className="gap-space-2 flex min-w-0 items-center">
+              <div className="m-0 min-h-14 shrink-0 p-space-4">
+                <div className="flex items-center justify-between gap-space-4">
+                  <div className="flex min-w-0 items-center gap-space-2">
                     {TitleIcon && (
                       <Icon
                         icon={TitleIcon}
@@ -194,7 +194,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                         size="md"
                       />
                     )}
-                    <div className="gap-space-1 flex min-w-0 flex-col">
+                    <div className="flex min-w-0 flex-col gap-space-1">
                       {title && (
                         <DialogTitle asChild>
                           <Text variant="h3" weight="semibold">
@@ -229,7 +229,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             )}
             <div
               className={cn(
-                'gap-space-4 p-space-4 flex min-h-0 flex-col overflow-y-auto',
+                'flex min-h-0 flex-col gap-space-4 overflow-y-auto p-space-4',
                 hasHeader && 'pt-0',
                 childrenClassName
               )}

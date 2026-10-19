@@ -43,11 +43,11 @@ export const Sizes: Story = {
   },
   render: function SizesShowcase() {
     return (
-      <div className="gap-space-5 flex flex-col">
+      <div className="flex flex-col gap-space-5">
         {/* Small size - all states */}
         <div className="space-y-space-2">
           <h4 className="text-sm font-medium">Small (sm, default)</h4>
-          <div className="gap-space-5 flex items-center">
+          <div className="flex items-center gap-space-5">
             <Checkbox
               checked={false}
               onCheckedChange={() => {}}
@@ -71,7 +71,7 @@ export const Sizes: Story = {
         {/* Medium size - all states */}
         <div className="space-y-space-2">
           <h4 className="text-sm font-medium">Medium (md)</h4>
-          <div className="gap-space-5 flex items-center">
+          <div className="flex items-center gap-space-5">
             <Checkbox
               checked={false}
               onCheckedChange={() => {}}
@@ -178,9 +178,9 @@ export const AllVariants: Story = {
         {/* Size variants */}
         <div className="space-y-space-4">
           <h3 className="text-lg font-semibold">Sizes</h3>
-          <div className="gap-space-3 flex flex-col">
-            <div className="gap-space-4 flex items-center">
-              <span className="text-tertiary w-20 text-sm">
+          <div className="flex flex-col gap-space-3">
+            <div className="flex items-center gap-space-4">
+              <span className="w-20 text-sm text-tertiary">
                 Small (default):
               </span>
               <Checkbox
@@ -202,8 +202,8 @@ export const AllVariants: Story = {
                 size="sm"
               />
             </div>
-            <div className="gap-space-4 flex items-center">
-              <span className="text-tertiary w-20 text-sm">Medium:</span>
+            <div className="flex items-center gap-space-4">
+              <span className="w-20 text-sm text-tertiary">Medium:</span>
               <Checkbox
                 checked={false}
                 onCheckedChange={() => {}}
@@ -229,7 +229,7 @@ export const AllVariants: Story = {
         {/* Basic states */}
         <div className="space-y-space-4">
           <h3 className="text-lg font-semibold">Basic States</h3>
-          <div className="gap-space-3 flex flex-col">
+          <div className="flex flex-col gap-space-3">
             <Checkbox
               checked={checked1}
               onCheckedChange={setChecked1}
@@ -259,7 +259,7 @@ export const AllVariants: Story = {
         {/* Disabled states */}
         <div className="space-y-space-4">
           <h3 className="text-lg font-semibold">Disabled States</h3>
-          <div className="gap-space-3 flex flex-col">
+          <div className="flex flex-col gap-space-3">
             <Checkbox
               checked={false}
               onCheckedChange={() => {}}
@@ -301,11 +301,11 @@ export const WithAriaLabel: Story = {
     const [checked, setChecked] = useState<boolean | 'indeterminate'>(false);
     return (
       <div className="space-y-space-4">
-        <p className="text-tertiary text-sm">
+        <p className="text-sm text-tertiary">
           This checkbox has no visible label but uses aria-label for screen
           readers:
         </p>
-        <div className="gap-space-4 flex items-center">
+        <div className="flex items-center gap-space-4">
           <Checkbox
             checked={checked}
             onCheckedChange={setChecked}
@@ -329,10 +329,10 @@ export const WithAriaLabelledBy: Story = {
     const [checked, setChecked] = useState<boolean | 'indeterminate'>(true);
     return (
       <div className="space-y-space-4">
-        <p className="text-tertiary text-sm">
+        <p className="text-sm text-tertiary">
           This checkbox is labeled by an external element using aria-labelledby:
         </p>
-        <div className="gap-space-3 border-secondary p-space-3 flex items-center rounded-md border">
+        <div className="flex items-center gap-space-3 rounded-md border border-secondary p-space-3">
           <Checkbox
             checked={checked}
             onCheckedChange={setChecked}
@@ -342,7 +342,7 @@ export const WithAriaLabelledBy: Story = {
             <p id="external-label" className="font-medium">
               Subscribe to newsletter
             </p>
-            <p className="text-tertiary text-sm">
+            <p className="text-sm text-tertiary">
               Get weekly updates about new features
             </p>
           </div>
@@ -385,15 +385,15 @@ function SelectAllExample() {
   };
 
   return (
-    <div className="border-secondary p-space-4 rounded-md border">
-      <div className="mb-space-2 border-secondary pb-space-2 border-b">
+    <div className="rounded-md border border-secondary p-space-4">
+      <div className="mb-space-2 border-b border-secondary pb-space-2">
         <Checkbox
           checked={headerState}
           onCheckedChange={toggleAll}
           label="Select All"
         />
       </div>
-      <div className="gap-space-2 flex flex-col">
+      <div className="flex flex-col gap-space-2">
         {items.map((item) => (
           <Checkbox
             key={item.id}

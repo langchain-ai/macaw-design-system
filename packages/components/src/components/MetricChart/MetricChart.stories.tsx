@@ -139,7 +139,7 @@ export const SizeVariants: Story = {
     },
   },
   render: () => (
-    <div className="gap-space-4 flex flex-wrap">
+    <div className="flex flex-wrap gap-space-4">
       <ChartCard title="Small" className="h-20 w-56">
         <MetricChart
           size="sm"

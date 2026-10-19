@@ -70,28 +70,28 @@ export const InsideNarrowContainer: Story = {
     <table className="w-[480px] border-separate border-spacing-0">
       <thead>
         <tr>
-          <th className="border-secondary p-space-2 text-secondary border-b text-left text-xs font-medium">
+          <th className="border-b border-secondary p-space-2 text-left text-xs font-medium text-secondary">
             Run
           </th>
-          <th className="border-secondary p-space-2 text-secondary border-b text-left text-xs font-medium">
+          <th className="border-b border-secondary p-space-2 text-left text-xs font-medium text-secondary">
             Result
           </th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td className="border-secondary p-space-2 border-b text-xs">
+          <td className="border-b border-secondary p-space-2 text-xs">
             run-001
           </td>
-          <td className="border-secondary p-space-2 max-w-0 border-b">
+          <td className="max-w-0 border-b border-secondary p-space-2">
             <ErrorMessage {...args} />
           </td>
         </tr>
         <tr>
-          <td className="border-secondary p-space-2 border-b text-xs">
+          <td className="border-b border-secondary p-space-2 text-xs">
             run-002
           </td>
-          <td className="border-secondary p-space-2 border-b text-xs">OK</td>
+          <td className="border-b border-secondary p-space-2 text-xs">OK</td>
         </tr>
       </tbody>
     </table>
@@ -105,7 +105,7 @@ export const Sizes: Story = {
     defaultExpanded: true,
   },
   render: (args) => (
-    <div className="gap-space-4 flex flex-row items-start">
+    <div className="flex flex-row items-start gap-space-4">
       <ErrorMessage className="w-[360px]" {...args} size="sm" />
       <ErrorMessage className="w-[360px]" {...args} size="md" />
     </div>
@@ -119,7 +119,7 @@ export const PrettifyVariants: Story = {
     defaultExpanded: true,
   },
   render: (args) => (
-    <div className="gap-space-4 flex flex-row items-start">
+    <div className="flex flex-row items-start gap-space-4">
       <ErrorMessage className="w-[360px]" {...args} prettify />
       <ErrorMessage className="w-[360px]" {...args} prettify={false} />
     </div>

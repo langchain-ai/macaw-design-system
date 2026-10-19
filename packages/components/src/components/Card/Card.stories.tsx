@@ -36,34 +36,34 @@ export const Default: Story = {
   args: {
     intent: 'neutral',
     children: (
-      <div className="gap-space-4 flex flex-col">
-        <div className="gap-space-1 flex flex-col">
+      <div className="flex flex-col gap-space-4">
+        <div className="flex flex-col gap-space-1">
           <Text weight="medium">Project activity</Text>
           <Text variant="sm" color="tertiary">
             Cards have room for supporting context and structured content.
           </Text>
         </div>
-        <div className="gap-space-3 grid grid-cols-3">
-          <div className="gap-space-1 flex flex-col">
+        <div className="grid grid-cols-3 gap-space-3">
+          <div className="flex flex-col gap-space-1">
             <Text variant="xs" color="tertiary">
               Traces
             </Text>
             <Text weight="medium">1,284</Text>
           </div>
-          <div className="gap-space-1 flex flex-col">
+          <div className="flex flex-col gap-space-1">
             <Text variant="xs" color="tertiary">
               Datasets
             </Text>
             <Text weight="medium">12</Text>
           </div>
-          <div className="gap-space-1 flex flex-col">
+          <div className="flex flex-col gap-space-1">
             <Text variant="xs" color="tertiary">
               Members
             </Text>
             <Text weight="medium">8</Text>
           </div>
         </div>
-        <div className="gap-space-3 flex flex-col">
+        <div className="flex flex-col gap-space-3">
           <Divider weight="strong" />
           <Text variant="xs" color="tertiary">
             Updated a few minutes ago
@@ -76,9 +76,9 @@ export const Default: Story = {
 
 export const AllIntents: Story = {
   render: () => (
-    <div className="gap-space-4 flex flex-col">
+    <div className="flex flex-col gap-space-4">
       <Card intent="plain">
-        <div className="gap-space-1 flex flex-col">
+        <div className="flex flex-col gap-space-1">
           <Text weight="medium">Plain</Text>
           <Text variant="sm" color="tertiary">
             Elevated content on a muted border.
@@ -86,7 +86,7 @@ export const AllIntents: Story = {
         </div>
       </Card>
       <Card intent="neutral">
-        <div className="gap-space-1 flex flex-col">
+        <div className="flex flex-col gap-space-1">
           <Text weight="medium">Neutral</Text>
           <Text variant="sm" color="tertiary">
             The default surface for general content.
@@ -94,7 +94,7 @@ export const AllIntents: Story = {
         </div>
       </Card>
       <Card intent="info">
-        <div className="gap-space-1 flex flex-col">
+        <div className="flex flex-col gap-space-1">
           <Text weight="medium">Info</Text>
           <Text variant="sm" color="tertiary">
             A brand-tinted surface for informational content.

@@ -86,7 +86,7 @@ const FamilyHeading = ({
   description: string;
   components: string;
 }) => (
-  <div className="gap-space-1 flex flex-col">
+  <div className="flex flex-col gap-space-1">
     <Text as="h2" variant="h2">
       {title}
     </Text>
@@ -100,7 +100,7 @@ const FamilyHeading = ({
 const DEFAULT_ROOT_FONT_SIZE_PX = 16;
 
 const SizeHeading = ({ name, rem }: { name: string; rem: number }) => (
-  <div className="gap-space-1 flex w-20 shrink-0 flex-col">
+  <div className="flex w-20 shrink-0 flex-col gap-space-1">
     <Text as="span" variant="sm" weight="semibold">
       {name}
     </Text>
@@ -119,11 +119,11 @@ const Ruler = ({
   square?: boolean;
   children: ReactNode;
 }) => (
-  <div className="px-space-2 relative flex min-h-16 min-w-36 items-center justify-center">
+  <div className="relative flex min-h-16 min-w-36 items-center justify-center px-space-2">
     <div
       aria-hidden
       className={cn(
-        'border-brand absolute border border-dashed',
+        'absolute border border-dashed border-brand',
         square ? undefined : 'inset-x-0'
       )}
       style={{ height: `${rem}rem`, width: square ? `${rem}rem` : undefined }}
@@ -143,7 +143,7 @@ const GuidedSpecimen = ({
   square?: boolean;
   children: ReactNode;
 }) => (
-  <div className="gap-space-1 flex min-w-36 flex-col items-center">
+  <div className="flex min-w-36 flex-col items-center gap-space-1">
     <Ruler rem={rem} square={square}>
       {children}
     </Ruler>
@@ -160,7 +160,7 @@ const SameSizeSpecimen = ({
   label: string;
   children: ReactNode;
 }) => (
-  <div className="gap-space-1 flex min-w-24 flex-col items-center">
+  <div className="flex min-w-24 flex-col items-center gap-space-1">
     <div className="flex h-12 items-center justify-center">{children}</div>
     <Text as="span" variant="xs" color="tertiary">
       {label}
@@ -175,23 +175,23 @@ const SameSizeRow = ({
   name: string;
   children: ReactNode;
 }) => (
-  <div className="gap-space-3 flex items-center">
+  <div className="flex items-center gap-space-3">
     <Text as="span" variant="sm" weight="semibold" className="w-10 shrink-0">
       {name}
     </Text>
-    <div className="gap-space-3 flex items-center">{children}</div>
+    <div className="flex items-center gap-space-3">{children}</div>
   </div>
 );
 
 const SameNamedSizeComparison = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Same name across component families"
       description="Each row passes the same named size to every component that supports it. Unsupported tiers are omitted."
       components="Decorated Icon, Badge, Button, ButtonGroup, Input, Select, GroupedTabs, Checkbox, Switch"
     />
-    <div className="border-subtle bg-surface-level-2 p-space-4 overflow-x-auto rounded-lg border">
-      <div className="gap-space-4 flex min-w-max flex-col">
+    <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
+      <div className="flex min-w-max flex-col gap-space-4">
         <SameSizeRow name="xs">
           <SameSizeSpecimen label="Decorated Icon">
             <Icon icon={InfoIcon} color="neutral" size="xs" />
@@ -383,18 +383,18 @@ const SameNamedSizeComparison = () => (
 );
 
 const VisualElementMatrix = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Visual elements"
       description="The Icon contract applies to the decorated presentation. Plain Icon remains intrinsic for compatibility."
       components="Decorated Icon, Avatar, Spinner"
     />
-    <div className="border-subtle bg-surface-level-2 p-space-4 overflow-x-auto rounded-lg border">
-      <div className="gap-space-3 flex min-w-max flex-col">
+    <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
+      <div className="flex min-w-max flex-col gap-space-3">
         {Object.values(VISUAL_ELEMENT_SIZES).map((contract) => {
           const { name } = contract;
           return (
-            <div key={name} className="gap-space-3 flex items-center">
+            <div key={name} className="flex items-center gap-space-3">
               <SizeHeading name={name} rem={contract.rem} />
               <GuidedSpecimen label="Icon" rem={contract.rem} square>
                 <Icon
@@ -419,18 +419,18 @@ const VisualElementMatrix = () => (
 );
 
 const CompactTextLabelMatrix = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Compact text labels"
       description="Text-label heights preserve their existing typography and remain separate from visual-element sizing. Toggle Storybook's theme to compare both color modes."
       components="Badge, Kbd, default Typeahead tags"
     />
-    <div className="border-subtle bg-surface-level-2 p-space-4 overflow-x-auto rounded-lg border">
-      <div className="gap-space-3 flex min-w-max flex-col">
+    <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
+      <div className="flex min-w-max flex-col gap-space-3">
         {compactTextLabelSizes.map((contract) => {
           const { name } = contract;
           return (
-            <div key={name} className="gap-space-3 flex items-center">
+            <div key={name} className="flex items-center gap-space-3">
               <SizeHeading name={name} rem={contract.rem} />
               <GuidedSpecimen label="Badge" rem={contract.rem}>
                 <Badge size={name}>Production</Badge>
@@ -477,7 +477,7 @@ const CompactTextLabelMatrix = () => (
             </div>
           );
         })}
-        <div className="gap-space-2 border-subtle pt-space-3 flex flex-col border-t">
+        <div className="flex flex-col gap-space-2 border-t border-subtle pt-space-3">
           <Text as="span" variant="sm" weight="semibold">
             Intrinsic wrapped composition
           </Text>
@@ -503,18 +503,18 @@ const CompactTextLabelMatrix = () => (
 );
 
 const ControlMatrix = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Controls"
       description="The ruler marks exact outer height. Multiline Textarea and multi-value Typeahead use these as first-row or minimum-height metrics."
       components="Button, IconButton, ButtonGroup, CopyButton, Input, Select, Typeahead, GroupedTabs"
     />
-    <div className="border-subtle bg-surface-level-2 p-space-4 overflow-x-auto rounded-lg border">
-      <div className="gap-space-3 flex min-w-max flex-col">
+    <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
+      <div className="flex min-w-max flex-col gap-space-3">
         {Object.values(CONTROL_SIZES).map((contract) => {
           const { name } = contract;
           return (
-            <div key={name} className="gap-space-3 flex items-center">
+            <div key={name} className="flex items-center gap-space-3">
               <SizeHeading name={name} rem={contract.rem} />
               {name !== 'lg' && (
                 <GuidedSpecimen label="Button" rem={contract.rem}>
@@ -594,18 +594,18 @@ const ControlMatrix = () => (
 );
 
 const SelectionControlMatrix = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Selection controls"
       description="The ruler measures indicator geometry. Labeled rows and RadioCard remain intrinsically sized; Switch and Slider own their track widths."
       components="Checkbox, RadioButton, RadioGroupItem, RadioCard, Switch, Slider"
     />
-    <div className="border-subtle bg-surface-level-2 p-space-4 overflow-x-auto rounded-lg border">
-      <div className="gap-space-3 flex min-w-max flex-col">
+    <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
+      <div className="flex min-w-max flex-col gap-space-3">
         {Object.values(SELECTION_CONTROL_SIZES).map((contract) => {
           const { name } = contract;
           return (
-            <div key={name} className="gap-space-3 flex items-center">
+            <div key={name} className="flex items-center gap-space-3">
               <SizeHeading name={name} rem={contract.rem} />
               <GuidedSpecimen label="Checkbox" rem={contract.rem} square>
                 <Checkbox
@@ -635,7 +635,7 @@ const SelectionControlMatrix = () => (
             </div>
           );
         })}
-        <div className="gap-space-2 border-subtle pt-space-3 flex flex-col border-t">
+        <div className="flex flex-col gap-space-2 border-t border-subtle pt-space-3">
           <Text as="span" variant="sm" weight="semibold">
             Intrinsic compositions
           </Text>
@@ -644,7 +644,7 @@ const SelectionControlMatrix = () => (
             Slider retain their intrinsic/default geometry without named size
             variants.
           </Text>
-          <div className="gap-space-4 flex items-center">
+          <div className="flex items-center gap-space-4">
             <div className="w-56">
               <RadioGroup defaultValue="default-card">
                 <RadioCard value="default-card" className="p-space-3">
@@ -742,18 +742,18 @@ function OptionRowPickerExamples({ size }: { size: OptionRowSize }) {
 }
 
 const OptionRowMatrix = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <FamilyHeading
       title="Option rows"
       description="Open the Select and Typeahead menus to compare option rows. Type a new tag in the last field to see its create-option row. Descriptions and multiline content may grow beyond the minimum height."
       components="CommandItem, DropdownMenuItem, DropdownMenuSubTrigger, ContextMenuItem, SelectItem, Typeahead option and create-option rows"
     />
-    <div className="border-subtle bg-surface-level-2 p-space-4 overflow-x-auto rounded-lg border">
-      <div className="gap-space-3 flex min-w-max flex-col">
+    <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
+      <div className="flex min-w-max flex-col gap-space-3">
         {Object.values(OPTION_ROW_SIZES).map((contract) => {
           const { name } = contract;
           return (
-            <div key={name} className="gap-space-3 flex items-center">
+            <div key={name} className="flex items-center gap-space-3">
               <SizeHeading name={name} rem={contract.rem} />
               <GuidedSpecimen label="Single line" rem={contract.rem}>
                 <Command className="h-auto w-48 bg-transparent">
@@ -767,7 +767,7 @@ const OptionRowMatrix = () => (
                   <CommandList className="max-h-none">
                     <CommandItem
                       size={name}
-                      className="gap-space-2 items-start"
+                      className="items-start gap-space-2"
                     >
                       <MagnifyingGlassIcon
                         aria-hidden
@@ -805,8 +805,8 @@ const OptionRowMatrix = () => (
 
 export const ComparisonMatrix: Story = {
   render: () => (
-    <main className="gap-space-6 bg-surface-level-1 text-primary flex flex-col">
-      <div className="gap-space-2 flex max-w-3xl flex-col">
+    <main className="flex flex-col gap-space-6 bg-surface-level-1 text-primary">
+      <div className="flex max-w-3xl flex-col gap-space-2">
         <Text as="h1" variant="h1">
           Component size comparison
         </Text>

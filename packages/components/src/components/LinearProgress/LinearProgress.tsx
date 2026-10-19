@@ -86,7 +86,7 @@ const LinearProgress = forwardRef<HTMLDivElement, LinearProgressProps>(
             'rounded-none',
             isDeterminate
               ? 'transition-[width] duration-200 ease-out'
-              : 'animate-linear-progress-indeterminate w-[12.5%] motion-reduce:animate-none'
+              : 'w-[12.5%] animate-linear-progress-indeterminate motion-reduce:animate-none'
           )}
           style={isDeterminate ? { width: `${progressPercent}%` } : undefined}
         />

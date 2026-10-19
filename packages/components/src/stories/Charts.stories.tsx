@@ -150,11 +150,11 @@ const ChartOverviewCard = ({
 );
 
 const Swatches = ({ colors }: { colors: readonly string[] }) => (
-  <div className="gap-space-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5">
+  <div className="grid grid-cols-2 gap-space-3 sm:grid-cols-4 lg:grid-cols-5">
     {colors.map((color, index) => (
-      <div key={color} className="gap-space-2 flex items-center">
+      <div key={color} className="flex items-center gap-space-2">
         <div
-          className="border-subtle size-8 shrink-0 rounded-sm border"
+          className="size-8 shrink-0 rounded-sm border border-subtle"
           style={{ backgroundColor: color }}
         />
         <Text variant="xs" color="secondary">
@@ -167,8 +167,8 @@ const Swatches = ({ colors }: { colors: readonly string[] }) => (
 
 export const Overview: Story = {
   render: () => (
-    <div className="gap-space-6 flex max-w-7xl flex-col">
-      <div className="gap-space-2 flex max-w-3xl flex-col">
+    <div className="flex max-w-7xl flex-col gap-space-6">
+      <div className="flex max-w-3xl flex-col gap-space-2">
         <Text variant="h2" weight="semibold">
           Charts overview
         </Text>
@@ -177,7 +177,7 @@ export const Overview: Story = {
           the design system.
         </Text>
       </div>
-      <div className="gap-space-4 grid grid-cols-1 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-space-4 xl:grid-cols-2">
         <ChartOverviewCard
           title="BarChart"
           description="Grouped or stacked categorical values."
@@ -259,7 +259,7 @@ export const Overview: Story = {
           title="ChartCard"
           description="The shared shell for dashboard visualizations."
         >
-          <div className="bg-surface-level-2 flex flex-1 items-center justify-center rounded-md">
+          <div className="flex flex-1 items-center justify-center rounded-md bg-surface-level-2">
             <Text variant="sm" color="tertiary">
               Feature-owned chart content
             </Text>
@@ -315,8 +315,8 @@ export const LegendHoverAndFocus: Story = {
     },
   },
   render: () => (
-    <div className="gap-space-6 flex max-w-7xl flex-col">
-      <div className="gap-space-2 flex max-w-3xl flex-col">
+    <div className="flex max-w-7xl flex-col gap-space-6">
+      <div className="flex max-w-3xl flex-col gap-space-2">
         <Text variant="h2" weight="semibold">
           Legend hover and focus
         </Text>
@@ -325,7 +325,7 @@ export const LegendHoverAndFocus: Story = {
           stays at full color while the other categories dim.
         </Text>
       </div>
-      <div className="gap-space-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2 xl:grid-cols-3">
         <ChartCard
           title="Line chart"
           description="Requests by environment"
@@ -374,8 +374,8 @@ export const LegendHoverAndFocus: Story = {
 
 export const Colors: Story = {
   render: () => (
-    <div className="gap-space-6 flex max-w-4xl flex-col">
-      <div className="gap-space-2 flex max-w-3xl flex-col">
+    <div className="flex max-w-4xl flex-col gap-space-6">
+      <div className="flex max-w-3xl flex-col gap-space-2">
         <Text variant="h2" weight="semibold">
           Chart colors
         </Text>
@@ -383,7 +383,7 @@ export const Colors: Story = {
           These semantic palettes update with the active Storybook theme.
         </Text>
       </div>
-      <section className="gap-space-3 flex flex-col">
+      <section className="flex flex-col gap-space-3">
         <Text variant="h3" weight="semibold">
           Line categorical
         </Text>
@@ -394,7 +394,7 @@ export const Colors: Story = {
         <Swatches colors={CHART_CATEGORICAL_LINE_COLORS} />
       </section>
 
-      <section className="gap-space-3 flex flex-col">
+      <section className="flex flex-col gap-space-3">
         <Text variant="h3" weight="semibold">
           Filled-mark categorical
         </Text>
@@ -404,7 +404,7 @@ export const Colors: Story = {
         <Swatches colors={CHART_CATEGORICAL_FILL_COLORS} />
       </section>
 
-      <section className="gap-space-3 flex flex-col">
+      <section className="flex flex-col gap-space-3">
         <Text variant="h3" weight="semibold">
           Dataset and Experiment comparison palette
         </Text>
@@ -414,7 +414,7 @@ export const Colors: Story = {
         <Swatches colors={CHART_COMPARISON_COLORS} />
       </section>
 
-      <section className="gap-space-3 flex flex-col">
+      <section className="flex flex-col gap-space-3">
         <Text variant="h3" weight="semibold">
           Semantic lines, markers, and Other
         </Text>
@@ -432,7 +432,7 @@ export const Colors: Story = {
           ]}
         />
       </section>
-      <section className="gap-space-3 flex flex-col">
+      <section className="flex flex-col gap-space-3">
         <Text variant="h3" weight="semibold">
           Semantic filled marks
         </Text>

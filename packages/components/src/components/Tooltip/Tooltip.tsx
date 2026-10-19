@@ -80,7 +80,7 @@ export function Tooltip({
           alignOffset={alignOffset}
           collisionPadding={8}
           className={cn(
-            'border-secondary bg-background p-space-2 dark:bg-secondary max-w-[320px] overflow-hidden rounded-md border text-sm shadow-md',
+            'max-w-[320px] overflow-hidden rounded-md border border-secondary bg-background p-space-2 text-sm shadow-md dark:bg-secondary',
             'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
             tooltipClassName,
             invert && 'invert'
@@ -88,7 +88,7 @@ export function Tooltip({
           style={{ zIndex }}
         >
           <ZIndexProvider value={zIndex}>
-            <div className="gap-space-2 text-xxs flex flex-col">
+            <div className="flex flex-col gap-space-2 text-xxs">
               {typeof title === 'string' ? (
                 <Text
                   variant="sm"

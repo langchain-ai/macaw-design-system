@@ -52,7 +52,7 @@ export function ThinkingStateTimer({
       role="timer"
       aria-label="Elapsed time"
       aria-live="off"
-      className="shrink-0 font-mono leading-4 whitespace-nowrap tabular-nums"
+      className="shrink-0 whitespace-nowrap font-mono tabular-nums leading-4"
     >
       {minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}
     </Text>

@@ -11,7 +11,7 @@ const logoVariants: LogoVariant[] = ['logomark', 'wordmark', 'full'];
 const logoSizes: LogoSize[] = ['sm', 'md', 'lg', 'xl'];
 
 const LogoStorySurface = ({ children }: { children: ReactNode }) => (
-  <div className="bg-surface-level-1 p-space-5 text-primary flex min-h-32 w-full items-center justify-center">
+  <div className="flex min-h-32 w-full items-center justify-center bg-surface-level-1 p-space-5 text-primary">
     {children}
   </div>
 );
@@ -92,21 +92,21 @@ export const Sizes: Story = {
   },
   render: () => (
     <div className="bg-surface-level-1 p-space-5 text-primary">
-      <div className="gap-space-6 flex flex-col">
+      <div className="flex flex-col gap-space-6">
         {logoBrands.map((brand) => (
-          <div key={brand} className="gap-space-4 flex flex-col">
-            <Text className="text-secondary capitalize">{brand}</Text>
-            <div className="gap-space-5 flex flex-col">
+          <div key={brand} className="flex flex-col gap-space-4">
+            <Text className="capitalize text-secondary">{brand}</Text>
+            <div className="flex flex-col gap-space-5">
               {logoVariants.map((variant) => (
-                <div key={variant} className="gap-space-2 flex flex-col">
-                  <Text variant="xs" className="text-tertiary capitalize">
+                <div key={variant} className="flex flex-col gap-space-2">
+                  <Text variant="xs" className="capitalize text-tertiary">
                     {variant}
                   </Text>
-                  <div className="gap-space-6 flex flex-wrap items-end">
+                  <div className="flex flex-wrap items-end gap-space-6">
                     {logoSizes.map((size) => (
                       <div
                         key={size}
-                        className="gap-space-2 flex flex-col items-center"
+                        className="flex flex-col items-center gap-space-2"
                       >
                         <div className="flex h-12 items-end">
                           <Logo

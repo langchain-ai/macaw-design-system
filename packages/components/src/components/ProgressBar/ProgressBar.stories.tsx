@@ -89,7 +89,7 @@ export const WithLabel: Story = {
   },
   render: function LabelPositions(args) {
     return (
-      <div className="gap-space-5 flex flex-col">
+      <div className="flex flex-col gap-space-5">
         <ProgressBar
           {...args}
           labelPosition="top"
@@ -108,9 +108,9 @@ export const WithLabel: Story = {
 export const Sizes: Story = {
   render: function SizesShowcase() {
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         {(['sm', 'md', 'lg'] as const).map((size) => (
-          <div key={size} className="gap-space-1 flex flex-col">
+          <div key={size} className="flex flex-col gap-space-1">
             <Text variant="xs" color="secondary">
               {size}
             </Text>
@@ -130,10 +130,10 @@ export const Sizes: Story = {
 export const Colors: Story = {
   render: function ColorsShowcase() {
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         {(['brand', 'neutral', 'success', 'warning', 'error'] as const).map(
           (color) => (
-            <div key={color} className="gap-space-1 flex flex-col">
+            <div key={color} className="flex flex-col gap-space-1">
               <Text variant="xs" color="secondary">
                 {color}
               </Text>
@@ -153,8 +153,8 @@ export const Colors: Story = {
 export const InsideTable: Story = {
   render: function CompactTableExample() {
     return (
-      <div className="border-subtle flex flex-col rounded-md border">
-        <div className="gap-space-2 border-subtle px-space-3 py-space-2 grid grid-cols-[7rem_1fr] border-b">
+      <div className="flex flex-col rounded-md border border-subtle">
+        <div className="grid grid-cols-[7rem_1fr] gap-space-2 border-b border-subtle px-space-3 py-space-2">
           <Text as="span" variant="xs" weight="medium">
             Policy
           </Text>
@@ -166,15 +166,15 @@ export const InsideTable: Story = {
           <div
             key={row.name}
             className={cn(
-              'gap-space-2 px-space-3 py-space-2 grid grid-cols-[7rem_1fr] items-center',
-              index > 0 && 'border-subtle border-t'
+              'grid grid-cols-[7rem_1fr] items-center gap-space-2 px-space-3 py-space-2',
+              index > 0 && 'border-t border-subtle'
             )}
           >
             <Text as="span" variant="xs" weight="medium">
               {row.name}
             </Text>
-            <div className="gap-space-1 flex flex-col">
-              <div className="gap-space-2 flex items-baseline justify-between">
+            <div className="flex flex-col gap-space-1">
+              <div className="flex items-baseline justify-between gap-space-2">
                 <Text as="span" variant="xs" color="secondary">
                   {row.spent} used
                 </Text>

@@ -15,8 +15,8 @@ const CopyExample = ({
   children: ReactNode;
 }) => {
   return (
-    <div className="gap-space-3 flex items-center">
-      <Text variant="sm" className="font-mono break-all">
+    <div className="flex items-center gap-space-3">
+      <Text variant="sm" className="break-all font-mono">
         {value}
       </Text>
       {children}
@@ -81,7 +81,7 @@ export const IconOnly: Story = {
 
 export const IconButtonOptions: Story = {
   render: () => (
-    <div className="gap-space-3 flex flex-col">
+    <div className="flex flex-col gap-space-3">
       <CopyExample value="Plain text example">
         <CopyIconButton copy="Plain text example" label="Copy plain text" />
       </CopyExample>

@@ -104,34 +104,34 @@ export const WithLabel: Story = {
 
 export const AllColors: Story = {
   render: () => (
-    <div className="gap-space-4 flex items-center">
-      <div className="gap-space-2 flex flex-col items-center">
+    <div className="flex items-center gap-space-4">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={InfoIcon} />
-        <span className="text-secondary text-xs">Default</span>
+        <span className="text-xs text-secondary">Default</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={InfoIcon} color="neutral" />
-        <span className="text-secondary text-xs">Neutral</span>
+        <span className="text-xs text-secondary">Neutral</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={CheckCircleIcon} color="success" />
-        <span className="text-secondary text-xs">Success</span>
+        <span className="text-xs text-secondary">Success</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={InfoIcon} color="info" />
-        <span className="text-secondary text-xs">Info</span>
+        <span className="text-xs text-secondary">Info</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={MinusCircleIcon} color="warning" />
-        <span className="text-secondary text-xs">Warning</span>
+        <span className="text-xs text-secondary">Warning</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={XCircleIcon} color="error" />
-        <span className="text-secondary text-xs">Error</span>
+        <span className="text-xs text-secondary">Error</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={SparkleIcon} color="special" />
-        <span className="text-secondary text-xs">Special</span>
+        <span className="text-xs text-secondary">Special</span>
       </div>
     </div>
   ),
@@ -139,14 +139,14 @@ export const AllColors: Story = {
 
 export const Rounded: Story = {
   render: () => (
-    <div className="gap-space-4 flex items-center">
-      <div className="gap-space-2 flex flex-col items-center">
+    <div className="flex items-center gap-space-4">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={InfoIcon} color="neutral" rounded={false} />
-        <span className="text-secondary text-xs">Square</span>
+        <span className="text-xs text-secondary">Square</span>
       </div>
-      <div className="gap-space-2 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-space-2">
         <Icon icon={InfoIcon} color="neutral" rounded={true} />
-        <span className="text-secondary text-xs">Rounded</span>
+        <span className="text-xs text-secondary">Rounded</span>
       </div>
     </div>
   ),
@@ -154,7 +154,7 @@ export const Rounded: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div className="gap-space-4 flex items-center">
+    <div className="flex items-center gap-space-4">
       <Icon icon={InfoIcon} color="info" size="xxs" />
       <Icon icon={InfoIcon} color="info" size="xs" />
       <Icon icon={InfoIcon} color="info" size="sm" />
@@ -167,7 +167,7 @@ export const Sizes: Story = {
 
 export const WithTooltips: Story = {
   render: () => (
-    <div className="gap-space-4 flex items-center">
+    <div className="flex items-center gap-space-4">
       <Icon icon={InfoIcon} label="Default tooltip" />
       <Icon icon={InfoIcon} color="neutral" label="Neutral tooltip" />
       <Icon icon={CheckCircleIcon} color="success" label="Success tooltip" />
@@ -184,7 +184,7 @@ export const SolidIcons: Story = {
     <div className="space-y-space-6">
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Line vs Solid</h3>
-        <div className="gap-space-6 flex flex-wrap">
+        <div className="flex flex-wrap gap-space-6">
           {[
             { icon: InfoIcon, label: 'Info' },
             { icon: CheckCircleIcon, label: 'Check' },
@@ -194,12 +194,12 @@ export const SolidIcons: Story = {
             { icon: GearIcon, label: 'Settings' },
             { icon: SparkleIcon, label: 'Stars' },
           ].map(({ icon: IconComponent, label }) => (
-            <div key={label} className="gap-space-2 flex flex-col items-center">
-              <div className="gap-space-2 flex items-center">
+            <div key={label} className="flex flex-col items-center gap-space-2">
+              <div className="flex items-center gap-space-2">
                 <Icon icon={IconComponent} weight="regular" />
                 <Icon icon={IconComponent} weight="fill" />
               </div>
-              <span className="text-secondary text-xs">{label}</span>
+              <span className="text-xs text-secondary">{label}</span>
             </div>
           ))}
         </div>
@@ -207,7 +207,7 @@ export const SolidIcons: Story = {
 
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Solid with Colors</h3>
-        <div className="gap-space-4 flex flex-wrap">
+        <div className="flex flex-wrap gap-space-4">
           <Icon icon={InfoIcon} color="neutral" weight="fill" />
           <Icon icon={CheckCircleIcon} color="success" weight="fill" />
           <Icon icon={InfoIcon} color="info" weight="fill" />
@@ -226,7 +226,7 @@ export const AllVariants: Story = {
       {/* Default (no background) */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Default (No Background)</h3>
-        <div className="gap-space-4 flex flex-wrap items-center">
+        <div className="flex flex-wrap items-center gap-space-4">
           <Icon icon={InfoIcon} size="sm" />
           <Icon icon={InfoIcon} size="md" />
           <Icon icon={InfoIcon} size="lg" />
@@ -236,7 +236,7 @@ export const AllVariants: Story = {
       {/* Colors with square backgrounds */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Square Backgrounds</h3>
-        <div className="gap-space-4 flex flex-wrap">
+        <div className="flex flex-wrap gap-space-4">
           <Icon icon={InfoIcon} color="neutral" />
           <Icon icon={CheckCircleIcon} color="success" />
           <Icon icon={InfoIcon} color="info" />
@@ -249,7 +249,7 @@ export const AllVariants: Story = {
       {/* Colors with rounded backgrounds */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Rounded Backgrounds</h3>
-        <div className="gap-space-4 flex flex-wrap">
+        <div className="flex flex-wrap gap-space-4">
           <Icon icon={InfoIcon} color="neutral" rounded />
           <Icon icon={CheckCircleIcon} color="success" rounded />
           <Icon icon={InfoIcon} color="info" rounded />
@@ -262,7 +262,7 @@ export const AllVariants: Story = {
       {/* Different sizes */}
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Sizes Comparison</h3>
-        <div className="gap-space-4 flex flex-wrap items-center">
+        <div className="flex flex-wrap items-center gap-space-4">
           <Icon icon={GearIcon} color="neutral" size="xxs" />
           <Icon icon={GearIcon} color="neutral" size="xs" />
           <Icon icon={GearIcon} color="neutral" size="sm" />
@@ -277,7 +277,7 @@ export const AllVariants: Story = {
         <h3 className="text-lg font-semibold">
           With Labels (hover for tooltip)
         </h3>
-        <div className="gap-space-4 flex flex-wrap">
+        <div className="flex flex-wrap gap-space-4">
           <Icon icon={InfoIcon} label="Default information" />
           <Icon icon={InfoIcon} color="neutral" label="Neutral information" />
           <Icon
@@ -328,9 +328,9 @@ export const AllVariants: Story = {
               <td className="p-space-2">
                 <Icon icon={InfoIcon} size="lg" />
               </td>
-              <td className="p-space-2 text-tertiary text-center text-xs">—</td>
-              <td className="p-space-2 text-tertiary text-center text-xs">—</td>
-              <td className="p-space-2 text-tertiary text-center text-xs">—</td>
+              <td className="p-space-2 text-center text-xs text-tertiary">—</td>
+              <td className="p-space-2 text-center text-xs text-tertiary">—</td>
+              <td className="p-space-2 text-center text-xs text-tertiary">—</td>
             </tr>
             <tr>
               <td className="p-space-2 text-sm">Neutral</td>

@@ -11,7 +11,7 @@ export const ChartTooltip = forwardRef<HTMLDivElement, ChartTooltipProps>(
       ref={ref}
       role="tooltip"
       className={cn(
-        'border-subtle bg-elevated p-space-1 text-primary flex w-max max-w-[24rem] flex-col rounded-md border shadow-md',
+        'flex w-max max-w-[24rem] flex-col rounded-md border border-subtle bg-elevated p-space-1 text-primary shadow-md',
         className
       )}
       {...props}
@@ -41,8 +41,8 @@ export function ChartTooltipHeader({
 }: ChartTooltipHeaderProps) {
   return (
     <div className={className} {...props}>
-      <div className="gap-space-6 px-space-2 py-space-1 flex min-w-0 items-center">
-        <div className="gap-space-2 flex min-w-0 flex-1 items-center">
+      <div className="flex min-w-0 items-center gap-space-6 px-space-2 py-space-1">
+        <div className="flex min-w-0 flex-1 items-center gap-space-2">
           {leading}
           <Text
             variant="xs"
@@ -76,7 +76,7 @@ export function ChartTooltipBody({
   return (
     <div
       className={cn(
-        'scroll-mask-t scroll-mask-b flex max-h-[min(300px,70vh)] flex-col overflow-x-hidden overflow-y-auto',
+        'scroll-mask-t scroll-mask-b flex max-h-[min(300px,70vh)] flex-col overflow-y-auto overflow-x-hidden',
         className
       )}
       {...props}
@@ -120,12 +120,12 @@ export function ChartTooltipRow({
       {isTotal && (
         <div
           aria-hidden
-          className="mx-space-2 my-space-1 border-subtle border-t"
+          className="mx-space-2 my-space-1 border-t border-subtle"
         />
       )}
       <div
         className={cn(
-          'gap-space-2 px-space-2 py-space-1 flex min-w-0 items-center rounded-xs',
+          'flex min-w-0 items-center gap-space-2 rounded-xs px-space-2 py-space-1',
           highlighted && 'bg-surface-level-2',
           className
         )}
@@ -142,7 +142,7 @@ export function ChartTooltipRow({
         <Text
           variant="xs"
           weight={isTotal ? 'semibold' : 'normal'}
-          className="min-w-0 flex-1 break-words whitespace-normal"
+          className="min-w-0 flex-1 whitespace-normal break-words"
         >
           {label}
         </Text>

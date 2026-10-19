@@ -41,9 +41,9 @@ export const HorizontalScroll: Story = {
 
 export const ColorsAndSizes: Story = {
   render: () => (
-    <div className="gap-space-4 flex flex-col">
+    <div className="flex flex-col gap-space-4">
       {(['sm', 'md', 'lg'] satisfies Array<'sm' | 'md' | 'lg'>).map((size) => (
-        <div key={size} className="gap-space-4 flex">
+        <div key={size} className="flex gap-space-4">
           {(
             ['yellow', 'green', 'red', 'blue'] satisfies Array<
               'yellow' | 'green' | 'red' | 'blue'

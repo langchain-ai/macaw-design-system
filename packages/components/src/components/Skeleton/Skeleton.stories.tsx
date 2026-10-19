@@ -51,9 +51,9 @@ export const Circle: Story = {
  */
 export const ListRow: Story = {
   render: () => (
-    <div className="gap-space-3 flex items-center">
+    <div className="flex items-center gap-space-3">
       <CircleSkeleton className="size-10 shrink-0" />
-      <div className="gap-space-2 flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col gap-space-2">
         <Skeleton className="h-4 w-1/2" />
         <Skeleton className="h-3 w-3/4" />
       </div>

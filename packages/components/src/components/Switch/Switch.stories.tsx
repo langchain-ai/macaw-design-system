@@ -81,10 +81,10 @@ export const Sizes: Story = {
     const [sm, setSm] = useState(true);
     const [md, setMd] = useState(true);
     return (
-      <div className="gap-space-5 flex flex-col">
+      <div className="flex flex-col gap-space-5">
         <div className="space-y-space-2">
           <h4 className="text-sm font-medium">Small (sm, default)</h4>
-          <div className="gap-space-5 flex items-center">
+          <div className="flex items-center gap-space-5">
             <Switch
               checked={false}
               onChange={() => {}}
@@ -96,7 +96,7 @@ export const Sizes: Story = {
         </div>
         <div className="space-y-space-2">
           <h4 className="text-sm font-medium">Medium (md)</h4>
-          <div className="gap-space-5 flex items-center">
+          <div className="flex items-center gap-space-5">
             <Switch
               checked={false}
               onChange={() => {}}
@@ -121,13 +121,13 @@ export const LabelPositions: Story = {
     const [left, setLeft] = useState(true);
     const [right, setRight] = useState(true);
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <div className="space-y-space-1">
-          <p className="text-tertiary text-sm">Label on right (default)</p>
+          <p className="text-sm text-tertiary">Label on right (default)</p>
           <Switch checked={right} onChange={setRight} label="Enable feature" />
         </div>
         <div className="space-y-space-1">
-          <p className="text-tertiary text-sm">Label on left</p>
+          <p className="text-sm text-tertiary">Label on left</p>
           <Switch
             checked={left}
             onChange={setLeft}
@@ -178,7 +178,7 @@ export const AllVariants: Story = {
       <div className="space-y-space-6">
         <div className="space-y-space-3">
           <h3 className="text-lg font-semibold">Basic States</h3>
-          <div className="gap-space-3 flex flex-col">
+          <div className="flex flex-col gap-space-3">
             <Switch checked={false} onChange={() => {}} label="Off" />
             <Switch checked={true} onChange={() => {}} label="On" />
             <Switch
@@ -191,7 +191,7 @@ export const AllVariants: Story = {
 
         <div className="space-y-space-3">
           <h3 className="text-lg font-semibold">Sizes</h3>
-          <div className="gap-space-3 flex flex-col">
+          <div className="flex flex-col gap-space-3">
             <Switch
               checked={states.sm}
               onChange={set('sm')}
@@ -209,7 +209,7 @@ export const AllVariants: Story = {
 
         <div className="space-y-space-3">
           <h3 className="text-lg font-semibold">Label Position</h3>
-          <div className="gap-space-3 flex flex-col">
+          <div className="flex flex-col gap-space-3">
             <Switch
               checked={states.leftLabel}
               onChange={set('leftLabel')}
@@ -227,7 +227,7 @@ export const AllVariants: Story = {
 
         <div className="space-y-space-3">
           <h3 className="text-lg font-semibold">Disabled</h3>
-          <div className="gap-space-3 flex flex-col">
+          <div className="flex flex-col gap-space-3">
             <Switch
               checked={false}
               onChange={() => {}}

@@ -43,7 +43,7 @@ export const Default: Story = {
         </Button>
       </PopoverTrigger>
       <PopoverContent>
-        <div className="gap-space-2 flex flex-col">
+        <div className="flex flex-col gap-space-2">
           <Text variant="sm" weight="semibold">
             Popover Title
           </Text>
@@ -65,27 +65,27 @@ export const WithForm: Story = {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
-        <div className="gap-space-3 flex flex-col">
+        <div className="flex flex-col gap-space-3">
           <Text variant="sm" weight="semibold">
             Settings
           </Text>
-          <div className="gap-space-1 flex flex-col">
+          <div className="flex flex-col gap-space-1">
             <Text variant="xs" className="text-secondary">
               Name
             </Text>
             {/* eslint-disable-next-line react/forbid-elements */}
             <input
-              className="border-secondary focus:border-brand rounded-md border bg-transparent px-2.5 py-1.5 text-sm outline-hidden"
+              className="rounded-md border border-secondary bg-transparent px-2.5 py-1.5 text-sm outline-hidden focus:border-brand"
               placeholder="Enter name..."
             />
           </div>
-          <div className="gap-space-1 flex flex-col">
+          <div className="flex flex-col gap-space-1">
             <Text variant="xs" className="text-secondary">
               Description
             </Text>
             {/* eslint-disable-next-line react/forbid-elements */}
             <input
-              className="border-secondary focus:border-brand rounded-md border bg-transparent px-2.5 py-1.5 text-sm outline-hidden"
+              className="rounded-md border border-secondary bg-transparent px-2.5 py-1.5 text-sm outline-hidden focus:border-brand"
               placeholder="Enter description..."
             />
           </div>
@@ -117,7 +117,7 @@ export const CustomWidth: Story = {
 
 export const Alignment: Story = {
   render: () => (
-    <div className="gap-space-6 flex">
+    <div className="flex gap-space-6">
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outlined" color="secondary" size="sm">

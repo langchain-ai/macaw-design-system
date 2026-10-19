@@ -29,7 +29,7 @@ const meta = {
   decorators: [
     (Story) => (
       <TooltipProvider>
-        <div className="border-secondary w-[320px] rounded-md border">
+        <div className="w-[320px] rounded-md border border-secondary">
           <Story />
         </div>
       </TooltipProvider>
@@ -119,13 +119,13 @@ export const HiddenSearch: Story = {
 
 export const RowSizes: Story = {
   render: () => (
-    <div className="gap-space-4 flex flex-col">
+    <div className="flex flex-col gap-space-4">
       {(['sm', 'md'] satisfies OptionRowSize[]).map((size) => (
-        <div key={size} className="gap-space-1 flex flex-col">
+        <div key={size} className="flex flex-col gap-space-1">
           <Text as="span" variant="xs" color="secondary">
             {size} option rows
           </Text>
-          <div className="border-subtle rounded-md border">
+          <div className="rounded-md border border-subtle">
             <CommandMenu
               items={[
                 { value: 'selected', label: 'Selected option' },
@@ -236,7 +236,7 @@ export const CustomRender: Story = {
         onSelect={() => {}}
         placeholder="Search statuses..."
         renderItem={(item) => (
-          <div className="gap-space-2 flex items-center">
+          <div className="flex items-center gap-space-2">
             <span
               className={`size-2 rounded-full ${statusColors[item.value] ?? ''}`}
             />
@@ -252,8 +252,8 @@ export const Interactive: Story = {
   render: () => {
     const [selected, setSelected] = useState<string | undefined>();
     return (
-      <div className="gap-space-2 flex flex-col">
-        <Text variant="xs" className="px-space-2 text-secondary py-1.5">
+      <div className="flex flex-col gap-space-2">
+        <Text variant="xs" className="px-space-2 py-1.5 text-secondary">
           Selected: {selected ?? 'none'}
         </Text>
         <CommandMenu

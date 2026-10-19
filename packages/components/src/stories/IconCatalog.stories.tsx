@@ -23,10 +23,10 @@ function IconCatalog() {
   }, [query]);
 
   return (
-    <main className="bg-surface-level-1 p-space-5 text-primary sm:p-space-8 min-h-screen">
-      <div className="gap-space-6 mx-auto flex max-w-screen-2xl flex-col">
-        <header className="gap-space-4 border-subtle pb-space-6 flex flex-col border-b lg:flex-row lg:items-end lg:justify-between">
-          <div className="gap-space-2 flex flex-col">
+    <main className="min-h-screen bg-surface-level-1 p-space-5 text-primary sm:p-space-8">
+      <div className="mx-auto flex max-w-screen-2xl flex-col gap-space-6">
+        <header className="flex flex-col gap-space-4 border-b border-subtle pb-space-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-space-2">
             <Text as="h1" variant="h1">
               Phosphor icon library
             </Text>
@@ -54,26 +54,26 @@ function IconCatalog() {
         </Text>
 
         {filteredIcons.length > 0 ? (
-          <ul className="gap-space-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+          <ul className="grid grid-cols-2 gap-space-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
             {filteredIcons.map(
               ([legacyName, phosphorName, IconComponent, weight]) => (
                 <li
                   key={legacyName}
-                  className="gap-space-3 border-default bg-surface-level-1 p-space-4 flex min-w-0 flex-col items-center rounded-lg border text-center"
+                  className="flex min-w-0 flex-col items-center gap-space-3 rounded-lg border border-default bg-surface-level-1 p-space-4 text-center"
                 >
                   <div className="text-icon-primary">
                     <IconComponent aria-hidden size={24} weight={weight} />
                   </div>
-                  <div className="gap-space-1 flex min-w-0 flex-col">
+                  <div className="flex min-w-0 flex-col gap-space-1">
                     <Text
-                      className="font-mono break-all"
+                      className="break-all font-mono"
                       variant="xs"
                       weight="medium"
                     >
                       {phosphorName}
                     </Text>
                     <Text
-                      className="font-mono break-all"
+                      className="break-all font-mono"
                       color="quaternary"
                       variant="xs"
                     >
@@ -88,7 +88,7 @@ function IconCatalog() {
             )}
           </ul>
         ) : (
-          <div className="gap-space-2 border-default bg-surface-level-2 flex min-h-64 flex-col items-center justify-center rounded-lg border">
+          <div className="flex min-h-64 flex-col items-center justify-center gap-space-2 rounded-lg border border-default bg-surface-level-2">
             <Text variant="h3">No icons found</Text>
             <Text color="secondary">Try a broader search term.</Text>
           </div>

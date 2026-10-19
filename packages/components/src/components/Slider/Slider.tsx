@@ -75,7 +75,7 @@ export const Slider = ({
   return (
     <SliderPrimitive.Root
       className={cn(
-        'relative flex w-full touch-none items-center select-none',
+        'relative flex w-full touch-none select-none items-center',
         hasLabels && 'pb-7',
         className
       )}
@@ -96,8 +96,8 @@ export const Slider = ({
         className={cn(
           'relative w-full grow overflow-hidden',
           variant === 'thick'
-            ? 'bg-surface-level-3 mx-2 h-2 rounded-xs'
-            : 'bg-surface-level-4 h-1.5 rounded-full'
+            ? 'mx-2 h-2 rounded-xs bg-surface-level-3'
+            : 'h-1.5 rounded-full bg-surface-level-4'
         )}
       >
         <SliderPrimitive.Range
@@ -121,7 +121,7 @@ export const Slider = ({
             'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-hidden',
             disabled
               ? 'border-muted bg-surface-level-3'
-              : 'border-brand-300 bg-control-thumb hover:border-brand-400 dark:border-brand-500 dark:hover:border-brand-600 cursor-pointer'
+              : 'cursor-pointer border-brand-300 bg-control-thumb hover:border-brand-400 dark:border-brand-500 dark:hover:border-brand-600'
           )}
         />
       ))}
@@ -133,7 +133,7 @@ export const Slider = ({
               key={s.value}
               as="span"
               variant="xs"
-              className="text-secondary absolute -translate-x-1/2 truncate"
+              className="absolute -translate-x-1/2 truncate text-secondary"
               // Left as non-tailwind on purpose for better readability on label positioning
               style={{
                 left: `${((s.value - min) / (max - min)) * 100}%`,

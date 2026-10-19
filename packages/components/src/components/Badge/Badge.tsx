@@ -136,8 +136,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
           baseStyles,
           getColorStyles(),
           isManifestPreview &&
-            'max-w-full min-w-0 overflow-hidden whitespace-nowrap [&>span]:truncate',
-          isManifestPreview && color == null && 'text-secondary bg-transparent',
+            'min-w-0 max-w-full overflow-hidden whitespace-nowrap [&>span]:truncate',
+          isManifestPreview && color == null && 'bg-transparent text-secondary',
           className
         )}
         {...props}
@@ -167,7 +167,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
             as="span"
             variant={SIZE_TEXT_VARIANT[resolvedSize]}
             weight="normal"
-            className="text-tertiary tracking-tight"
+            className="tracking-tight text-tertiary"
           >
             {suffix}
           </Text>

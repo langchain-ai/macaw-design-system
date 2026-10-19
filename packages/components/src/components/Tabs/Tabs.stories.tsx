@@ -100,7 +100,7 @@ export const ScrollableTabs: Story = {
     },
   },
   render: () => (
-    <div className="gap-space-5 flex flex-col">
+    <div className="flex flex-col gap-space-5">
       {[
         {
           name: 'Chart Runs',

@@ -97,7 +97,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="p-space-6 w-80">
+      <div className="w-80 p-space-6">
         <Story />
       </div>
     ),
@@ -132,7 +132,7 @@ export const Sizes: Story = {
     const [inputValue, setInputValue] = useState('');
 
     return (
-      <div className="gap-space-2 grid w-[30rem] grid-cols-[3rem_7rem_minmax(0,1fr)] items-center">
+      <div className="grid w-[30rem] grid-cols-[3rem_7rem_minmax(0,1fr)] items-center gap-space-2">
         <Text variant="xs" color="secondary">
           xs
         </Text>
@@ -223,7 +223,7 @@ function IconAlignmentExample({
     useState<string[]>(iconAlignmentOptions);
 
   return (
-    <div className="gap-space-2 flex flex-col">
+    <div className="flex flex-col gap-space-2">
       <Text variant="xs" color="secondary">
         {size}
       </Text>
@@ -295,7 +295,7 @@ export const IconAlignment: Story = {
     },
   },
   render: ({ disabled }) => (
-    <div className="gap-space-5 flex w-72 flex-col">
+    <div className="flex w-72 flex-col gap-space-5">
       {Object.values(CONTROL_SIZES).map(({ name }) => (
         <IconAlignmentExample key={name} size={name} disabled={disabled} />
       ))}
@@ -378,7 +378,7 @@ export const SearchableMultiSelect: Story = {
 
 export const MultipleSizes: Story = {
   render: () => (
-    <div className="gap-space-2 flex flex-col">
+    <div className="flex flex-col gap-space-2">
       <Typeahead
         multiple
         size="xs"
@@ -535,7 +535,7 @@ const environmentOptions: TypeaheadOption[] = [
     label: 'Production',
     description: 'Traffic-facing environment',
     rightDecorator: (
-      <span className="text-icon-success inline-flex">
+      <span className="inline-flex text-icon-success">
         <CheckCircleIcon size={16} weight="regular" />
       </span>
     ),
@@ -545,7 +545,7 @@ const environmentOptions: TypeaheadOption[] = [
     label: 'Staging',
     description: 'Release validation',
     rightDecorator: (
-      <span className="text-icon-warning inline-flex">
+      <span className="inline-flex text-icon-warning">
         <LightningIcon size={16} weight="regular" />
       </span>
     ),
@@ -556,7 +556,7 @@ const environmentOptions: TypeaheadOption[] = [
     description: 'Hidden from new runs',
     disabled: true,
     rightDecorator: (
-      <span className="text-icon-disabled inline-flex">
+      <span className="inline-flex text-icon-disabled">
         <WarningCircleIcon size={16} weight="regular" />
       </span>
     ),
@@ -605,12 +605,12 @@ export const CustomRendering: Story = {
           })
         }
         renderOption={(option, state) => (
-          <div className="gap-space-3 flex min-w-0 flex-1 items-center justify-between">
-            <div className="gap-space-1 flex min-w-0 flex-col">
-              <Text as="span" variant="sm" className="text-primary truncate">
+          <div className="flex min-w-0 flex-1 items-center justify-between gap-space-3">
+            <div className="flex min-w-0 flex-col gap-space-1">
+              <Text as="span" variant="sm" className="truncate text-primary">
                 {option.label}
               </Text>
-              <Text as="span" variant="xs" className="text-tertiary truncate">
+              <Text as="span" variant="xs" className="truncate text-tertiary">
                 {option.description}
               </Text>
             </div>

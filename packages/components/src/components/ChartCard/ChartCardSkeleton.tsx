@@ -14,7 +14,7 @@ export type ChartCardSkeletonVariant =
 const BAR_HEIGHTS = ['35%', '62%', '48%', '78%', '55%', '70%', '42%'] as const;
 
 const LegendSkeleton = () => (
-  <div aria-hidden="true" className="gap-space-2 flex min-w-0 items-center">
+  <div aria-hidden="true" className="flex min-w-0 items-center gap-space-2">
     <Skeleton className="h-4 w-20 motion-reduce:animate-none" />
     <Skeleton className="h-4 w-24 motion-reduce:animate-none" />
     <Skeleton className="h-4 w-16 motion-reduce:animate-none" />
@@ -22,9 +22,9 @@ const LegendSkeleton = () => (
 );
 
 const Plot = ({ children }: { children: React.ReactNode }) => (
-  <div className="border-muted relative min-h-0 flex-1 border-b border-l">
+  <div className="relative min-h-0 flex-1 border-b border-l border-muted">
     {/* Anchor percentage-sized marks to the plot even in auto-height cards. */}
-    <div className="px-space-2 absolute inset-0 flex">{children}</div>
+    <div className="absolute inset-0 flex px-space-2">{children}</div>
   </div>
 );
 
@@ -42,18 +42,18 @@ export const ChartCardSkeleton = ({
     aria-label="Loading chart"
     style={style}
     className={cn(
-      'gap-space-2 flex min-h-[13.5rem] flex-1 flex-col',
+      'flex min-h-[13.5rem] flex-1 flex-col gap-space-2',
       variant === 'metric' && 'min-h-0',
       className
     )}
   >
     {variant === 'bar' && (
       <Plot>
-        <div className="gap-space-2 flex size-full items-end">
+        <div className="flex size-full items-end gap-space-2">
           {BAR_HEIGHTS.map((height, index) => (
             <Skeleton
               key={index}
-              className="min-w-0 flex-1 rounded-t-md rounded-b-none motion-reduce:animate-none"
+              className="min-w-0 flex-1 rounded-b-none rounded-t-md motion-reduce:animate-none"
               style={{ height }}
             />
           ))}
@@ -73,7 +73,7 @@ export const ChartCardSkeleton = ({
     )}
     {variant === 'donut' && (
       <div className="flex min-h-0 flex-1 items-center justify-center">
-        <div className="border-muted size-32 animate-pulse rounded-full border-[1.5rem] motion-reduce:animate-none" />
+        <div className="size-32 animate-pulse rounded-full border-[1.5rem] border-muted motion-reduce:animate-none" />
       </div>
     )}
     {variant === 'sankey' && (
@@ -105,7 +105,7 @@ export const ChartCardSkeleton = ({
       </div>
     )}
     {variant === 'metric' && (
-      <div className="gap-space-2 flex min-h-0 flex-1 flex-col justify-center">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-space-2">
         <Skeleton className="h-9 w-1/2 motion-reduce:animate-none" />
         <Skeleton className="h-4 w-2/3 motion-reduce:animate-none" />
       </div>

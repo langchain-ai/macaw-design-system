@@ -133,7 +133,7 @@ function TooltipStoryChart({
   };
 
   return (
-    <div className="bg-surface-level-2 px-space-4 py-space-2 mx-auto w-[32rem] max-w-full rounded-md">
+    <div className="mx-auto w-[32rem] max-w-full rounded-md bg-surface-level-2 px-space-4 py-space-2">
       <Text variant="sm" weight="medium" color="secondary">
         {variant === 'comparison' ? 'Experiment comparison' : 'Daily spend'}
       </Text>

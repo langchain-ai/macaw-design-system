@@ -84,9 +84,9 @@ export function HeatmapChart({
       aria-label={ariaLabel}
       className={cn('w-full min-w-0 overflow-x-auto', className)}
     >
-      <div className="gap-space-1 p-space-1 flex w-max flex-col">
+      <div className="flex w-max flex-col gap-space-1 p-space-1">
         {data.map((row, rowIndex) => (
-          <div key={rowIndex} className="gap-space-1 flex">
+          <div key={rowIndex} className="flex gap-space-1">
             {row.map((value, columnIndex) => (
               <HeatmapBlock
                 key={columnIndex}

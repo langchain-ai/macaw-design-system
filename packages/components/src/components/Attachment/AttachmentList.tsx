@@ -52,7 +52,7 @@ export const AttachmentList = forwardRef<HTMLUListElement, AttachmentListProps>(
         ref={ref}
         aria-label={ariaLabel}
         className={cn(
-          'gap-space-2 m-0 flex min-w-0 list-none p-0',
+          'm-0 flex min-w-0 list-none gap-space-2 p-0',
           layout === 'wrap' && 'flex-wrap',
           layout === 'scroll' && 'overflow-x-auto overscroll-x-contain',
           layout === 'stack' && 'flex-col',
@@ -63,7 +63,7 @@ export const AttachmentList = forwardRef<HTMLUListElement, AttachmentListProps>(
           <li
             key={key}
             className={cn(
-              'max-w-full min-w-0',
+              'min-w-0 max-w-full',
               layout === 'scroll' && 'shrink-0'
             )}
           >

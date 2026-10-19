@@ -30,7 +30,7 @@ const TextWithLinksInner = ({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-link pointer-events-auto underline"
+              className="pointer-events-auto text-link underline"
               onClick={(e) => e.stopPropagation()}
             >
               {part.content}

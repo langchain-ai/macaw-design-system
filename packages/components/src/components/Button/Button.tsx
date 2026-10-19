@@ -69,7 +69,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       '[&_*]:[text-box-trim:trim-both]',
       {
         'text-xxs leading-[1.15] tracking-normal': size === 'xs',
-        'tracking-snug text-xs leading-tight': size === 'sm',
+        'text-xs leading-tight tracking-snug': size === 'sm',
         'text-sm leading-[1.15] tracking-tighter': size === 'md',
       },
       {

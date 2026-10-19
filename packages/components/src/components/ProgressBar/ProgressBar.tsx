@@ -124,14 +124,14 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         aria-valuemax={range.max}
         aria-valuenow={clampedValue}
         className={cn(
-          'bg-surface-level-3 relative w-full flex-none overflow-hidden rounded-xs',
+          'relative w-full flex-none overflow-hidden rounded-xs bg-surface-level-3',
           SIZE_CLASSES[size],
           className
         )}
       >
         <div
           aria-hidden="true"
-          className="duration-normal h-full rounded-xs transition-[width] ease-out motion-reduce:transition-none"
+          className="h-full rounded-xs transition-[width] duration-normal ease-out motion-reduce:transition-none"
           style={{
             width: `${progressPercent}%`,
             backgroundImage: COLOR_GRADIENTS[color],
@@ -149,7 +149,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
     );
 
     return (
-      <div className="gap-space-1 flex w-full flex-col">
+      <div className="flex w-full flex-col gap-space-1">
         {labelPosition === 'top' && progressLabel}
         {progressBar}
         {labelPosition === 'bottom' && progressLabel}

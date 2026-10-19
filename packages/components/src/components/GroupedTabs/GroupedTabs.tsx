@@ -115,7 +115,7 @@ export const GroupedTabs = <T extends string | number>({
       <div
         ref={containerRef}
         className={cn(
-          'border-subtle bg-surface-level-1 dark:border-muted relative box-border flex w-fit border',
+          'relative box-border flex w-fit border border-subtle bg-surface-level-1 dark:border-muted',
           CONTROL_SIZES[size].heightClassName,
           size === 'md' ? 'p-0.5' : 'p-px',
           size === 'xs' ? 'gap-px' : 'gap-0.5',
@@ -132,7 +132,7 @@ export const GroupedTabs = <T extends string | number>({
           <div
             aria-hidden
             className={cn(
-              'bg-surface-level-4 pointer-events-none absolute inset-0',
+              'pointer-events-none absolute inset-0 bg-surface-level-4',
               selectionClassName,
               indicatorClassName
             )}
@@ -161,12 +161,12 @@ export const GroupedTabs = <T extends string | number>({
               onClick={() => onChange(option.value)}
               disabled={option.disabled || disabled}
               className={cn(
-                'gap-space-1 relative flex h-full items-center',
-                'duration-fast transition-colors',
+                'relative flex h-full items-center gap-space-1',
+                'transition-colors duration-fast',
                 {
-                  'px-space-1 rounded-xs': size === 'xs',
-                  'px-space-2 rounded-xs': size === 'sm',
-                  'px-space-2 rounded-sm': size === 'md',
+                  'rounded-xs px-space-1': size === 'xs',
+                  'rounded-xs px-space-2': size === 'sm',
+                  'rounded-sm px-space-2': size === 'md',
                 },
                 {
                   'text-primary': isActive(option),

@@ -330,7 +330,7 @@ export const Default: Story = {
     return (
       <div
         className={cn(
-          'gap-space-2 flex flex-col',
+          'flex flex-col gap-space-2',
           isFullWidth ? 'w-full' : 'mx-auto w-[38rem] max-w-full'
         )}
       >
@@ -442,7 +442,7 @@ export const CombinedRow: Story = {
               )}
               contentClassName="items-center justify-center"
             >
-              <div className="gap-space-1 flex flex-col items-center">
+              <div className="flex flex-col items-center gap-space-1">
                 <Text variant="h2" weight="semibold">
                   73
                 </Text>
@@ -469,7 +469,7 @@ export const FullWidth: Story = {
     return (
       <div
         className={cn(
-          'gap-space-2 flex flex-col',
+          'flex flex-col gap-space-2',
           isFullWidth ? 'w-full' : 'mx-auto w-[38rem] max-w-full'
         )}
       >
@@ -530,7 +530,7 @@ export const LoadingAndErrorStates: Story = {
     >;
 
     return (
-      <div className="gap-space-4 grid grid-cols-1 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2">
         {(
           ['bar', 'line', 'donut', 'metric', 'sparkline', 'sankey'] as const
         ).map((skeletonVariant) => (
@@ -553,7 +553,7 @@ export const AutoHeightLoadingStates: Story = {
   name: 'Auto-height loading states',
   args: { title: '', children: null },
   render: () => (
-    <div className="gap-space-4 flex flex-col">
+    <div className="flex flex-col gap-space-4">
       {(['bar', 'line', 'sparkline', 'sankey'] as const).map(
         (skeletonVariant) => (
           <ChartCard

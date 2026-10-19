@@ -139,9 +139,9 @@ export const Flush: Story = {
     ),
   },
   render: (args) => (
-    <div className="border-subtle flex h-[17.5rem] w-[52rem] flex-col overflow-hidden border">
+    <div className="flex h-[17.5rem] w-[52rem] flex-col overflow-hidden border border-subtle">
       <Banner {...args} className="flex-none" />
-      <div className="bg-surface-level-1 p-space-4 text-tertiary flex-1 text-sm">
+      <div className="flex-1 bg-surface-level-1 p-space-4 text-sm text-tertiary">
         main content
       </div>
     </div>
@@ -153,7 +153,7 @@ export const WithoutTitle: Story = {
     intent: 'warning',
   },
   render: () => (
-    <div className="gap-space-3 flex w-[45rem] flex-col">
+    <div className="flex w-[45rem] flex-col gap-space-3">
       <Banner intent="warning">
         Postgres TTL is reaching its threshold — older traces may be pruned
         soon.
@@ -172,8 +172,8 @@ export const AllIntents: Story = {
     title: 'Banner title',
   },
   render: () => (
-    <div className="gap-space-6 flex w-[52rem] flex-col">
-      <div className="gap-space-3 flex flex-col">
+    <div className="flex w-[52rem] flex-col gap-space-6">
+      <div className="flex flex-col gap-space-3">
         <Banner
           intent="warning"
           title="Action required"
@@ -240,7 +240,7 @@ export const AllIntents: Story = {
           Routine maintenance is scheduled for this Saturday at 2am UTC.
         </Banner>
       </div>
-      <div className="gap-space-3 flex w-[45rem] flex-col">
+      <div className="flex w-[45rem] flex-col gap-space-3">
         <Banner
           intent="warning"
           title="Action required"

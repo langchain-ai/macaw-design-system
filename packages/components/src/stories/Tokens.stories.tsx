@@ -21,13 +21,13 @@ const DurationTokenSwatch = ({ className }: { className: string }) => {
 
   return (
     <div
-      className="border-subtle bg-surface-level-2 p-space-2 flex h-12 items-center rounded-sm border"
+      className="flex h-12 items-center rounded-sm border border-subtle bg-surface-level-2 p-space-2"
       onPointerEnter={() => setIsActive(true)}
       onPointerLeave={() => setIsActive(false)}
     >
       <div
         className={cn(
-          'bg-brand h-4 w-4 rounded-full transition-transform',
+          'h-4 w-4 rounded-full bg-brand transition-transform',
           isActive && 'translate-x-8',
           className
         )}
@@ -680,21 +680,21 @@ const TokenSection = ({
   tokens: TokenSwatch[];
   kind?: 'background' | 'border' | 'text';
 }) => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <div>
-      <h2 className="text-primary text-base font-semibold">{title}</h2>
-      <p className="text-secondary max-w-3xl text-sm">{description}</p>
+      <h2 className="text-base font-semibold text-primary">{title}</h2>
+      <p className="max-w-3xl text-sm text-secondary">{description}</p>
     </div>
-    <div className="gap-space-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-space-3 md:grid-cols-2 xl:grid-cols-3">
       {tokens.map((token) => (
         <div
           key={token.name}
-          className="gap-space-3 border-subtle bg-surface-level-1 p-space-3 grid grid-cols-[4.5rem,minmax(0,1fr)] rounded-md border"
+          className="grid grid-cols-[4.5rem,minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
         >
           {kind === 'background' && (
             <div
               className={cn(
-                'border-subtle h-12 rounded-sm border',
+                'h-12 rounded-sm border border-subtle',
                 token.className
               )}
             />
@@ -702,23 +702,23 @@ const TokenSection = ({
           {kind === 'border' && (
             <div
               className={cn(
-                'bg-surface-level-2 h-12 rounded-sm border-2',
+                'h-12 rounded-sm border-2 bg-surface-level-2',
                 token.className
               )}
             />
           )}
           {kind === 'text' && (
-            <div className="border-subtle bg-surface-level-2 flex h-12 items-center justify-center rounded-sm border">
+            <div className="flex h-12 items-center justify-center rounded-sm border border-subtle bg-surface-level-2">
               <span className={cn('text-lg font-semibold', token.className)}>
                 Aa
               </span>
             </div>
           )}
           <div className="min-w-0">
-            <div className="text-primary truncate font-mono text-xs">
+            <div className="truncate font-mono text-xs text-primary">
               {token.name}
             </div>
-            <p className="mt-space-1 text-secondary text-xs">{token.usage}</p>
+            <p className="mt-space-1 text-xs text-secondary">{token.usage}</p>
           </div>
         </div>
       ))}
@@ -737,21 +737,21 @@ const UtilityTokenSection = ({
   tokens: UtilityToken[];
   kind: 'shadow' | 'radius' | 'duration';
 }) => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <div>
-      <h2 className="text-primary text-base font-semibold">{title}</h2>
-      <p className="text-secondary max-w-3xl text-sm">{description}</p>
+      <h2 className="text-base font-semibold text-primary">{title}</h2>
+      <p className="max-w-3xl text-sm text-secondary">{description}</p>
     </div>
-    <div className="gap-space-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-space-3 md:grid-cols-2 xl:grid-cols-3">
       {tokens.map((token) => (
         <div
           key={token.name}
-          className="gap-space-3 border-subtle bg-surface-level-1 p-space-3 grid grid-cols-[4.5rem,minmax(0,1fr)] rounded-md border"
+          className="grid grid-cols-[4.5rem,minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
         >
           {kind === 'shadow' && (
             <div
               className={cn(
-                'border-subtle bg-elevated h-12 rounded-md border',
+                'h-12 rounded-md border border-subtle bg-elevated',
                 token.previewClassName
               )}
             />
@@ -759,7 +759,7 @@ const UtilityTokenSection = ({
           {kind === 'radius' && (
             <div
               className={cn(
-                'border-brand bg-brand-subtle h-12 border',
+                'h-12 border border-brand bg-brand-subtle',
                 token.previewClassName
               )}
             />
@@ -768,10 +768,10 @@ const UtilityTokenSection = ({
             <DurationTokenSwatch className={token.previewClassName} />
           )}
           <div className="min-w-0">
-            <div className="text-primary truncate font-mono text-xs">
+            <div className="truncate font-mono text-xs text-primary">
               {token.name}
             </div>
-            <p className="mt-space-1 text-secondary text-xs">{token.usage}</p>
+            <p className="mt-space-1 text-xs text-secondary">{token.usage}</p>
           </div>
         </div>
       ))}
@@ -780,27 +780,27 @@ const UtilityTokenSection = ({
 );
 
 const NamingConvention = () => (
-  <section className="gap-space-3 flex flex-col">
+  <section className="flex flex-col gap-space-3">
     <div>
-      <h2 className="text-primary text-base font-semibold">
+      <h2 className="text-base font-semibold text-primary">
         Naming Convention
       </h2>
-      <p className="text-secondary max-w-3xl text-sm">
+      <p className="max-w-3xl text-sm text-secondary">
         Note that token names are different from tailwind utility names. For
         example, the `icon-brand` token will be used as `text-icon-brand` in
         code.
       </p>
     </div>
-    <div className="border-subtle bg-surface-level-1 p-space-4 rounded-md border">
-      <div className="text-primary font-mono text-sm">
+    <div className="rounded-md border border-subtle bg-surface-level-1 p-space-4">
+      <div className="font-mono text-sm text-primary">
         --{'{category}'}-{'{role?}'}-{'{variant?}'}-{'{state?}'}
       </div>
-      <div className="mt-space-4 gap-space-3 grid md:grid-cols-4">
+      <div className="mt-space-4 grid gap-space-3 md:grid-cols-4">
         <div>
-          <div className="text-tertiary text-xs font-semibold uppercase">
+          <div className="text-xs font-semibold uppercase text-tertiary">
             Category
           </div>
-          <p className="mt-space-1 text-secondary text-sm">
+          <p className="mt-space-1 text-sm text-secondary">
             The CSS property family: bg (background), text, border, icon,
             shadow, radius, duration. These are token categories, not utility
             prefixes; icon uses the text- prefix (text-icon-*) and radius uses
@@ -808,35 +808,35 @@ const NamingConvention = () => (
           </p>
         </div>
         <div>
-          <div className="text-tertiary text-xs font-semibold uppercase">
+          <div className="text-xs font-semibold uppercase text-tertiary">
             Role
           </div>
-          <p className="mt-space-1 text-secondary text-sm">
+          <p className="mt-space-1 text-sm text-secondary">
             The job inside the category: surface, error, brand, control,
             overlay, link.
           </p>
         </div>
         <div>
-          <div className="text-tertiary text-xs font-semibold uppercase">
+          <div className="text-xs font-semibold uppercase text-tertiary">
             Variant
           </div>
-          <p className="mt-space-1 text-secondary text-sm">
+          <p className="mt-space-1 text-sm text-secondary">
             A planned option within the role: level-1, strong, subtle, muted.
           </p>
         </div>
         <div>
-          <div className="text-tertiary text-xs font-semibold uppercase">
+          <div className="text-xs font-semibold uppercase text-tertiary">
             State
           </div>
-          <p className="mt-space-1 text-secondary text-sm">
+          <p className="mt-space-1 text-sm text-secondary">
             A UI condition: hover, focus, active, selected, disabled.
           </p>
         </div>
       </div>
     </div>
-    <div className="border-subtle overflow-hidden rounded-md border">
+    <div className="overflow-hidden rounded-md border border-subtle">
       <table className="w-full border-collapse text-left text-sm">
-        <thead className="bg-surface-level-2 text-tertiary text-xs uppercase">
+        <thead className="bg-surface-level-2 text-xs uppercase text-tertiary">
           <tr>
             <th className="px-space-3 py-space-2 font-semibold">
               Token (CSS variable)
@@ -850,13 +850,13 @@ const NamingConvention = () => (
             <th className="px-space-3 py-space-2 font-semibold">State</th>
           </tr>
         </thead>
-        <tbody className="divide-secondary bg-surface-level-1 divide-y">
+        <tbody className="divide-y divide-secondary bg-surface-level-1">
           {tokenRows.map((token) => (
             <tr key={token.name}>
-              <td className="px-space-3 py-space-2 text-primary font-mono text-xs">
+              <td className="px-space-3 py-space-2 font-mono text-xs text-primary">
                 {token.name}
               </td>
-              <td className="px-space-3 py-space-2 text-primary font-mono text-xs">
+              <td className="px-space-3 py-space-2 font-mono text-xs text-primary">
                 {token.className}
               </td>
               <td className="px-space-3 py-space-2 text-secondary">
@@ -883,24 +883,24 @@ const SelectedTokenDemo = () => {
   const [selectedId, setSelectedId] = useState(selectedRows[0].id);
 
   return (
-    <section className="gap-space-3 flex flex-col">
+    <section className="flex flex-col gap-space-3">
       <div>
-        <h2 className="text-primary text-base font-semibold">
+        <h2 className="text-base font-semibold text-primary">
           Selected State Demo
         </h2>
-        <p className="text-secondary max-w-3xl text-sm">
+        <p className="max-w-3xl text-sm text-secondary">
           Use selected for durable choice. Use active for momentary press
           feedback, hover for pointer feedback, and selected-hover when the
           durable selected item is also hovered.
         </p>
       </div>
-      <div className="gap-space-4 grid lg:grid-cols-[minmax(0,1fr),20rem]">
-        <div className="border-subtle overflow-hidden rounded-md border">
-          <div className="bg-surface-level-2 px-space-3 py-space-2 text-tertiary grid grid-cols-[minmax(0,1fr),10rem] text-xs font-semibold uppercase">
+      <div className="grid gap-space-4 lg:grid-cols-[minmax(0,1fr),20rem]">
+        <div className="overflow-hidden rounded-md border border-subtle">
+          <div className="grid grid-cols-[minmax(0,1fr),10rem] bg-surface-level-2 px-space-3 py-space-2 text-xs font-semibold uppercase text-tertiary">
             <div>Name</div>
             <div>State</div>
           </div>
-          <div className="divide-secondary bg-surface-level-1 divide-y">
+          <div className="divide-y divide-secondary bg-surface-level-1">
             {selectedRows.map((row) => {
               const isSelected = row.id === selectedId;
               return (
@@ -911,21 +911,21 @@ const SelectedTokenDemo = () => {
                   aria-pressed={isSelected}
                   onClick={() => setSelectedId(row.id)}
                   className={cn(
-                    'px-space-3 py-space-3 grid w-full grid-cols-[minmax(0,1fr),10rem] items-center text-left transition-colors',
+                    'grid w-full grid-cols-[minmax(0,1fr),10rem] items-center px-space-3 py-space-3 text-left transition-colors',
                     isSelected
                       ? 'bg-selected hover:bg-selected-hover'
                       : 'hover:bg-surface-level-2 active:bg-surface-level-3'
                   )}
                 >
                   <span>
-                    <span className="text-primary block text-sm font-medium">
+                    <span className="block text-sm font-medium text-primary">
                       {row.name}
                     </span>
-                    <span className="text-secondary block text-xs">
+                    <span className="block text-xs text-secondary">
                       {row.detail}
                     </span>
                   </span>
-                  <span className="text-tertiary text-xs">
+                  <span className="text-xs text-tertiary">
                     {isSelected ? 'selected' : 'not selected'}
                   </span>
                 </button>
@@ -933,11 +933,11 @@ const SelectedTokenDemo = () => {
             })}
           </div>
         </div>
-        <div className="border-subtle bg-surface-level-1 p-space-4 rounded-md border">
-          <div className="text-tertiary text-xs font-semibold uppercase">
+        <div className="rounded-md border border-subtle bg-surface-level-1 p-space-4">
+          <div className="text-xs font-semibold uppercase text-tertiary">
             Applied classes
           </div>
-          <div className="mt-space-3 space-y-space-2 text-secondary font-mono text-xs">
+          <div className="mt-space-3 space-y-space-2 font-mono text-xs text-secondary">
             <div>default: hover:bg-surface-level-2</div>
             <div>active: active:bg-surface-level-3</div>
             <div>selected: bg-selected</div>
@@ -950,16 +950,16 @@ const SelectedTokenDemo = () => {
 };
 
 const TokenDocumentation = () => (
-  <div className="bg-surface-level-1 p-space-5 text-primary min-h-screen">
-    <div className="gap-space-6 mx-auto flex max-w-7xl flex-col">
-      <header className="gap-space-2 flex flex-col">
-        <div className="text-tertiary text-xs font-semibold uppercase">
+  <div className="min-h-screen bg-surface-level-1 p-space-5 text-primary">
+    <div className="mx-auto flex max-w-7xl flex-col gap-space-6">
+      <header className="flex flex-col gap-space-2">
+        <div className="text-xs font-semibold uppercase text-tertiary">
           Design System
         </div>
-        <h1 className="text-primary text-2xl font-semibold tracking-normal">
+        <h1 className="text-2xl font-semibold tracking-normal text-primary">
           Semantic Tokens
         </h1>
-        <p className="text-secondary max-w-3xl text-sm">
+        <p className="max-w-3xl text-sm text-secondary">
           Our tokens are semantically named, meaning they describe intent rather
           than appearance. Components should use semantic Tailwind classes
           instead of raw color values or primitive CSS variables.

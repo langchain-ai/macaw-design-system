@@ -27,7 +27,7 @@ export function TabList({
   return (
     <HeadlessTabList
       className={cn(
-        'gap-space-5 border-secondary text-ls-black flex border-b',
+        'flex gap-space-5 border-b border-secondary text-ls-black',
         className
       )}
     >
@@ -62,11 +62,11 @@ export function TabLabel({
       onClick={onClick}
       onBlur={onBlur}
       className={cn(
-        'group gap-space-2 text-primary duration-normal relative flex items-center border-b-2 border-b-transparent pb-5 outline-hidden transition-[color]',
+        'group relative flex items-center gap-space-2 border-b-2 border-b-transparent pb-5 text-primary outline-hidden transition-[color] duration-normal',
         'after:pointer-events-none after:invisible after:absolute after:inset-x-0 after:-bottom-0.5 after:mx-auto after:h-0.5 after:w-full after:rounded-full after:border-b-2 after:border-current',
-        'data-[selected]:after:animate-tab-indicator-expand data-[selected]:after:visible motion-reduce:after:animate-none',
+        'data-[selected]:after:visible data-[selected]:after:animate-tab-indicator-expand motion-reduce:after:animate-none',
         'hover:text-brand-secondary data-[selected]:hover:after:border-b-brand-strong',
-        'disabled:text-disabled disabled:cursor-default',
+        'disabled:cursor-default disabled:text-disabled',
         className
       )}
       disabled={disabled}

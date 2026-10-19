@@ -51,7 +51,7 @@ export const HeatmapBlock = forwardRef<HTMLSpanElement, HeatmapBlockProps>(
           tabIndex={tabIndex}
           onFocus={onFocus}
           onKeyDown={onKeyDown}
-          className="text-primary inline-flex shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="inline-flex shrink-0 text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ width: dimension, height: dimension }}
         >
           <svg width={dimension} height={dimension} aria-hidden="true">

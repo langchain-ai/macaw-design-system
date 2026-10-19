@@ -241,7 +241,7 @@ export const Code = ({
         'group relative text-xs',
         height && !hasToolbar && 'h-full',
         hasToolbar &&
-          'border-subtle bg-surface-level-2 flex flex-col overflow-hidden rounded-lg border'
+          'flex flex-col overflow-hidden rounded-lg border border-subtle bg-surface-level-2'
       )}
       style={hasToolbar ? { width, height } : undefined}
     >
@@ -263,7 +263,7 @@ export const Code = ({
         value && (
           <div
             onMouseDown={(e) => e.preventDefault()}
-            className="absolute top-1 right-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            className="absolute right-1 top-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             style={{ zIndex: copyButtonZIndex }}
           >
             <CopyButton copy={value} variant="icon" />

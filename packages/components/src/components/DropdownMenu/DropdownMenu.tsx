@@ -149,7 +149,7 @@ export const DropdownMenuContent = React.forwardRef<
           ref={ref}
           sideOffset={sideOffset}
           className={cn(
-            'border-subtle bg-popover p-space-1 min-w-[8rem] overflow-hidden rounded-md border shadow-lg',
+            'min-w-[8rem] overflow-hidden rounded-md border border-subtle bg-popover p-space-1 shadow-lg',
             className
           )}
           {...props}
@@ -178,7 +178,7 @@ export const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'px-space-2 py-space-1 focus:bg-surface-level-2 flex cursor-pointer items-center rounded-sm outline-hidden transition-colors select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-hidden transition-colors focus:bg-surface-level-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
@@ -195,7 +195,7 @@ export const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn('my-space-1 bg-surface-level-2 h-px', className)}
+    className={cn('my-space-1 h-px bg-surface-level-2', className)}
     {...props}
   />
 ));
@@ -217,7 +217,7 @@ export const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'px-space-2 py-space-1 focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2 flex cursor-pointer items-center rounded-sm outline-hidden transition-colors select-none',
+      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-hidden transition-colors focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
@@ -242,7 +242,7 @@ export const DropdownMenuSubContent = React.forwardRef<
       <DropdownMenuPrimitive.SubContent
         ref={ref}
         className={cn(
-          'border-subtle bg-popover p-space-1 min-w-[8rem] overflow-hidden rounded-md border shadow-lg',
+          'min-w-[8rem] overflow-hidden rounded-md border border-subtle bg-popover p-space-1 shadow-lg',
           className
         )}
         style={{ zIndex }}

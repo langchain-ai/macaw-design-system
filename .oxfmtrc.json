@@ -8,9 +8,6 @@
   "bracketSpacing": true,
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "sortTailwindcss": {
-    "functions": ["cn"]
-  },
   "sortImports": {
     "customGroups": [
       {

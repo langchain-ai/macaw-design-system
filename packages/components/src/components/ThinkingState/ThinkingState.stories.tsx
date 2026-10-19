@@ -61,7 +61,7 @@ export const Default: Story = {};
 
 export const Variants: Story = {
   render: (args) => (
-    <div className="gap-x-space-6 gap-y-space-5 grid grid-cols-[auto_1fr] items-center">
+    <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
       <Text variant="sm" color="secondary">
         Drive
       </Text>
@@ -81,7 +81,7 @@ export const Variants: Story = {
 export const Sizes: Story = {
   args: { tone: 'brand', label: 'Gathering context', showElapsed: true },
   render: (args) => (
-    <div className="gap-x-space-6 gap-y-space-5 grid grid-cols-[auto_1fr] items-center">
+    <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
       <Text variant="sm" color="secondary">
         Extra Small
       </Text>
@@ -105,7 +105,7 @@ export const Sizes: Story = {
 export const Motion: Story = {
   args: { tone: 'brand' },
   render: (args) => (
-    <div className="gap-x-space-6 gap-y-space-5 grid grid-cols-[auto_1fr] items-center">
+    <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
       <Text variant="sm" color="secondary">
         Full
       </Text>
@@ -148,7 +148,7 @@ export const ControlledTimer: Story = {
 
 export const IndicatorOnly: Story = {
   render: ({ variant, size, tone, motion }) => (
-    <div role="status" className="gap-space-2 flex items-center">
+    <div role="status" className="flex items-center gap-space-2">
       <LoadingIndicator
         variant={variant}
         size={size}
@@ -163,7 +163,7 @@ export const IndicatorOnly: Story = {
 export const InContext: Story = {
   args: { tone: 'brand', motion: 'subtle', showElapsed: true },
   render: (args) => (
-    <Card className="gap-space-4 flex w-80 max-w-full flex-col">
+    <Card className="flex w-80 max-w-full flex-col gap-space-4">
       <Text variant="h3">Evaluation</Text>
       <ThinkingState {...args} label="Running AI evaluators" />
       <Text variant="sm" color="tertiary">
@@ -188,14 +188,14 @@ function TimerDemo() {
   const [operation, setOperation] = useState(0);
   const [showElapsed, setShowElapsed] = useState(true);
   return (
-    <div className="gap-space-4 flex flex-col items-start">
+    <div className="flex flex-col items-start gap-space-4">
       <ThinkingState
         key={operation}
         label="Gathering context"
         tone="brand"
         showElapsed={showElapsed}
       />
-      <div className="gap-space-2 flex">
+      <div className="flex gap-space-2">
         <Button color="secondary" onClick={() => setShowElapsed(!showElapsed)}>
           {showElapsed ? 'Hide timer' : 'Show timer'}
         </Button>

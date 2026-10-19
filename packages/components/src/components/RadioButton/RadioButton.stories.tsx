@@ -47,9 +47,9 @@ export const Sizes: Story = {
     const [value2, setValue2] = useState('medium');
 
     return (
-      <div className="gap-space-3 flex flex-col">
-        <div className="gap-space-4 flex items-center">
-          <span className="text-tertiary w-20 text-sm">Small:</span>
+      <div className="flex flex-col gap-space-3">
+        <div className="flex items-center gap-space-4">
+          <span className="w-20 text-sm text-tertiary">Small:</span>
           <RadioGroup value={value1} onValueChange={setValue1}>
             <RadioButton
               value="small"
@@ -58,8 +58,8 @@ export const Sizes: Story = {
             />
           </RadioGroup>
         </div>
-        <div className="gap-space-4 flex items-center">
-          <span className="text-tertiary w-20 text-sm">Medium:</span>
+        <div className="flex items-center gap-space-4">
+          <span className="w-20 text-sm text-tertiary">Medium:</span>
           <RadioGroup value={value2} onValueChange={setValue2}>
             <RadioButton value="medium" label="Medium radio" size="md" />
           </RadioGroup>
@@ -161,9 +161,9 @@ export const AllVariants: Story = {
         {/* Size variants */}
         <div className="space-y-space-4">
           <h3 className="text-lg font-semibold">Sizes</h3>
-          <div className="gap-space-3 flex flex-col">
-            <div className="gap-space-4 flex items-center">
-              <span className="text-tertiary w-20 text-sm">Small:</span>
+          <div className="flex flex-col gap-space-3">
+            <div className="flex items-center gap-space-4">
+              <span className="w-20 text-sm text-tertiary">Small:</span>
               <RadioGroup defaultValue="small">
                 <RadioButton
                   value="small"
@@ -172,8 +172,8 @@ export const AllVariants: Story = {
                 />
               </RadioGroup>
             </div>
-            <div className="gap-space-4 flex items-center">
-              <span className="text-tertiary w-20 text-sm">Medium:</span>
+            <div className="flex items-center gap-space-4">
+              <span className="w-20 text-sm text-tertiary">Medium:</span>
               <RadioGroup defaultValue="medium">
                 <RadioButton value="medium" label="Medium radio" size="md" />
               </RadioGroup>
@@ -228,22 +228,22 @@ export const WithAriaLabel: Story = {
     const [value, setValue] = useState('option1');
     return (
       <div className="space-y-space-4">
-        <p className="text-tertiary text-sm">
+        <p className="text-sm text-tertiary">
           These radio buttons have no visible label but use aria-label for
           screen readers:
         </p>
         <RadioGroup
           value={value}
           onValueChange={setValue}
-          className="gap-space-5 flex-row items-center"
+          className="flex-row items-center gap-space-5"
         >
-          <div className="gap-space-2 flex items-center">
+          <div className="flex items-center gap-space-2">
             <RadioButton value="option1" aria-label="First option" />
             <span className="text-sm">
               (aria-label: &quot;First option&quot;)
             </span>
           </div>
-          <div className="gap-space-2 flex items-center">
+          <div className="flex items-center gap-space-2">
             <RadioButton value="option2" aria-label="Second option" />
             <span className="text-sm">
               (aria-label: &quot;Second option&quot;)
@@ -264,27 +264,27 @@ export const WithAriaLabelledBy: Story = {
     const [value, setValue] = useState('monthly');
     return (
       <div className="space-y-space-4">
-        <p className="text-tertiary text-sm">
+        <p className="text-sm text-tertiary">
           These radio buttons are labeled by external elements using
           aria-labelledby:
         </p>
         <RadioGroup value={value} onValueChange={setValue}>
-          <div className="gap-space-3 border-secondary p-space-3 flex items-center rounded-md border">
+          <div className="flex items-center gap-space-3 rounded-md border border-secondary p-space-3">
             <RadioButton value="monthly" aria-labelledby="monthly-label" />
             <div>
               <p id="monthly-label" className="font-medium">
                 Monthly billing
               </p>
-              <p className="text-tertiary text-sm">$10/month, billed monthly</p>
+              <p className="text-sm text-tertiary">$10/month, billed monthly</p>
             </div>
           </div>
-          <div className="gap-space-3 border-secondary p-space-3 flex items-center rounded-md border">
+          <div className="flex items-center gap-space-3 rounded-md border border-secondary p-space-3">
             <RadioButton value="annual" aria-labelledby="annual-label" />
             <div>
               <p id="annual-label" className="font-medium">
                 Annual billing
               </p>
-              <p className="text-tertiary text-sm">
+              <p className="text-sm text-tertiary">
                 $96/year, save 20% ($8/month)
               </p>
             </div>
@@ -300,15 +300,15 @@ function PlanSelectionExample() {
   const [plan, setPlan] = useState('pro');
 
   return (
-    <div className="border-secondary p-space-4 rounded-md border">
+    <div className="rounded-md border border-secondary p-space-4">
       <p className="mb-space-3 font-medium">Select a plan:</p>
       <RadioGroup value={plan} onValueChange={setPlan}>
         <RadioButton value="free" label="Free - $0/month" />
         <RadioButton value="pro" label="Pro - $10/month" />
         <RadioButton value="enterprise" label="Enterprise - Contact us" />
       </RadioGroup>
-      <p className="mt-space-3 text-tertiary text-sm">
-        Selected: <span className="text-primary font-medium">{plan}</span>
+      <p className="mt-space-3 text-sm text-tertiary">
+        Selected: <span className="font-medium text-primary">{plan}</span>
       </p>
     </div>
   );

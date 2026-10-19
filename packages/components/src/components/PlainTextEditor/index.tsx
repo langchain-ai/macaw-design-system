@@ -7,7 +7,7 @@ import { TextWithLinks } from '../TextWithLinks';
 import { useResizeTextEditor } from './hooks/useResizeTextEditor';
 
 const COMMON_CLS = cn(
-  'text-md col-[1] row-[1] m-0 w-full overflow-y-hidden border-none bg-transparent p-0 text-base break-words whitespace-pre-wrap'
+  'text-md col-[1] row-[1] m-0 w-full overflow-y-hidden whitespace-pre-wrap break-words border-none bg-transparent p-0 text-base'
 );
 
 export function PlainTextEditor(props: {
@@ -88,7 +88,7 @@ export function PlainTextEditor(props: {
         id={props.id}
         className={cn(
           COMMON_CLS,
-          'placeholder:text-quaternary text-transparent caret-[var(--text-primary)]',
+          'text-transparent caret-[var(--text-primary)] placeholder:text-quaternary',
           props.textareaClassName,
           !props.resize && 'resize-none'
         )}

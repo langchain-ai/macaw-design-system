@@ -104,7 +104,7 @@ export const Banner = ({
         weight="medium"
         color="primary"
         className={cn(
-          'break-words whitespace-normal',
+          'whitespace-normal break-words',
           children != null && 'mr-space-2'
         )}
       >
@@ -119,7 +119,7 @@ export const Banner = ({
         variant="sm"
         weight="normal"
         color="secondary"
-        className="break-words whitespace-normal"
+        className="whitespace-normal break-words"
       >
         {children}
       </Text>
@@ -135,7 +135,7 @@ export const Banner = ({
       variant="plain"
       icon={XIcon}
       label="Close"
-      className="text-secondary shrink-0 self-center hover:bg-transparent"
+      className="shrink-0 self-center text-secondary hover:bg-transparent"
       onClick={() => {
         setShow(false);
         onDismiss?.();
@@ -147,7 +147,7 @@ export const Banner = ({
   return (
     <div
       className={cn(
-        'gap-space-2 px-space-4 py-space-3 m-0 flex items-center border border-transparent text-sm',
+        'm-0 flex items-center gap-space-2 border border-transparent px-space-4 py-space-3 text-sm',
         shadow && 'shadow-lg',
         intent === 'warning' && 'bg-warning',
         intent === 'info' && 'bg-brand-subtle-gradient',

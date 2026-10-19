@@ -260,7 +260,7 @@ const ChartLegendInline = ({
           role={role}
           aria-label={ariaLabel}
           className={cn(
-            'gap-space-1 relative flex w-full min-w-0 items-center overflow-clip rounded-xs',
+            'relative flex w-full min-w-0 items-center gap-space-1 overflow-clip rounded-xs',
             className
           )}
           {...props}
@@ -275,7 +275,7 @@ const ChartLegendInline = ({
                   size="xs"
                   color="secondary"
                   variant="plain"
-                  className="focus-visible:ring-focus relative rounded-xs border-transparent bg-transparent p-0 shadow-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden"
+                  className="focus-visible:ring-focus relative rounded-xs border-transparent bg-transparent p-0 shadow-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-1"
                   aria-label={`View ${hiddenCount} hidden chart ${
                     hiddenCount === 1 ? 'legend' : 'legends'
                   }`}
@@ -290,7 +290,7 @@ const ChartLegendInline = ({
 
           <div
             aria-hidden="true"
-            className="gap-space-1 pointer-events-none invisible absolute top-0 left-0 flex w-max items-center"
+            className="pointer-events-none invisible absolute left-0 top-0 flex w-max items-center gap-space-1"
           >
             {items.map((item) => (
               <div
@@ -326,7 +326,7 @@ const ChartLegendInline = ({
       {hasOverflow && (
         <PopoverContent
           align="end"
-          className="border-subtle w-max max-w-[min(24rem,calc(100vw-2rem))] min-w-48 overflow-hidden border p-0"
+          className="w-max min-w-48 max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden border border-subtle p-0"
           aria-label="Hidden chart legends"
           onInteractOutside={(event) => {
             if (
@@ -337,7 +337,7 @@ const ChartLegendInline = ({
             }
           }}
         >
-          <div className="scroll-mask-t scroll-mask-b gap-space-1 p-space-1 flex max-h-[min(300px,70vh)] flex-col overflow-x-hidden overflow-y-auto">
+          <div className="scroll-mask-t scroll-mask-b flex max-h-[min(300px,70vh)] flex-col gap-space-1 overflow-y-auto overflow-x-hidden p-space-1">
             {hiddenItems.map(renderItem)}
           </div>
         </PopoverContent>

@@ -55,7 +55,7 @@ export const AnimatedSankeyNode = ({
       fill={node.color}
       opacity={isDimmed ? CHART_DIMMED_OPACITY : 1}
       className={cn(
-        'duration-fast focus-visible:stroke-focus transition-opacity focus:outline-hidden focus-visible:stroke-2 focus-visible:opacity-100 motion-reduce:transition-none',
+        'transition-opacity duration-fast focus:outline-hidden focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:opacity-100 motion-reduce:transition-none',
         isInteractive && 'cursor-pointer'
       )}
       aria-label={ariaLabel}

@@ -382,7 +382,7 @@ export const LineChartPlot = ({
                           strokeWidth={item.strokeWidth}
                           strokeDasharray={item.strokeDasharray}
                           opacity={getSeriesOpacity(item)}
-                          className="duration-fast transition-opacity motion-reduce:transition-none"
+                          className="transition-opacity duration-fast motion-reduce:transition-none"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           x={(point) => getXPosition(point.x)}
@@ -408,7 +408,7 @@ export const LineChartPlot = ({
                             r={2.5}
                             fill={item.color}
                             opacity={getSeriesOpacity(item)}
-                            className="duration-fast transition-opacity motion-reduce:transition-none"
+                            className="transition-opacity duration-fast motion-reduce:transition-none"
                           />,
                         ]
                   );
@@ -463,7 +463,7 @@ export const LineChartPlot = ({
                       r={3}
                       fill={item.color}
                       opacity={getSeriesOpacity(item)}
-                      className="duration-fast transition-opacity motion-reduce:transition-none"
+                      className="transition-opacity duration-fast motion-reduce:transition-none"
                       stroke="var(--bg-surface-level-1)"
                       strokeWidth={1.5}
                     />,

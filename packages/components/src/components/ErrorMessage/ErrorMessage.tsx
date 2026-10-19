@@ -126,9 +126,9 @@ function ErrorMessage({
   return (
     <div
       role="alert"
-      className={cn('bg-error w-full rounded-sm', styles.container, className)}
+      className={cn('w-full rounded-sm bg-error', styles.container, className)}
     >
-      <div className="gap-space-2 flex w-full items-center">
+      <div className="flex w-full items-center gap-space-2">
         <span aria-hidden="true" className="shrink-0">
           <Icon
             icon={icon ?? ExclamationMarkIcon}
@@ -138,12 +138,12 @@ function ErrorMessage({
             weight={icon == null ? 'regular' : undefined}
           />
         </span>
-        <div className={cn('gap-space-1 flex min-w-0 flex-1 flex-row')}>
+        <div className={cn('flex min-w-0 flex-1 flex-row gap-space-1')}>
           <Text
             variant={styles.textVariant}
             weight="medium"
             className={cn(
-              'text-error-secondary dark:text-error-tertiary flex shrink-0 items-center leading-4 whitespace-nowrap'
+              'flex shrink-0 items-center whitespace-nowrap leading-4 text-error-secondary dark:text-error-tertiary'
             )}
           >
             {titleNode}
@@ -153,7 +153,7 @@ function ErrorMessage({
             aria-hidden={expanded}
             variant={styles.textVariant}
             className={cn(
-              'text-error-secondary dark:text-error-primary min-w-0 truncate leading-4 whitespace-nowrap',
+              'min-w-0 truncate whitespace-nowrap leading-4 text-error-secondary dark:text-error-primary',
               expanded && 'pointer-events-none h-0'
             )}
           >
@@ -204,13 +204,13 @@ function ErrorMessage({
         <div
           id={expandableAreaId}
           className={cn(
-            'gap-space-1 pb-space-1 pl-space-5 pr-space-1 flex flex-col'
+            'flex flex-col gap-space-1 pb-space-1 pl-space-5 pr-space-1'
           )}
         >
           <Text
             variant={styles.textVariant}
             className={cn(
-              'text-error-secondary dark:text-error-primary min-w-0 leading-4 break-words whitespace-pre-wrap'
+              'min-w-0 whitespace-pre-wrap break-words leading-4 text-error-secondary dark:text-error-primary'
             )}
           >
             {displayMessage}
@@ -218,7 +218,7 @@ function ErrorMessage({
           {hasDetails && (
             <Text
               variant={styles.textVariant}
-              className="text-error-tertiary font-light break-words whitespace-pre-wrap"
+              className="whitespace-pre-wrap break-words font-light text-error-tertiary"
             >
               {details}
             </Text>

@@ -7,7 +7,7 @@ import NoMatchBackground from './NoMatchBackground.svg?react';
 
 const WaveOverlay = () => (
   <svg
-    className="pointer-events-none absolute top-0 left-0 h-[72vh] w-full -scale-y-100"
+    className="pointer-events-none absolute left-0 top-0 h-[72vh] w-full -scale-y-100"
     viewBox="0 24 150 28"
     preserveAspectRatio="none"
     aria-hidden="true"
@@ -110,8 +110,8 @@ export function ErrorState({
   return (
     <div className={cn('relative size-full overflow-hidden', className)}>
       {status === 404 && (
-        <div className="absolute top-64 left-0 w-full transform">
-          <NoMatchBackground className="text-icon-brand size-full [&_*]:fill-current" />
+        <div className="absolute left-0 top-64 w-full transform">
+          <NoMatchBackground className="size-full text-icon-brand [&_*]:fill-current" />
           {!withoutOverlay && <WaveOverlay />}
         </div>
       )}
@@ -122,13 +122,13 @@ export function ErrorState({
         <div className="flex flex-col items-center justify-center">
           <Text
             variant="h1"
-            className="text-brand-primary text-center text-3xl"
+            className="text-center text-3xl text-brand-primary"
           >
             {title}
           </Text>
           {message && (
             <Text
-              className="pb-space-5 pt-space-3 text-quaternary text-center font-mono leading-5"
+              className="pb-space-5 pt-space-3 text-center font-mono leading-5 text-quaternary"
               variant="body"
             >
               {message}

@@ -22,7 +22,7 @@ export const Command = forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      'bg-popover flex h-full w-full flex-col overflow-hidden rounded-md',
+      'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover',
       className
     )}
     {...props}
@@ -93,7 +93,7 @@ export const CommandList = forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn('max-h-[300px] overflow-x-hidden overflow-y-auto', className)}
+    className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
     {...props}
   />
 ));
@@ -121,7 +121,7 @@ export const CommandGroup = forwardRef<
     ref={ref}
     className={cn(
       'overflow-hidden',
-      '[&_[cmdk-group-heading]]:px-space-2 [&_[cmdk-group-heading]]:py-space-2 [&_[cmdk-group-heading]]:text-tertiary [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase',
+      '[&_[cmdk-group-heading]]:px-space-2 [&_[cmdk-group-heading]]:py-space-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-tertiary',
       className
     )}
     {...props}
@@ -164,7 +164,7 @@ export const CommandItem = forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'px-space-2 hover:bg-secondary aria-selected:bg-secondary relative flex cursor-pointer items-center rounded-sm outline-hidden select-none aria-disabled:pointer-events-none aria-disabled:opacity-50',
+      'relative flex cursor-pointer select-none items-center rounded-sm px-space-2 outline-hidden hover:bg-secondary aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-selected:bg-secondary',
       OPTION_ROW_SIZES[size].minHeightClassName,
       COMMAND_ITEM_SIZE_CLASSES[size],
       className

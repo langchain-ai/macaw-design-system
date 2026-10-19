@@ -54,7 +54,7 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
         {...props}
         ref={ref}
         className={cn(
-          'gap-space-2 inline-flex max-w-full items-center align-middle',
+          'inline-flex max-w-full items-center gap-space-2 align-middle',
           className
         )}
       >
@@ -65,7 +65,7 @@ const ThinkingState = forwardRef<HTMLDivElement, ThinkingStateProps>(
           animated={motion !== 'none'}
           speed={speed}
         />
-        <span className="gap-space-2 inline-flex min-w-0 items-baseline">
+        <span className="inline-flex min-w-0 items-baseline gap-space-2">
           <Text
             as="span"
             variant={size === 'xs' ? 'xs' : size === 'sm' ? 'sm' : 'md'}

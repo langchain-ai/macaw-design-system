@@ -145,7 +145,7 @@ export const Textarea = forwardRef<
     };
 
     const textareaContainerClasses = cn(
-      'gap-space-2 flex w-full',
+      'flex w-full gap-space-2',
       variant === 'default' && [
         'border bg-transparent transition-[border-color,box-shadow,background-color]',
         CONTROL_SIZES[size].minHeightClassName,
@@ -164,7 +164,7 @@ export const Textarea = forwardRef<
           'focus-within:border-focus focus-within:shadow-[0_0_0_2px_var(--border-focus)]',
         isError &&
           'border-error-strong focus-within:border-error-strong focus-within:shadow-[0_0_0_2px_var(--border-error-strong)]',
-        disabled && 'bg-disabled cursor-not-allowed opacity-50',
+        disabled && 'cursor-not-allowed bg-disabled opacity-50',
       ],
       leftDecorator || rightDecorator ? 'items-start' : 'items-center'
     );
@@ -185,14 +185,14 @@ export const Textarea = forwardRef<
       inputClassName
     );
 
-    const decoratorClasses = cn('text-tertiary flex items-center', {
+    const decoratorClasses = cn('flex items-center text-tertiary', {
       'mt-0': size === 'xs' || size === 'sm',
       'mt-0.5': size === 'md',
       'mt-space-1': size === 'lg',
     });
 
     const labelClasses = cn(
-      'mb-space-1 text-primary block font-medium',
+      'mb-space-1 block font-medium text-primary',
       disabled && 'text-disabled'
     );
 

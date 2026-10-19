@@ -119,9 +119,9 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         round={isThumbnail}
         className={cn(
           isThumbnail && [
-            'absolute top-0 right-0',
-            'hover:bg-elevated-hover border-0 shadow-none',
-            'duration-fast transition-opacity motion-reduce:transition-none',
+            'absolute right-0 top-0',
+            'border-0 shadow-none hover:bg-elevated-hover',
+            'transition-opacity duration-fast motion-reduce:transition-none',
             '[@media(hover:hover)]:group-[:not(:is(:hover,:focus-within))]/attachment:pointer-events-none',
             '[@media(hover:hover)]:group-[:not(:is(:hover,:focus-within))]/attachment:opacity-0',
           ]
@@ -194,7 +194,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         <span
           className={cn(
             'flex min-w-0 flex-1',
-            stackedText ? 'gap-space-1 flex-col' : 'gap-space-2 items-baseline',
+            stackedText ? 'flex-col gap-space-1' : 'items-baseline gap-space-2',
             isThumbnail && 'w-full max-w-full flex-none'
           )}
         >
@@ -203,7 +203,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             dir="rtl"
             variant={size === 'sm' ? 'xs' : size === 'md' ? 'sm' : 'md'}
             className={cn(
-              'text-primary max-w-48 min-w-0 truncate text-left',
+              'min-w-0 max-w-48 truncate text-left text-primary',
               isThumbnail && 'w-full max-w-full'
             )}
             title={name}
@@ -216,7 +216,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               variant="xs"
               color="quaternary"
               className={cn(
-                'max-w-48 min-w-0 truncate',
+                'min-w-0 max-w-48 truncate',
                 isThumbnail && 'w-full max-w-full'
               )}
               title={typeof metadata === 'string' ? metadata : undefined}
@@ -230,7 +230,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             aria-live="polite"
             aria-atomic="true"
             className={cn(
-              description ? 'max-w-full min-w-0' : 'sr-only',
+              description ? 'min-w-0 max-w-full' : 'sr-only',
               description &&
                 status === 'error' &&
                 !stackedText &&
@@ -243,7 +243,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
                 variant="xs"
                 title={description}
                 className={cn(
-                  'text-tertiary block truncate',
+                  'block truncate text-tertiary',
                   status === 'error' && 'text-error-secondary'
                 )}
               >
@@ -271,7 +271,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
           }
         }}
         className={cn(
-          'gap-space-2 border-subtle bg-surface-level-1 box-border flex max-w-full min-w-0 shrink-0 items-center rounded-xs border',
+          'box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
           isThumbnail
             ? [
                 sizeStyles.thumbnail,
@@ -316,7 +316,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             inert={disabled || undefined}
             aria-label={`Actions for ${name}`}
             className={cn(
-              'gap-space-1 m-0 flex max-w-full min-w-0 shrink-0 items-center justify-end border-0 p-0',
+              'm-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',
               isThumbnail && 'flex-wrap'
             )}
             onClick={(event) => event.stopPropagation()}

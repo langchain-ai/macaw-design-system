@@ -30,7 +30,7 @@ export const SankeyNodeLabel = ({
     width={width}
     height={SANKEY_NODE_LABEL_HEIGHT}
     opacity={isDimmed ? CHART_DIMMED_OPACITY : 1}
-    className="duration-fast pointer-events-none overflow-hidden transition-opacity motion-reduce:transition-none"
+    className="pointer-events-none overflow-hidden transition-opacity duration-fast motion-reduce:transition-none"
   >
     <div
       className={cn(

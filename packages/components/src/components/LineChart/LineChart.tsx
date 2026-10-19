@@ -367,7 +367,7 @@ export const LineChart = ({
 
   return (
     <div
-      className={cn('@container size-full min-h-0 min-w-0', className)}
+      className={cn('size-full min-h-0 min-w-0 @container', className)}
       {...rootProps}
     >
       {hasLegend ? (
@@ -375,13 +375,13 @@ export const LineChart = ({
           className={cn(
             'grid size-full min-h-0 min-w-0 grid-cols-1',
             legendLayout === 'list'
-              ? 'gap-space-3 @[560px]:gap-space-5 grid-rows-[minmax(0,1fr)_minmax(0,35%)] @[560px]:grid-cols-[minmax(0,1fr)_minmax(10rem,30%)] @[560px]:grid-rows-1'
-              : 'gap-space-2 grid-rows-[minmax(0,1fr)_auto]'
+              ? 'grid-rows-[minmax(0,1fr)_minmax(0,35%)] gap-space-3 @[560px]:grid-cols-[minmax(0,1fr)_minmax(10rem,30%)] @[560px]:grid-rows-1 @[560px]:gap-space-5'
+              : 'grid-rows-[minmax(0,1fr)_auto] gap-space-2'
           )}
         >
           {plot}
           {legendLayout === 'list' ? (
-            <div className="scroll-mask-t scroll-mask-b min-h-0 min-w-0 overflow-x-hidden overflow-y-auto">
+            <div className="scroll-mask-t scroll-mask-b min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
               {legend}
             </div>
           ) : (

@@ -427,7 +427,7 @@ export const BandScaleWithBrushSelection: Story = {
       });
 
     return (
-      <div className="gap-space-2 mx-auto flex w-full max-w-3xl flex-col">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-space-2">
         <div className="h-80 min-w-0">
           <LineChart
             aria-label="Production requests with a selected bucket range"
@@ -507,7 +507,7 @@ export const InChartCard: Story = {
             />
             {hovered != null && (
               <div
-                className="p-space-2 pointer-events-none absolute top-0 -translate-x-1/2"
+                className="pointer-events-none absolute top-0 -translate-x-1/2 p-space-2"
                 style={{ left: hovered.xPosition }}
               >
                 <ChartTooltip>

@@ -77,7 +77,7 @@ export const Checked: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <RadioGroup defaultValue="other" className="gap-space-3 flex flex-col">
+    <RadioGroup defaultValue="other" className="flex flex-col gap-space-3">
       <RadioCard value="disabled-unchecked" disabled>
         <Text weight="medium">Disabled unchecked</Text>
         <Text variant="sm">This option is not available.</Text>
@@ -108,15 +108,15 @@ export const RadioPosition: Story = {
     const [rightValue, setRightValue] = useState('pat');
     const [leftValue, setLeftValue] = useState('pat');
     return (
-      <div className="gap-space-5 flex flex-col">
-        <div className="gap-space-2 flex flex-col">
+      <div className="flex flex-col gap-space-5">
+        <div className="flex flex-col gap-space-2">
           <Text variant="sm" color="tertiary">
             Radio on right
           </Text>
           <RadioGroup
             value={rightValue}
             onValueChange={setRightValue}
-            className="gap-space-4 flex-row"
+            className="flex-row gap-space-4"
           >
             <RadioCard value="pat" radioPosition="right" className="flex-1">
               <Text weight="medium">Personal Access Token</Text>
@@ -133,14 +133,14 @@ export const RadioPosition: Story = {
           </RadioGroup>
         </div>
 
-        <div className="gap-space-2 flex flex-col">
+        <div className="flex flex-col gap-space-2">
           <Text variant="sm" color="tertiary">
             Radio on left
           </Text>
           <RadioGroup
             value={leftValue}
             onValueChange={setLeftValue}
-            className="gap-space-4 flex-row"
+            className="flex-row gap-space-4"
           >
             <RadioCard value="pat" radioPosition="left" className="flex-1">
               <Text weight="medium">Personal Access Token</Text>
@@ -172,7 +172,7 @@ export const WithCollapsibleContent: Story = {
       <RadioGroup
         value={value}
         onValueChange={setValue}
-        className="gap-space-3 flex flex-col"
+        className="flex flex-col gap-space-3"
       >
         <RadioCard
           value="queue"
@@ -222,11 +222,11 @@ export const RichContent: Story = {
       <RadioGroup
         value={value}
         onValueChange={setValue}
-        className="gap-space-4 flex flex-col"
+        className="flex flex-col gap-space-4"
       >
-        <RadioCard value="shortlived" className="p-space-5 items-start">
-          <div className="gap-space-2 flex flex-col">
-            <div className="gap-space-2 flex items-center">
+        <RadioCard value="shortlived" className="items-start p-space-5">
+          <div className="flex flex-col gap-space-2">
+            <div className="flex items-center gap-space-2">
               <Text weight="semibold" variant="h3">
                 Base
               </Text>
@@ -235,7 +235,7 @@ export const RichContent: Story = {
               </Badge>
             </div>
             <Text variant="sm">Delete traces after 14 days by default.</Text>
-            <div className="gap-space-1 flex flex-col">
+            <div className="flex flex-col gap-space-1">
               <Text variant="sm" color="tertiary">
                 ✓ Some traces may auto-upgrade to extended retention
               </Text>
@@ -260,8 +260,8 @@ export const RichContent: Story = {
           </div>
         </RadioCard>
 
-        <RadioCard value="longlived" className="p-space-5 items-start">
-          <div className="gap-space-2 flex flex-col">
+        <RadioCard value="longlived" className="items-start p-space-5">
+          <div className="flex flex-col gap-space-2">
             <Text weight="semibold" variant="h3">
               Extended
             </Text>
@@ -271,7 +271,7 @@ export const RichContent: Story = {
             <Text variant="sm" color="tertiary">
               ✓ All traces calculated at $0.0002 per trace
             </Text>
-            <div className="gap-space-1 flex items-center">
+            <div className="flex items-center gap-space-1">
               <Checkbox
                 size="sm"
                 checked={useCorrections}
@@ -301,11 +301,11 @@ export const HiddenIndicator: Story = {
       <RadioGroup
         value={value}
         onValueChange={setValue}
-        className="gap-space-3 flex flex-col"
+        className="flex flex-col gap-space-3"
       >
         <RadioCard value="monthly" hideIndicator>
           <div className="flex items-center justify-between">
-            <div className="gap-space-1 flex flex-col">
+            <div className="flex flex-col gap-space-1">
               <Text weight="medium">Monthly billing</Text>
               <Text variant="sm" color="tertiary">
                 $10 / month
@@ -315,7 +315,7 @@ export const HiddenIndicator: Story = {
         </RadioCard>
         <RadioCard value="annual" hideIndicator>
           <div className="flex items-center justify-between">
-            <div className="gap-space-1 flex flex-col">
+            <div className="flex flex-col gap-space-1">
               <Text weight="medium">Annual billing</Text>
               <Text variant="sm" color="tertiary">
                 $96 / year — save 20%
@@ -339,11 +339,11 @@ export const InteractiveGroup: Story = {
   render: function InteractiveGroupExample() {
     const [value, setValue] = useState('dev');
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <RadioGroup
           value={value}
           onValueChange={setValue}
-          className="gap-space-2 flex flex-col"
+          className="flex flex-col gap-space-2"
         >
           <RadioCard value="dev_free">
             <Text weight="medium">Free Development</Text>
@@ -366,7 +366,7 @@ export const InteractiveGroup: Story = {
           </RadioCard>
         </RadioGroup>
         <Text variant="sm" color="tertiary">
-          Selected: <span className="text-primary font-medium">{value}</span>
+          Selected: <span className="font-medium text-primary">{value}</span>
         </Text>
       </div>
     );
@@ -380,12 +380,12 @@ export const InteractiveGroup: Story = {
 export const Sizes: Story = {
   render: function SizesExample() {
     return (
-      <div className="gap-space-5 flex flex-col">
+      <div className="flex flex-col gap-space-5">
         <div>
           <Text variant="sm" color="tertiary" className="mb-space-2">
             Small (sm, default)
           </Text>
-          <RadioGroup defaultValue="opt" className="gap-space-1 flex flex-col">
+          <RadioGroup defaultValue="opt" className="flex flex-col gap-space-1">
             <RadioCard value="opt" size="sm">
               <Text variant="sm" weight="medium">
                 Small radio indicator
@@ -397,7 +397,7 @@ export const Sizes: Story = {
           <Text variant="sm" color="tertiary" className="mb-space-2">
             Medium (md)
           </Text>
-          <RadioGroup defaultValue="opt" className="gap-space-1 flex flex-col">
+          <RadioGroup defaultValue="opt" className="flex flex-col gap-space-1">
             <RadioCard value="opt" size="md">
               <Text weight="medium">Medium radio indicator</Text>
             </RadioCard>

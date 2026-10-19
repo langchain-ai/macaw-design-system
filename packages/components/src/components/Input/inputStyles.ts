@@ -44,14 +44,14 @@ export function getInputContainerClasses({
 }) {
   const outlined = variant === 'outlined';
   return cn(
-    'gap-space-2 box-border flex w-full items-center transition-[border-color,box-shadow,background-color]',
+    'box-border flex w-full items-center gap-space-2 transition-[border-color,box-shadow,background-color]',
     CONTROL_SIZES[size].heightClassName,
     INPUT_HORIZONTAL_PADDING_CLASSES[size],
     INPUT_RADIUS_CLASSES[size],
     'focus-within:outline-hidden',
     {
-      'border-subtle border bg-transparent': variant === 'outlined',
-      'bg-surface-level-3 border border-transparent': variant === 'plain',
+      'border border-subtle bg-transparent': variant === 'outlined',
+      'border border-transparent bg-surface-level-3': variant === 'plain',
     },
     outlined &&
       !disabled &&
@@ -65,7 +65,7 @@ export function getInputContainerClasses({
       (outlined
         ? 'border-error-strong focus-within:border-error-strong focus-within:shadow-[0_0_0_1px_var(--border-error-strong)]'
         : 'border-error-strong focus-within:border-error-strong'),
-    disabled && 'bg-disabled cursor-not-allowed opacity-50',
+    disabled && 'cursor-not-allowed bg-disabled opacity-50',
     className
   );
 }
@@ -84,7 +84,7 @@ export function getInputElementClasses({
   className?: string;
 }) {
   return cn(
-    'max-w-full min-w-0 flex-1 border-none bg-transparent p-0 outline-hidden',
+    'min-w-0 max-w-full flex-1 border-none bg-transparent p-0 outline-hidden',
     INPUT_TEXT_CLASSES[size],
     'placeholder:text-placeholder',
     disabled && 'cursor-not-allowed',

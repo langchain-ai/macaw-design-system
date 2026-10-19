@@ -46,7 +46,7 @@ export const Default: Story = {
   render: function DefaultSlider(args) {
     const [value, setValue] = useState(40);
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <Text variant="body" className="text-secondary">
           Value: {value}
         </Text>
@@ -79,7 +79,7 @@ export const WithStep: Story = {
   render: function WithStepSlider(args) {
     const [value, setValue] = useState(4);
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <Text variant="body" className="text-secondary">
           Value: {value}
         </Text>
@@ -103,7 +103,7 @@ export const WithLabeledSteps: Story = {
     const stepNames = ['0', '25', '50', '100'];
     const [value, setValue] = useState(1);
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <Text variant="body" className="text-secondary">
           Level: {stepNames[value]}
         </Text>
@@ -133,7 +133,7 @@ export const WithLongStepLabels: Story = {
     ];
     const [value, setValue] = useState(1);
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <Text variant="body" className="text-secondary">
           Level: {stepNames[value]}
         </Text>
@@ -157,7 +157,7 @@ export const RangeSlider: Story = {
   render: function RangeSliderExample(args) {
     const [value, setValue] = useState([20, 80]);
     return (
-      <div className="gap-space-4 flex flex-col">
+      <div className="flex flex-col gap-space-4">
         <Text variant="body" className="text-secondary">
           Range: {value[0]} – {value[1]}
         </Text>
@@ -178,7 +178,7 @@ export const AllVariants: Story = {
     const [range, setRange] = useState([20, 70]);
     const [stepValue, setStepValue] = useState(50);
     return (
-      <div className="gap-space-6 flex w-72 flex-col">
+      <div className="flex w-72 flex-col gap-space-6">
         <div className="space-y-space-2">
           <Text variant="h3" className="font-medium">
             Single thumb

@@ -87,7 +87,7 @@ const meta = {
   decorators: [
     (Story) => (
       <TooltipProvider>
-        <div className="p-space-6 w-[280px]">
+        <div className="w-[280px] p-space-6">
           <Story />
         </div>
       </TooltipProvider>
@@ -102,7 +102,7 @@ export const Default: Story = {};
 
 export const Sizes: Story = {
   render: () => (
-    <div className="gap-space-2 flex w-[17.5rem] flex-col">
+    <div className="flex w-[17.5rem] flex-col gap-space-2">
       <Select
         value={undefined}
         onChange={() => undefined}
@@ -234,7 +234,7 @@ export const WithRightDecorators: Story = {
         value: 'production',
         label: 'Production',
         rightDecorator: (
-          <span className="text-success-secondary inline-flex">
+          <span className="inline-flex text-success-secondary">
             <RocketLaunchIcon size={16} weight="regular" />
           </span>
         ),
@@ -243,7 +243,7 @@ export const WithRightDecorators: Story = {
         value: 'staging',
         label: 'Staging',
         rightDecorator: (
-          <span className="text-warning-secondary inline-flex">
+          <span className="inline-flex text-warning-secondary">
             <LightningIcon size={16} weight="regular" />
           </span>
         ),
@@ -252,7 +252,7 @@ export const WithRightDecorators: Story = {
         value: 'development',
         label: 'Development',
         rightDecorator: (
-          <span className="text-tertiary inline-flex">
+          <span className="inline-flex text-tertiary">
             <WarningCircleIcon size={16} weight="regular" />
           </span>
         ),
@@ -344,7 +344,7 @@ export const CustomRender: Story = {
         options={colorOptions}
         placeholder="Pick a color..."
         renderValue={(option) => (
-          <span className="gap-space-2 flex items-center">
+          <span className="flex items-center gap-space-2">
             <span
               className={`size-3 rounded-full ${colorMap[option.value] ?? ''}`}
             />

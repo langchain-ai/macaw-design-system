@@ -213,7 +213,7 @@ const AnimatedDonutArc = ({
       fill={arc.data.color}
       opacity={isDimmed ? CHART_DIMMED_OPACITY : 1}
       className={cn(
-        'duration-fast focus-visible:stroke-focus transition-opacity focus:outline-hidden focus-visible:stroke-2 motion-reduce:transition-none',
+        'transition-opacity duration-fast focus:outline-hidden focus-visible:stroke-focus focus-visible:stroke-2 motion-reduce:transition-none',
         isInteractive && 'cursor-pointer'
       )}
       d={animationProgress.to((progress) => {
@@ -459,7 +459,7 @@ export const DonutChart = ({
 
   return (
     <div
-      className={cn('@container size-full min-h-0 min-w-0', className)}
+      className={cn('size-full min-h-0 min-w-0 @container', className)}
       {...rootProps}
     >
       {hasLegend ? (
@@ -467,13 +467,13 @@ export const DonutChart = ({
           className={cn(
             'grid size-full min-h-0 min-w-0 grid-cols-1 items-center justify-stretch',
             legendLayout === 'list'
-              ? 'gap-space-3 @[496px]:gap-space-5 grid-rows-[minmax(0,1fr)_minmax(0,45%)] @[496px]:grid-cols-2 @[496px]:grid-rows-[minmax(0,1fr)] @[496px]:justify-center'
-              : 'gap-space-2 grid-rows-[minmax(0,1fr)_auto]'
+              ? 'grid-rows-[minmax(0,1fr)_minmax(0,45%)] gap-space-3 @[496px]:grid-cols-2 @[496px]:grid-rows-[minmax(0,1fr)] @[496px]:justify-center @[496px]:gap-space-5'
+              : 'grid-rows-[minmax(0,1fr)_auto] gap-space-2'
           )}
         >
           {donut}
           {legendLayout === 'list' ? (
-            <div className="scroll-mask-t scroll-mask-b h-full min-h-0 min-w-0 overflow-x-hidden overflow-y-auto">
+            <div className="scroll-mask-t scroll-mask-b h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
               <div className="flex min-h-full flex-col">
                 <div className="my-auto">{legend}</div>
               </div>

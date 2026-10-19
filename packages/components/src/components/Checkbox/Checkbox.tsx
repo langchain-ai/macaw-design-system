@@ -102,7 +102,7 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     const checkboxId = id ?? generatedId;
 
     return (
-      <div className={cn('gap-space-2 flex items-center', containerClassName)}>
+      <div className={cn('flex items-center gap-space-2', containerClassName)}>
         <CheckboxPrimitive.Root
           ref={ref}
           className={cn(

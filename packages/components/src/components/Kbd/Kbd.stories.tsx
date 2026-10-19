@@ -63,7 +63,7 @@ export const GroupWithIcon: Story = {
  */
 export const Inherit: Story = {
   render: () => (
-    <div className="gap-space-3 flex w-96 flex-col">
+    <div className="flex w-96 flex-col gap-space-3">
       <Banner
         intent="info"
         title="Open command palette"

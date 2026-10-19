@@ -34,7 +34,7 @@ const UnsavedChangesDialog: FC<TProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
-        className="bg-background w-96 flex-col rounded-lg shadow-xl"
+        className="w-96 flex-col rounded-lg bg-background shadow-xl"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
           onClose();
