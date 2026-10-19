@@ -131,7 +131,7 @@ export const ChartLegendItemRenderer = ({
         className={cn(
           styles,
           onActiveChange != null &&
-            'focus-visible:ring-focus focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset'
+            'focus-visible:ring-focus focus-visible:ring-2 focus-visible:outline-hidden focus-visible:ring-inset'
         )}
         role={onActiveChange == null ? undefined : 'group'}
         aria-label={onActiveChange == null ? undefined : ariaLabel}
@@ -157,7 +157,7 @@ export const ChartLegendItemRenderer = ({
       variant="plain"
       className={cn(
         styles,
-        'focus-visible:ring-focus border-transparent shadow-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+        'focus-visible:ring-focus border-transparent shadow-none focus-visible:ring-2 focus-visible:outline-hidden focus-visible:ring-inset',
         isList && 'h-auto justify-start',
         !item.selected && 'bg-transparent'
       )}

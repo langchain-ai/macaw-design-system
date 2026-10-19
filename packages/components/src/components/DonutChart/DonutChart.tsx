@@ -213,7 +213,7 @@ const AnimatedDonutArc = ({
       fill={arc.data.color}
       opacity={isDimmed ? CHART_DIMMED_OPACITY : 1}
       className={cn(
-        'duration-fast focus-visible:stroke-focus transition-opacity focus:outline-none focus-visible:stroke-2 motion-reduce:transition-none',
+        'duration-fast focus-visible:stroke-focus transition-opacity focus:outline-hidden focus-visible:stroke-2 motion-reduce:transition-none',
         isInteractive && 'cursor-pointer'
       )}
       d={animationProgress.to((progress) => {

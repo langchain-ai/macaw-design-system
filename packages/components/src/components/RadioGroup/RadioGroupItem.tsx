@@ -18,7 +18,7 @@ const RadioGroupItem = React.forwardRef<
       ref={ref}
       className={cn(
         'gap-space-3 border-subtle bg-surface-level-1 p-space-3 data-[disabled]:border-disabled data-[disabled]:bg-disabled data-[disabled]:data-[state=checked]:bg-disabled data-[state=checked]:bg-brand data-[state=checked]:p-space-2 flex items-start justify-end self-stretch rounded-full border transition-colors data-[disabled]:cursor-not-allowed',
-        'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
+        'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-hidden',
         SELECTION_CONTROL_HIT_AREA_STYLES,
         className
       )}

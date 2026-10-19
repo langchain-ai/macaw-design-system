@@ -61,7 +61,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         </ZIndexProvider>
         <ToastLib.Viewport
           className={cn(
-            'fixed right-0 bottom-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]',
+            'fixed right-0 bottom-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-hidden [--viewport-padding:_25px]',
             config?.viewPortClassName
           )}
           style={{ zIndex: zIndices.toast }}

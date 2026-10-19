@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname } from 'node:path';
 
@@ -33,6 +34,41 @@ describe('Tailwind v4 integration', () => {
     expect(css).toContain('@container');
     expect(css).toContain('animation-name: enter');
     expect(preset.content).toEqual([]);
+  });
+
+  it('preserves high-contrast outlines and the v3 slider shadow', async () => {
+    const base = dirname(require.resolve('../../tailwind.preset.cjs'));
+    const { css } = await postcss([tailwindcss({ base })]).process(
+      '@import "tailwindcss" source(none); @config "./tailwind.preset.cjs"; @source inline("focus-visible:outline-hidden shadow-slider-thumb");',
+      { from: `${base}/consumer.css` }
+    );
+    expect(css).toContain('@media (forced-colors: active)');
+    expect(css).toContain('outline: 2px solid transparent');
+    expect(css).toContain('outline-offset: 2px');
+    expect(css).toContain(
+      '0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1))'
+    );
+    expect(cn('shadow-slider-thumb', 'shadow-none')).toBe('shadow-none');
+  });
+
+  it('compiles shimmer without globally registering Tailwind gradient properties', async () => {
+    const file =
+      require.resolve('../components/ThinkingState/ThinkingState.module.css');
+    const { css } = await postcss([tailwindcss()]).process(
+      readFileSync(file, 'utf8'),
+      { from: file }
+    );
+    expect(css).toContain('linear-gradient(');
+    expect(css).toContain('var(--text-tertiary) 35%');
+    expect(css).toContain('var(--macaw-shimmer-highlight) 50%');
+    expect(css).toContain('var(--text-tertiary) 65%');
+    expect(css).toContain(
+      '--macaw-shimmer-highlight: var(--text-brand-primary)'
+    );
+    expect(css).not.toContain('--tw-gradient-');
+    expect(css).not.toContain('in oklab');
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(css).toContain('color: CanvasText');
   });
 
   it('merges v4 utilities and semantic spacing overrides', () => {

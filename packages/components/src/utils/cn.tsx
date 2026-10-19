@@ -60,6 +60,7 @@ const customTwMerge = extendTailwindMerge({
   extend: {
     theme: {
       spacing: SPACE_SCALE_STEPS,
+      shadow: ['slider-thumb'],
     },
     classGroups: {
       // Extend font-size to include custom display and caps classes

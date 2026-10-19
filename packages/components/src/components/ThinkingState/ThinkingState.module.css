@@ -31,7 +31,14 @@
 }
 
 .shimmer {
-  @apply from-text-tertiary via-text-primary to-text-tertiary bg-linear-to-r from-35% via-50% to-65% bg-clip-text text-transparent;
+  --macaw-shimmer-highlight: var(--text-primary);
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(
+    to right,
+    var(--text-tertiary) 35%,
+    var(--macaw-shimmer-highlight) 50%,
+    var(--text-tertiary) 65%
+  );
   background-size: 200% 100%;
   animation: shimmer-text 1.4s linear infinite;
 }
@@ -41,7 +48,7 @@
 }
 
 .brandShimmer {
-  @apply via-text-brand-primary to-text-tertiary;
+  --macaw-shimmer-highlight: var(--text-brand-primary);
 }
 
 @keyframes pixel-on {

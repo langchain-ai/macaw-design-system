@@ -157,7 +157,7 @@ export const Textarea = forwardRef<
           'py-space-1': size === 'md',
           'py-space-2': size === 'lg',
         },
-        'focus-within:outline-none',
+        'focus-within:outline-hidden',
         'border-subtle',
         !disabled && !isError && '[&:hover:not(:focus-within)]:border-default',
         !isError &&
@@ -171,7 +171,7 @@ export const Textarea = forwardRef<
 
     const effectiveResize = autoResize ? 'none' : resize;
     const textareaClasses = cn(
-      'max-w-full flex-1 border-none bg-transparent p-0 outline-none',
+      'max-w-full flex-1 border-none bg-transparent p-0 outline-hidden',
       INPUT_TEXT_CLASSES[size],
       'placeholder:text-placeholder',
       disabled && 'cursor-not-allowed',

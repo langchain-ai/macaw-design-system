@@ -49,7 +49,7 @@ export const SelectTrigger = React.forwardRef<
       <RadixSelect.Trigger
         ref={ref}
         className={cn(
-          'gap-space-2 border-default data-[placeholder]:text-secondary flex items-center justify-between rounded-md border bg-transparent p-1.5 px-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+          'gap-space-2 border-default data-[placeholder]:text-secondary flex items-center justify-between rounded-md border bg-transparent p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
           className
         )}
         {...props}
@@ -63,7 +63,7 @@ export const SelectTrigger = React.forwardRef<
     <RadixSelect.Trigger
       ref={ref}
       className={cn(
-        'gap-space-2 border-default data-[placeholder]:text-secondary flex items-center justify-between rounded-md border bg-transparent p-1.5 px-2.5 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+        'gap-space-2 border-default data-[placeholder]:text-secondary flex items-center justify-between rounded-md border bg-transparent p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
         className
       )}
       {...props}
@@ -196,7 +196,7 @@ export const SelectItem = React.forwardRef<
     <RadixSelect.Item
       ref={ref}
       className={cn(
-        'py-space-1 pr-space-2 focus:bg-elevated-hover relative flex w-full cursor-default items-center rounded-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'py-space-1 pr-space-2 focus:bg-elevated-hover relative flex w-full cursor-default items-center rounded-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         OPTION_ROW_SIZES[size].minHeightClassName,
         size === 'sm' ? 'text-xs leading-4' : 'text-sm',
         selectedIndicator === 'background'

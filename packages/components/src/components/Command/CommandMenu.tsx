@@ -211,7 +211,10 @@ export function CommandMenu({
 
   return (
     <Command
-      className={cn('p-space-1 flex flex-col gap-1.5 outline-none', className)}
+      className={cn(
+        'p-space-1 flex flex-col gap-1.5 outline-hidden',
+        className
+      )}
       shouldFilter={disableFilter ? false : undefined}
       tabIndex={hideSearch ? 0 : -1}
     >
@@ -226,7 +229,7 @@ export function CommandMenu({
           onValueChange={onSearchChange}
         />
       )}
-      <CommandList className="outline-none" onScroll={handleScroll}>
+      <CommandList className="outline-hidden" onScroll={handleScroll}>
         {!loading && (
           <CommandEmpty>
             <Text variant="sm">{emptyText}</Text>

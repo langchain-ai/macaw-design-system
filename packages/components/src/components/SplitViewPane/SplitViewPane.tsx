@@ -361,7 +361,7 @@ export function SplitViewPane({
                   data-split-view-pane-resize-handle
                   data-testid="split-view-pane-resize-handle"
                   className={cn(
-                    'group fixed inset-y-0 cursor-col-resize focus-visible:outline-none',
+                    'group fixed inset-y-0 cursor-col-resize focus-visible:outline-hidden',
                     !open && 'pointer-events-none'
                   )}
                   style={{

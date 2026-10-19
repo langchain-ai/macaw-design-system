@@ -75,7 +75,7 @@ export const WithForm: Story = {
             </Text>
             {/* eslint-disable-next-line react/forbid-elements */}
             <input
-              className="border-secondary focus:border-brand rounded-md border bg-transparent px-2.5 py-1.5 text-sm outline-none"
+              className="border-secondary focus:border-brand rounded-md border bg-transparent px-2.5 py-1.5 text-sm outline-hidden"
               placeholder="Enter name..."
             />
           </div>
@@ -85,7 +85,7 @@ export const WithForm: Story = {
             </Text>
             {/* eslint-disable-next-line react/forbid-elements */}
             <input
-              className="border-secondary focus:border-brand rounded-md border bg-transparent px-2.5 py-1.5 text-sm outline-none"
+              className="border-secondary focus:border-brand rounded-md border bg-transparent px-2.5 py-1.5 text-sm outline-hidden"
               placeholder="Enter description..."
             />
           </div>

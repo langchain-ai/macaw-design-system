@@ -121,7 +121,7 @@ export const Switch = ({
       <SwitchPrimitive.Root
         className={cn(
           'bg-surface-level-4 inline-flex items-center rounded-full transition',
-          'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
+          'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-hidden',
           SELECTION_CONTROL_HIT_AREA_STYLES,
           disabled
             ? 'data-[state=checked]:bg-brand-subtle cursor-not-allowed'

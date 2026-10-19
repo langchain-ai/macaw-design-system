@@ -114,6 +114,9 @@ module.exports = {
         focus: 'var(--border-focus)',
       },
       boxShadow: {
+        // Preserve the v3 default shadow used by the slider thumb in both themes.
+        'slider-thumb':
+          '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
         xs: '0 1px 1px 0 rgba(16, 24, 40, 0.02)',
         sm: 'var(--shadow-sm)',
         md: 'var(--shadow-md)',

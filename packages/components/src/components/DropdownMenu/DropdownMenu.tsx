@@ -178,7 +178,7 @@ export const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'px-space-2 py-space-1 focus:bg-surface-level-2 flex cursor-pointer items-center rounded-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'px-space-2 py-space-1 focus:bg-surface-level-2 flex cursor-pointer items-center rounded-sm outline-hidden transition-colors select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
@@ -217,7 +217,7 @@ export const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'px-space-2 py-space-1 focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2 flex cursor-pointer items-center rounded-sm transition-colors outline-none select-none',
+      'px-space-2 py-space-1 focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2 flex cursor-pointer items-center rounded-sm outline-hidden transition-colors select-none',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',

@@ -275,7 +275,7 @@ const ChartLegendInline = ({
                   size="xs"
                   color="secondary"
                   variant="plain"
-                  className="focus-visible:ring-focus relative rounded-xs border-transparent bg-transparent p-0 shadow-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
+                  className="focus-visible:ring-focus relative rounded-xs border-transparent bg-transparent p-0 shadow-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden"
                   aria-label={`View ${hiddenCount} hidden chart ${
                     hiddenCount === 1 ? 'legend' : 'legends'
                   }`}

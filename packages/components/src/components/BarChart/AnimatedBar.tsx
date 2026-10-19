@@ -115,7 +115,7 @@ export const AnimatedBar = ({
       fill={bar.color}
       opacity={isDimmed ? bar.opacity * CHART_DIMMED_OPACITY : bar.opacity}
       className={cn(
-        'duration-fast focus-visible:stroke-focus transition-opacity focus-visible:stroke-2 focus-visible:outline-none motion-reduce:transition-none',
+        'duration-fast focus-visible:stroke-focus transition-opacity focus-visible:stroke-2 focus-visible:outline-hidden motion-reduce:transition-none',
         isInteractive && 'cursor-pointer'
       )}
       data-bar-id={bar.id}

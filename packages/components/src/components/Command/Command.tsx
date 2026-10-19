@@ -164,7 +164,7 @@ export const CommandItem = forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'px-space-2 hover:bg-secondary aria-selected:bg-secondary relative flex cursor-pointer items-center rounded-sm outline-none select-none aria-disabled:pointer-events-none aria-disabled:opacity-50',
+      'px-space-2 hover:bg-secondary aria-selected:bg-secondary relative flex cursor-pointer items-center rounded-sm outline-hidden select-none aria-disabled:pointer-events-none aria-disabled:opacity-50',
       OPTION_ROW_SIZES[size].minHeightClassName,
       COMMAND_ITEM_SIZE_CLASSES[size],
       className

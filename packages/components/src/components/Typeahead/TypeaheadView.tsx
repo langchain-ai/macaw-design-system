@@ -302,7 +302,7 @@ export function TypeaheadView<TOption>({
         aria-describedby={multiple ? selectedSummaryId : undefined}
         aria-label={inputAriaLabel}
         className={cn(
-          'placeholder:text-placeholder max-w-full min-w-0 border-none bg-transparent p-0 outline-none',
+          'placeholder:text-placeholder max-w-full min-w-0 border-none bg-transparent p-0 outline-hidden',
           INPUT_TEXT_CLASSES[size],
           disabled && 'cursor-not-allowed',
           multiple
