@@ -1,3 +1,4 @@
+/* Internal build entry for the precompiled utilities bundled by styles.css. */
 @import 'tailwindcss' source(none);
 @config '../../../../tailwind.config.cjs';
 @source '../';

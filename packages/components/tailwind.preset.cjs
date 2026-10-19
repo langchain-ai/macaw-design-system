@@ -1,5 +1,8 @@
 const plugin = require('tailwindcss/plugin');
 
+// Public Tailwind v4 preset. `content` stays empty so consuming applications
+// retain full control over source discovery.
+
 const brandPalette = {
   10: 'var(--brand-10)',
   25: 'var(--brand-25)',
