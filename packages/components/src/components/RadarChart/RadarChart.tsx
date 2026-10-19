@@ -45,7 +45,7 @@ export const RadarChart = ({
   const maximum =
     maxValue !== undefined && Number.isFinite(maxValue) && maxValue > 0
       ? maxValue
-      : Math.max(1, ...values);
+      : Math.max(0, ...values) || 1;
   const axes = data.map((datum, index) => {
     const angle = (index * Math.PI * 2) / data.length - Math.PI / 2;
     const x = Math.cos(angle);
