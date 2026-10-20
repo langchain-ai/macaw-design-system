@@ -5,6 +5,10 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 
 import { CaretDoubleRightIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { mergeRefs } from '../../utils/merge-refs';
 import { useZIndex } from '../../utils/useZIndex';
 import { ScrollParentProvider } from '../../utils/VirtuosoCustomScrollParentContext';
@@ -22,7 +26,7 @@ import { TopBarPaneSlot } from './Pane.utils';
 
 const PaneDepth = createContext<number>(1);
 
-interface CorePaneProps {
+interface CorePaneProps extends DataAttributes {
   open: boolean;
   animation?: boolean;
   onClose: () => void;
@@ -62,6 +66,7 @@ function PlainPane({
   onEscapeKeyDown,
   requireConfirmationOnClose,
   zIndex,
+  ...rest
 }: CorePaneProps) {
   const depth = useContext(PaneDepth);
   const scrollParentRef = useScrollParent();
@@ -99,6 +104,7 @@ function PlainPane({
             }}
           >
             <RadixDialog.Content
+              {...pickDataAttributes(rest)}
               ref={mergeRefs([scrollParentRef, setContentNode])}
               className={cn(
                 'relative flex h-[100vh] flex-col items-stretch overflow-y-auto bg-elevated shadow-lg',
@@ -192,6 +198,7 @@ export function Pane({
   onEscapeKeyDown,
   requireConfirmationOnClose,
   zIndex,
+  ...rest
 }: PaneProps) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -208,6 +215,7 @@ export function Pane({
   const paneComponent = (
     <>
       <PlainPane
+        {...pickDataAttributes(rest)}
         open={open}
         animation={animation}
         onClose={onClose}

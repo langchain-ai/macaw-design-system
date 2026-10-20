@@ -77,3 +77,19 @@ it('keeps focus on an outside control clicked to dismiss Select', async () => {
   );
   expect(nextField).toHaveFocus();
 });
+
+it('forwards data attributes to the trigger', () => {
+  render(
+    <Select
+      aria-label="Environment"
+      onChange={() => {}}
+      options={options}
+      data-analytics-id="environment-select"
+    />
+  );
+
+  expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveAttribute(
+    'data-analytics-id',
+    'environment-select'
+  );
+});
