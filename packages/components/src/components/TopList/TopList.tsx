@@ -1,7 +1,9 @@
 import { animated, useReducedMotion, useSpring } from '@react-spring/web';
 import { getStringWidth } from '@visx/text';
 
+import { getChartAxisThickness } from '../../utils/chartAxisLayout';
 import { getFillChartColorForKey } from '../../utils/chartColors';
+import { SPACE_SCALE_PX } from '../../utils/spacing';
 import {
   BarChart,
   type BarChartCategory,
@@ -15,7 +17,6 @@ import type { TopListItem, TopListProps } from './TopList.types';
 import { limitTopListItems, sortTopListItems } from './TopList.utils';
 
 const TOP_LIST_SERIES_ID = 'top-list-values';
-const TOP_LIST_DEFAULT_CATEGORY_LABEL_WIDTH = 112;
 const TOP_LIST_VALUE_LABEL_GAP = 8;
 const TOP_LIST_VALUE_LABEL_FONT_SIZE = 12;
 const numberFormatter = new Intl.NumberFormat('en-US', {
@@ -178,7 +179,7 @@ export const TopList = <Item extends TopListItem>({
   limit,
   formatValue = defaultFormatValue,
   valueAxisLabel,
-  categoryLabelWidth = TOP_LIST_DEFAULT_CATEGORY_LABEL_WIDTH,
+  categoryLabelWidth,
   activeItemId,
   getItemAriaLabel,
   isRendering = true,
@@ -201,9 +202,15 @@ export const TopList = <Item extends TopListItem>({
   const formattedValueById = new Map(
     visibleItems.map((item) => [item.id, formatValue(item.value)])
   );
-  const resolvedCategoryLabelWidth = Number.isFinite(categoryLabelWidth)
-    ? Math.max(0, categoryLabelWidth)
-    : TOP_LIST_DEFAULT_CATEGORY_LABEL_WIDTH;
+  const resolvedCategoryLabelWidth =
+    categoryLabelWidth != null && Number.isFinite(categoryLabelWidth)
+      ? Math.max(0, categoryLabelWidth)
+      : getChartAxisThickness({
+          tickLabels: visibleItems.map((item) => item.label),
+          // Matches the overlay's pr-space-3; HTML labels have no SVG dx offset.
+          tickLength: SPACE_SCALE_PX[3],
+          tickLabelOffsetEm: 0,
+        });
   const valueLabelPadding = Math.ceil(
     TOP_LIST_VALUE_LABEL_GAP +
       Math.max(

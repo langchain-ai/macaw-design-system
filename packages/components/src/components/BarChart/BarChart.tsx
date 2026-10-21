@@ -4,6 +4,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import { scaleLinear } from '@visx/scale';
 import { getStringWidth } from '@visx/text';
 
+import { getChartAxisThickness } from '../../utils/chartAxisLayout';
 import {
   CHART_SINGLE_FILL_COLOR,
   getCategoricalFillChartColor,
@@ -41,7 +42,6 @@ import {
   BAR_CHART_DEFAULT_GROUP_PADDING,
   BAR_CHART_DEFAULT_MINIMUM_BAR_SIZE,
   BAR_CHART_DEFAULT_TICK_COUNT,
-  BAR_CHART_HORIZONTAL_CATEGORY_AXIS_THICKNESS,
   BAR_CHART_MARGIN_RIGHT,
   BAR_CHART_MARGIN_TOP,
   BAR_CHART_MINIMUM_PLOT_WIDTH,
@@ -257,18 +257,15 @@ export const BarChart = ({
       config?.label == null ? 0 : CHART_AXIS_LABEL_THICKNESS;
     if (!isVertical) return BAR_CHART_AXIS_THICKNESS + labelThickness;
     return (
-      Math.max(
-        BAR_CHART_VALUE_AXIS_THICKNESS,
-        getYAxisLeftMargin({
-          yDomain: getBarChartValueDomain(bars, config.id, config.domain),
-          formatTick: config?.formatValue ?? formatBarChartValue,
-          fontSize: CHART_TICK_FONT_SIZE,
-          numTicks: config?.tickCount ?? BAR_CHART_DEFAULT_TICK_COUNT,
-          tickValues: config?.tickValues,
-          tickLength: CHART_VALUE_AXIS_TICK_LENGTH,
-          nice: config?.nice ?? config?.domain == null,
-        })
-      ) + labelThickness
+      getYAxisLeftMargin({
+        yDomain: getBarChartValueDomain(bars, config.id, config.domain),
+        formatTick: config?.formatValue ?? formatBarChartValue,
+        fontSize: CHART_TICK_FONT_SIZE,
+        numTicks: config?.tickCount ?? BAR_CHART_DEFAULT_TICK_COUNT,
+        tickValues: config?.tickValues,
+        tickLength: CHART_VALUE_AXIS_TICK_LENGTH,
+        nice: config?.nice ?? config?.domain == null,
+      }) + labelThickness
     );
   };
   const configuredAxesById = new Map(
@@ -293,13 +290,17 @@ export const BarChart = ({
     bottom: Math.max(0, plotPadding?.bottom ?? 0),
     left: Math.max(0, plotPadding?.left ?? 0),
   };
-  const defaultCategoryAxisThickness =
-    (isVertical
-      ? BAR_CHART_AXIS_THICKNESS
-      : BAR_CHART_HORIZONTAL_CATEGORY_AXIS_THICKNESS) +
-    (categoryAxis?.label == null ? 0 : CHART_AXIS_LABEL_THICKNESS);
   const categoryAxisThickness =
-    categoryAxis?.thickness ?? defaultCategoryAxisThickness;
+    categoryAxis?.thickness ??
+    getChartAxisThickness({
+      tickLabels: isVertical
+        ? []
+        : (categoryAxis?.tickValues ?? categories).map(
+            categoryAxis?.formatValue ?? String
+          ),
+      tickLabelThickness: isVertical ? BAR_CHART_AXIS_THICKNESS : undefined,
+      label: categoryAxis?.label,
+    });
   const horizontalValueAxisEdgeMargin = isVertical
     ? 0
     : Math.max(

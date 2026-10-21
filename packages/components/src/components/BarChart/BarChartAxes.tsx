@@ -7,6 +7,8 @@ import {
 } from '../../utils/chartAxisLayout';
 import {
   CHART_TICK_FONT_SIZE,
+  CHART_TICK_LABEL_DX_EM,
+  CHART_TICK_LABEL_DY_EM,
   CHART_VALUE_AXIS_TICK_LENGTH,
 } from '../../utils/chartConstants';
 import { Tooltip } from '../Tooltip';
@@ -119,8 +121,8 @@ export const BarChartAxes = ({
         tickLabelProps={() => ({
           ...tickLabelStyle,
           textAnchor: 'end',
-          dx: '-0.25em',
-          dy: '0.25em',
+          dx: `-${CHART_TICK_LABEL_DX_EM}em`,
+          dy: `${CHART_TICK_LABEL_DY_EM}em`,
         })}
       />
     )}
@@ -155,8 +157,8 @@ export const BarChartAxes = ({
         const sideTickLabelProps = () => ({
           ...tickLabelStyle,
           textAnchor: index === 0 ? ('end' as const) : ('start' as const),
-          dx: index === 0 ? '-0.25em' : '0.25em',
-          dy: '0.25em',
+          dx: `${index === 0 ? -CHART_TICK_LABEL_DX_EM : CHART_TICK_LABEL_DX_EM}em`,
+          dy: `${CHART_TICK_LABEL_DY_EM}em`,
         });
         return index === 0 ? (
           <AxisLeft

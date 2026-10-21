@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { TopList, type TopListItem } from '.';
+import { TopList, type TopListItem, type TopListProps } from '.';
 import {
   CHART_OTHER_COLOR,
   getCategoricalFillChartColor,
@@ -48,18 +48,20 @@ const signedItems: readonly TopListItem[] = [
   { id: 'cost', label: 'Cost change', value: -18 },
 ];
 
-const InteractiveTopList = () => {
+const InteractiveTopList = (args: TopListProps) => {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activatedLabel, setActivatedLabel] = useState<string | null>(null);
+
+  const activeItem = args.items.find((item) => item.id === activeItemId);
+  const formatValue =
+    args.formatValue ?? ((value: number) => value.toLocaleString('en-US'));
 
   return (
     <div className="mx-auto flex h-72 w-full max-w-2xl flex-col gap-space-2">
       <div className="min-h-0 flex-1">
         <TopList
-          aria-label="Interactive top models by runs"
-          items={items}
+          {...args}
           activeItemId={activeItemId}
-          valueAxisLabel="Runs"
           onItemPointerMove={(item) => setActiveItemId(item.id)}
           onItemPointerOut={() => setActiveItemId(null)}
           onItemFocus={(item) => setActiveItemId(item.id)}
@@ -67,11 +69,18 @@ const InteractiveTopList = () => {
           onItemActivate={(item) => setActivatedLabel(item.label)}
         />
       </div>
-      <Text variant="xs" color="secondary">
-        {activatedLabel == null
-          ? 'Hover, focus, or activate a row.'
-          : `Activated ${activatedLabel}`}
-      </Text>
+      <div role="status" className="flex flex-col gap-space-1">
+        <Text variant="xs" color="secondary">
+          {activeItem == null
+            ? 'Hover or focus a row to inspect its value.'
+            : `${activeItem.label}: ${formatValue(activeItem.value)} ${args.valueAxisLabel ?? ''}`}
+        </Text>
+        <Text variant="xs" color="secondary">
+          {activatedLabel == null
+            ? 'Click a row or press Enter to activate it.'
+            : `Activated ${activatedLabel}`}
+        </Text>
+      </div>
     </div>
   );
 };
@@ -102,6 +111,11 @@ const meta = {
         'Sort direction or a custom comparator. Sorting happens before the limit is applied.',
       table: { defaultValue: { summary: 'descending' } },
     },
+    categoryLabelWidth: {
+      control: { type: 'number', min: 0 },
+      description:
+        'Overrides the automatically measured width of visible category labels.',
+    },
     limit: {
       control: { type: 'number', min: 0 },
       description: 'Maximum number of sorted rows to render.',
@@ -113,7 +127,6 @@ const meta = {
     items,
     limit: 5,
     valueAxisLabel: 'Runs',
-    categoryLabelWidth: 180,
   },
   render: (args) => (
     <div className="mx-auto h-72 w-full max-w-2xl">
@@ -165,5 +178,6 @@ export const Narrow: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => <InteractiveTopList />,
+  args: { 'aria-label': 'Interactive top models by runs' },
+  render: (args) => <InteractiveTopList {...args} />,
 };

@@ -285,6 +285,24 @@ describe('LineChart', () => {
     );
   });
 
+  it('shrinks the value-axis gutter to its formatted tick labels', () => {
+    render(
+      <LineChart
+        aria-label="Compact axis"
+        showLegend={false}
+        series={series}
+        yAxes={[{ id: 'primary', tickValues: [1], formatValue: () => '1' }]}
+      />
+    );
+    const tick = getSvgTextElement(
+      within(
+        screen.getByRole('graphics-document', { name: 'Compact axis' })
+      ).getByText('1')
+    );
+    if (tick == null) throw new Error('Expected a value-axis tick');
+    expect(getAbsoluteX(tick)).toBe(10);
+  });
+
   it('reserves measured gutters for wide value-axis tick labels', () => {
     render(
       <LineChart
@@ -499,14 +517,14 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 348, clientY: 40 },
+      coords: { clientX: 328.5, clientY: 40 },
     });
 
     expect(onDatumPointerMove).toHaveBeenCalled();
     expect(onDatumPointerMove.mock.calls[0]?.[0]).toEqual({
       x: 10,
       pointerX: 10,
-      xPosition: 348,
+      xPosition: 328.5,
       points: [
         {
           seriesId: 'requests',
@@ -546,7 +564,7 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 206, clientY: 40 },
+      coords: { clientX: 171.5, clientY: 40 },
     });
 
     expect(onDatumPointerMove.mock.calls[0]?.[0].x).toBe(0);
@@ -585,13 +603,13 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 348, clientY: 40 },
+      coords: { clientX: 332, clientY: 40 },
     });
 
     expect(onDatumPointerMove.mock.calls[0]?.[0]).toMatchObject({
       x: 10,
       pointerX: 10,
-      xPosition: 348,
+      xPosition: 332,
     });
   });
 
