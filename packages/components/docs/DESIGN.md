@@ -67,6 +67,25 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Breadcrumbs
+
+Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
+`@langchain/macaw-components/Breadcrumb`. Place links and the current page directly
+inside `Breadcrumb`; it owns the navigation landmark, ordered list, and decorative
+slash separators. Use `separator` for an alternative such as a chevron.
+
+Use `BreadcrumbLink href="..."` for native navigation or
+`as={<RouterLink to="..." />}` for framework routing. `leftDecorator` accepts an
+icon. `BreadcrumbPage` is noninteractive and marks the current page. Ancestor
+links and the current page use compact xs typography by default, matching the
+LangSmith navigation trail.
+
+Labels truncate at 200px and expose their full string as a native title; the
+trail wraps at narrow widths. Empty children render no navigation. Compose
+`Skeleton` while fetching labels, or static text for unavailable ancestors; do
+not use fake links or disabled buttons. Consumers own routing, loading/error
+messages, and any explicit overflow menu or switcher.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
