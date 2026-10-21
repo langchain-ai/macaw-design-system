@@ -22,6 +22,10 @@ import {
 
 import { XIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { mergeRefs } from '../../utils/merge-refs';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
@@ -81,7 +85,7 @@ DialogClose.displayName = 'DialogClose';
 
 type TitleIconIntent = 'error' | 'warning' | 'info';
 
-interface DialogContentProps {
+interface DialogContentProps extends DataAttributes {
   title?: ReactNode;
   description?: ReactNode;
   /** Icon component to display in the title area, inside a colored circular container */
@@ -154,6 +158,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       onCloseAutoFocus,
       onEscapeKeyDown,
       onKeyDown,
+      ...rest
     },
     ref
   ) => {
@@ -166,6 +171,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
     return (
       <RadixDialogContent
+        {...pickDataAttributes(rest)}
         ref={mergeRefs([ref, setContentNode])}
         className={cn(
           'fixed left-[50%] top-[50%] flex max-h-[calc(100vh-2rem)] w-[37.5rem] translate-x-[-50%] translate-y-[-50%] flex-col rounded-lg bg-background',
