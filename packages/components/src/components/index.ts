@@ -1,3 +1,10 @@
+export { Breadcrumb, BreadcrumbLink, BreadcrumbPage } from './Breadcrumb';
+export type {
+  BreadcrumbProps,
+  BreadcrumbLinkProps,
+  BreadcrumbPageProps,
+} from './Breadcrumb';
+
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 

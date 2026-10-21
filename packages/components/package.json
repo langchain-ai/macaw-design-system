@@ -48,6 +48,10 @@
       "types": "./dist/components/BarChart/index.d.ts",
       "import": "./dist/components/BarChart/index.js"
     },
+    "./Breadcrumb": {
+      "types": "./dist/components/Breadcrumb/index.d.ts",
+      "import": "./dist/components/Breadcrumb/index.js"
+    },
     "./Button": {
       "types": "./dist/components/Button/index.d.ts",
       "import": "./dist/components/Button/index.js"
