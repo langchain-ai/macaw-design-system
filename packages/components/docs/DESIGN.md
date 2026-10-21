@@ -107,7 +107,8 @@ Component code uses semantic tokens through Tailwind utilities. Do not use primi
 Choose color by meaning:
 
 - `bg-surface-level-1..4` expresses nesting. Use the lowest level that creates enough separation.
-- `bg-elevated*` is for popovers, tooltips, dropdowns, and other floating layers.
+- `bg-elevated*` is for raised cards, panes, controls, and tooltips.
+- `bg-popover` is for interactive floating layers such as popovers, selects, typeaheads, dropdowns, context menus, and command menus.
 - Success, warning, and error tokens describe general feedback and validation.
 - Status tokens describe run or system state, not generic validation.
 - `text-*` is for copy; `text-icon-*` is for standalone icons.

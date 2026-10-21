@@ -422,7 +422,7 @@ export function TypeaheadView<TOption>({
 
         <PopoverContent
           ref={popoverContentRef}
-          className="w-[var(--radix-popover-trigger-width)] min-w-48 max-w-[calc(100vw-1rem)] bg-elevated p-space-1 text-primary"
+          className="w-[var(--radix-popover-trigger-width)] min-w-48 max-w-[calc(100vw-1rem)] bg-popover p-space-1 text-primary"
           align="start"
           sideOffset={4}
           onEscapeKeyDown={handleEscapeKeyDown}
@@ -474,7 +474,7 @@ export function TypeaheadView<TOption>({
                   aria-checked={multiple ? selected : undefined}
                   size={itemRowSize}
                   className={cn(
-                    'flex items-center gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2',
+                    'flex items-center gap-space-2 text-primary',
                     optionDisabled && 'text-disabled'
                   )}
                 >
@@ -503,7 +503,7 @@ export function TypeaheadView<TOption>({
                     ? `Add ${createOption.inputValue}`
                     : 'Add new'
                 }
-                className="flex items-center gap-space-2 text-primary hover:bg-surface-level-2 aria-selected:bg-surface-level-2"
+                className="flex items-center gap-space-2 text-primary"
               >
                 <TypeaheadCreateOption
                   inputValue={createOption.inputValue}

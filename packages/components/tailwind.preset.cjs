@@ -344,7 +344,7 @@ module.exports = {
         'surface-level-2': 'var(--bg-surface-level-2)',
         elevated: 'var(--bg-elevated)',
         popover: {
-          DEFAULT: 'var(--bg-elevated)',
+          DEFAULT: 'var(--bg-popover)',
         },
         background: {
           DEFAULT: 'var(--bg-elevated)',

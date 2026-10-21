@@ -127,7 +127,7 @@ export const SelectContent = React.forwardRef<
       <RadixSelect.Content
         ref={ref}
         className={cn(
-          'relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-default bg-elevated shadow-md',
+          'relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-default bg-popover shadow-md',
           position === 'popper' &&
             'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
           className

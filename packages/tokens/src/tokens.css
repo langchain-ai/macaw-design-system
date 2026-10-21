@@ -136,7 +136,8 @@
   --bg-surface-level-3: var(--neutral-100);
   --bg-surface-level-4: var(--neutral-200);
   --bg-disabled: var(--neutral-100);
-  --bg-elevated: var(--white); /* popovers, tooltips, cards */
+  --bg-elevated: var(--white); /* raised cards, panes, controls, tooltips */
+  --bg-popover: var(--white);
   --bg-elevated-hover: var(--neutral-25);
   --bg-elevated-selected: var(--neutral-25);
   --bg-overlay: rgba(0, 0, 0, 0.5); /* backdrop / modal scrim */
@@ -736,6 +737,7 @@ html.dark,
   --bg-surface-level-4: var(--neutral-200);
   --bg-disabled: var(--neutral-100);
   --bg-elevated: var(--neutral-35);
+  --bg-popover: var(--neutral-50);
   --bg-elevated-hover: var(--neutral-100);
   --bg-elevated-selected: var(--neutral-200);
   --bg-overlay: rgba(0, 0, 0, 0.7);

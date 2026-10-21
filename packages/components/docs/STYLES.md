@@ -130,7 +130,8 @@ rename classes.
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | Page / app shell background                               | `bg-surface-level-1`                                                                  |
 | Card, panel, sidebar                                      | `bg-surface-level-2`                                                                  |
-| Popover, tooltip, dropdown                                | `bg-elevated`                                                                         |
+| Raised card, pane, control, tooltip                       | `bg-elevated`                                                                         |
+| Popover, select, typeahead, dropdown, context/command menu | `bg-popover`                                                                          |
 | Modal scrim / backdrop                                    | `bg-overlay` for new overlays; some current overlays still use opacity classes        |
 | Non-Button brand fill                                     | `bg-brand`; use `<Button />` for CTAs                                                 |
 | Tinted brand surface                                      | `bg-brand-subtle`                                                                     |
@@ -254,9 +255,10 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-surface-level-3`       | Nested table headers or grouped inner containers |
 | `bg-surface-level-4`       | Deepest neutral fill for additional separation   |
 | `bg-disabled`              | Disabled input or control fill                   |
-| `bg-elevated`              | Popovers, tooltips, dropdowns, context menus     |
+| `bg-elevated`              | Raised cards, panes, controls, and tooltips      |
 | `bg-elevated-hover`        | Hover state inside an elevated surface           |
 | `bg-elevated-selected`     | Selected item inside an elevated surface         |
+| `bg-popover`               | Popovers, selects, typeaheads, and menu surfaces |
 | `bg-overlay`               | Modal backdrop / scrim                           |
 
 ### Brand — `bg-brand-*`
