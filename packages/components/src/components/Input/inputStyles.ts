@@ -50,22 +50,29 @@ export function getInputContainerClasses({
     INPUT_RADIUS_CLASSES[size],
     'focus-within:outline-hidden',
     {
-      'border border-subtle bg-transparent': variant === 'outlined',
-      'border border-transparent bg-surface-level-3': variant === 'plain',
+      'border border-subtle bg-input': variant === 'outlined',
+      'border border-transparent bg-input': variant === 'plain',
     },
     outlined &&
       !disabled &&
       !isError &&
       '[&:hover:not(:focus-within)]:border-default',
-    !isError &&
+    outlined &&
+      !disabled &&
+      !isError &&
+      'dark:[&:not(:focus-within)]:border-muted dark:[&:hover:not(:focus-within)]:border-subtle',
+    !disabled &&
+      !isError &&
       (outlined
         ? 'focus-within:border-focus focus-within:shadow-[0_0_0_1px_var(--border-focus)]'
         : 'focus-within:border-focus'),
-    isError &&
+    !disabled &&
+      isError &&
       (outlined
         ? 'border-error-strong focus-within:border-error-strong focus-within:shadow-[0_0_0_1px_var(--border-error-strong)]'
         : 'border-error-strong focus-within:border-error-strong'),
-    disabled && 'cursor-not-allowed bg-disabled opacity-50',
+    disabled &&
+      'cursor-not-allowed border-muted bg-input-disabled text-disabled',
     className
   );
 }
@@ -87,7 +94,7 @@ export function getInputElementClasses({
     'min-w-0 max-w-full flex-1 border-none bg-transparent p-0 outline-hidden',
     INPUT_TEXT_CLASSES[size],
     'placeholder:text-placeholder',
-    disabled && 'cursor-not-allowed',
+    disabled && 'cursor-not-allowed text-disabled placeholder:text-disabled',
     className
   );
 }

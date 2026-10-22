@@ -147,7 +147,7 @@ export const Textarea = forwardRef<
     const textareaContainerClasses = cn(
       'flex w-full gap-space-2',
       variant === 'default' && [
-        'border bg-transparent transition-[border-color,box-shadow,background-color]',
+        'border bg-input transition-[border-color,box-shadow,background-color]',
         CONTROL_SIZES[size].minHeightClassName,
         INPUT_HORIZONTAL_PADDING_CLASSES[size],
         INPUT_RADIUS_CLASSES[size],
@@ -160,11 +160,17 @@ export const Textarea = forwardRef<
         'focus-within:outline-hidden',
         'border-subtle',
         !disabled && !isError && '[&:hover:not(:focus-within)]:border-default',
-        !isError &&
+        !disabled &&
+          !isError &&
+          'dark:[&:not(:focus-within)]:border-muted dark:[&:hover:not(:focus-within)]:border-subtle',
+        !disabled &&
+          !isError &&
           'focus-within:border-focus focus-within:shadow-[0_0_0_2px_var(--border-focus)]',
-        isError &&
+        !disabled &&
+          isError &&
           'border-error-strong focus-within:border-error-strong focus-within:shadow-[0_0_0_2px_var(--border-error-strong)]',
-        disabled && 'cursor-not-allowed bg-disabled opacity-50',
+        disabled &&
+          'cursor-not-allowed border-muted bg-input-disabled text-disabled',
       ],
       leftDecorator || rightDecorator ? 'items-start' : 'items-center'
     );
@@ -174,7 +180,7 @@ export const Textarea = forwardRef<
       'max-w-full flex-1 border-none bg-transparent p-0 outline-hidden',
       INPUT_TEXT_CLASSES[size],
       'placeholder:text-placeholder',
-      disabled && 'cursor-not-allowed',
+      disabled && 'cursor-not-allowed text-disabled placeholder:text-disabled',
       // Resize handling (autoResize forces none)
       {
         'resize-none': effectiveResize === 'none',
@@ -185,11 +191,15 @@ export const Textarea = forwardRef<
       inputClassName
     );
 
-    const decoratorClasses = cn('flex items-center text-tertiary', {
-      'mt-0': size === 'xs' || size === 'sm',
-      'mt-0.5': size === 'md',
-      'mt-space-1': size === 'lg',
-    });
+    const decoratorClasses = cn(
+      'flex items-center text-tertiary',
+      disabled && 'text-disabled',
+      {
+        'mt-0': size === 'xs' || size === 'sm',
+        'mt-0.5': size === 'md',
+        'mt-space-1': size === 'lg',
+      }
+    );
 
     const labelClasses = cn(
       'mb-space-1 block font-medium text-primary',

@@ -249,6 +249,10 @@ function OptionSelect<T extends string = string>({
           className={cn(
             'box-border w-full justify-between py-0',
             CONTROL_SIZES[size].heightClassName,
+            !disabled &&
+              'dark:[&:not(:focus-within)]:border-muted dark:[&:hover:not(:focus-within)]:border-subtle',
+            disabled &&
+              'border-muted bg-input-disabled text-disabled dark:bg-input-disabled',
             triggerClassName
           )}
           disabled={disabled}
@@ -259,7 +263,7 @@ function OptionSelect<T extends string = string>({
             aria-hidden
             icon={CaretDownIcon}
             iconClassName={CONTROL_ICON_SIZES[size].iconClassName}
-            className="text-inherit"
+            className={disabled ? 'text-icon-disabled' : 'text-inherit'}
             weight="regular"
           />
         </Button>

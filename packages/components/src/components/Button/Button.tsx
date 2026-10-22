@@ -169,12 +169,24 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     );
     const spinnerSize = size === 'xs' ? 'xxs' : 'xs';
+    const popupTriggerStyles =
+      !disabled &&
+      color === 'secondary' &&
+      (variant === 'normal' || variant === 'outlined') &&
+      props['aria-haspopup'] &&
+      props['aria-haspopup'] !== 'false' &&
+      'bg-input';
 
     if (as) {
       if (!isValidElement(as)) return null;
 
       return cloneElement(as, {
-        className: cn(baseStyles, getColorVariantStyles(), className),
+        className: cn(
+          baseStyles,
+          getColorVariantStyles(),
+          popupTriggerStyles,
+          className
+        ),
         onClick,
         'aria-label': getAriaLabel(),
         'aria-disabled': disabled || undefined,
@@ -198,7 +210,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         type="button"
-        className={cn(baseStyles, getColorVariantStyles(), className)}
+        className={cn(
+          baseStyles,
+          getColorVariantStyles(),
+          popupTriggerStyles,
+          className
+        )}
         disabled={disabled}
         onClick={onClick}
         aria-label={getAriaLabel()}

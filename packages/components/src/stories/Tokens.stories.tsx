@@ -75,7 +75,22 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-elevated',
     className: 'bg-elevated',
-    usage: 'Popovers, dropdowns, tooltips, context menus',
+    usage: 'Raised cards, panes, and tooltips',
+  },
+  {
+    name: 'bg-input',
+    className: 'bg-input',
+    usage: 'Input and textarea fields, picker controls, filled popup triggers',
+  },
+  {
+    name: 'bg-input-disabled',
+    className: 'bg-input-disabled',
+    usage: 'Disabled field fill without whole-field opacity',
+  },
+  {
+    name: 'bg-popover',
+    className: 'bg-popover',
+    usage: 'Popovers, dropdowns, and picker menus',
   },
   {
     name: 'bg-elevated-hover',
@@ -1020,7 +1035,7 @@ const TokenDocumentation = () => (
       />
       <UtilityTokenSection
         title="Shadow Tokens"
-        description="Use shadow tokens for elevation that adapts across light and dark mode."
+        description="Shadow tokens provide elevation in light mode and become transparent in dark mode. Use surface contrast and borders for dark elevation; focus and selection rings remain visible."
         tokens={shadowTokens}
         kind="shadow"
       />

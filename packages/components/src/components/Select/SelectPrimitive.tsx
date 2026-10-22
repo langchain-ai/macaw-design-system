@@ -49,7 +49,9 @@ export const SelectTrigger = React.forwardRef<
       <RadixSelect.Trigger
         ref={ref}
         className={cn(
-          'flex items-center justify-between gap-space-2 rounded-md border border-default bg-transparent p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-secondary [&>span]:line-clamp-1',
+          'flex items-center justify-between gap-space-2 rounded-md border border-default bg-input p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+          !props.disabled &&
+            'dark:[&:enabled:not(:focus-within)]:border-muted dark:[&:enabled:hover:not(:focus-within)]:border-subtle',
           className
         )}
         {...props}
@@ -63,7 +65,9 @@ export const SelectTrigger = React.forwardRef<
     <RadixSelect.Trigger
       ref={ref}
       className={cn(
-        'flex items-center justify-between gap-space-2 rounded-md border border-default bg-transparent p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-secondary [&>span]:line-clamp-1',
+        'flex items-center justify-between gap-space-2 rounded-md border border-default bg-input p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+        !props.disabled &&
+          'dark:[&:enabled:not(:focus-within)]:border-muted dark:[&:enabled:hover:not(:focus-within)]:border-subtle',
         className
       )}
       {...props}

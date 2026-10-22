@@ -429,7 +429,7 @@ export const Input = forwardRef<
         >
           {effectiveLeftDecorator && (
             <div
-              className={DECORATOR_CLASSES}
+              className={cn(DECORATOR_CLASSES, disabled && 'text-disabled')}
               style={{ marginInlineStart: leftActionOffset }}
             >
               {effectiveLeftDecorator}
@@ -467,7 +467,11 @@ export const Input = forwardRef<
 
           {effectiveRightDecorator && (
             <div
-              className={cn(DECORATOR_CLASSES, 'gap-space-1')}
+              className={cn(
+                DECORATOR_CLASSES,
+                'gap-space-1',
+                disabled && 'text-disabled'
+              )}
               style={{ marginInlineEnd: rightActionOffset }}
             >
               {effectiveRightDecorator}
