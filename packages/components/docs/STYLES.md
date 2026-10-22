@@ -129,7 +129,8 @@ rename classes.
 | Situation                                                       | Class                                                                                 |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | Page / app shell background                                     | `bg-surface-level-1`                                                                  |
-| Card, panel, sidebar                                            | `bg-surface-level-2`                                                                  |
+| Card, panel                                                     | `bg-surface-level-2`                                                                  |
+| App navigation sidebar                                          | `bg-sidebar`                                                                          |
 | Raised card, pane, tooltip                                      | `bg-elevated`                                                                         |
 | Input, textarea, select/typeahead control, filled popup trigger | `bg-input`                                                                            |
 | Popover, select/typeahead menu, dropdown, context/command menu  | `bg-popover`                                                                          |
@@ -251,7 +252,7 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | -------------------------- | ----------------------------------------------------------------- |
 | `bg-surface-level-1`       | Root page / app shell background                                  |
 | `bg-surface-level-1-hover` | Hover state on level 1 surface                                    |
-| `bg-surface-level-2`       | Cards, panels, sidebars, table header groups                      |
+| `bg-surface-level-2`       | Cards, panels, table header groups                                |
 | `bg-surface-level-2-hover` | Hover state on level 2 surface                                    |
 | `bg-surface-level-3`       | Nested table headers or grouped inner containers                  |
 | `bg-surface-level-4`       | Deepest neutral fill for additional separation                    |
@@ -262,12 +263,17 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-elevated-hover`        | Hover state inside an elevated surface                            |
 | `bg-elevated-selected`     | Selected item inside an elevated surface                          |
 | `bg-popover`               | Floating popovers and menu surfaces                               |
+| `bg-sidebar`               | App navigation sidebar surface                                    |
 | `bg-overlay`               | Modal backdrop / scrim                                            |
 
-`bg-input` and `bg-popover` share a shade in dark mode but remain independent
-semantic roles. Outlined fields and picker
-triggers use `border-muted` at rest and `border-subtle` on hover in dark mode;
-focus and error borders remain unchanged. Plain fields remain borderless.
+`bg-sidebar` is reserved for app navigation: `neutral-50` in light mode and
+`neutral-35` in dark mode, independent of fields, popovers, and raised surfaces.
+
+`bg-input` and `bg-popover` use `neutral-25` in light mode and `neutral-100` in
+dark mode but remain independent semantic roles. Light-mode hover and selection
+fills use `neutral-100`; raised `bg-elevated` surfaces stay white. Outlined fields
+and picker triggers use `border-muted` at rest and `border-subtle` on hover in
+dark mode, with semantic focus and error indicators. Plain fields remain borderless.
 This applies to Input, Textarea, Select, and Typeahead, including multi-value fields.
 Disabled fields use
 `bg-input-disabled`, `border-muted`, and explicit disabled text/icon colors,
@@ -345,6 +351,9 @@ Used internally by Checkbox, RadioButton, Switch, and Slider. Prefer those compo
 | `border-success`      | Success state border                     |
 | `border-purple`       | Purple-accented border                   |
 
+Default outlines use `border-focus`: a subdued brand blue in light mode and a
+slightly neutralized brand blue in dark mode, independent of brand fills.
+
 ### Status Borders — `border-status-*`
 
 Use status border tokens for run-state and system-state accents. Do not use them for generic form validation; use intent tokens for that.
@@ -379,7 +388,7 @@ Use status border tokens for run-state and system-state accents. Do not use them
 | `text-success-primary`   | High-emphasis success message                     |
 | `text-success-secondary` | Inline success message                            |
 | `text-success-tertiary`  | Lower-emphasis success message                    |
-| `text-brand-primary`     | Brand-colored heading or link                     |
+| `text-brand-primary`     | Brand-colored heading or emphasis                 |
 | `text-brand-secondary`   | Secondary brand text                              |
 | `text-brand-tertiary`    | Tertiary brand text                               |
 | `text-brand-disabled`    | Disabled brand text                               |
@@ -387,6 +396,10 @@ Use status border tokens for run-state and system-state accents. Do not use them
 | `text-purple`            | Purple-accented text                              |
 | `text-link`              | Hyperlink text                                    |
 | `text-link-hover`        | Hover state for link text                         |
+
+Use `text-link` and `text-link-hover` for link text and its decorator icons,
+without dark-mode brand overrides. Dark links use a softer blue with a modest
+hover lift; underline remains the hover cue.
 
 Intent text suffixes express emphasis, not severity: `primary` for prominent
 messages, `secondary` for default inline copy, and `tertiary` for supporting detail.

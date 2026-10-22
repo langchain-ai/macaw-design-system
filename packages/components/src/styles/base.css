@@ -25,9 +25,9 @@
     cursor: default;
   }
 
-  /* Set default outline color to match our brand color */
+  /* Default outlines follow the semantic focus color in each theme. */
   * {
-    outline-color: var(--brand-400);
+    outline-color: var(--border-focus);
   }
 
   html {

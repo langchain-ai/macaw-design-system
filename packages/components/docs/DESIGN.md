@@ -107,6 +107,7 @@ Component code uses semantic tokens through Tailwind utilities. Do not use primi
 Choose color by meaning:
 
 - `bg-surface-level-1..4` expresses nesting. Use the lowest level that creates enough separation.
+- `bg-sidebar` is reserved for app navigation, independent of fields and floating surfaces.
 - `bg-elevated*` is for raised cards, panes, and tooltips, plus hover and selection states within them.
 - `bg-input` is for Input and Textarea fields, Select and Typeahead controls, and filled secondary popup triggers. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
 - `bg-input-disabled` is for disabled fields, paired with `border-muted` and disabled text/icon colors. Do not fade the entire field with opacity.

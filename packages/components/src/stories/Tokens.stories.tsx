@@ -50,7 +50,7 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-surface-level-2',
     className: 'bg-surface-level-2',
-    usage: 'Cards, panels, sidebars, table header groups',
+    usage: 'Cards, panels, table header groups',
   },
   {
     name: 'bg-surface-level-2-hover',
@@ -91,6 +91,11 @@ const surfaceTokens: TokenSwatch[] = [
     name: 'bg-popover',
     className: 'bg-popover',
     usage: 'Popovers, dropdowns, and picker menus',
+  },
+  {
+    name: 'bg-sidebar',
+    className: 'bg-sidebar',
+    usage: 'App navigation sidebar surface',
   },
   {
     name: 'bg-elevated-hover',

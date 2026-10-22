@@ -137,11 +137,12 @@
   --bg-surface-level-4: var(--neutral-200);
   --bg-disabled: var(--neutral-100);
   --bg-elevated: var(--white); /* raised cards, panes, controls, tooltips */
-  --bg-input: var(--white);
+  --bg-input: var(--neutral-25);
   --bg-input-disabled: var(--bg-disabled);
-  --bg-popover: var(--white);
-  --bg-elevated-hover: var(--neutral-25);
-  --bg-elevated-selected: var(--neutral-25);
+  --bg-popover: var(--neutral-25);
+  --bg-sidebar: var(--neutral-50);
+  --bg-elevated-hover: var(--neutral-100);
+  --bg-elevated-selected: var(--neutral-100);
   --bg-overlay: rgba(0, 0, 0, 0.5); /* backdrop / modal scrim */
 
   /* BRAND */
@@ -189,7 +190,7 @@
   --border-faint: var(--neutral-50);
   --border-strong: var(--neutral-600);
   --border-disabled: var(--neutral-200);
-  --border-focus: var(--brand-400); /* focus ring */
+  --border-focus: var(--brand-500); /* focus ring */
   --border-error: var(--red-300);
   --border-error-strong: var(--red-600);
   --border-brand: var(--brand-400);
@@ -750,6 +751,7 @@ html.dark,
   --bg-input: var(--neutral-100);
   --bg-input-disabled: var(--neutral-50);
   --bg-popover: var(--neutral-100);
+  --bg-sidebar: var(--neutral-35);
   --bg-elevated-hover: var(--neutral-200);
   --bg-elevated-selected: var(--neutral-300);
   --bg-overlay: rgba(0, 0, 0, 0.7);
@@ -797,7 +799,11 @@ html.dark,
   --border-faint: var(--neutral-100);
   --border-strong: var(--neutral-600);
   --border-disabled: var(--neutral-300);
-  --border-focus: var(--brand-700);
+  --border-focus: color-mix(
+    in srgb,
+    var(--brand-700) 80%,
+    var(--neutral-500)
+  );
   --border-error: var(--red-200);
   --border-error-strong: var(--red-600);
   --border-brand: var(--brand-400);
@@ -831,7 +837,11 @@ html.dark,
   --text-brand-disabled: var(--brand-300);
   --text-brand-on-fill: var(--black);
   --text-link: var(--brand-700);
-  --text-link-hover: var(--brand-800);
+  --text-link-hover: color-mix(
+    in srgb,
+    var(--brand-700) 85%,
+    var(--brand-800)
+  );
   --text-purple: var(--purple-700);
 
   /* ICON */
