@@ -228,10 +228,10 @@ export const States: Story = {
             size="md"
             variant={variant}
             label={
-              <div className="flex items-center gap-space-2">
+              <span className="inline-flex items-center gap-space-2">
                 <Text as="span">Required</Text>
                 <QuestionIcon size={16} weight="regular" />
-              </div>
+              </span>
             }
             required
             hintText="This field is required."
