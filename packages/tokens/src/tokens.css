@@ -848,7 +848,7 @@ html.dark,
   --text-success-secondary: var(--green-600);
   --text-success-tertiary: var(--green-500);
   --text-brand-primary: var(--brand-700);
-  --text-brand-secondary: var(--brand-600);
+  --text-brand-secondary: var(--brand-700);
   --text-brand-tertiary: var(--brand-500);
   --text-brand-disabled: var(--brand-300);
   --text-brand-on-fill: var(--black);
