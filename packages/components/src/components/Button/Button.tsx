@@ -169,28 +169,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     );
     const spinnerSize = size === 'xs' ? 'xxs' : 'xs';
-    const fieldTriggerStyles =
-      !disabled &&
-      color === 'secondary' &&
-      (variant === 'normal' || variant === 'outlined') &&
-      (props.role === 'combobox' || props['aria-haspopup'] === 'listbox') &&
-      cn(
-        'bg-input',
-        props['aria-invalid'] !== true &&
-          props['aria-invalid'] !== 'true' &&
-          '[&:not(:focus-visible)]:border-muted [&:hover:not(:focus-visible)]:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none'
-      );
 
     if (as) {
       if (!isValidElement(as)) return null;
 
       return cloneElement(as, {
-        className: cn(
-          baseStyles,
-          getColorVariantStyles(),
-          fieldTriggerStyles,
-          className
-        ),
+        className: cn(baseStyles, getColorVariantStyles(), className),
         onClick,
         'aria-label': getAriaLabel(),
         'aria-disabled': disabled || undefined,
@@ -214,12 +198,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         type="button"
-        className={cn(
-          baseStyles,
-          getColorVariantStyles(),
-          fieldTriggerStyles,
-          className
-        )}
+        className={cn(baseStyles, getColorVariantStyles(), className)}
         disabled={disabled}
         onClick={onClick}
         aria-label={getAriaLabel()}

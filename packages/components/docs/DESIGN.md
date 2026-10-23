@@ -108,10 +108,10 @@ Choose color by meaning:
 
 - `bg-surface-level-1..4` expresses nesting. Use the lowest level that creates enough separation.
 - `bg-sidebar` is reserved for app navigation, independent of fields and floating surfaces.
-- `bg-elevated*` is for raised cards, panes, and tooltips, plus hover and selection states within them.
-- `bg-input` is for Input and Textarea fields, Select and Typeahead controls, and secondary picker buttons with `role="combobox"` or `aria-haspopup="listbox"`. Action-menu buttons retain their normal button styles; opening a popup alone does not make a button a field. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
+- `bg-elevated` is for raised cards and panes; `bg-elevated-hover` and `bg-elevated-selected` are interaction states within raised or floating surfaces.
+- `bg-input` is for Input and Textarea fields, Select and Typeahead controls. Select and Typeahead own their field styles; Button does not infer appearance from ARIA attributes. Custom Button-based picker migration is deferred; prefer Select for standard pickers. Action-menu buttons retain their normal button styles. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
 - `bg-input-disabled` is for disabled fields, paired with `border-muted` and disabled text/icon colors. Do not fade the entire field with opacity.
-- `bg-popover` is for interactive floating layers: popovers, select and typeahead menus, dropdowns, context menus, and command menus. It is independent of the field fill even when the colors match.
+- `bg-popover` is for floating overlays: tooltips (including chart tooltips), popovers, select and typeahead menus, dropdowns, context menus, and command menus. It is independent of the field fill even when the colors match.
 - Success, warning, and error tokens describe general feedback and validation.
 - Status tokens describe run or system state, not generic validation.
 - `text-*` is for copy; `text-icon-*` is for standalone icons.

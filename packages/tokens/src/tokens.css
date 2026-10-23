@@ -136,7 +136,7 @@
   --bg-surface-level-3: var(--neutral-100);
   --bg-surface-level-4: var(--neutral-200);
   --bg-disabled: var(--neutral-100);
-  --bg-elevated: var(--white); /* raised cards, panes, controls, tooltips */
+  --bg-elevated: var(--white); /* raised cards, panes, controls */
   --bg-input: var(--neutral-25);
   --bg-input-disabled: var(--bg-disabled);
   --bg-popover: var(--neutral-25);
@@ -864,7 +864,6 @@ html.dark,
 
   /* SHADOW — surface contrast and borders replace decorative elevation. */
   --shadow-color-subtle: transparent;
-  /* A transparent shadow keeps Tailwind's focus-ring composition valid. */
   --shadow-xs: 0 0 #0000;
   --shadow-default: 0 0 #0000;
   --shadow-slider-thumb: 0 0 #0000;

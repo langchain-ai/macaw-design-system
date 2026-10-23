@@ -131,9 +131,9 @@ rename classes.
 | Page / app shell background                                     | `bg-surface-level-1`                                                                  |
 | Card, panel                                                     | `bg-surface-level-2`                                                                  |
 | App navigation sidebar                                          | `bg-sidebar`                                                                          |
-| Raised card, pane, tooltip                                      | `bg-elevated`                                                                         |
+| Raised card, pane                                               | `bg-elevated`                                                                         |
 | Input, textarea, select/typeahead control, filled popup trigger | `bg-input`                                                                            |
-| Popover, select/typeahead menu, dropdown, context/command menu  | `bg-popover`                                                                          |
+| Tooltip, popover, select/typeahead menu, dropdown, context/command menu | `bg-popover`                                                                     |
 | Modal scrim / backdrop                                          | `bg-overlay` for new overlays; some current overlays still use opacity classes        |
 | Non-Button brand fill                                           | `bg-brand`; use `<Button />` for CTAs                                                 |
 | Tinted brand surface                                            | `bg-brand-subtle`                                                                     |
@@ -215,7 +215,7 @@ when a semantic row such as “Other” must stay last regardless of value.
 
 When a chart needs hover or focus details, compose its content with
 `ChartTooltip`, `ChartTooltipHeader`, `ChartTooltipBody`, and
-`ChartTooltipRow` from `@langchain/macaw-components`. Do not recreate the elevated surface,
+`ChartTooltipRow` from `@langchain/macaw-components`. Do not recreate the popover surface,
 spacing, typography, markers, dividers, or numeric alignment in a feature-local
 tooltip component.
 
@@ -257,12 +257,12 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-surface-level-3`       | Nested table headers or grouped inner containers                  |
 | `bg-surface-level-4`       | Deepest neutral fill for additional separation                    |
 | `bg-disabled`              | Disabled input or control fill                                    |
-| `bg-elevated`              | Raised cards, panes, and tooltips                                 |
+| `bg-elevated`              | Raised cards and panes                                           |
 | `bg-input`                 | Input and textarea fields, picker controls, filled popup triggers |
 | `bg-input-disabled`        | Disabled field fill, independent of general disabled controls     |
-| `bg-elevated-hover`        | Hover state inside an elevated surface                            |
-| `bg-elevated-selected`     | Selected item inside an elevated surface                          |
-| `bg-popover`               | Floating popovers and menu surfaces                               |
+| `bg-elevated-hover`        | Hover state inside a raised or floating surface                    |
+| `bg-elevated-selected`     | Selected item inside a raised or floating surface                  |
+| `bg-popover`               | Floating tooltips, popovers, and menu surfaces                     |
 | `bg-sidebar`               | App navigation sidebar surface                                    |
 | `bg-overlay`               | Modal backdrop / scrim                                            |
 
@@ -272,14 +272,15 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 `bg-input` and `bg-popover` use `neutral-25` in light mode and `neutral-100` in
 dark mode but remain independent semantic roles. Light-mode hover and selection
 fills use `neutral-100`; raised `bg-elevated` surfaces stay white. Outlined fields
-and picker triggers use `border-muted` at rest and `border-subtle` on hover in
+use `border-muted` at rest and `border-subtle` on hover in
 both themes, with semantic focus and error indicators. Outlined fields use a
 1px outer focus ring; native inputs stay unoutlined inside their containers.
 Use `text-placeholder` for field hints. Plain fields remain borderless at rest.
 This applies to Input, Textarea, Select, and Typeahead, including multi-value fields.
-Secondary picker buttons with `role="combobox"` or `aria-haspopup="listbox"`
-use the same field treatment. Action-menu buttons keep their normal button
-fill and border; a popup alone does not make a trigger an input.
+Select and Typeahead own their field treatment; Button does not infer appearance
+from ARIA attributes. Custom Button-based picker migration is deferred: prefer
+Select for standard pickers, and consider a shared field trigger for custom menus.
+Custom picker and action-menu buttons keep their normal button fill and border.
 Disabled fields use
 `bg-input-disabled`, `border-muted`, and explicit disabled text/icon colors,
 not opacity on the entire field. This keeps their appearance independent of the

@@ -295,6 +295,7 @@ module.exports = {
       // for the same semantic tokens through stroke.
       stroke: {
         focus: 'var(--border-focus)',
+        subtle: 'var(--border-subtle)',
       },
       textColor: {
         primary: 'var(--text-primary)',
