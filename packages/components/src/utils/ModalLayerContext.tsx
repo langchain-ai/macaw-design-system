@@ -3,7 +3,6 @@ import {
   useContext,
   useId,
   useLayoutEffect,
-  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -60,6 +59,7 @@ export function useModalLayer(open: boolean) {
     stack?.getSnapshot ?? getEmptyEntries,
     getEmptyEntries
   );
+  // Resolve visible layers before paint so a third modal never flashes underneath.
   useLayoutEffect(() => {
     if (open && stack) return stack.register({ id, parentId });
   }, [open, stack, id, parentId]);
@@ -74,15 +74,13 @@ export function useModalLayer(open: boolean) {
     .forEach(visit);
   const index = ordered.findIndex((entry) => entry.id === id);
   const suspended = open && index > 0 && index < ordered.length - 1;
-  const focusRef = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => {
     if (!suspended) return;
-    focusRef.current =
+    const target =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
     return () => {
-      const target = focusRef.current;
       if (target?.isConnected) target.focus({ preventScroll: true });
     };
   }, [suspended]);

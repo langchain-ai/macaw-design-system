@@ -27,30 +27,25 @@ function NestedEditor() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [name, setName] = useState('Draft');
   return (
-    <ModalProvider>
-      <Dialog open onOpenChange={() => {}}>
-        <DialogContent
-          title="Preferences"
-          description="Application preferences"
+    <Dialog open onOpenChange={() => {}}>
+      <DialogContent title="Preferences" description="Application preferences">
+        <Button onClick={() => setEditorOpen(true)}>Edit profile</Button>
+        <Pane
+          open={editorOpen}
+          onClose={() => setEditorOpen(false)}
+          title="Profile"
+          description="Edit your profile"
+          requireConfirmationOnClose
         >
-          <Button onClick={() => setEditorOpen(true)}>Edit profile</Button>
-          <Pane
-            open={editorOpen}
-            onClose={() => setEditorOpen(false)}
-            title="Profile"
-            description="Edit your profile"
-            requireConfirmationOnClose
-          >
-            <Input label="Name" value={name} onChange={setName} />
-          </Pane>
-        </DialogContent>
-      </Dialog>
-    </ModalProvider>
+          <Input label="Name" value={name} onChange={setName} />
+        </Pane>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 it('reuses the second layer for a pane confirmation and restores its draft', async () => {
-  const { user } = render(<NestedEditor />);
+  const { user } = render(<NestedEditor />, { wrapper: ModalProvider });
   await user.click(screen.getByRole('button', { name: 'Edit profile' }));
   await user.type(screen.getByRole('textbox', { name: 'Name' }), ' changes');
   await user.click(
@@ -75,4 +70,23 @@ it('reuses the second layer for a pane confirmation and restores its draft', asy
     screen.queryByRole('dialog', { name: 'Profile' })
   ).not.toBeInTheDocument();
   expect(screen.getByRole('dialog', { name: 'Preferences' })).toBeVisible();
+});
+
+it('stacks a pane confirmation above its content without ModalProvider', async () => {
+  const { user } = render(<NestedEditor />);
+  await user.click(screen.getByRole('button', { name: 'Edit profile' }));
+  const pane = screen.getByRole('dialog', { name: 'Profile' });
+  await user.click(within(pane).getByRole('button', { name: 'Close' }));
+  const confirmation = await screen.findByRole('dialog', {
+    name: 'Unsaved Changes',
+  });
+  const backdrop = confirmation.previousElementSibling as HTMLElement;
+  expect(Number(backdrop.style.zIndex)).toBeGreaterThan(
+    Number(pane.style.zIndex)
+  );
+  expect(Number(confirmation.style.zIndex)).toBeGreaterThan(
+    Number(backdrop.style.zIndex)
+  );
+  await user.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(screen.getByRole('dialog', { name: 'Profile' })).toBeVisible();
 });

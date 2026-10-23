@@ -66,13 +66,12 @@ function PlainPane({
   preventInteractOutside,
   onEscapeKeyDown,
   requireConfirmationOnClose,
-  zIndex,
-}: CorePaneProps) {
+  zIndex: paneZIndex,
+}: CorePaneProps & { zIndex: number }) {
   const depth = useContext(PaneDepth);
   const layer = useCurrentModalLayer();
   const scrollParentRef = useScrollParent();
   const [contentNode, setContentNode] = useState<HTMLDivElement | null>(null);
-  const paneZIndex = useZIndex(layer?.zIndex ?? zIndex ?? zIndices.pane);
 
   return (
     <>
@@ -185,6 +184,7 @@ export function Pane({
   zIndex,
 }: PaneProps) {
   const layer = useModalLayer(open);
+  const paneZIndex = useZIndex(layer.zIndex ?? zIndex ?? zIndices.pane);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const requestClose = () => {
     if (requireConfirmationOnClose) setShowConfirmModal(true);
@@ -202,7 +202,7 @@ export function Pane({
         preventInteractOutside={preventInteractOutside}
         onEscapeKeyDown={onEscapeKeyDown}
         requireConfirmationOnClose={requireConfirmationOnClose}
-        zIndex={zIndex}
+        zIndex={paneZIndex}
       >
         <header
           className={cn(
@@ -260,17 +260,19 @@ export function Pane({
           {children}
         </div>
       </PlainPane>
-      <UnsavedChangesDialog
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onDiscard={() => {
-          setShowConfirmModal(false);
-          onClose();
-        }}
-        title="Unsaved Changes"
-        description="You may have unsaved changes. Are you sure you want to exit?"
-        discardCopy="Exit"
-      />
+      <ZIndexProvider value={paneZIndex + 1}>
+        <UnsavedChangesDialog
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          onDiscard={() => {
+            setShowConfirmModal(false);
+            onClose();
+          }}
+          title="Unsaved Changes"
+          description="You may have unsaved changes. Are you sure you want to exit?"
+          discardCopy="Exit"
+        />
+      </ZIndexProvider>
     </ModalLayerProvider>
   );
   return scrollRef ? (
