@@ -75,7 +75,7 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-elevated',
     className: 'bg-elevated',
-    usage: 'Raised cards, panes, and tooltips',
+    usage: 'Raised cards and panes',
   },
   {
     name: 'bg-input',
@@ -90,7 +90,7 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-popover',
     className: 'bg-popover',
-    usage: 'Popovers, dropdowns, and picker menus',
+    usage: 'Tooltips, popovers, dropdowns, and picker menus',
   },
   {
     name: 'bg-sidebar',
@@ -100,12 +100,12 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-elevated-hover',
     className: 'bg-elevated-hover',
-    usage: 'Hover on elevated surfaces',
+    usage: 'Hover on raised or floating surfaces',
   },
   {
     name: 'bg-elevated-selected',
     className: 'bg-elevated-selected',
-    usage: 'Selected item on elevated surfaces',
+    usage: 'Selected item on raised or floating surfaces',
   },
   {
     name: 'bg-overlay',

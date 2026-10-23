@@ -148,10 +148,12 @@ function FileSelection({
   size,
   fileNames,
   placeholder,
+  disabled,
 }: {
   size: InputSize;
   fileNames: string[];
   placeholder?: string;
+  disabled: boolean;
 }) {
   const summary =
     fileNames.length > 1 ? `${fileNames.length} files selected` : fileNames[0];
@@ -165,7 +167,8 @@ function FileSelection({
         className={cn(
           textClasses,
           'min-w-0 flex-1 truncate',
-          summary ? 'text-primary' : 'text-placeholder'
+          summary ? 'text-primary' : 'text-placeholder',
+          disabled && 'text-disabled'
         )}
       >
         {summary ?? placeholder ?? 'No file selected'}
@@ -174,7 +177,11 @@ function FileSelection({
         aria-hidden
         as="span"
         weight="medium"
-        className={cn(textClasses, 'shrink-0 text-secondary')}
+        className={cn(
+          textClasses,
+          'shrink-0 text-secondary',
+          disabled && 'text-disabled'
+        )}
       >
         Browse
       </Text>
@@ -441,6 +448,7 @@ export const Input = forwardRef<
               size={size}
               fileNames={selectedFileNames}
               placeholder={placeholder}
+              disabled={disabled}
             />
           )}
 
