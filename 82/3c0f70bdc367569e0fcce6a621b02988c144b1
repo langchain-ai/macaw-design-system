@@ -1,0 +1,14 @@
+packages/tokens/src/tokens.css
+  h_a27749d4737027 815
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "823c0f70bdc367569e0fcce6a621b02988c144b1",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
