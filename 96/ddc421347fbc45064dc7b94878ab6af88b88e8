@@ -1,0 +1,39 @@
+packages/cli/CHANGELOG.md
+  s_5cf3eab2f7cc4e::t_c2f654ef88b0c3 41
+  s_5cf3eab2f7cc4e::t_c37379ee4cb7af 1,6-7,10,14,18,22,26,30,55-59
+  s_5cf3eab2f7cc4e::t_4e4f2547c35211 8-9,11-13,15-17,19-21,23-25,27-29,31-40
+packages/tokens/CHANGELOG.md
+  s_5cf3eab2f7cc4e::t_c2f654ef88b0c3 41
+  s_5cf3eab2f7cc4e::t_76cffc435557af 1,6-7,10,14,18,22,26,30,55-59
+  s_5cf3eab2f7cc4e::t_4e4f2547c35211 8-9,11-13,15-17,19-21,23-25,27-29,31-40
+CHANGELOG.md
+  s_5cf3eab2f7cc4e::t_2a81109ccbf1e4 1,12-13,26,36,40,50,60,70,90
+  s_5cf3eab2f7cc4e::t_4e4f2547c35211 14-25,27-35,37-39,41-49,51-59,61-69,71-89,91-106
+  s_5cf3eab2f7cc4e::t_4ff7d9431f3cbe 107
+packages/components/CHANGELOG.md
+  s_5cf3eab2f7cc4e::t_258414acb26819 1,7-8,17,27,31,35,39,49,86-90
+  s_5cf3eab2f7cc4e::t_4e4f2547c35211 9-16,18-26,28-30,32-34,36-38,40-48,50-61
+  s_5cf3eab2f7cc4e::t_c2f654ef88b0c3 62
+.github/workflows/release.yml
+  s_5cf3eab2f7cc4e::t_3269b14828a6a1 23,27,29,31,44-46,66-69,71-74
+nx.json
+  s_5cf3eab2f7cc4e::t_48eec4baf203fe 65
+  s_5cf3eab2f7cc4e::t_247d5e2e45645d 56
+  s_5cf3eab2f7cc4e::t_f525f7db5a9db5 53-55,57,60,64,66-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "96ddc421347fbc45064dc7b94878ab6af88b88e8",
+  "prompts": {},
+  "sessions": {
+    "s_5cf3eab2f7cc4e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16607-1c70-7ae3-8003-09d22e0e965a",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
