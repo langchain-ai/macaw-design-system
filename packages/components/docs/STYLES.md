@@ -273,8 +273,13 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 dark mode but remain independent semantic roles. Light-mode hover and selection
 fills use `neutral-100`; raised `bg-elevated` surfaces stay white. Outlined fields
 and picker triggers use `border-muted` at rest and `border-subtle` on hover in
-dark mode, with semantic focus and error indicators. Plain fields remain borderless.
+both themes, with semantic focus and error indicators. Outlined fields use a
+1px outer focus ring; native inputs stay unoutlined inside their containers.
+Use `text-placeholder` for field hints. Plain fields remain borderless at rest.
 This applies to Input, Textarea, Select, and Typeahead, including multi-value fields.
+Secondary picker buttons with `role="combobox"` or `aria-haspopup="listbox"`
+use the same field treatment. Action-menu buttons keep their normal button
+fill and border; a popup alone does not make a trigger an input.
 Disabled fields use
 `bg-input-disabled`, `border-muted`, and explicit disabled text/icon colors,
 not opacity on the entire field. This keeps their appearance independent of the

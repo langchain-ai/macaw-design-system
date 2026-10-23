@@ -44,14 +44,21 @@ export const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof RadixSelect.Trigger>,
   SelectTriggerProps
 >(({ className, children, iconClassName, ...props }, ref) => {
+  const isError =
+    props['aria-invalid'] === true || props['aria-invalid'] === 'true';
+  const triggerStateStyles =
+    !props.disabled &&
+    (isError
+      ? 'border-error-strong focus-visible:border-error-strong focus-visible:shadow-[0_0_0_1px_var(--border-error-strong)] focus-visible:outline-none'
+      : '[&:enabled:hover:not(:focus-visible)]:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none');
+
   if (props.asChild) {
     return (
       <RadixSelect.Trigger
         ref={ref}
         className={cn(
-          'flex items-center justify-between gap-space-2 rounded-md border border-default bg-input p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
-          !props.disabled &&
-            'dark:[&:enabled:not(:focus-within)]:border-muted dark:[&:enabled:hover:not(:focus-within)]:border-subtle',
+          'flex items-center justify-between gap-space-2 rounded-md border border-muted bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+          triggerStateStyles,
           className
         )}
         {...props}
@@ -65,9 +72,8 @@ export const SelectTrigger = React.forwardRef<
     <RadixSelect.Trigger
       ref={ref}
       className={cn(
-        'flex items-center justify-between gap-space-2 rounded-md border border-default bg-input p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
-        !props.disabled &&
-          'dark:[&:enabled:not(:focus-within)]:border-muted dark:[&:enabled:hover:not(:focus-within)]:border-subtle',
+        'flex items-center justify-between gap-space-2 rounded-md border border-muted bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+        triggerStateStyles,
         className
       )}
       {...props}

@@ -256,7 +256,7 @@ function OptionSelect<T extends string = string>({
             'box-border w-full justify-between py-0',
             CONTROL_SIZES[size].heightClassName,
             !disabled &&
-              'dark:[&:not(:focus-within)]:border-muted dark:[&:hover:not(:focus-within)]:border-subtle',
+              '[&:not(:focus-visible)]:border-muted [&:hover:not(:focus-visible)]:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none',
             disabled &&
               'border-muted bg-input-disabled text-disabled dark:bg-input-disabled',
             triggerClassName

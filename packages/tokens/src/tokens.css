@@ -208,7 +208,7 @@
   --text-tertiary-hover: var(--neutral-700);
   --text-quaternary: var(--neutral-500);
   --text-disabled: var(--neutral-300);
-  --text-placeholder: var(--neutral-400);
+  --text-placeholder: var(--neutral-500);
   --text-error-primary: var(--red-700);
   --text-error-secondary: var(--red-600);
   --text-error-tertiary: var(--red-500);

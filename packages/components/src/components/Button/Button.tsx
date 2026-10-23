@@ -169,13 +169,17 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     );
     const spinnerSize = size === 'xs' ? 'xxs' : 'xs';
-    const popupTriggerStyles =
+    const fieldTriggerStyles =
       !disabled &&
       color === 'secondary' &&
       (variant === 'normal' || variant === 'outlined') &&
-      props['aria-haspopup'] &&
-      props['aria-haspopup'] !== 'false' &&
-      'bg-input';
+      (props.role === 'combobox' || props['aria-haspopup'] === 'listbox') &&
+      cn(
+        'bg-input',
+        props['aria-invalid'] !== true &&
+          props['aria-invalid'] !== 'true' &&
+          '[&:not(:focus-visible)]:border-muted [&:hover:not(:focus-visible)]:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none'
+      );
 
     if (as) {
       if (!isValidElement(as)) return null;
@@ -184,7 +188,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className: cn(
           baseStyles,
           getColorVariantStyles(),
-          popupTriggerStyles,
+          fieldTriggerStyles,
           className
         ),
         onClick,
@@ -213,7 +217,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           baseStyles,
           getColorVariantStyles(),
-          popupTriggerStyles,
+          fieldTriggerStyles,
           className
         )}
         disabled={disabled}

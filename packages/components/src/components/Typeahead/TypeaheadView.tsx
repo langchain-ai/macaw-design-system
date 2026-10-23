@@ -372,15 +372,15 @@ export function TypeaheadView<TOption>({
             data-testid={dataTestId}
             onBlur={handleBlur}
             className={cn(
-              'w-full cursor-text border border-default bg-input text-primary transition-colors',
+              'w-full cursor-text border border-muted bg-input text-primary transition-colors',
               multiple
                 ? 'flex flex-wrap items-center gap-space-1'
                 : 'flex items-center gap-space-1 overflow-hidden',
               !disabled &&
-                'focus-within:border-focus focus-within:bg-input hover:bg-elevated-hover',
+                'focus-within:bg-input hover:bg-elevated-hover',
               !disabled &&
                 !isError &&
-                'dark:[&:not(:focus-within)]:border-muted dark:[&:hover:not(:focus-within)]:border-subtle',
+                '[&:hover:not(:focus-within)]:border-subtle focus-within:border-focus focus-within:shadow-[0_0_0_1px_var(--border-focus)]',
               controlHeightClass,
               multiple && {
                 'px-space-1 py-0': size === 'xs',

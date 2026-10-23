@@ -158,17 +158,16 @@ export const Textarea = forwardRef<
           'py-space-2': size === 'lg',
         },
         'focus-within:outline-hidden',
-        'border-subtle',
-        !disabled && !isError && '[&:hover:not(:focus-within)]:border-default',
+        'border-muted',
         !disabled &&
           !isError &&
-          'dark:[&:not(:focus-within)]:border-muted dark:[&:hover:not(:focus-within)]:border-subtle',
+          '[&:hover:not(:focus-within)]:border-subtle',
         !disabled &&
           !isError &&
-          'focus-within:border-focus focus-within:shadow-[0_0_0_2px_var(--border-focus)]',
+          'focus-within:border-focus focus-within:shadow-[0_0_0_1px_var(--border-focus)]',
         !disabled &&
           isError &&
-          'border-error-strong focus-within:border-error-strong focus-within:shadow-[0_0_0_2px_var(--border-error-strong)]',
+          'border-error-strong focus-within:border-error-strong focus-within:shadow-[0_0_0_1px_var(--border-error-strong)]',
         disabled &&
           'cursor-not-allowed border-muted bg-input-disabled text-disabled',
       ],
