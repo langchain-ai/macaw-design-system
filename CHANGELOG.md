@@ -33,10 +33,6 @@
 
 - Nick
 
-## 1.0.0-beta.7 (2026-10-15)
-
-This was a version bump only, there were no code changes.
-
 ## 1.0.0-beta.6 (2026-10-15)
 
 ### 🩹 Fixes

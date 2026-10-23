@@ -24,18 +24,6 @@
 
 - Nick
 
-## 1.0.0-beta.7 (2026-10-15)
-
-This was a version bump only for @langchain/macaw-components to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.6 (2026-10-15)
-
-This was a version bump only for @langchain/macaw-components to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.5 (2026-10-14)
-
-This was a version bump only for @langchain/macaw-components to align it with other projects, there were no code changes.
-
 ## 1.0.0-beta.4 (2026-10-14)
 
 ### 🩹 Fixes
@@ -84,7 +72,3 @@ This was a version bump only for @langchain/macaw-components to align it with ot
 
 - Ian SooHoo
 - Nick
-
-## 1.0.0-beta.1 (2026-09-23)
-
-This was a version bump only for @langchain/macaw-components to align it with other projects, there were no code changes.

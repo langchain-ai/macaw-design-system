@@ -3,30 +3,6 @@
 - First stable release of the Macaw discovery CLI and agent scaffolding.
 - Publish with the coordinated Macaw version `1.0.0` on npm `latest`; require Node 26 or newer.
 
-## 1.0.0-beta.9 (2026-10-16)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.8 (2026-10-15)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.7 (2026-10-15)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.6 (2026-10-15)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.5 (2026-10-14)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
-
-## 1.0.0-beta.4 (2026-10-14)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
-
 ## 1.0.0-beta.3 (2026-10-14)
 
 ### 🚀 Features
@@ -53,7 +29,3 @@ This was a version bump only for @langchain/macaw-cli to align it with other pro
 ### ❤️ Thank You
 
 - Ian SooHoo
-
-## 1.0.0-beta.1 (2026-09-23)
-
-This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
