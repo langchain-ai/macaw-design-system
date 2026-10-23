@@ -5,6 +5,10 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 
 import { CaretDoubleRightIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { mergeRefs } from '../../utils/merge-refs';
 import {
   ModalLayerProvider,
@@ -27,7 +31,7 @@ import { TopBarPaneSlot } from './Pane.utils';
 
 const PaneDepth = createContext<number>(1);
 
-interface CorePaneProps {
+interface CorePaneProps extends DataAttributes {
   open: boolean;
   animation?: boolean;
   onClose: () => void;
@@ -67,6 +71,7 @@ function PlainPane({
   onEscapeKeyDown,
   requireConfirmationOnClose,
   zIndex: paneZIndex,
+  ...rest
 }: CorePaneProps & { zIndex: number }) {
   const depth = useContext(PaneDepth);
   const layer = useCurrentModalLayer();
@@ -98,11 +103,12 @@ function PlainPane({
             }}
           />
           <RadixDialog.Content
+            {...pickDataAttributes(rest)}
             forceMount={open || undefined}
             ref={mergeRefs([scrollParentRef, setContentNode])}
             className={cn(
               'fixed inset-0 flex h-[100vh] flex-col items-stretch overflow-y-auto bg-elevated shadow-lg',
-              'focus:outline-none focus-visible:outline-none',
+              'focus:outline-hidden focus-visible:outline-hidden',
               animation &&
                 'data-[state=open]:animate-slide-left data-[state=closed]:animate-slide-right motion-reduce:animate-none'
             )}
@@ -182,6 +188,7 @@ export function Pane({
   onEscapeKeyDown,
   requireConfirmationOnClose,
   zIndex,
+  ...rest
 }: PaneProps) {
   const layer = useModalLayer(open);
   const paneZIndex = useZIndex(layer.zIndex ?? zIndex ?? zIndices.pane);
@@ -193,6 +200,7 @@ export function Pane({
   const paneComponent = (
     <ModalLayerProvider layer={layer}>
       <PlainPane
+        {...pickDataAttributes(rest)}
         open={open}
         animation={animation}
         onClose={requestClose}

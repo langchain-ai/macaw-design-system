@@ -78,10 +78,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = { args: meta.args };
 
 export const Variants: Story = {
-  args: { label: 'search-config.json', showGutter: false },
+  args: { ...meta.args, label: 'search-config.json', showGutter: false },
   render: (args) => {
     if (args.variant === 'diff') return <CodeLite {...args} />;
     return (
@@ -115,12 +115,14 @@ export const Variants: Story = {
 
 export const WithoutGutter: Story = {
   args: {
+    ...meta.args,
     showGutter: false,
   },
 };
 
 export const Overflow: Story = {
   args: {
+    ...meta.args,
     variant: 'block',
     showGutter: false,
     value:
@@ -179,6 +181,7 @@ export const VirtualizedBlock: Story = {
 };
 
 export const Diff: Story = {
+  args: meta.args,
   render: () => (
     <div className="gap-space-6 flex w-full max-w-3xl min-w-0 flex-col">
       <section className="gap-space-3 flex min-w-0 flex-col">

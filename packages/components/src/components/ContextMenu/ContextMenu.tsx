@@ -53,7 +53,7 @@ export const ContextMenuItem = React.forwardRef<
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'flex w-full cursor-default select-none items-center rounded-sm px-space-2 py-space-1 text-primary outline-none transition-colors focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[highlighted]:bg-elevated-hover data-[disabled]:opacity-50',
+      'flex w-full cursor-default select-none items-center rounded-sm px-space-2 py-space-1 text-primary outline-hidden transition-colors focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[highlighted]:bg-elevated-hover data-[disabled]:opacity-50',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset ? 'pl-space-8' : undefined,

@@ -18,15 +18,25 @@ utilities used by package components. Use
 not import both.
 
 Applications that author the semantic Tailwind classes may additionally extend
-the optional Tailwind v3 preset:
+the optional Tailwind v4 preset:
 
 ```js
 // tailwind.config.cjs
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   presets: [require('@langchain/macaw-components/tailwind-preset')],
 };
 ```
+
+Load this config explicitly from your application CSS (Tailwind v4 does not
+auto-detect JavaScript config files):
+
+```css
+@import 'tailwindcss';
+@config '../tailwind.config.cjs';
+```
+
+Adjust the relative config path for your stylesheet. Tailwind discovers application
+sources automatically; Macaw component utilities are precompiled.
 
 The preset intentionally does not define consumer `content` paths and does not
 replace the stylesheet import. Consumers scan their own source; the package's

@@ -20,5 +20,6 @@ packageExtensions:
     dependencies:
       '@lezer/highlight': ^1.2.0
 allowBuilds:
+  '@parcel/watcher': false
   nx: true
   esbuild: true

@@ -689,7 +689,7 @@ const TokenSection = ({
       {tokens.map((token) => (
         <div
           key={token.name}
-          className="grid grid-cols-[4.5rem,minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
+          className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
         >
           {kind === 'background' && (
             <div
@@ -746,7 +746,7 @@ const UtilityTokenSection = ({
       {tokens.map((token) => (
         <div
           key={token.name}
-          className="grid grid-cols-[4.5rem,minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
+          className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
         >
           {kind === 'shadow' && (
             <div
@@ -850,7 +850,7 @@ const NamingConvention = () => (
             <th className="px-space-3 py-space-2 font-semibold">State</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-secondary bg-surface-level-1">
+        <tbody className="*:not-first:border-t *:border-secondary bg-surface-level-1">
           {tokenRows.map((token) => (
             <tr key={token.name}>
               <td className="px-space-3 py-space-2 font-mono text-xs text-primary">
@@ -894,13 +894,13 @@ const SelectedTokenDemo = () => {
           durable selected item is also hovered.
         </p>
       </div>
-      <div className="grid gap-space-4 lg:grid-cols-[minmax(0,1fr),20rem]">
+      <div className="grid gap-space-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="overflow-hidden rounded-md border border-subtle">
-          <div className="grid grid-cols-[minmax(0,1fr),10rem] bg-surface-level-2 px-space-3 py-space-2 text-xs font-semibold uppercase text-tertiary">
+          <div className="grid grid-cols-[minmax(0,1fr)_10rem] bg-surface-level-2 px-space-3 py-space-2 text-xs font-semibold uppercase text-tertiary">
             <div>Name</div>
             <div>State</div>
           </div>
-          <div className="divide-y divide-secondary bg-surface-level-1">
+          <div className="*:not-first:border-t *:border-secondary bg-surface-level-1">
             {selectedRows.map((row) => {
               const isSelected = row.id === selectedId;
               return (
@@ -911,7 +911,7 @@ const SelectedTokenDemo = () => {
                   aria-pressed={isSelected}
                   onClick={() => setSelectedId(row.id)}
                   className={cn(
-                    'grid w-full grid-cols-[minmax(0,1fr),10rem] items-center px-space-3 py-space-3 text-left transition-colors',
+                    'grid w-full grid-cols-[minmax(0,1fr)_10rem] items-center px-space-3 py-space-3 text-left transition-colors',
                     isSelected
                       ? 'bg-selected hover:bg-selected-hover'
                       : 'hover:bg-surface-level-2 active:bg-surface-level-3'

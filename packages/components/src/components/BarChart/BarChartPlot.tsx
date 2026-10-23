@@ -392,7 +392,7 @@ export const BarChartPlot = ({
                   // The plot-level pointer handlers own hit testing; these
                   // targets exist for keyboard and assistive technology.
                   pointerEvents="none"
-                  className="focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:outline-none"
+                  className="focus-visible:stroke-focus focus-visible:stroke-2 focus-visible:outline-hidden"
                   tabIndex={categoryAriaLabel == null ? undefined : 0}
                   aria-label={categoryAriaLabel}
                   role={

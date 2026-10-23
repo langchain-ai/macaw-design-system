@@ -9,6 +9,10 @@ import {
   type OptionRowSize,
 } from '../../utils/componentSizes';
 import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { Button } from '../Button';
 import { CommandMenu } from '../Command/CommandMenu';
 import type { CommandMenuGroup, CommandMenuItem } from '../Command/CommandMenu';
@@ -36,7 +40,7 @@ export interface SelectGroup<T extends string = string> {
 
 export type SelectSize = ControlSize;
 
-interface SelectBaseProps<T extends string = string> {
+interface SelectBaseProps<T extends string = string> extends DataAttributes {
   /** The currently selected value */
   value?: T;
   /** Callback when selection changes. Receives undefined when deselected. */
@@ -148,6 +152,7 @@ function OptionSelect<T extends string = string>({
   align = 'start',
   'aria-label': ariaLabel,
   'data-testid': dataTestId,
+  ...rest
 }: SelectProps<T>) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -240,6 +245,7 @@ function OptionSelect<T extends string = string>({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          {...pickDataAttributes(rest)}
           role="combobox"
           aria-expanded={open}
           aria-label={ariaLabel ?? placeholder}

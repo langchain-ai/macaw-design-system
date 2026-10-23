@@ -29,7 +29,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 26
           cache: pnpm
 
       - name: Install dependencies
@@ -37,12 +37,17 @@ jobs:
 
       - name: Prepare release version
         if: inputs.prepare_release
-        run: >-
-          pnpm nx release version
-          --stage-changes=false
-          --git-commit=false
-          --git-tag=false
-          --git-push=false
+        run: |
+          set -euo pipefail
+          version_args=()
+          if ! git show-ref --verify --quiet refs/tags/v1.0.0; then
+            version_args=(1.0.0)
+          fi
+          pnpm nx release version "${version_args[@]}" \
+            --stage-changes=false \
+            --git-commit=false \
+            --git-tag=false \
+            --git-push=false
 
       - name: Build packages
         run: pnpm build-all

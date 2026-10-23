@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-cli",
-  "version": "1.0.0-beta.9",
+  "version": "1.0.0",
   "description": "Component discovery and agent setup for the Macaw Design System.",
   "homepage": "https://github.com/langchain-ai/macaw-design-system#readme",
   "bugs": {
@@ -24,13 +24,15 @@
   ],
   "type": "module",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true,
+    "tag": "latest"
   },
   "scripts": {
     "build": "node ../../scripts/build-cli.mjs"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=26"
   },
   "nx": {
     "targets": {

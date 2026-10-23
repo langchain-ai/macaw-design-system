@@ -180,6 +180,15 @@ if (
   !existsSync(resolve(repositoryRoot, 'dist/components.css'))
 )
   fail('styles.css must load compiled component styles');
+// Keep component CSS from globally registering Tailwind's gradient properties.
+if (
+  /@property\s+--tw-gradient-/.test(
+    readFileSync(resolve(repositoryRoot, 'dist/components.css'), 'utf8')
+  )
+)
+  fail(
+    'components.css must not globally register Tailwind gradient properties'
+  );
 if (
   !existsSync(resolve(repositoryRoot, 'dist/components/ThinkingState/NOTICE'))
 )

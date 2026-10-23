@@ -387,7 +387,7 @@ export const Relationships: Story = {
               <th className="px-space-4 py-space-3 font-medium">Guidance</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-secondary">
+          <tbody className="*:not-first:border-t *:border-secondary">
             {relationshipGuidelines.map((item) => (
               <tr key={item.relationship} className="bg-primary">
                 <td className="px-space-4 py-space-3 text-primary">
@@ -502,7 +502,7 @@ export const Examples: Story = {
               <div className="border-b border-secondary px-space-5 py-space-4">
                 <div className="h-8 max-w-sm rounded-md bg-surface-level-2" />
               </div>
-              <div className="divide-y divide-secondary">
+              <div className="*:not-first:border-t *:border-secondary">
                 <div className="grid grid-cols-[1fr_1fr_auto] gap-space-4 px-space-5 py-space-4">
                   <div className="h-4 rounded-sm bg-surface-level-2" />
                   <div className="h-4 rounded-sm bg-surface-level-2" />
