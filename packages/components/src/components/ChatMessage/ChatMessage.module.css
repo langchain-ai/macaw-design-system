@@ -1,0 +1,6 @@
+@media (hover: hover) and (pointer: fine) {
+  :global([data-message-id][data-latest='false']):not(:hover):not(:focus-within)
+    .actions:not(:has([data-state='open'])) {
+    opacity: 0;
+  }
+}

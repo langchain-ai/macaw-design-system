@@ -86,6 +86,23 @@ try {
   assert.equal(button.importPath, '@langchain/macaw-components/Button');
   assert.ok(JSON.parse(invoke('search', 'loading', '--json')).length > 0);
   const catalog = JSON.parse(invoke('list', '--json'));
+  const chatFamilies = [
+    'ChatComposer',
+    'ChatConversation',
+    'ChatConversationList',
+    'ChatMessage',
+    'ChatRichContent',
+    'ChatState',
+    'ChatToolCall',
+  ];
+  for (const family of chatFamilies) {
+    const entry = JSON.parse(invoke('inspect', family, '--json'));
+    assert.equal(entry.importPath, `@langchain/macaw-components/${family}`);
+    assert.ok(
+      entry.stories.length > 0,
+      `${family} must include discoverable stories`
+    );
+  }
   const requireFromConsumer = createRequire(join(consumer, 'package.json'));
   run(
     process.execPath,
@@ -137,7 +154,24 @@ try {
     [
       '--input-type=module',
       '-e',
-      "await import('@langchain/macaw-components'); await import('@langchain/macaw-components/Code');",
+      `
+        import { createRequire } from 'node:module';
+        await import('@langchain/macaw-components');
+        await import('@langchain/macaw-components/Code');
+        for (const family of ${JSON.stringify(chatFamilies)}) {
+          await import('@langchain/macaw-components/' + family);
+        }
+        const require = createRequire(import.meta.resolve('@langchain/macaw-components/ChatMessage'));
+        const { createElement } = require('react');
+        const { renderToString } = require('react-dom/server');
+        const { ChatMessage } = await import('@langchain/macaw-components/ChatMessage');
+        const html = renderToString(createElement(ChatMessage, {
+          message: { id: 'packed', role: 'assistant', status: 'completed', content: [
+            { id: 'answer', type: 'text', text: 'Packed chat answer' }
+          ] }
+        }));
+        if (!html.includes('Packed chat answer')) throw new Error('ChatMessage server rendering failed');
+      `,
     ],
     consumer
   );
@@ -159,7 +193,7 @@ try {
   );
   writeFileSync(
     join(consumer, 'entry.js'),
-    "import '@langchain/macaw-components/styles.css'; import { Button } from '@langchain/macaw-components/Button'; console.log(Button);"
+    "import '@langchain/macaw-components/styles.css'; import { Button } from '@langchain/macaw-components/Button'; import { ChatMessage } from '@langchain/macaw-components/ChatMessage'; import { ChatComposer, ChatComposerInput } from '@langchain/macaw-components/ChatComposer'; console.log(Button, ChatMessage, ChatComposer, ChatComposerInput);"
   );
   writeFileSync(
     join(consumer, 'vite.config.mjs'),
@@ -179,7 +213,7 @@ try {
     'The consumer bundle must include both token themes'
   );
   console.log(
-    `Verified all three tarballs, ${catalog.length} catalog imports, isolated CLI discovery/setup, runtime imports, and a consumer CSS build.`
+    `Verified all three tarballs, ${catalog.length} catalog imports, isolated CLI discovery/setup, chat runtime imports/server rendering, and a consumer CSS/editor build.`
   );
 } finally {
   rmSync(temporary, { recursive: true, force: true });
