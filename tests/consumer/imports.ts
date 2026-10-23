@@ -6,6 +6,18 @@ import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
 import {
+  ChatComposer,
+  ChatConversation,
+  ChatMessage,
+  ChatStatus,
+  ChatToolCall,
+} from '@langchain/macaw-components/Chat';
+import type { ChatComposerProps } from '@langchain/macaw-components/Chat';
+import {
+  createLangChainChatAdapter,
+  mapLangChainMessages,
+} from '@langchain/macaw-components/Chat/langchain';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -47,6 +59,23 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  ChatComposer,
+  ChatConversation,
+  ChatMessage,
+  ChatStatus,
+  ChatToolCall,
+  {
+    value: '',
+    onValueChange: () => {},
+    onSubmit: () => {},
+  } satisfies ChatComposerProps,
+  mapLangChainMessages([{ type: 'human', content: 'Hello' }]),
+  createLangChainChatAdapter({
+    messages: [],
+    isLoading: false,
+    submit: () => {},
+    stop: () => {},
+  }),
   Attachment,
   AttachmentList,
   {

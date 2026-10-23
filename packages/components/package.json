@@ -60,6 +60,14 @@
       "types": "./dist/components/Card/index.d.ts",
       "import": "./dist/components/Card/index.js"
     },
+    "./Chat": {
+      "types": "./dist/components/Chat/index.d.ts",
+      "import": "./dist/components/Chat/index.js"
+    },
+    "./Chat/langchain": {
+      "types": "./dist/components/Chat/langchain.d.ts",
+      "import": "./dist/components/Chat/langchain.js"
+    },
     "./ChartCard": {
       "types": "./dist/components/ChartCard/index.d.ts",
       "import": "./dist/components/ChartCard/index.js"
