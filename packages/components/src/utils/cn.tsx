@@ -30,6 +30,8 @@ const brandTextClasses = BRAND_PALETTE_STEPS.map(
 const buttonBorderColorClasses = [
   'button-primary-underlined-border',
   'button-primary-underlined-border-hover',
+  'button-secondary-border',
+  'button-secondary-border-hover',
   'button-secondary-underlined-border',
   'button-secondary-underlined-border-hover',
   'button-error-border',
@@ -96,6 +98,8 @@ const customTwMerge = extendTailwindMerge({
         'bg-surface-level-3',
         'bg-surface-level-4',
         'bg-disabled',
+        'bg-input',
+        'bg-input-disabled',
         'bg-elevated',
         'bg-elevated-hover',
         'bg-elevated-selected',

@@ -178,7 +178,7 @@ export const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-hidden transition-colors focus:bg-surface-level-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-hidden transition-colors focus:bg-elevated-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
@@ -195,7 +195,7 @@ export const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn('my-space-1 h-px bg-surface-level-2', className)}
+    className={cn('my-space-1 h-px border-b border-subtle', className)}
     {...props}
   />
 ));
@@ -217,7 +217,7 @@ export const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-hidden transition-colors focus:bg-surface-level-2 data-[state=open]:bg-surface-level-2',
+      'flex cursor-pointer select-none items-center rounded-sm px-space-2 py-space-1 outline-hidden transition-colors focus:bg-elevated-hover data-[state=open]:bg-elevated-hover',
       OPTION_ROW_SIZES[size].minHeightClassName,
       size === 'sm' ? 'text-xs leading-4' : 'text-sm',
       inset && 'pl-space-6',
