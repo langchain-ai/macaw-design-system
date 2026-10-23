@@ -1,0 +1,14 @@
+packages/components/src/components/Link/Link.tsx
+  h_a27749d4737027 57,61,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "65c0fa4e3f9d331ca0b33233f4af83e3df539034",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
