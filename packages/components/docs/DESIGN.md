@@ -67,6 +67,16 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Chat
+
+Import `ChatConversation`, `ChatMessage`, `ChatComposer`, `ChatToolCall`, and
+`ChatStatus` from `@langchain/macaw-components/Chat`. Compose these parts rather
+than a product-specific chat shell. The optional dependency-free
+`@langchain/macaw-components/Chat/langchain` entry maps message-based `useStream`
+data and actions; applications still own transport, identity, persistence, and
+safe rich-content rendering. See [CHAT.md](./CHAT.md) for the integration contract,
+slots, keyboard behavior, and streaming accessibility guidance.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
