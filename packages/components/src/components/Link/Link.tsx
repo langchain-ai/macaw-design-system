@@ -58,7 +58,7 @@ const TextContent = (
           weight={iconWeight}
         />
       )}
-      <span className="text-link underline-offset-2 hover:text-link-hover hover:underline hover:decoration-ls-neutral-300 hover:decoration-1 dark:text-link dark:hover:text-link dark:hover:text-link-hover">
+      <span className="text-link underline-offset-2 hover:text-link-hover hover:underline hover:decoration-ls-neutral-300 hover:decoration-1 dark:text-link dark:hover:text-link-hover dark:hover:decoration-ls-neutral-400">
         {children}
       </span>
       {RightIcon && (
