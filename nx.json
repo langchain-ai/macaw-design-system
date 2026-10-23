@@ -50,18 +50,26 @@
     "releaseTag": {
       "pattern": "v{version}"
     },
+    "git": {
+      "commit": true,
+      "commitMessage": "[ci skip] chore(release): publish {version}",
+      "tag": true
+    },
     "version": {
       "conventionalCommits": true,
-      "fallbackCurrentVersionResolver": "disk",
-      "git": {
-        "commit": true,
-        "commitMessage": "[ci skip] chore(release): publish {version}",
-        "tag": true,
-        "push": false
-      }
+      "fallbackCurrentVersionResolver": "disk"
     },
     "changelog": {
       "automaticFromRef": true,
+      "workspaceChangelog": {
+        "createRelease": "github",
+        "renderOptions": {
+          "authors": true,
+          "applyUsernameToAuthors": true,
+          "commitReferences": true,
+          "versionTitleDate": true
+        }
+      },
       "projectChangelogs": {
         "createRelease": false,
         "renderOptions": {
