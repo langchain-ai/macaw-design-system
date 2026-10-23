@@ -1,0 +1,19 @@
+.gitignore
+  s_e234d4573bd035::t_f99cee85271eb6 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "75d17d4d02410dda14bdbe5d68b49969be25d4cd",
+  "prompts": {},
+  "sessions": {
+    "s_e234d4573bd035": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1567d-25a7-7d13-b900-02ebd22b68a6",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
