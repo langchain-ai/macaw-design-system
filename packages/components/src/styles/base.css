@@ -132,8 +132,8 @@
     --button-secondary-foreground-hover: var(--neutral-100);
     --button-secondary-bg: var(--neutral-900);
     --button-secondary-bg-hover: var(--neutral-800);
-    --button-secondary-border: var(--neutral-500);
-    --button-secondary-border-hover: var(--neutral-500);
+    --button-secondary-border: var(--border-subtle);
+    --button-secondary-border-hover: var(--border-subtle);
     --button-secondary-underlined-border: var(--neutral-700);
     --button-secondary-underlined-border-hover: var(--neutral-800);
     --button-secondary-color-foreground: var(--brand-500);

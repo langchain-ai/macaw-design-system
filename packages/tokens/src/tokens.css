@@ -837,11 +837,7 @@ html.dark,
   --text-brand-disabled: var(--brand-300);
   --text-brand-on-fill: var(--black);
   --text-link: var(--brand-700);
-  --text-link-hover: color-mix(
-    in srgb,
-    var(--brand-700) 85%,
-    var(--brand-800)
-  );
+  --text-link-hover: var(--brand-800);
   --text-purple: var(--purple-700);
 
   /* ICON */

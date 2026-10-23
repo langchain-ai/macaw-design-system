@@ -393,7 +393,7 @@ Use status border tokens for run-state and system-state accents. Do not use them
 | `text-success-primary`   | High-emphasis success message                     |
 | `text-success-secondary` | Inline success message                            |
 | `text-success-tertiary`  | Lower-emphasis success message                    |
-| `text-brand-primary`     | Brand-colored heading or emphasis                 |
+| `text-brand-primary`     | Brand-colored heading or link                     |
 | `text-brand-secondary`   | Secondary brand text                              |
 | `text-brand-tertiary`    | Tertiary brand text                               |
 | `text-brand-disabled`    | Disabled brand text                               |
@@ -401,10 +401,6 @@ Use status border tokens for run-state and system-state accents. Do not use them
 | `text-purple`            | Purple-accented text                              |
 | `text-link`              | Hyperlink text                                    |
 | `text-link-hover`        | Hover state for link text                         |
-
-Use `text-link` and `text-link-hover` for link text and its decorator icons,
-without dark-mode brand overrides. Dark links use a softer blue with a modest
-hover lift; underline remains the hover cue.
 
 Intent text suffixes express emphasis, not severity: `primary` for prominent
 messages, `secondary` for default inline copy, and `tertiary` for supporting detail.
