@@ -6,6 +6,47 @@ import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
 import {
+  ChatComposer,
+  ChatComposerInput,
+  ChatComposerToolbar,
+  ChatComposerAction,
+  ChatComposerAttachmentMenu,
+  ChatComposerAttachments,
+  ChatComposerAttachment,
+  ChatComposerModelSelect,
+} from '@langchain/macaw-components/ChatComposer';
+import type {
+  ChatComposerProps,
+  ChatComposerInputProps,
+} from '@langchain/macaw-components/ChatComposer';
+import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
+import type { ChatConversationHandle } from '@langchain/macaw-components/ChatConversation';
+import {
+  ChatConversationList,
+  ChatConversationListGroup,
+  ChatConversationListItem,
+} from '@langchain/macaw-components/ChatConversationList';
+import {
+  ChatMessage,
+  ChatMessageHeader,
+  ChatMessageBody,
+  ChatMessageActions,
+  ChatTurnDivider,
+} from '@langchain/macaw-components/ChatMessage';
+import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+} from '@langchain/macaw-components/ChatRichContent';
+import type { ChatRichContentProps } from '@langchain/macaw-components/ChatRichContent';
+import { ChatState } from '@langchain/macaw-components/ChatState';
+import {
+  ChatToolCall,
+  ChatToolCallGroup,
+  ChatToolCallReasoning,
+} from '@langchain/macaw-components/ChatToolCall';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -47,6 +88,44 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  ChatComposer,
+  ChatComposerInput,
+  ChatComposerToolbar,
+  ChatComposerAction,
+  ChatComposerAttachmentMenu,
+  ChatComposerAttachments,
+  ChatComposerAttachment,
+  ChatComposerModelSelect,
+  ChatConversation,
+  ChatConversationList,
+  ChatConversationListGroup,
+  ChatConversationListItem,
+  ChatMessage,
+  ChatMessageHeader,
+  ChatMessageBody,
+  ChatMessageActions,
+  ChatTurnDivider,
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+  ChatState,
+  ChatToolCall,
+  ChatToolCallGroup,
+  ChatToolCallReasoning,
+  { action: 'stop', onStop: () => {} } satisfies ChatComposerProps,
+  { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  { scrollToLatest: () => {} } satisfies ChatConversationHandle,
+  {
+    id: 'answer',
+    role: 'assistant',
+    status: 'streaming',
+    content: [{ id: 'paragraph', type: 'text', text: 'Hello' }],
+  } satisfies ChatMessageModel,
+  {
+    variant: 'approval',
+    title: 'Review changes',
+    onApprove: async () => {},
+  } satisfies ChatRichContentProps,
   Attachment,
   AttachmentList,
   {
