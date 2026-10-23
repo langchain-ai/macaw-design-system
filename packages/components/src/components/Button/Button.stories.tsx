@@ -1,6 +1,9 @@
+import { Fragment } from 'react';
+
 import { fn } from 'storybook/test';
 
 import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/ssr/DownloadSimple';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
@@ -8,7 +11,9 @@ import {
   CaretDownIcon,
   PlusIcon,
 } from '../../icons/PaddedPhosphorIcons';
+import { IconButton } from '../IconButton';
 import { Button } from './Button';
+import { buttonStyleMap } from './constants';
 
 const meta = {
   title: 'Components/Buttons/Button',
@@ -382,6 +387,309 @@ export const AllVariants: Story = {
           </Button>
         </div>
       </div>
+    </div>
+  ),
+};
+
+// Exhaustive combinations grid
+const BUTTON_SIZES = ['xs', 'sm', 'md'] as const;
+const BUTTON_COLORS = ['primary', 'secondary', 'error'] as const;
+const BUTTON_VARIANTS = ['normal', 'outlined', 'plain', 'underlined'] as const;
+const ICON_BUTTON_VARIANTS = ['normal', 'outlined', 'plain'] as const;
+const ICON_BUTTON_SIZES = ['xxs', 'xs', 'sm', 'md'] as const;
+
+const STATE_COLUMNS = [
+  'Default',
+  'Hover',
+  'Pressed',
+  'Disabled',
+  'Loading',
+  'Left Decorator',
+  'Right Decorator',
+  'Both Decorators',
+  'Left Tag',
+  'Right Tag',
+  'Disabled + Decorators',
+] as const;
+
+// Strip the `hover:` / `dark:hover:` variant prefix so hover styles apply
+// unconditionally — tailwind-merge dedupes the resulting classes against the
+// base styles, so the hover look wins. Used to statically visualize the
+// hover state in the grid without a pseudo-states addon.
+const forceHoverClassName = (
+  color: (typeof BUTTON_COLORS)[number],
+  variant: (typeof BUTTON_VARIANTS)[number]
+) => {
+  const key =
+    `${color}-${variant}-enabled` as keyof typeof buttonStyleMap;
+  return (buttonStyleMap[key] ?? '')
+    .split(/\s+/)
+    .filter((c) => c.startsWith('hover:') || c.startsWith('dark:hover:'))
+    .map((c) => c.replace(/^hover:/, '').replace(/^dark:hover:/, 'dark:'))
+    .join(' ');
+};
+
+const forceIconHoverClassName = (
+  color: (typeof BUTTON_COLORS)[number],
+  variant: (typeof ICON_BUTTON_VARIANTS)[number]
+) =>
+  forceHoverClassName(
+    color,
+    variant as (typeof BUTTON_VARIANTS)[number]
+  );
+
+// Approximation of the browser's native pressed look: layered on top of the
+// forced-hover classes since a real press always happens while hovering. The
+// Button component itself does not define `active:` styles, so this is a
+// visual indicator rather than a design-system token.
+const PRESSED_INDICATOR = 'scale-[0.97] brightness-95';
+
+export const AllCombinations: Story = {
+  args: {
+    children: 'Button',
+  },
+  decorators: [
+    (StoryFn) => (
+      <TooltipProvider>
+        <StoryFn />
+      </TooltipProvider>
+    ),
+  ],
+  parameters: {
+    layout: 'padded',
+  },
+  render: () => (
+    <div className="space-y-space-8">
+      {BUTTON_SIZES.map((size) => (
+        <section key={size} className="space-y-space-4">
+          <h2 className="text-xl font-semibold">Size: {size}</h2>
+          {BUTTON_COLORS.map((color) => (
+            <div key={`${size}-${color}`} className="space-y-space-2">
+              <h3 className="text-base font-medium capitalize">{color}</h3>
+              <div
+                className="grid gap-space-3 items-center"
+                style={{
+                  gridTemplateColumns: `max-content repeat(${STATE_COLUMNS.length}, max-content)`,
+                }}
+              >
+                <div />
+                {STATE_COLUMNS.map((header) => (
+                  <div
+                    key={header}
+                    className="text-xxs font-medium text-text-tertiary"
+                  >
+                    {header}
+                  </div>
+                ))}
+                {BUTTON_VARIANTS.map((variant) => (
+                  <Fragment key={`${size}-${color}-${variant}`}>
+                    <div className="text-xxs font-medium text-text-tertiary capitalize">
+                      {variant}
+                    </div>
+                    <Button size={size} color={color} variant={variant}>
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      className={forceHoverClassName(color, variant)}
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      className={`${forceHoverClassName(color, variant)} ${PRESSED_INDICATOR}`}
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      disabled
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      loading
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      leftDecorator={PlusIcon}
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      rightDecorator={ArrowRightIcon}
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      leftDecorator={DownloadSimpleIcon}
+                      rightDecorator={ArrowRightIcon}
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      tagText="Beta"
+                      tagPosition="left"
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      tagText="New"
+                      tagPosition="right"
+                    >
+                      Button
+                    </Button>
+                    <Button
+                      size={size}
+                      color={color}
+                      variant={variant}
+                      disabled
+                      leftDecorator={PlusIcon}
+                      rightDecorator={ArrowRightIcon}
+                    >
+                      Button
+                    </Button>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+      ))}
+
+      <section className="space-y-space-4">
+        <h2 className="text-xl font-semibold">Icon Only (IconButton)</h2>
+        {ICON_BUTTON_SIZES.map((size) => (
+          <div key={`icon-${size}`} className="space-y-space-2">
+            <h3 className="text-base font-medium">Size: {size}</h3>
+            {BUTTON_COLORS.map((color) => (
+              <div key={`icon-${size}-${color}`} className="space-y-space-2">
+                <h4 className="text-sm font-medium capitalize text-text-secondary">
+                  {color}
+                </h4>
+                <div
+                  className="grid gap-space-3 items-center"
+                  style={{
+                    gridTemplateColumns:
+                      'max-content repeat(7, max-content)',
+                  }}
+                >
+                  <div />
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Default
+                  </div>
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Hover
+                  </div>
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Pressed
+                  </div>
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Disabled
+                  </div>
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Loading
+                  </div>
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Round
+                  </div>
+                  <div className="text-xxs font-medium text-text-tertiary">
+                    Round + Disabled
+                  </div>
+                  {ICON_BUTTON_VARIANTS.map((variant) => (
+                    <Fragment key={`icon-${size}-${color}-${variant}`}>
+                      <div className="text-xxs font-medium text-text-tertiary capitalize">
+                        {variant}
+                      </div>
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={PlusIcon}
+                        label="Add"
+                      />
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={PlusIcon}
+                        label="Add"
+                        className={forceIconHoverClassName(color, variant)}
+                      />
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={PlusIcon}
+                        label="Add"
+                        className={`${forceIconHoverClassName(color, variant)} ${PRESSED_INDICATOR}`}
+                      />
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={PlusIcon}
+                        label="Add"
+                        disabled
+                      />
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={PlusIcon}
+                        label="Add"
+                        loading
+                      />
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={CaretDownIcon}
+                        label="Expand"
+                        round
+                      />
+                      <IconButton
+                        size={size}
+                        color={color}
+                        variant={variant}
+                        icon={CaretDownIcon}
+                        label="Expand"
+                        round
+                        disabled
+                      />
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </section>
     </div>
   ),
 };
