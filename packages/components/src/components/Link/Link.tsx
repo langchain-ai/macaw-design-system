@@ -54,11 +54,11 @@ const TextContent = (
       {LeftIcon && (
         <LeftIcon
           aria-hidden
-          className="h-[1em] w-[1em] flex-shrink-0 text-link dark:text-link dark:group-hover:text-link-hover"
+          className="h-[1em] w-[1em] flex-shrink-0 text-link dark:text-brand-primary dark:group-hover:text-brand-primary"
           weight={iconWeight}
         />
       )}
-      <span className="text-link underline-offset-2 hover:text-link-hover hover:underline hover:decoration-ls-neutral-300 hover:decoration-1 dark:text-link dark:hover:text-link-hover dark:hover:decoration-ls-neutral-400">
+      <span className="text-link underline-offset-2 hover:text-link-hover hover:underline hover:decoration-ls-neutral-300 hover:decoration-1 dark:text-brand-primary dark:hover:text-brand-primary dark:hover:decoration-ls-neutral-400">
         {children}
       </span>
       {RightIcon && (
