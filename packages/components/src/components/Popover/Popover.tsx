@@ -18,12 +18,31 @@ export const PopoverAnchor = PopoverPrimitive.Anchor;
 export const PopoverArrow = forwardRef<
   ElementRef<typeof PopoverPrimitive.Arrow>,
   ComponentPropsWithoutRef<typeof PopoverPrimitive.Arrow>
->(({ className, ...props }, ref) => (
+>(({ className, asChild, children, ...props }, ref) => (
   <PopoverPrimitive.Arrow
     ref={ref}
-    className={cn('fill-popover', className)}
+    className={cn(
+      'overflow-visible fill-popover stroke-subtle',
+      !asChild && '-translate-y-px',
+      className
+    )}
     {...props}
-  />
+    asChild
+  >
+    {asChild ? (
+      children
+    ) : (
+      <svg>
+        <polygon points="0,0 30,0 15,10" stroke="none" />
+        <polyline
+          points="0,0 15,10 30,0"
+          fill="none"
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    )}
+  </PopoverPrimitive.Arrow>
 ));
 PopoverArrow.displayName = 'PopoverArrow';
 

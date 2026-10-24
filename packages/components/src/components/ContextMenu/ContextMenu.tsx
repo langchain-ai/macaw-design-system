@@ -26,7 +26,7 @@ export const ContextMenuContent = React.forwardRef<
       <ContextMenuPrimitive.Content
         ref={ref}
         className={cn(
-          'min-w-[8rem] overflow-hidden rounded-md border border-default bg-elevated p-space-1 text-primary shadow-md',
+          'min-w-[8rem] overflow-hidden rounded-md border border-default bg-popover p-space-1 text-primary shadow-md',
           className
         )}
         {...props}

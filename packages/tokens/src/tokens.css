@@ -136,9 +136,13 @@
   --bg-surface-level-3: var(--neutral-100);
   --bg-surface-level-4: var(--neutral-200);
   --bg-disabled: var(--neutral-100);
-  --bg-elevated: var(--white); /* popovers, tooltips, cards */
-  --bg-elevated-hover: var(--neutral-25);
-  --bg-elevated-selected: var(--neutral-25);
+  --bg-elevated: var(--white); /* raised cards, panes, controls */
+  --bg-input: var(--neutral-25);
+  --bg-input-disabled: var(--bg-disabled);
+  --bg-popover: var(--neutral-25);
+  --bg-sidebar: var(--neutral-50);
+  --bg-elevated-hover: var(--neutral-100);
+  --bg-elevated-selected: var(--neutral-100);
   --bg-overlay: rgba(0, 0, 0, 0.5); /* backdrop / modal scrim */
 
   /* BRAND */
@@ -186,7 +190,7 @@
   --border-faint: var(--neutral-50);
   --border-strong: var(--neutral-600);
   --border-disabled: var(--neutral-200);
-  --border-focus: var(--brand-400); /* focus ring */
+  --border-focus: var(--brand-500); /* focus ring */
   --border-error: var(--red-300);
   --border-error-strong: var(--red-600);
   --border-brand: var(--brand-400);
@@ -204,7 +208,7 @@
   --text-tertiary-hover: var(--neutral-700);
   --text-quaternary: var(--neutral-500);
   --text-disabled: var(--neutral-300);
-  --text-placeholder: var(--neutral-400);
+  --text-placeholder: var(--neutral-500);
   --text-error-primary: var(--red-700);
   --text-error-secondary: var(--red-600);
   --text-error-tertiary: var(--red-500);
@@ -249,6 +253,10 @@
   /* SHADOW */
   /* Low-elevation shadow color for custom composed shadows. */
   --shadow-color-subtle: rgba(16, 24, 40, 0.05);
+  --shadow-xs: 0 1px 1px 0 rgba(16, 24, 40, 0.02);
+  --shadow-default:
+    0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-slider-thumb: var(--shadow-default);
   --shadow-sm:
     0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow-md:
@@ -256,6 +264,10 @@
   --shadow-lg:
     0 10px 15px -3px rgba(16, 24, 40, 0.1),
     0 4px 6px -2px rgba(16, 24, 40, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
 
   /* RADIUS */
   --radius-none: 0px;
@@ -728,16 +740,20 @@ html.dark,
   --purple-950: #f9f7ff;
 
   /* BACKGROUND COLORS */
-  --bg-surface-level-1: var(--neutral-25);
-  --bg-surface-level-1-hover: var(--neutral-50);
-  --bg-surface-level-2: var(--neutral-50);
-  --bg-surface-level-2-hover: var(--neutral-100);
-  --bg-surface-level-3: var(--neutral-100);
-  --bg-surface-level-4: var(--neutral-200);
-  --bg-disabled: var(--neutral-100);
-  --bg-elevated: var(--neutral-35);
-  --bg-elevated-hover: var(--neutral-100);
-  --bg-elevated-selected: var(--neutral-200);
+  --bg-surface-level-1: var(--neutral-50);
+  --bg-surface-level-1-hover: var(--neutral-100);
+  --bg-surface-level-2: var(--neutral-100);
+  --bg-surface-level-2-hover: var(--neutral-200);
+  --bg-surface-level-3: var(--neutral-200);
+  --bg-surface-level-4: var(--neutral-300);
+  --bg-disabled: var(--neutral-200);
+  --bg-elevated: var(--neutral-50);
+  --bg-input: var(--neutral-100);
+  --bg-input-disabled: var(--neutral-50);
+  --bg-popover: var(--neutral-100);
+  --bg-sidebar: var(--neutral-35);
+  --bg-elevated-hover: var(--neutral-200);
+  --bg-elevated-selected: var(--neutral-300);
   --bg-overlay: rgba(0, 0, 0, 0.7);
 
   /* BRAND */
@@ -768,7 +784,7 @@ html.dark,
   /* CONTROL */
   --bg-control-active: var(--brand-500);
   --bg-control-active-hover: var(--brand-600);
-  --bg-control-thumb: var(--black);
+  --bg-control-thumb: var(--neutral-900);
   --bg-control-disabled: var(--neutral-200);
   --text-control-active-foreground: var(--bg-control-thumb);
 
@@ -777,13 +793,17 @@ html.dark,
   --bg-selected-hover: var(--brand-100);
 
   /* BORDER */
-  --border-default: var(--neutral-300);
-  --border-subtle: var(--neutral-200);
-  --border-muted: var(--neutral-100);
-  --border-faint: var(--neutral-50);
+  --border-default: var(--neutral-400);
+  --border-subtle: var(--neutral-300);
+  --border-muted: var(--neutral-200);
+  --border-faint: var(--neutral-100);
   --border-strong: var(--neutral-600);
-  --border-disabled: var(--neutral-200);
-  --border-focus: var(--brand-500);
+  --border-disabled: var(--neutral-300);
+  --border-focus: color-mix(
+    in srgb,
+    var(--brand-700) 80%,
+    var(--neutral-500)
+  );
   --border-error: var(--red-200);
   --border-error-strong: var(--red-600);
   --border-brand: var(--brand-400);
@@ -801,7 +821,7 @@ html.dark,
   --text-tertiary-hover: var(--neutral-700);
   --text-quaternary: var(--neutral-500);
   --text-disabled: var(--neutral-400);
-  --text-placeholder: var(--neutral-400);
+  --text-placeholder: var(--neutral-500);
   --text-error-primary: var(--red-700);
   --text-error-secondary: var(--red-600);
   --text-error-tertiary: var(--red-500);
@@ -842,14 +862,17 @@ html.dark,
   --border-status-red: #500601;
   --border-status-orange: #7c2b09;
 
-  /* SHADOW — more opaque in dark mode */
-  /* Low-elevation shadow color for custom composed shadows. */
-  --shadow-color-subtle: rgba(16, 24, 40, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  /* SHADOW — surface contrast and borders replace decorative elevation. */
+  --shadow-color-subtle: transparent;
+  --shadow-xs: 0 0 #0000;
+  --shadow-default: 0 0 #0000;
+  --shadow-slider-thumb: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+  --shadow-inner: 0 0 #0000;
 
   /* SCROLLBAR */
   --scrollbar-thumb: rgba(255, 255, 255, 0.3);

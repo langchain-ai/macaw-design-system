@@ -44,12 +44,21 @@ export const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof RadixSelect.Trigger>,
   SelectTriggerProps
 >(({ className, children, iconClassName, ...props }, ref) => {
+  const isError =
+    props['aria-invalid'] === true || props['aria-invalid'] === 'true';
+  const triggerStateStyles =
+    !props.disabled &&
+    (isError
+      ? 'border-error-strong focus-visible:border-error-strong focus-visible:shadow-[0_0_0_1px_var(--border-error-strong)] focus-visible:outline-none'
+      : '[&:enabled:hover:not(:focus-visible)]:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none');
+
   if (props.asChild) {
     return (
       <RadixSelect.Trigger
         ref={ref}
         className={cn(
-          'flex items-center justify-between gap-space-2 rounded-md border border-default bg-transparent p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-secondary [&>span]:line-clamp-1',
+          'flex items-center justify-between gap-space-2 rounded-md border border-muted bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+          triggerStateStyles,
           className
         )}
         {...props}
@@ -63,7 +72,8 @@ export const SelectTrigger = React.forwardRef<
     <RadixSelect.Trigger
       ref={ref}
       className={cn(
-        'flex items-center justify-between gap-space-2 rounded-md border border-default bg-transparent p-1.5 px-2.5 text-sm focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-secondary [&>span]:line-clamp-1',
+        'flex items-center justify-between gap-space-2 rounded-md border border-muted bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+        triggerStateStyles,
         className
       )}
       {...props}
@@ -127,7 +137,7 @@ export const SelectContent = React.forwardRef<
       <RadixSelect.Content
         ref={ref}
         className={cn(
-          'relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-default bg-elevated shadow-md',
+          'relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-default bg-popover shadow-md',
           position === 'popper' &&
             'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
           className

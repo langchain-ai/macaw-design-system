@@ -36,7 +36,6 @@ function createModalStack() {
 const StackContext = createContext<ReturnType<typeof createModalStack> | null>(
   null
 );
-const ParentContext = createContext<string | undefined>(undefined);
 const emptyEntries: Entry[] = [];
 const subscribeToNothing = () => () => {};
 const getEmptyEntries = () => emptyEntries;
@@ -50,9 +49,17 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useModalLayer(open: boolean) {
+type ModalLayer = {
+  id: string;
+  open: boolean;
+  suspended: boolean;
+  zIndex: number | undefined;
+  backdropStyle: { backgroundColor: string } | undefined;
+};
+
+export function useModalLayer(open: boolean): ModalLayer {
   const stack = useContext(StackContext);
-  const parentId = useContext(ParentContext);
+  const parentId = useContext(ModalLayerContext)?.id;
   const id = useId();
   const entries = useSyncExternalStore(
     stack?.subscribe ?? subscribeToNothing,
@@ -100,22 +107,18 @@ export function useModalLayer(open: boolean) {
   };
 }
 
-export const ModalLayerContext = createContext<ReturnType<
-  typeof useModalLayer
-> | null>(null);
+export const ModalLayerContext = createContext<ModalLayer | null>(null);
 export function ModalLayerProvider({
   layer,
   children,
 }: {
-  layer: ReturnType<typeof useModalLayer>;
+  layer: ModalLayer;
   children: ReactNode;
 }) {
   return (
-    <ParentContext.Provider value={layer.id}>
-      <ModalLayerContext.Provider value={layer}>
-        {children}
-      </ModalLayerContext.Provider>
-    </ParentContext.Provider>
+    <ModalLayerContext.Provider value={layer}>
+      {children}
+    </ModalLayerContext.Provider>
   );
 }
 export function useCurrentModalLayer() {

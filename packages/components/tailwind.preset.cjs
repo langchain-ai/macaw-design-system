@@ -118,13 +118,15 @@ module.exports = {
         focus: 'var(--border-focus)',
       },
       boxShadow: {
-        // Preserve the v3 default shadow used by the slider thumb in both themes.
-        'slider-thumb':
-          '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-        xs: '0 1px 1px 0 rgba(16, 24, 40, 0.02)',
+        DEFAULT: 'var(--shadow-default)',
+        'slider-thumb': 'var(--shadow-slider-thumb)',
+        xs: 'var(--shadow-xs)',
         sm: 'var(--shadow-sm)',
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
+        '2xl': 'var(--shadow-2xl)',
+        inner: 'var(--shadow-inner)',
       },
       transitionDuration: {
         fast: 'var(--duration-fast)',
@@ -150,6 +152,8 @@ module.exports = {
         elevated: 'var(--bg-elevated)',
       },
       backgroundColor: {
+        input: 'var(--bg-input)',
+        'input-disabled': 'var(--bg-input-disabled)',
         'surface-level-1': 'var(--bg-surface-level-1)',
         'surface-level-1-hover': 'var(--bg-surface-level-1-hover)',
         'surface-level-2': 'var(--bg-surface-level-2)',
@@ -159,6 +163,7 @@ module.exports = {
         elevated: 'var(--bg-elevated)',
         'elevated-hover': 'var(--bg-elevated-hover)',
         'elevated-selected': 'var(--bg-elevated-selected)',
+        sidebar: 'var(--bg-sidebar)',
         'popover-urgent': 'var(--bg-popover-urgent)',
 
         disabled: 'var(--bg-disabled)',
@@ -290,6 +295,7 @@ module.exports = {
       // for the same semantic tokens through stroke.
       stroke: {
         focus: 'var(--border-focus)',
+        subtle: 'var(--border-subtle)',
       },
       textColor: {
         primary: 'var(--text-primary)',
@@ -344,7 +350,7 @@ module.exports = {
         'surface-level-2': 'var(--bg-surface-level-2)',
         elevated: 'var(--bg-elevated)',
         popover: {
-          DEFAULT: 'var(--bg-elevated)',
+          DEFAULT: 'var(--bg-popover)',
         },
         background: {
           DEFAULT: 'var(--bg-elevated)',
