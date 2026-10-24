@@ -1,0 +1,22 @@
+nx.json
+  s_e234d4573bd035::t_f561f895613c90 56-57
+.github/workflows/release.yml
+  s_e234d4573bd035::t_069d8ec63d882d 75
+  s_e234d4573bd035::t_f561f895613c90 37,63-70,74,76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6a9b2ac95873e9597527ca2a47dbf32e48cf3119",
+  "prompts": {},
+  "sessions": {
+    "s_e234d4573bd035": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1567d-25a7-7d13-b900-02ebd22b68a6",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
