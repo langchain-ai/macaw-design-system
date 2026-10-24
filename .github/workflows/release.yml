@@ -30,20 +30,12 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Create release app token
-        id: app-token
-        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
-        with:
-          app-id: ${{ vars.LANGCHAIN_ACTIONS_PR_BOT_PUBLIC_APP_ID }}
-          private-key: ${{ secrets.LANGCHAIN_ACTIONS_PR_BOT_PUBLIC_PRIVATE_KEY }}
-          permission-contents: write
-
       - name: Check out release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: ${{ github.sha }}
-          token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up pnpm
         uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
@@ -68,10 +60,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Create release app token
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ vars.LANGCHAIN_ACTIONS_PR_BOT_PUBLIC_APP_ID }}
+          private-key: ${{ secrets.LANGCHAIN_ACTIONS_PR_BOT_PUBLIC_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: pnpm nx release --yes
+        run: |
+          gh auth setup-git --hostname github.com --force
+          pnpm nx release --yes
 
   pages:
     needs: storybook

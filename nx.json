@@ -53,7 +53,8 @@
     "git": {
       "commit": true,
       "commitMessage": "[ci skip] chore(release): publish {version}",
-      "tag": true
+      "tag": true,
+      "pushArgs": "origin HEAD:main"
     },
     "version": {
       "conventionalCommits": true,
