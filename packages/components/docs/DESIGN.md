@@ -67,6 +67,19 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Nested modals
+
+Wrap a related workflow in `ModalProvider` from `@langchain/macaw-components/Dialog`
+to limit it to two visible modal layers. Dialog and modal Pane share the stack
+across portals and sibling roots. A further dialog replaces the foreground layer;
+dismissing it restores the editor with its mounted state. Popovers, tooltips,
+and non-modal SplitViewPane panels do not consume a layer.
+Popover collision handling uses its enclosing Dialog as the boundary by default;
+pass an explicit `collisionBoundary` to override it.
+
+The base backdrop uses 75% of the semantic overlay color. The foreground layer
+adds 50% of that color, giving a visible increase in dimming in both themes.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from

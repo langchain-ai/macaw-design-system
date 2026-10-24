@@ -27,6 +27,12 @@ import {
   pickDataAttributes,
 } from '../../utils/dataAttributes';
 import { mergeRefs } from '../../utils/merge-refs';
+import {
+  ModalLayerProvider,
+  useCurrentModalLayer,
+  useModalLayer,
+} from '../../utils/ModalLayerContext';
+export { ModalProvider } from '../../utils/ModalLayerContext';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
@@ -83,6 +89,10 @@ export const DialogClose = forwardRef<
 >((props, ref) => <RadixDialogClose ref={ref} {...props} />);
 DialogClose.displayName = 'DialogClose';
 
+const DialogEscapeContext = createContext<
+  ((event: ReactKeyboardEvent) => void) | undefined
+>(undefined);
+
 type TitleIconIntent = 'error' | 'warning' | 'info';
 
 interface DialogContentProps extends DataAttributes {
@@ -117,27 +127,37 @@ export function Dialog({
   className?: string;
   onEscapeKeyDown?: (e: ReactKeyboardEvent) => void;
 }) {
-  const zIndex = useZIndex(zIndices.dialogOverlay);
+  const layer = useModalLayer(open);
+  const zIndex = useZIndex(layer.zIndex ?? zIndices.dialogOverlay);
   return (
-    <RadixDialog modal={true} open={open} onOpenChange={onOpenChange}>
-      <DialogPortal>
-        <DialogOverlay
-          className={cn(
-            'fixed inset-0 bg-overlay',
-            'data-[state=open]:animate-overlay-in data-[state=closed]:animate-overlay-out motion-reduce:animate-none',
-            className
-          )}
-          style={{ zIndex }}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape' && onEscapeKeyDown) {
-              onEscapeKeyDown(e);
-            }
-          }}
-        >
-          {children}
-        </DialogOverlay>
-      </DialogPortal>
-    </RadixDialog>
+    <ModalLayerProvider layer={layer}>
+      <DialogEscapeContext.Provider value={onEscapeKeyDown}>
+        <ZIndexProvider value={zIndex}>
+          <RadixDialog
+            modal={true}
+            open={open && !layer.suspended}
+            onOpenChange={onOpenChange}
+          >
+            <DialogPortal forceMount={open || undefined}>
+              <DialogOverlay
+                forceMount={open || undefined}
+                className={cn(
+                  'fixed inset-0 bg-overlay',
+                  'data-[state=open]:animate-overlay-in data-[state=closed]:animate-overlay-out motion-reduce:animate-none',
+                  className
+                )}
+                style={{
+                  zIndex,
+                  ...layer.backdropStyle,
+                  display: layer.suspended ? 'none' : undefined,
+                }}
+              />
+              {children}
+            </DialogPortal>
+          </RadixDialog>
+        </ZIndexProvider>
+      </DialogEscapeContext.Provider>
+    </ModalLayerProvider>
   );
 }
 
@@ -163,6 +183,8 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     ref
   ) => {
     const dialogZIndex = useZIndex(zIndices.dialogContent);
+    const layer = useCurrentModalLayer();
+    const onDialogEscape = useContext(DialogEscapeContext);
     const hasHeader = Boolean(title || description || showClose);
     // A modal Dialog sets `pointer-events: none` outside this node, so overlays
     // portaled to `document.body` (e.g. Typeahead's Popover) become mouse-inert.
@@ -171,6 +193,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
     return (
       <RadixDialogContent
+        forceMount={layer?.open || undefined}
         {...pickDataAttributes(rest)}
         ref={mergeRefs([ref, setContentNode])}
         className={cn(
@@ -179,13 +202,19 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           'data-[state=closed]:fade-out',
           className
         )}
-        style={{ zIndex: dialogZIndex }}
+        style={{
+          zIndex: dialogZIndex,
+          display: layer?.suspended ? 'none' : undefined,
+        }}
         onPointerDownOutside={onPointerDownOutside}
         onInteractOutside={onInteractOutside}
         onOpenAutoFocus={onOpenAutoFocus}
         onCloseAutoFocus={onCloseAutoFocus}
         onEscapeKeyDown={onEscapeKeyDown}
-        onKeyDown={onKeyDown}
+        onKeyDown={(event) => {
+          onKeyDown?.(event);
+          if (event.key === 'Escape') onDialogEscape?.(event);
+        }}
       >
         <ZIndexProvider value={dialogZIndex}>
           <DialogContainerContext.Provider value={contentNode}>
