@@ -132,6 +132,8 @@ Choose color by meaning:
 
 Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
 
+Import `RadarChart` from `@langchain/macaw-components/RadarChart` for a single-series radial comparison across at least three axes. Supply axes clockwise from the top and a shared `maxValue` for comparisons across charts; the default scales to the largest value. Negative and nonfinite values render as zero; values above the maximum are clipped geometrically, not in labels. Labels truncate with native title text and a complete accessible summary. Narrow containers scroll to preserve legibility. Compose with `ChartCard` for loading and error states; fetching and value formatting remain consumer-owned.
+
 Import `SankeyChart` from `@langchain/macaw-components/SankeyChart` for weighted flow diagrams. Compose it with `ChartCard`, `ChartLegend`, and `ChartTooltip`; consumers own data, value formatting, tooltips, and navigation.
 
 Import `HeatmapChart` and `HeatmapBlock` from `@langchain/macaw-components/HeatmapChart` for percentage matrices. Supply `getBlockLabel` for meaningful row and column names; cells expose details on hover and keyboard focus. The matrix has one Tab stop; arrow keys move between cells, Home/End move within a row, and Ctrl+Home/End move to the first/last cell.
