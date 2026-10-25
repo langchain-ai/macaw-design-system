@@ -1,3 +1,13 @@
+## 1.1.0 (2026-10-25)
+
+### 🩹 Fixes
+
+- improve dark mode surfaces and form controls ([#59](https://github.com/langchain-ai/macaw-design-system/pull/59))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.0.0 (2026-10-19)
 
 - First stable release of the framework-independent design tokens.

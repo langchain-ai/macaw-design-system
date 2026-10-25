@@ -1,3 +1,7 @@
+## 1.1.0 (2026-10-25)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
 ## 1.0.0 (2026-10-19)
 
 - First stable release of the Macaw discovery CLI and agent scaffolding.

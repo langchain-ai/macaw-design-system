@@ -1,3 +1,22 @@
+## 1.1.0 (2026-10-25)
+
+### 🚀 Features
+
+- coordinate two visible modal layers ([#49](https://github.com/langchain-ai/macaw-design-system/pull/49))
+- **components:** [FEP-577] Change Link Dark mode token to text-link ([#58](https://github.com/langchain-ai/macaw-design-system/pull/58))
+
+### 🩹 Fixes
+
+- forward data attributes on tabs, select, pane, dialog and copy buttons ([#51](https://github.com/langchain-ai/macaw-design-system/pull/51))
+- improve dark mode surfaces and form controls ([#59](https://github.com/langchain-ai/macaw-design-system/pull/59))
+
+### ❤️ Thank You
+
+- Chris Gibson
+- Ian SooHoo
+- Jeeyoon Hyun @jeeyoonhyun
+- Nick
+
 ## 1.0.0 (2026-10-19)
 
 - Graduate the components, tokens, and CLI packages from beta to stable `1.0.0`, published to npm `latest`.
