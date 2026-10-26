@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { expect, within } from 'storybook/test';
 
 import { FloppyDiskIcon } from '@phosphor-icons/react/dist/ssr/FloppyDisk';
 import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
@@ -468,5 +470,67 @@ export const TwoModalLayers: Story = {
         </Dialog>
       </ModalProvider>
     );
+  },
+};
+
+export const KeyboardAccessibility: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    return (
+      <>
+        <Button ref={triggerRef} onClick={() => setOpen(true)}>
+          Open keyboard dialog
+        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              triggerRef.current?.focus();
+            }}
+            title="Keyboard dialog"
+            description="Check dialog focus and dismissal."
+          >
+            <Button color="secondary" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setOpen(false)}>Confirm</Button>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const trigger = canvas.getByRole('button', {
+      name: 'Open keyboard dialog',
+    });
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole('dialog', { name: 'Keyboard dialog' });
+    await expect(dialog).toHaveAccessibleDescription(
+      'Check dialog focus and dismissal.'
+    );
+    await expect(dialog).toContainElement(
+      canvasElement.ownerDocument.activeElement as HTMLElement
+    );
+    const firstFocused = canvasElement.ownerDocument.activeElement;
+    await userEvent.tab({ shift: true });
+    await expect(dialog).toContainElement(
+      canvasElement.ownerDocument.activeElement as HTMLElement
+    );
+    await userEvent.tab();
+    await expect(firstFocused).toHaveFocus();
+    await userEvent.keyboard('{Escape}');
+    await expect(trigger).toHaveFocus();
+    await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+    // Leave the portal open so the automatic axe scan covers its contents.
+    await userEvent.keyboard('{Enter}');
+    await expect(
+      await body.findByRole('dialog', { name: 'Keyboard dialog' })
+    ).toBeVisible();
   },
 };
