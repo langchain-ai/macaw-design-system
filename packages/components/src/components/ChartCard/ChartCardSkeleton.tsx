@@ -5,6 +5,7 @@ import { Skeleton } from '../Skeleton';
 
 export type ChartCardSkeletonVariant =
   | 'bar'
+  | 'horizontal-bar'
   | 'line'
   | 'donut'
   | 'metric'
@@ -55,6 +56,19 @@ export const ChartCardSkeleton = ({
               key={index}
               className="min-w-0 flex-1 rounded-b-none rounded-t-md motion-reduce:animate-none"
               style={{ height }}
+            />
+          ))}
+        </div>
+      </Plot>
+    )}
+    {variant === 'horizontal-bar' && (
+      <Plot>
+        <div className="flex size-full flex-col gap-space-2 py-space-2">
+          {BAR_HEIGHTS.map((width, index) => (
+            <Skeleton
+              key={index}
+              className="min-h-0 flex-1 rounded-l-none rounded-r-md motion-reduce:animate-none"
+              style={{ width }}
             />
           ))}
         </div>
