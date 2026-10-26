@@ -40,6 +40,8 @@ export interface SelectGroup<T extends string = string> {
 
 export type SelectSize = ControlSize;
 
+export type SelectVariant = 'outlined' | 'plain';
+
 interface SelectBaseProps<T extends string = string> extends DataAttributes {
   /** The currently selected value */
   value?: T;
@@ -73,6 +75,13 @@ interface SelectBaseProps<T extends string = string> extends DataAttributes {
   endReachedThresholdPx?: number;
   /** Additional class name for the trigger button */
   triggerClassName?: string;
+  /**
+   * Trigger appearance. `outlined` (default) is a full-width form field.
+   * `plain` drops the field fill and border and sizes the trigger to its
+   * value, so it reads as text until hovered — for an inline setting in a row,
+   * such as a member's role, where a field box would crowd it.
+   */
+  variant?: SelectVariant;
   /** Additional class name for the popover content */
   contentClassName?: string;
   /** Custom render function for the selected value in the trigger */
@@ -145,6 +154,7 @@ function OptionSelect<T extends string = string>({
   onEndReached,
   endReachedThresholdPx,
   triggerClassName,
+  variant = 'outlined',
   contentClassName,
   renderValue,
   renderOption,
@@ -249,15 +259,24 @@ function OptionSelect<T extends string = string>({
           role="combobox"
           aria-expanded={open}
           aria-label={ariaLabel ?? placeholder}
-          variant="outlined"
+          variant={variant}
           color="secondary"
           size={triggerButtonSize}
           className={cn(
-            'box-border w-full justify-between py-0',
+            'box-border justify-between py-0',
             CONTROL_SIZES[size].heightClassName,
-            disabled
-              ? 'border-muted bg-input-disabled text-disabled dark:bg-input-disabled'
-              : 'bg-input border-muted hover:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none',
+            variant === 'plain'
+              ? cn(
+                  'w-auto max-w-full gap-space-1 px-space-1',
+                  // The shared disabled fill, in both themes.
+                  disabled && 'bg-disabled text-disabled dark:bg-disabled'
+                )
+              : cn(
+                  'w-full',
+                  disabled
+                    ? 'border-muted bg-input-disabled text-disabled dark:bg-input-disabled'
+                    : 'bg-input border-muted hover:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none'
+                ),
             triggerClassName
           )}
           disabled={disabled}

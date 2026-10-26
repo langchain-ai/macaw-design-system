@@ -1,4 +1,22 @@
-import { Attachment, Button, Card, Text } from '@langchain/macaw-components';
+import {
+  Attachment,
+  Button,
+  Card,
+  StatusBadge,
+  Text,
+} from '@langchain/macaw-components';
+import type {
+  StatusBadgeProps,
+  StatusBadgeVariant,
+} from '@langchain/macaw-components';
+import {
+  Accordion,
+  AccordionItem,
+} from '@langchain/macaw-components/Accordion';
+import type {
+  AccordionItemMenuItem,
+  AccordionItemProps,
+} from '@langchain/macaw-components/Accordion';
 import { AttachmentList } from '@langchain/macaw-components/Attachment';
 import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
@@ -47,6 +65,18 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  Accordion,
+  AccordionItem,
+  { title: 'Notifications', contents: 'Email' } satisfies AccordionItemProps,
+  {
+    label: 'Remove',
+    description: 'Revokes access immediately',
+    onSelect: () => {},
+    tone: 'destructive',
+  } satisfies AccordionItemMenuItem,
+  StatusBadge,
+  'warning' satisfies StatusBadgeVariant,
+  { children: 'Active', size: 'sm' } satisfies StatusBadgeProps,
   Attachment,
   AttachmentList,
   {
