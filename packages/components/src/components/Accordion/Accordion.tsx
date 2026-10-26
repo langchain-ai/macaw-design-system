@@ -16,6 +16,7 @@ import { Avatar } from '../Avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../DropdownMenu';
 import { IconButton } from '../IconButton';
@@ -39,8 +40,9 @@ export interface AccordionProps {
   /** Sits right of the title, such as a button to add another item. */
   action?: ReactNode;
   /**
-   * `AccordionItem`s, or the list's empty or loading content. Without
-   * children it's just the header, for a section of plain fields.
+   * `AccordionItem`s, or the list's empty or loading content, such as an
+   * `EmptyState`, which fills the card as-is. Without children it's just the
+   * header, for a section of plain fields.
    */
   children?: ReactNode;
   className?: string;
@@ -97,6 +99,19 @@ export function Accordion({
   );
 }
 
+/** One entry in an `AccordionItem`'s overflow menu. */
+export interface AccordionItemMenuItem {
+  /** The entry's name, in Title Case, such as Remove. */
+  label: string;
+  /** A quiet line under the label, such as what the entry does. */
+  description?: string;
+  /** Called when the viewer picks the entry; the menu then closes. */
+  onSelect: () => void;
+  /** `destructive` marks an entry that removes or revokes something. */
+  tone?: 'default' | 'destructive';
+  disabled?: boolean;
+}
+
 export interface AccordionItemProps {
   /** A mark at 16px, which the item puts in a tile. */
   icon?: ReactNode;
@@ -109,11 +124,11 @@ export interface AccordionItemProps {
   description?: ReactNode;
   /**
    * The item's own action, kept on its header whether or not it's expanded,
-   * such as a `Switch`, an `InlineSelect`, or a button.
+   * such as a `Switch`, a `Select` with `variant="plain"`, or a button.
    */
   action?: ReactNode;
-  /** `DropdownMenuItem`s for the item's overflow menu, such as Remove. */
-  menuItems?: ReactNode;
+  /** Entries for the item's overflow menu, such as Rename or Remove. */
+  menuItems?: AccordionItemMenuItem[];
   /**
    * The item's expandable body, shown below the header when expanded. Without
    * it the item doesn't expand.
@@ -157,11 +172,15 @@ export function AccordionItem({
   const label = typeof title === 'string' ? title : 'item';
   const hasBody = hasContent(contents);
 
+  const hasMenu = menuItems != null && menuItems.length > 0;
+
   return (
     <div className={cn('flex flex-col', className)}>
-      {/* Top-aligned, so a wrapped action falls under the title while the
-          icon and title stay on the first line. */}
-      <div className="flex items-start gap-space-2 px-space-3 py-space-2">
+      {/* Everything centers on the header row, so the icon tile, the action,
+          the menu, and the caret share one axis with or without a
+          description. The tile and the trailing control are both 24px and
+          inset by the row's px-space-3, mirroring each other. */}
+      <div className="flex items-center gap-space-2 px-space-3 py-space-2">
         {icon != null && (
           <span
             className={cn(
@@ -208,11 +227,20 @@ export function AccordionItem({
             )}
           </div>
 
-          {/* The title grows to fill the header, which keeps these on the
-              right until they wrap under it. */}
-          <div className="flex min-h-6 shrink-0 items-center gap-space-2">
-            {action}
-            {menuItems != null && (
+          {/* The title grows to fill the header, which keeps the action on
+              the right until it wraps under the title. */}
+          {action != null && (
+            <div className="flex min-h-6 shrink-0 items-center gap-space-2">
+              {action}
+            </div>
+          )}
+        </div>
+
+        {/* Kept out of the wrapping area, so the menu and caret stay pinned
+            to the row's right edge, opposite the icon tile. */}
+        {(hasMenu || hasBody) && (
+          <div className="flex shrink-0 items-center gap-space-2">
+            {hasMenu && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
@@ -224,8 +252,30 @@ export function AccordionItem({
                     size="sm"
                   />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {menuItems}
+                <DropdownMenuContent align="end" className="max-w-xs">
+                  {menuItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.label}
+                      disabled={item.disabled}
+                      onSelect={item.onSelect}
+                      className="flex-col items-start justify-center"
+                    >
+                      <Text
+                        as="span"
+                        variant="sm"
+                        color={
+                          item.tone === 'destructive' ? 'error' : 'primary'
+                        }
+                      >
+                        {item.label}
+                      </Text>
+                      {item.description != null && (
+                        <Text as="span" variant="xs" color="tertiary">
+                          {item.description}
+                        </Text>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -247,7 +297,7 @@ export function AccordionItem({
               />
             )}
           </div>
-        </div>
+        )}
       </div>
 
       {hasBody && (

@@ -144,10 +144,6 @@
       "types": "./dist/components/IconButton/index.d.ts",
       "import": "./dist/components/IconButton/index.js"
     },
-    "./InlineSelect": {
-      "types": "./dist/components/InlineSelect/index.d.ts",
-      "import": "./dist/components/InlineSelect/index.js"
-    },
     "./Input": {
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
@@ -436,10 +432,6 @@
     "./components/IconButton": {
       "types": "./dist/components/IconButton/index.d.ts",
       "import": "./dist/components/IconButton/index.js"
-    },
-    "./components/InlineSelect": {
-      "types": "./dist/components/InlineSelect/index.d.ts",
-      "import": "./dist/components/InlineSelect/index.js"
     },
     "./components/Input": {
       "types": "./dist/components/Input/index.d.ts",

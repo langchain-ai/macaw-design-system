@@ -38,7 +38,11 @@ export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
 
 export { StatusBadge } from './StatusBadge';
-export type { StatusBadgeProps, StatusBadgeVariant } from './StatusBadge';
+export type {
+  StatusBadgeProps,
+  StatusBadgeSize,
+  StatusBadgeVariant,
+} from './StatusBadge';
 
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
@@ -159,7 +163,6 @@ export type { SwitchProps } from './Switch';
 //   import { ContextMenu, ... } from '@langchain/macaw-components/ContextMenu'
 //   import { Command, ... } from '@langchain/macaw-components/Command'
 //   import { Select, ... } from '@langchain/macaw-components/Select'
-//   import { InlineSelect } from '@langchain/macaw-components/InlineSelect'
 //   import { Typeahead, ... } from '@langchain/macaw-components/Typeahead'
 //
 // NOTE: ChartCard is also excluded because its built-in overflow menu depends

@@ -24,6 +24,9 @@ const VARIANTS: Record<
   error: { color: 'error', icon: WarningCircleIcon },
 };
 
+/** Badge's text-label heights: xxs/xs=16px, sm=20px, md=24px. */
+export type StatusBadgeSize = NonNullable<BadgeProps['size']>;
+
 export interface StatusBadgeProps {
   /** How the state reads. Defaults to `neutral`. */
   variant?: StatusBadgeVariant;
@@ -32,6 +35,11 @@ export interface StatusBadgeProps {
    * carry one by default.
    */
   icon?: IconComponent | null;
+  /**
+   * Badge height; the icon and text scale with it. Defaults to `xs` (16px),
+   * which sits beside a title or in a row.
+   */
+  size?: StatusBadgeSize;
   children: string;
   className?: string;
 }
@@ -43,6 +51,7 @@ export interface StatusBadgeProps {
 export function StatusBadge({
   variant = 'neutral',
   icon,
+  size = 'xs',
   children,
   className,
 }: StatusBadgeProps) {
@@ -50,7 +59,7 @@ export function StatusBadge({
   return (
     <Badge
       color={color}
-      size="xs"
+      size={size}
       rounded="xs"
       leftDecorator={icon === null ? undefined : (icon ?? variantIcon)}
       iconWeight="regular"

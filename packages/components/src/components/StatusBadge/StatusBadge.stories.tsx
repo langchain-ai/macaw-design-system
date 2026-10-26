@@ -15,6 +15,7 @@ const meta: Meta<typeof StatusBadge> = {
       control: 'select',
       options: ['neutral', 'info', 'success', 'warning', 'error'],
     },
+    size: { control: 'select', options: ['xxs', 'xs', 'sm', 'md'] },
     icon: { control: false },
     children: { control: 'text' },
   },
@@ -35,6 +36,35 @@ export const AllVariants: Story = {
       <StatusBadge variant="success">Active</StatusBadge>
       <StatusBadge variant="warning">Expires in 3 days</StatusBadge>
       <StatusBadge variant="error">Failed</StatusBadge>
+    </div>
+  ),
+};
+
+/**
+ * `xs` (16px) is the default, for beside a title or in a row. `sm` (20px) and
+ * `md` (24px) suit roomier headers; the icon grows to 16px at `md`. `xxs`
+ * matches `xs` in height with normal-weight text.
+ */
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-space-3">
+      {(['xxs', 'xs', 'sm', 'md'] as const).map((size) => (
+        <div key={size} className="flex items-center gap-space-2">
+          <StatusBadge size={size}>Owner</StatusBadge>
+          <StatusBadge size={size} variant="info">
+            Beta
+          </StatusBadge>
+          <StatusBadge size={size} variant="success">
+            Active
+          </StatusBadge>
+          <StatusBadge size={size} variant="warning">
+            Expires in 3 days
+          </StatusBadge>
+          <StatusBadge size={size} variant="error">
+            Failed
+          </StatusBadge>
+        </div>
+      ))}
     </div>
   ),
 };

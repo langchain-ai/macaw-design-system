@@ -9,6 +9,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Select } from '.';
 import type { SelectGroup, SelectOption } from '.';
 import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
+import { Avatar } from '../Avatar';
 import { Icon } from '../Icon/Icon';
 import { Text } from '../Text/Text';
 
@@ -225,6 +226,89 @@ export const WithDescriptions: Story = {
     ],
     placeholder: 'Select metric...',
   },
+};
+
+type Role = 'admin' | 'editor' | 'viewer';
+
+const roleOptions: SelectOption<Role>[] = [
+  {
+    value: 'admin',
+    label: 'Admin',
+    description: 'Manages members and billing',
+  },
+  {
+    value: 'editor',
+    label: 'Editor',
+    description: 'Creates and edits resources',
+  },
+  { value: 'viewer', label: 'Viewer', description: 'Read-only access' },
+];
+
+function MemberRow({
+  name,
+  email,
+  initialRole,
+  disabled = false,
+}: {
+  name: string;
+  email: string;
+  initialRole: Role;
+  disabled?: boolean;
+}) {
+  const [role, setRole] = useState<Role>(initialRole);
+  return (
+    <div className="flex items-center gap-space-2 py-space-2">
+      <Avatar label={name} size="sm" shape="circle" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <Text as="span" variant="sm" weight="medium" className="truncate">
+          {name}
+        </Text>
+        <Text as="span" variant="xs" color="tertiary" className="truncate">
+          {email}
+        </Text>
+      </span>
+      <Select<Role>
+        variant="plain"
+        size="xs"
+        value={role}
+        onChange={(next) => {
+          if (next) setRole(next);
+        }}
+        options={roleOptions}
+        aria-label={`${name}'s role`}
+        disabled={disabled}
+        align="end"
+        contentClassName="w-64"
+      />
+    </div>
+  );
+}
+
+/**
+ * `variant="plain"` drops the field box and sizes the trigger to its value,
+ * so it reads as text in a row until hovered. Disabled, it stays transparent.
+ */
+export const PlainInline: Story = {
+  render: () => (
+    <div className="flex w-full flex-col divide-y divide-subtle">
+      <MemberRow
+        name="Dana Whitfield"
+        email="dana@example.com"
+        initialRole="admin"
+        disabled
+      />
+      <MemberRow
+        name="Sam Ortega"
+        email="sam@example.com"
+        initialRole="editor"
+      />
+      <MemberRow
+        name="Priya Nair"
+        email="priya@example.com"
+        initialRole="viewer"
+      />
+    </div>
+  ),
 };
 
 export const WithRightDecorators: Story = {

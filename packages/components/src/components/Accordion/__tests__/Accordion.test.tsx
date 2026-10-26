@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { render, screen } from '../../../test-utils';
-import { DropdownMenuItem } from '../../DropdownMenu';
+import { Button } from '../../Button';
+import { EmptyState } from '../../EmptyState';
 import { Accordion, AccordionItem } from '../Accordion';
 
 describe('Accordion', () => {
@@ -29,6 +30,25 @@ describe('Accordion', () => {
     );
 
     expect(container.querySelector('.border-default')).not.toBeInTheDocument();
+  });
+
+  it('renders other content, such as an empty state, inside its card', () => {
+    render(
+      <Accordion title="Members">
+        <EmptyState
+          title="No members yet"
+          description="Invite teammates to this workspace."
+          action={<Button>Invite members</Button>}
+        />
+      </Accordion>
+    );
+
+    const region = screen.getByRole('region', { name: 'Members' });
+    const card = region.querySelector('.border-default');
+    expect(card).toContainElement(screen.getByText('No members yet'));
+    expect(
+      screen.getByRole('button', { name: 'Invite members' })
+    ).toBeVisible();
   });
 });
 
@@ -117,17 +137,54 @@ describe('AccordionItem', () => {
     const { user } = render(
       <AccordionItem
         title="Weekly digest"
-        menuItems={
-          <DropdownMenuItem onSelect={onRemove}>Remove</DropdownMenuItem>
-        }
+        menuItems={[
+          {
+            label: 'Remove',
+            description: 'Stops the digest for everyone',
+            onSelect: onRemove,
+            tone: 'destructive',
+          },
+        ]}
       />
     );
 
     await user.click(
       screen.getByRole('button', { name: 'Weekly digest options' })
     );
-    await user.click(await screen.findByRole('menuitem', { name: 'Remove' }));
+    const item = await screen.findByRole('menuitem', { name: /Remove/ });
+    expect(item).toHaveTextContent('Stops the digest for everyone');
+    expect(screen.getByText('Remove')).toHaveClass('text-error-secondary');
 
+    await user.click(item);
     expect(onRemove).toHaveBeenCalledOnce();
+  });
+
+  it('does not run a disabled menu item', async () => {
+    const onRotate = vi.fn();
+    const { user } = render(
+      <AccordionItem
+        title="Production key"
+        menuItems={[
+          { label: 'Rename', onSelect: () => {} },
+          { label: 'Rotate', onSelect: onRotate, disabled: true },
+        ]}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Production key options' })
+    );
+    const rotate = await screen.findByRole('menuitem', { name: 'Rotate' });
+    expect(rotate).toHaveAttribute('aria-disabled', 'true');
+    await user.click(rotate);
+    expect(onRotate).not.toHaveBeenCalled();
+  });
+
+  it('has no overflow menu for an empty list of items', () => {
+    render(<AccordionItem title="Weekly digest" menuItems={[]} />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Weekly digest options' })
+    ).not.toBeInTheDocument();
   });
 });

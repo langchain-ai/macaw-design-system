@@ -36,4 +36,28 @@ describe('StatusBadge', () => {
     );
     expect(container.querySelector('svg')).not.toBeInTheDocument();
   });
+
+  it('defaults to xs and passes other sizes through, scaling its icon', () => {
+    const { rerender } = render(
+      <StatusBadge variant="success">Active</StatusBadge>
+    );
+    const badge = () => screen.getByText('Active').parentElement!;
+    expect(badge()).toHaveClass('h-4');
+    expect(badge().querySelector('svg')).toHaveClass('size-3');
+
+    rerender(
+      <StatusBadge variant="success" size="sm">
+        Active
+      </StatusBadge>
+    );
+    expect(badge()).toHaveClass('h-5');
+
+    rerender(
+      <StatusBadge variant="success" size="md">
+        Active
+      </StatusBadge>
+    );
+    expect(badge()).toHaveClass('h-6');
+    expect(badge().querySelector('svg')).toHaveClass('size-4');
+  });
 });

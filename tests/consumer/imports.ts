@@ -5,12 +5,18 @@ import {
   StatusBadge,
   Text,
 } from '@langchain/macaw-components';
-import type { StatusBadgeVariant } from '@langchain/macaw-components';
+import type {
+  StatusBadgeProps,
+  StatusBadgeVariant,
+} from '@langchain/macaw-components';
 import {
   Accordion,
   AccordionItem,
 } from '@langchain/macaw-components/Accordion';
-import type { AccordionItemProps } from '@langchain/macaw-components/Accordion';
+import type {
+  AccordionItemMenuItem,
+  AccordionItemProps,
+} from '@langchain/macaw-components/Accordion';
 import { AttachmentList } from '@langchain/macaw-components/Attachment';
 import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
@@ -38,8 +44,6 @@ import type { HeatmapChartProps } from '@langchain/macaw-components/HeatmapChart
 import { AppThemeProvider } from '@langchain/macaw-components/hooks/AppThemeProvider';
 import { useDebouncedCommit } from '@langchain/macaw-components/hooks/useDebouncedCommit';
 import { CheckIcon } from '@langchain/macaw-components/icons';
-import { InlineSelect } from '@langchain/macaw-components/InlineSelect';
-import type { InlineSelectProps } from '@langchain/macaw-components/InlineSelect';
 import type {
   InputIconAction,
   InputProps,
@@ -64,15 +68,15 @@ void [
   Accordion,
   AccordionItem,
   { title: 'Notifications', contents: 'Email' } satisfies AccordionItemProps,
-  InlineSelect,
   {
-    value: 'a',
-    onChange: () => {},
-    options: [{ value: 'a', label: 'A' }],
-    'aria-label': 'Option',
-  } satisfies InlineSelectProps<'a'>,
+    label: 'Remove',
+    description: 'Revokes access immediately',
+    onSelect: () => {},
+    tone: 'destructive',
+  } satisfies AccordionItemMenuItem,
   StatusBadge,
   'warning' satisfies StatusBadgeVariant,
+  { children: 'Active', size: 'sm' } satisfies StatusBadgeProps,
   Attachment,
   AttachmentList,
   {
