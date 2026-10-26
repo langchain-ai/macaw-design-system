@@ -1,3 +1,13 @@
+## 1.1.1 (2026-10-26)
+
+### 🚀 Features
+
+- **components:** add Accordion and StatusBadge, plus a plain Select variant ([#65](https://github.com/langchain-ai/macaw-design-system/pull/65))
+
+### ❤️ Thank You
+
+- hannahmacaulay-langchain
+
 ## 1.1.0 (2026-10-25)
 
 ### 🚀 Features
