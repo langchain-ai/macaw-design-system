@@ -8,34 +8,24 @@ const SAMPLE_COUNT = 120;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
-function createWave(random = false) {
-  const frequency = random ? 0.5 + Math.random() * 4 : 2;
-  const phase = random ? Math.random() * Math.PI * 2 : 0;
+function createPath(line: number, time = 0) {
+  const phase = line * 2.4;
+  const spread = (line / (LINE_COUNT - 1)) * 2 - 1;
+  const frequency = 2 + Math.sin(time * 0.17 + phase) * 1.4;
+  const amplitude = 0.65 + Math.sin(time * 0.31 + phase) * 0.25;
 
-  return Array.from({ length: LINE_COUNT }, (_, line) => {
-    const spread = (line / (LINE_COUNT - 1)) * 2 - 1;
-    const amplitude = random ? 0.4 + Math.random() * 0.6 : 1;
-    const offset = random ? (Math.random() - 0.5) * 0.8 : 0;
-
-    return Array.from({ length: SAMPLE_COUNT + 1 }, (_, sample) => {
-      const x = sample / SAMPLE_COUNT;
-      const envelope = Math.sin(Math.PI * x) ** 2;
-      const wave = Math.sin(x * Math.PI * 2 * frequency + phase + offset);
-      return HEIGHT / 2 + envelope * wave * spread * amplitude * HEIGHT * 0.4;
-    });
-  });
+  return Array.from({ length: SAMPLE_COUNT + 1 }, (_, sample) => {
+    const x = sample / SAMPLE_COUNT;
+    const envelope = Math.sin(Math.PI * x) ** 2;
+    const wave = Math.sin(x * Math.PI * 2 * frequency + time * 0.7 + phase);
+    const y = HEIGHT / 2 + envelope * wave * spread * amplitude * HEIGHT * 0.4;
+    return `${sample === 0 ? 'M' : 'L'}${x * WIDTH},${y.toFixed(2)}`;
+  }).join(' ');
 }
 
-function toPath(points: number[]) {
-  return points
-    .map(
-      (y, sample) =>
-        `${sample === 0 ? 'M' : 'L'}${(sample / SAMPLE_COUNT) * WIDTH},${y.toFixed(2)}`
-    )
-    .join(' ');
-}
-
-const INITIAL_WAVE = createWave();
+const INITIAL_PATHS = Array.from({ length: LINE_COUNT }, (_, line) =>
+  createPath(line)
+);
 
 interface WaveformLoaderProps {
   speed?: keyof typeof SPEEDS;
@@ -49,39 +39,25 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const paths = svgRef.current?.querySelectorAll('path');
+    const rates = INITIAL_PATHS.map(() => 0.5 + Math.random());
     let frame: number;
-    let current = INITIAL_WAVE;
-
-    const draw = (wave: number[][]) => {
-      paths?.forEach((path, line) =>
-        path.setAttribute('d', toPath(wave[line]))
-      );
-    };
 
     const updateMotion = () => {
       cancelAnimationFrame(frame);
       if (preference.matches) {
-        current = INITIAL_WAVE;
-        draw(current);
+        paths?.forEach((path, line) =>
+          path.setAttribute('d', INITIAL_PATHS[line])
+        );
         return;
       }
 
-      let from = current;
-      let target = createWave(true);
       let started: number | undefined;
       const animate = (time: number) => {
         started ??= time;
-        const progress = Math.min((time - started) / duration, 1);
-        const eased = progress ** 3 * (progress * (progress * 6 - 15) + 10);
-        current = from.map((points, line) =>
-          points.map((y, sample) => y + (target[line][sample] - y) * eased)
-        );
-        draw(current);
-        if (progress === 1) {
-          from = current;
-          target = createWave(true);
-          started = time;
-        }
+        const elapsed = (time - started) / duration;
+        paths?.forEach((path, line) => {
+          path.setAttribute('d', createPath(line, elapsed * rates[line]));
+        });
         frame = requestAnimationFrame(animate);
       };
       frame = requestAnimationFrame(animate);
@@ -107,8 +83,8 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className={styles.waveform}
       >
-        {INITIAL_WAVE.map((points, line) => (
-          <path key={line} d={toPath(points)} />
+        {INITIAL_PATHS.map((path, line) => (
+          <path key={line} d={path} />
         ))}
       </svg>
     </div>
