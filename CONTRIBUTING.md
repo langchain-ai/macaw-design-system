@@ -81,6 +81,27 @@ pnpm unlink @langchain/macaw-components
 
 Unlink `@langchain/macaw-tokens` too if you linked it.
 
+## Accessibility checks
+
+The Storybook Accessibility panel runs axe checks on each story, including
+portaled content. Existing catalog findings are reported as warnings (`todo`)
+while stories tagged `a11y-test` use `parameters.a11y.test: 'error'` and block CI
+on violations. The suite uses the addon's default axe rules without additional exclusions.
+
+Run the browser suite locally (Node 26+):
+
+```sh
+pnpm exec playwright install chromium
+pnpm test:a11y
+```
+
+The suite runs the tagged stories in Chromium in both light and dark themes.
+It also checks keyboard toggling, tab selection, disabled-tab navigation, and dialog focus trapping/restoration.
+To expand coverage, tag a story `a11y-test` and set its a11y test mode to `error`.
+Use `play` functions to expose interactive states before the automatic axe scan.
+Keep meaningful accessible names and avoid blanket rule exclusions. Automated
+checks complement manual keyboard and screen-reader testing.
+
 ## Before opening a pull request
 
 ```sh

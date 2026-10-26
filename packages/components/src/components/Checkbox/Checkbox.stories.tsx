@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { expect } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Checkbox } from './Checkbox';
@@ -113,6 +115,8 @@ export const Checked: Story = {
 };
 
 export const Indeterminate: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     checked: 'indeterminate',
     label: 'Indeterminate',
@@ -121,6 +125,8 @@ export const Indeterminate: Story = {
 
 // Disabled states
 export const DisabledUnchecked: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     checked: false,
     disabled: true,
@@ -146,6 +152,18 @@ export const DisabledIndeterminate: Story = {
 
 // Interactive example
 export const Interactive: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const control = canvas.getByRole('checkbox', { name: 'Click me' });
+    await userEvent.tab();
+    await expect(control).toHaveFocus();
+    await expect(control).not.toBeChecked();
+    await userEvent.keyboard('[Space]');
+    await expect(control).toBeChecked();
+    await userEvent.keyboard('[Space]');
+    await expect(control).not.toBeChecked();
+  },
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     checked: false,
     label: 'Click me',
@@ -293,6 +311,8 @@ export const AllVariants: Story = {
 
 // Accessibility variants - using aria-label instead of visible label
 export const WithAriaLabel: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     checked: true,
     'aria-label': 'Accept terms and conditions',
@@ -321,6 +341,8 @@ export const WithAriaLabel: Story = {
 };
 
 export const WithAriaLabelledBy: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     checked: true,
     'aria-labelledby': 'custom-label',

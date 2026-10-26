@@ -553,7 +553,8 @@
   },
   "scripts": {
     "build": "node ../../scripts/build-components.mjs",
-    "storybook": "storybook dev -p 5264"
+    "storybook": "storybook dev -p 5264",
+    "test:a11y": "vitest run --config ../../vitest.storybook.config.ts"
   },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.2",

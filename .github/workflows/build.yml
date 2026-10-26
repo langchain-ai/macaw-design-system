@@ -35,6 +35,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Chromium for accessibility tests
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Test Storybook accessibility
+        run: pnpm test:a11y
+
       - name: Prepare release version
         if: inputs.prepare_release
         run: |
