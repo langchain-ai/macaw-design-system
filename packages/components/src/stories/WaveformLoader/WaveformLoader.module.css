@@ -1,7 +1,7 @@
 .loader {
   width: 100%;
   min-width: 0;
-  color: var(--bg-brand-primary);
+  color: #7fc8ff;
 }
 
 .waveform {

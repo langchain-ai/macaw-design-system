@@ -72,7 +72,7 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
       const animate = (time: number) => {
         started ??= time;
         const progress = Math.min((time - started) / duration, 1);
-        const eased = progress * progress * (3 - 2 * progress);
+        const eased = progress ** 3 * (progress * (progress * 6 - 15) + 10);
         current = from.map((points, line) =>
           points.map((y, sample) => y + (target[line][sample] - y) * eased)
         );
