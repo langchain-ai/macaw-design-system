@@ -268,9 +268,8 @@ function OptionSelect<T extends string = string>({
             variant === 'plain'
               ? cn(
                   'w-auto max-w-full gap-space-1 px-space-1',
-                  // Button's disabled fill would box it; a disabled plain
-                  // trigger stays text.
-                  disabled && 'bg-transparent dark:bg-transparent'
+                  // The shared disabled fill, in both themes.
+                  disabled && 'bg-disabled text-disabled dark:bg-disabled'
                 )
               : cn(
                   'w-full',

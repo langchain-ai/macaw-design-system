@@ -286,7 +286,7 @@ function MemberRow({
 
 /**
  * `variant="plain"` drops the field box and sizes the trigger to its value,
- * so it reads as text in a row until hovered. Disabled, it stays transparent.
+ * so it reads as text in a row until hovered. Disabled, it takes the disabled fill.
  */
 export const PlainInline: Story = {
   render: () => (

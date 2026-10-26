@@ -127,7 +127,7 @@ describe('Select variant', () => {
     }
   });
 
-  it('stays transparent when plain and disabled', () => {
+  it('uses the disabled fill when plain and disabled', () => {
     render(
       <Select
         variant="plain"
@@ -141,12 +141,8 @@ describe('Select variant', () => {
 
     const trigger = screen.getByRole('combobox', { name: 'Environment' });
     expect(trigger).toBeDisabled();
-    expect(trigger).toHaveClass('bg-transparent');
-    for (const fieldClass of [
-      'bg-input-disabled',
-      'bg-surface-level-1-hover',
-      'border-muted',
-    ]) {
+    expect(trigger).toHaveClass('bg-disabled', 'text-disabled');
+    for (const fieldClass of ['bg-input-disabled', 'border-muted']) {
       expect(trigger).not.toHaveClass(fieldClass);
     }
   });
