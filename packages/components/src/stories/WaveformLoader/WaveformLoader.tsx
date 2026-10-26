@@ -8,7 +8,7 @@ const SAMPLE_COUNT = 120;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
-function createPath(line: number, time = 0) {
+function createPath(line: number, time = 0, hasCenterPoint = false) {
   const phase = line * 2.4;
   const spread = (line / (LINE_COUNT - 1)) * 2 - 1;
   const frequency = 2 + Math.sin(time * 0.17 + phase) * 1.4;
@@ -16,37 +16,40 @@ function createPath(line: number, time = 0) {
 
   return Array.from({ length: SAMPLE_COUNT + 1 }, (_, sample) => {
     const x = sample / SAMPLE_COUNT;
-    const envelope = Math.sin(Math.PI * x) ** 2;
+    const envelope = Math.sin(Math.PI * x * (hasCenterPoint ? 2 : 1)) ** 2;
     const wave = Math.sin(x * Math.PI * 2 * frequency + time * 0.7 + phase);
     const y = HEIGHT / 2 + envelope * wave * spread * amplitude * HEIGHT * 0.4;
     return `${sample === 0 ? 'M' : 'L'}${x * WIDTH},${y.toFixed(2)}`;
   }).join(' ');
 }
 
-const INITIAL_PATHS = Array.from({ length: LINE_COUNT }, (_, line) =>
-  createPath(line)
-);
+const LINES = Array.from({ length: LINE_COUNT }, (_, line) => line);
 
 interface WaveformLoaderProps {
   speed?: keyof typeof SPEEDS;
+  hasCenterPoint?: boolean;
   className?: string;
 }
 
-function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
+function WaveformLoader({
+  speed = 'medium',
+  hasCenterPoint = false,
+  className,
+}: WaveformLoaderProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const duration = SPEEDS[speed];
 
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const paths = svgRef.current?.querySelectorAll('path');
-    const rates = INITIAL_PATHS.map(() => 0.5 + Math.random());
+    const rates = LINES.map(() => 0.5 + Math.random());
     let frame: number;
 
     const updateMotion = () => {
       cancelAnimationFrame(frame);
       if (preference.matches) {
         paths?.forEach((path, line) =>
-          path.setAttribute('d', INITIAL_PATHS[line])
+          path.setAttribute('d', createPath(line, 0, hasCenterPoint))
         );
         return;
       }
@@ -56,7 +59,10 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
         started ??= time;
         const elapsed = (time - started) / duration;
         paths?.forEach((path, line) => {
-          path.setAttribute('d', createPath(line, elapsed * rates[line]));
+          path.setAttribute(
+            'd',
+            createPath(line, elapsed * rates[line], hasCenterPoint)
+          );
         });
         frame = requestAnimationFrame(animate);
       };
@@ -69,7 +75,7 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
       cancelAnimationFrame(frame);
       preference.removeEventListener('change', updateMotion);
     };
-  }, [duration]);
+  }, [duration, hasCenterPoint]);
 
   return (
     <div
@@ -83,8 +89,8 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className={styles.waveform}
       >
-        {INITIAL_PATHS.map((path, line) => (
-          <path key={line} d={path} />
+        {LINES.map((line) => (
+          <path key={line} d={createPath(line, 0, hasCenterPoint)} />
         ))}
       </svg>
     </div>
