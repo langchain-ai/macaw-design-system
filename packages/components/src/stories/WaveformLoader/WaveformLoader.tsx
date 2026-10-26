@@ -11,13 +11,13 @@ const HEIGHT = 1080;
 function createPath(line: number, time = 0, hasCenterPoint = false) {
   const phase = line * 2.4;
   const spread = (line / (LINE_COUNT - 1)) * 2 - 1;
-  const frequency = 2 + Math.sin(time * 0.17 + phase) * 1.4;
+  const frequency = 2 + Math.sin(time * 0.05 + phase) * 1.4;
   const amplitude = 0.65 + Math.sin(time * 0.31 + phase) * 0.25;
 
   return Array.from({ length: SAMPLE_COUNT + 1 }, (_, sample) => {
     const x = sample / SAMPLE_COUNT;
     const envelope = Math.sin(Math.PI * x * (hasCenterPoint ? 2 : 1)) ** 2;
-    const wave = Math.sin(x * Math.PI * 2 * frequency + time * 0.7 + phase);
+    const wave = Math.sin(x * Math.PI * 2 * frequency - time * 0.7 + phase);
     const y = HEIGHT / 2 + envelope * wave * spread * amplitude * HEIGHT * 0.4;
     return `${sample === 0 ? 'M' : 'L'}${x * WIDTH},${y.toFixed(2)}`;
   }).join(' ');
