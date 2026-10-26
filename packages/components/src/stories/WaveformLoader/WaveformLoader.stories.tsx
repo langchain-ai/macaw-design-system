@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Text } from '../../components/Text';
 import { WaveformLoader } from './WaveformLoader';
+
+import styles from './WaveformLoader.module.css';
 
 const meta = {
   title: 'Components/Status/*WaveformLoader',
@@ -12,7 +13,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Experimental, Storybook-only PoC based on the supplied waveform artwork. Not exported for consumers. The two lobes pulse independently to random amplitudes. Speed sets the pulse interval: Slow (500ms), Medium (250ms), Fast (100ms). Reduced-motion preferences disable pulsing.',
+          'Experimental, Storybook-only PoC based on the supplied waveform artwork. Not exported for consumers. Continuous lines morph independently through changing frequencies and amplitudes, allowing lobes to appear and disappear. Speed sets the pulse interval: Slow (500ms), Medium (250ms), Fast (100ms). Reduced-motion preferences disable pulsing.',
       },
     },
   },
@@ -26,7 +27,7 @@ const meta = {
   args: { speed: 'medium' },
   decorators: [
     (Story) => (
-      <div className="w-full rounded-lg bg-surface-level-1">
+      <div className={styles.preview}>
         <Story />
       </div>
     ),
@@ -40,16 +41,16 @@ export const Default: Story = {};
 
 export const Speeds: Story = {
   render: () => (
-    <div className="grid gap-space-6 sm:grid-cols-3">
+    <div className={styles.speeds}>
       {(['slow', 'medium', 'fast'] as const).map((speed) => (
-        <div key={speed} className="min-w-0">
-          <Text variant="sm" color="secondary">
+        <div key={speed}>
+          <p className={styles.caption}>
             {speed === 'slow'
               ? 'Slow · 500ms'
               : speed === 'medium'
                 ? 'Medium · 250ms'
                 : 'Fast · 100ms'}
-          </Text>
+          </p>
           <WaveformLoader speed={speed} />
         </div>
       ))}
@@ -59,13 +60,13 @@ export const Speeds: Story = {
 
 export const Responsive: Story = {
   render: (args) => (
-    <div className="flex flex-col items-start gap-space-6">
-      <Text variant="sm" color="secondary">
+    <div className={styles.responsive}>
+      <p className={styles.caption}>
         Resize the viewport: each waveform scales with its container.
-      </Text>
+      </p>
       <WaveformLoader {...args} />
-      <WaveformLoader {...args} className="max-w-sm" />
-      <WaveformLoader {...args} className="max-w-40" />
+      <WaveformLoader {...args} className={styles.compact} />
+      <WaveformLoader {...args} className={styles.inline} />
     </div>
   ),
 };

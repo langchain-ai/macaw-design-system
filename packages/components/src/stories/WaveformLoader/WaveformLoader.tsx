@@ -1,35 +1,41 @@
-import { useEffect, useState } from 'react';
-
-import { cn } from '../../utils/cn';
+import { useEffect, useRef } from 'react';
 
 import styles from './WaveformLoader.module.css';
 
 const SPEEDS = { slow: 500, medium: 250, fast: 100 } as const;
-const LEVELS = [
-  1, 0.973, 0.933, 0.887, 0.823, 0.741, 0.631, 0.506, 0.36, 0.186,
-];
-const LOBES = [
-  {
-    start: 0.522,
-    control1: 194.376,
-    control2: 213.2,
-    peak: 340.782,
-    control3: 450.379,
-    control4: 507.349,
-    end: 664.702,
-    height: 171.537,
-  },
-  {
-    start: 628.607,
-    control1: 1005.19,
-    control2: 1041.76,
-    peak: 1289.61,
-    control3: 1502.52,
-    control4: 1613.19,
-    end: 1918.87,
-    height: 371.085,
-  },
-];
+const LINE_COUNT = 20;
+const SAMPLE_COUNT = 120;
+const WIDTH = 1920;
+const HEIGHT = 1080;
+
+function createWave(random = false) {
+  const frequency = random ? 0.5 + Math.random() * 4 : 2;
+  const phase = random ? Math.random() * Math.PI * 2 : 0;
+
+  return Array.from({ length: LINE_COUNT }, (_, line) => {
+    const spread = (line / (LINE_COUNT - 1)) * 2 - 1;
+    const amplitude = random ? 0.4 + Math.random() * 0.6 : 1;
+    const offset = random ? (Math.random() - 0.5) * 0.8 : 0;
+
+    return Array.from({ length: SAMPLE_COUNT + 1 }, (_, sample) => {
+      const x = sample / SAMPLE_COUNT;
+      const envelope = Math.sin(Math.PI * x) ** 2;
+      const wave = Math.sin(x * Math.PI * 2 * frequency + phase + offset);
+      return HEIGHT / 2 + envelope * wave * spread * amplitude * HEIGHT * 0.4;
+    });
+  });
+}
+
+function toPath(points: number[]) {
+  return points
+    .map(
+      (y, sample) =>
+        `${sample === 0 ? 'M' : 'L'}${(sample / SAMPLE_COUNT) * WIDTH},${y.toFixed(2)}`
+    )
+    .join(' ');
+}
+
+const INITIAL_WAVE = createWave();
 
 interface WaveformLoaderProps {
   speed?: keyof typeof SPEEDS;
@@ -37,26 +43,54 @@ interface WaveformLoaderProps {
 }
 
 function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
-  const [amplitudes, setAmplitudes] = useState([1, 1]);
+  const svgRef = useRef<SVGSVGElement>(null);
   const duration = SPEEDS[speed];
 
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let timer: ReturnType<typeof setInterval> | undefined;
+    const paths = svgRef.current?.querySelectorAll('path');
+    let frame: number;
+    let current = INITIAL_WAVE;
+
+    const draw = (wave: number[][]) => {
+      paths?.forEach((path, line) =>
+        path.setAttribute('d', toPath(wave[line]))
+      );
+    };
+
     const updateMotion = () => {
-      clearInterval(timer);
-      setAmplitudes([1, 1]);
-      if (!preference.matches) {
-        timer = setInterval(() => {
-          setAmplitudes(LOBES.map(() => 0.25 + Math.random() * 0.75));
-        }, duration);
+      cancelAnimationFrame(frame);
+      if (preference.matches) {
+        current = INITIAL_WAVE;
+        draw(current);
+        return;
       }
+
+      let from = current;
+      let target = createWave(true);
+      let started: number | undefined;
+      const animate = (time: number) => {
+        started ??= time;
+        const progress = Math.min((time - started) / duration, 1);
+        const eased = progress * progress * (3 - 2 * progress);
+        current = from.map((points, line) =>
+          points.map((y, sample) => y + (target[line][sample] - y) * eased)
+        );
+        draw(current);
+        if (progress === 1) {
+          from = current;
+          target = createWave(true);
+          started = time;
+        }
+        frame = requestAnimationFrame(animate);
+      };
+      frame = requestAnimationFrame(animate);
     };
 
     updateMotion();
     preference.addEventListener('change', updateMotion);
     return () => {
-      clearInterval(timer);
+      cancelAnimationFrame(frame);
       preference.removeEventListener('change', updateMotion);
     };
   }, [duration]);
@@ -64,41 +98,17 @@ function WaveformLoader({ speed = 'medium', className }: WaveformLoaderProps) {
   return (
     <div
       role="status"
-      className={cn('w-full min-w-0 text-brand-primary', className)}
+      className={[styles.loader, className].filter(Boolean).join(' ')}
     >
-      <span className="sr-only">Loading</span>
+      <span className={styles.label}>Loading</span>
       <svg
+        ref={svgRef}
         aria-hidden="true"
-        viewBox="0 0 1920 1080"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4412"
-        strokeLinecap="round"
-        className="block h-auto w-full"
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        className={styles.waveform}
       >
-        <path d="M1 540.574H1919" />
-        {LOBES.map((lobe, index) => (
-          <g key={lobe.start} transform="translate(0 540.574)">
-            <g
-              className={styles.pulse}
-              style={{
-                transform: `scaleY(${amplitudes[index]})`,
-                transitionDuration: `${duration}ms`,
-              }}
-            >
-              {LEVELS.flatMap((level) =>
-                [-1, 1].map((direction) => {
-                  const height = lobe.height * level * direction;
-                  return (
-                    <path
-                      key={`${level}-${direction}`}
-                      d={`M${lobe.start} 0C${lobe.control1} 0 ${lobe.control2} ${height} ${lobe.peak} ${height}C${lobe.control3} ${height} ${lobe.control4} 0 ${lobe.end} 0`}
-                    />
-                  );
-                })
-              )}
-            </g>
-          </g>
+        {INITIAL_WAVE.map((points, line) => (
+          <path key={line} d={toPath(points)} />
         ))}
       </svg>
     </div>
