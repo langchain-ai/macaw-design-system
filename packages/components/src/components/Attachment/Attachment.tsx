@@ -280,7 +280,13 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               ]
             : [sizeStyles.height, sizeStyles.padding],
           status === 'error' && 'border-error',
-          onOpen && !disabled && 'cursor-pointer',
+          onOpen &&
+          // style overrides for focus ring to match attachment block's size
+            !disabled && [
+              'cursor-pointer',
+              'has-[>[data-attachment-open]:focus-visible]:outline has-[>[data-attachment-open]:focus-visible]:outline-2',
+              'has-[>[data-attachment-open]:focus-visible]:outline-offset-2 has-[>[data-attachment-open]:focus-visible]:outline-[var(--border-focus)]',
+            ],
           disabled && 'cursor-not-allowed opacity-50',
           className
         )}
@@ -291,10 +297,12 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             color="secondary"
             variant="plain"
             aria-label={openLabel}
+            data-attachment-open=""
             disabled={disabled}
             aria-describedby={description ? statusId : undefined}
             className={cn(
-              'min-w-0 flex-1 justify-start p-0 text-left',
+              'min-w-0 flex-1 justify-start p-0 text-left focus-visible:outline-none',
+              !disabled && 'hover:bg-transparent dark:hover:bg-transparent',
               isThumbnail
                 ? 'h-auto w-full max-w-full flex-none whitespace-normal'
                 : 'h-full'

@@ -240,7 +240,7 @@ function ImagePreviewContent({
         aria-label="Image viewport"
         tabIndex={0}
         className={cn(
-          'relative min-h-0 min-w-0 flex-1 overflow-auto rounded-sm bg-surface-level-2 outline-none focus-visible:ring-2 focus-visible:ring-focus',
+          'relative min-h-0 min-w-0 flex-1 overflow-auto rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-focus',
           canPan && 'touch-none cursor-grab',
           dragging && 'cursor-grabbing select-none'
         )}

@@ -402,18 +402,13 @@ function ThumbnailsDemo() {
           />
         ))}
       </AttachmentList>
-      <Dialog
+      <ImagePreviewDialog
         open={selected !== undefined}
         onOpenChange={(open) => !open && setSelected(undefined)}
-      >
-        <DialogContent title={selected ?? 'Image preview'}>
-          <img
-            src={sampleImage}
-            alt={selected ?? ''}
-            className="max-h-96 w-full object-contain"
-          />
-        </DialogContent>
-      </Dialog>
+        src={sampleImage}
+        alt={selected ?? 'Image preview'}
+        title={selected}
+      />
     </>
   );
 }

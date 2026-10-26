@@ -12,10 +12,11 @@ const meta = {
   component: ImagePreviewDialog,
   tags: ['autodocs', 'image', 'preview', 'dialog', 'zoom', 'pan', 'attachment'],
   parameters: {
+    layout: 'centered',
     docs: {
       description: {
         component:
-          'A shared image viewer with zoom, fit, scroll and drag panning. A visible title and host-owned download are optional.',
+          'Image viewer with zoom, fit, and pan. Optional title and download.',
       },
     },
   },
@@ -45,14 +46,14 @@ export const Default: Story = {};
 export const LongTitle: Story = {
   args: {
     title:
-      'Engine Workflow — Complete Architecture, Execution History, Tool Results, Evaluation Results, and Deployment Configuration for the Current Workspace',
+      'Engine Workflow: Complete Architecture, Execution History, Tool Results, Evaluation Results, and Deployment Configuration for the Current Workspace',
     onDownload: () => {},
   },
   parameters: {
     docs: {
       description: {
         story:
-          'The title and controls share one row. Resize the dialog and hover or focus a truncated title to read its full name.',
+          'Hover or focus a truncated title to see its full name.',
       },
     },
   },
@@ -62,7 +63,7 @@ export const WithDownload: Story = {
     const [open, setOpen] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
     return (
-      <>
+      <div className="flex flex-col items-center gap-space-3">
         <Button color="secondary" onClick={() => setOpen(true)}>
           Preview image
         </Button>
@@ -73,7 +74,7 @@ export const WithDownload: Story = {
           onOpenChange={setOpen}
           onDownload={() => setDownloaded(true)}
         />
-      </>
+      </div>
     );
   },
 };

@@ -1,6 +1,5 @@
-import { useState } from 'react';
-
 import { sanitizeUrl } from '@braintree/sanitize-url';
+import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/ssr/DownloadSimple';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ImagePreviewBlock } from '.';
@@ -8,15 +7,6 @@ import sampleImage from '../../stories/assets/attachment-preview.png';
 import { Button } from '../Button';
 import engineLogo from '../Logo/EngineLogoLight.svg';
 import fleetLogo from '../Logo/FleetLogoFull.svg';
-
-function downloadImage() {
-  const link = document.createElement('a');
-  link.href = sanitizeUrl(sampleImage);
-  link.download = 'engine-workflow.png';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-}
 
 const meta = {
   title: 'Components/Display/ImagePreviewBlock',
@@ -28,11 +18,10 @@ const meta = {
       source: { type: 'code' },
       description: {
         component: [
-          '- One image with an optional caption and host-owned actions.',
-          '- Click to open ImagePreviewDialog with zoom, fit, and panning.',
-          '- The preview title is hidden unless previewTitle is supplied; download is optional.',
-          '- Images retain their natural dimensions and shrink to fit narrow containers.',
-          '- Hosts own image sources, URL lifecycles, downloads, and permissions.',
+          '- Image block with optional caption and actions.',
+          '- Opens a zoomable preview with optional title and download.',
+          '- Shrinks to fit without upscaling.',
+          '- Hosts manage sources, downloads, and permissions.',
         ].join('\n'),
       },
     },
@@ -60,14 +49,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const WithPreviewTitle: Story = {
-  args: { previewTitle: 'Engine Workflow' },
-};
-
-export const WithDownload: Story = {
-  args: { onDownload: downloadImage },
-};
-
 export const MultipleImages: Story = {
   render: (args) => (
     <div className="flex flex-col gap-space-3">
@@ -87,48 +68,35 @@ export const MultipleImages: Story = {
 };
 
 export const WithActions: Story = {
-  render: function WithActionsExample(args) {
-    const [saved, setSaved] = useState(false);
-    return (
-      <ImagePreviewBlock
-        {...args}
-        actions={
-          <Button
-            size="sm"
-            color="secondary"
-            variant="outlined"
-            disabled={saved}
-            onClick={() => setSaved(true)}
-          >
-            {saved ? 'Saved' : 'Save image'}
-          </Button>
-        }
-      />
-    );
-  },
+  render: (args) => (
+    <ImagePreviewBlock
+      {...args}
+      actions={
+        <Button
+          size="xs"
+          color="secondary"
+          variant="plain"
+          leftDecorator={DownloadSimpleIcon}
+          onClick={() => {
+            const link = document.createElement('a');
+            link.href = sanitizeUrl(args.src);
+            link.download = 'image.png';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }}
+        >
+          Download image
+        </Button>
+      }
+    />
+  ),
 };
 
 export const Narrow: Story = {
   render: (args) => (
     <div className="w-64 max-w-full">
-      <ImagePreviewBlock
-        {...args}
-        previewTitle="Engine Workflow With a Longer Title"
-      />
+      <ImagePreviewBlock {...args} />
     </div>
   ),
-};
-
-export const UnavailableImage: Story = {
-  args: {
-    src: 'data:image/png;base64,invalid',
-    alt: 'Unavailable workflow image',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Open the preview to see the image-load error state.',
-      },
-    },
-  },
 };
