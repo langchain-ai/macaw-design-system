@@ -1,4 +1,16 @@
-import { Attachment, Button, Card, Text } from '@langchain/macaw-components';
+import {
+  Attachment,
+  Button,
+  Card,
+  StatusBadge,
+  Text,
+} from '@langchain/macaw-components';
+import type { StatusBadgeVariant } from '@langchain/macaw-components';
+import {
+  Accordion,
+  AccordionItem,
+} from '@langchain/macaw-components/Accordion';
+import type { AccordionItemProps } from '@langchain/macaw-components/Accordion';
 import { AttachmentList } from '@langchain/macaw-components/Attachment';
 import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
@@ -26,6 +38,8 @@ import type { HeatmapChartProps } from '@langchain/macaw-components/HeatmapChart
 import { AppThemeProvider } from '@langchain/macaw-components/hooks/AppThemeProvider';
 import { useDebouncedCommit } from '@langchain/macaw-components/hooks/useDebouncedCommit';
 import { CheckIcon } from '@langchain/macaw-components/icons';
+import { InlineSelect } from '@langchain/macaw-components/InlineSelect';
+import type { InlineSelectProps } from '@langchain/macaw-components/InlineSelect';
 import type {
   InputIconAction,
   InputProps,
@@ -47,6 +61,18 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  Accordion,
+  AccordionItem,
+  { title: 'Notifications', contents: 'Email' } satisfies AccordionItemProps,
+  InlineSelect,
+  {
+    value: 'a',
+    onChange: () => {},
+    options: [{ value: 'a', label: 'A' }],
+    'aria-label': 'Option',
+  } satisfies InlineSelectProps<'a'>,
+  StatusBadge,
+  'warning' satisfies StatusBadgeVariant,
   Attachment,
   AttachmentList,
   {

@@ -28,6 +28,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./Accordion": {
+      "types": "./dist/components/Accordion/index.d.ts",
+      "import": "./dist/components/Accordion/index.js"
+    },
     "./Attachment": {
       "types": "./dist/components/Attachment/index.d.ts",
       "import": "./dist/components/Attachment/index.js"
@@ -140,6 +144,10 @@
       "types": "./dist/components/IconButton/index.d.ts",
       "import": "./dist/components/IconButton/index.js"
     },
+    "./InlineSelect": {
+      "types": "./dist/components/InlineSelect/index.d.ts",
+      "import": "./dist/components/InlineSelect/index.js"
+    },
     "./Input": {
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
@@ -223,6 +231,10 @@
     "./SplitViewPane": {
       "types": "./dist/components/SplitViewPane/index.d.ts",
       "import": "./dist/components/SplitViewPane/index.js"
+    },
+    "./StatusBadge": {
+      "types": "./dist/components/StatusBadge/index.d.ts",
+      "import": "./dist/components/StatusBadge/index.js"
     },
     "./Switch": {
       "types": "./dist/components/Switch/index.d.ts",
@@ -308,6 +320,10 @@
     "./components/index": {
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js"
+    },
+    "./components/Accordion": {
+      "types": "./dist/components/Accordion/index.d.ts",
+      "import": "./dist/components/Accordion/index.js"
     },
     "./components/Attachment": {
       "types": "./dist/components/Attachment/index.d.ts",
@@ -421,6 +437,10 @@
       "types": "./dist/components/IconButton/index.d.ts",
       "import": "./dist/components/IconButton/index.js"
     },
+    "./components/InlineSelect": {
+      "types": "./dist/components/InlineSelect/index.d.ts",
+      "import": "./dist/components/InlineSelect/index.js"
+    },
     "./components/Input": {
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
@@ -504,6 +524,10 @@
     "./components/SplitViewPane": {
       "types": "./dist/components/SplitViewPane/index.d.ts",
       "import": "./dist/components/SplitViewPane/index.js"
+    },
+    "./components/StatusBadge": {
+      "types": "./dist/components/StatusBadge/index.d.ts",
+      "import": "./dist/components/StatusBadge/index.js"
     },
     "./components/Switch": {
       "types": "./dist/components/Switch/index.d.ts",

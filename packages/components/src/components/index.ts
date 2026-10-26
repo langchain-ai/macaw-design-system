@@ -37,6 +37,9 @@ export type { ErrorStateProps } from './ErrorState';
 export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
 
+export { StatusBadge } from './StatusBadge';
+export type { StatusBadgeProps, StatusBadgeVariant } from './StatusBadge';
+
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
 
@@ -156,11 +159,16 @@ export type { SwitchProps } from './Switch';
 //   import { ContextMenu, ... } from '@langchain/macaw-components/ContextMenu'
 //   import { Command, ... } from '@langchain/macaw-components/Command'
 //   import { Select, ... } from '@langchain/macaw-components/Select'
+//   import { InlineSelect } from '@langchain/macaw-components/InlineSelect'
 //   import { Typeahead, ... } from '@langchain/macaw-components/Typeahead'
 //
 // NOTE: ChartCard is also excluded because its built-in overflow menu depends
 // on @radix-ui/react-dropdown-menu. Import it directly:
 //   import { ChartCard } from '@langchain/macaw-components/ChartCard'
+//
+// NOTE: Accordion is excluded for the same reason: AccordionItem's overflow
+// menu depends on @radix-ui/react-dropdown-menu. Import it directly:
+//   import { Accordion, AccordionItem } from '@langchain/macaw-components/Accordion'
 //
 // NOTE: Dialog and Pane are likewise excluded — both wrap @radix-ui/react-dialog.
 // Import directly:

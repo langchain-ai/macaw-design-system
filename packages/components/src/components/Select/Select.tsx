@@ -73,6 +73,12 @@ interface SelectBaseProps<T extends string = string> extends DataAttributes {
   endReachedThresholdPx?: number;
   /** Additional class name for the trigger button */
   triggerClassName?: string;
+  /**
+   * `plain` drops the trigger's field fill and border so it reads as text
+   * until hovered, for inline settings where a field box would crowd the row.
+   * Defaults to `outlined`.
+   */
+  triggerVariant?: 'outlined' | 'plain';
   /** Additional class name for the popover content */
   contentClassName?: string;
   /** Custom render function for the selected value in the trigger */
@@ -145,6 +151,7 @@ function OptionSelect<T extends string = string>({
   onEndReached,
   endReachedThresholdPx,
   triggerClassName,
+  triggerVariant = 'outlined',
   contentClassName,
   renderValue,
   renderOption,
@@ -249,15 +256,17 @@ function OptionSelect<T extends string = string>({
           role="combobox"
           aria-expanded={open}
           aria-label={ariaLabel ?? placeholder}
-          variant="outlined"
+          variant={triggerVariant}
           color="secondary"
           size={triggerButtonSize}
           className={cn(
             'box-border w-full justify-between py-0',
             CONTROL_SIZES[size].heightClassName,
-            disabled
-              ? 'border-muted bg-input-disabled text-disabled dark:bg-input-disabled'
-              : 'bg-input border-muted hover:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none',
+            triggerVariant === 'plain'
+              ? disabled && 'bg-transparent dark:bg-transparent'
+              : disabled
+                ? 'border-muted bg-input-disabled text-disabled dark:bg-input-disabled'
+                : 'bg-input border-muted hover:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none',
             triggerClassName
           )}
           disabled={disabled}
