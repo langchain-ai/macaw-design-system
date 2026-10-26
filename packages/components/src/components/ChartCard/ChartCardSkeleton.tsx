@@ -12,6 +12,8 @@ export type ChartCardSkeletonVariant =
   | 'sparkline'
   | 'sankey';
 
+const HORIZONTAL_BAR_WIDTHS = ['35%', '62%', '48%', '78%', '55%'] as const;
+
 const BAR_HEIGHTS = ['35%', '62%', '48%', '78%', '55%', '70%', '42%'] as const;
 
 const LegendSkeleton = () => (
@@ -64,7 +66,7 @@ export const ChartCardSkeleton = ({
     {variant === 'horizontal-bar' && (
       <Plot>
         <div className="flex size-full flex-col gap-space-2 py-space-2">
-          {BAR_HEIGHTS.map((width, index) => (
+          {HORIZONTAL_BAR_WIDTHS.map((width, index) => (
             <Skeleton
               key={index}
               className="min-h-0 flex-1 rounded-l-none rounded-r-md motion-reduce:animate-none"
