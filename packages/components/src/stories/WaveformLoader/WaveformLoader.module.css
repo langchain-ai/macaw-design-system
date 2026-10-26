@@ -1,0 +1,11 @@
+.pulse {
+  transition-property: transform;
+  transition-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    transform: none !important;
+    transition: none;
+  }
+}
