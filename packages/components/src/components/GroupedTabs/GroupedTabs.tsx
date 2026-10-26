@@ -3,6 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '../../utils/cn';
 import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import { Text } from '../Text';
 import type { TooltipProps } from '../Tooltip';
@@ -37,7 +41,7 @@ export type GroupedTabsProps<T extends string | number> = {
   selectionClassName?: string;
   /** Optional class for the indicator (e.g. to override top/height for custom margins) */
   indicatorClassName?: string;
-};
+} & DataAttributes;
 
 export const GroupedTabs = <T extends string | number>({
   value,
@@ -49,6 +53,7 @@ export const GroupedTabs = <T extends string | number>({
   tooltip,
   selectionClassName,
   indicatorClassName,
+  ...rest
 }: GroupedTabsProps<T>) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -113,6 +118,7 @@ export const GroupedTabs = <T extends string | number>({
   return (
     <Tooltip title={tooltip}>
       <div
+        {...pickDataAttributes(rest)}
         ref={containerRef}
         className={cn(
           'relative box-border flex w-fit border border-subtle bg-surface-level-1 dark:border-muted',

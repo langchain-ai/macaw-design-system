@@ -86,6 +86,19 @@ trail wraps at narrow widths. Empty children render no navigation. Compose
 not use fake links or disabled buttons. Consumers own routing, loading/error
 messages, and any explicit overflow menu or switcher.
 
+## Nested modals
+
+Wrap a related workflow in `ModalProvider` from `@langchain/macaw-components/Dialog`
+to limit it to two visible modal layers. Dialog and modal Pane share the stack
+across portals and sibling roots. A further dialog replaces the foreground layer;
+dismissing it restores the editor with its mounted state. Popovers, tooltips,
+and non-modal SplitViewPane panels do not consume a layer.
+Popover collision handling uses its enclosing Dialog as the boundary by default;
+pass an explicit `collisionBoundary` to override it.
+
+The base backdrop uses 75% of the semantic overlay color. The foreground layer
+adds 50% of that color, giving a visible increase in dimming in both themes.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
@@ -126,7 +139,11 @@ Component code uses semantic tokens through Tailwind utilities. Do not use primi
 Choose color by meaning:
 
 - `bg-surface-level-1..4` expresses nesting. Use the lowest level that creates enough separation.
-- `bg-elevated*` is for popovers, tooltips, dropdowns, and other floating layers.
+- `bg-sidebar` is reserved for app navigation, independent of fields and floating surfaces.
+- `bg-elevated` is for raised cards and panes; `bg-elevated-hover` and `bg-elevated-selected` are interaction states within raised or floating surfaces.
+- `bg-input` is for Input and Textarea fields, Select and Typeahead controls. Select and Typeahead own their field styles; Button does not infer appearance from ARIA attributes. Custom Button-based picker migration is deferred; prefer Select for standard pickers. Action-menu buttons retain their normal button styles. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
+- `bg-input-disabled` is for disabled fields, paired with `border-muted` and disabled text/icon colors. Do not fade the entire field with opacity.
+- `bg-popover` is for floating overlays: tooltips (including chart tooltips), popovers, select and typeahead menus, dropdowns, context menus, and command menus. It is independent of the field fill even when the colors match.
 - Success, warning, and error tokens describe general feedback and validation.
 - Status tokens describe run or system state, not generic validation.
 - `text-*` is for copy; `text-icon-*` is for standalone icons.
@@ -166,6 +183,9 @@ Use Title Case for names of things: field labels, section headings, tabs, column
 Use the 4-point `space-*` scale through utilities such as `gap-space-4` and `px-space-5`. Pick spacing by relationship: small gaps bind one cluster; larger gaps separate sections. Prefer flex or grid `gap` over sibling margins.
 
 Use named `rounded-*`, `shadow-*`, and duration utilities instead of recreating their values. Motion should explain a state change and respect `prefers-reduced-motion`. Use named values from `packages/components/src/utils/zIndices.ts` or `useZIndex` instead of numeric z-indexes.
+
+Decorative elevation shadows are light-mode only. In dark mode, use surface
+contrast and borders; preserve focus, selection, and error indicators.
 
 Component size names are family-specific. Use the tiers supported by the component; do not infer a universal size scale. `packages/components/src/utils/componentSizes.ts` is the source of truth for shared outer-size families.
 

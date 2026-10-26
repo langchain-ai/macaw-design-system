@@ -42,4 +42,19 @@ describe('Tabs Component', () => {
     const badges = screen.getAllByText('42');
     expect(badges).toHaveLength(1);
   });
+
+  it('forwards data attributes to the tab', () => {
+    render(
+      <TabGroup>
+        <TabList>
+          <TabLabel label="Runs" data-analytics-id="runs-tab-analytics" />
+        </TabList>
+      </TabGroup>
+    );
+
+    expect(screen.getByRole('tab', { name: 'Runs' })).toHaveAttribute(
+      'data-analytics-id',
+      'runs-tab-analytics'
+    );
+  });
 });

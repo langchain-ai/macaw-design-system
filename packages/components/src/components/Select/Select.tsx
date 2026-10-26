@@ -9,6 +9,10 @@ import {
   type OptionRowSize,
 } from '../../utils/componentSizes';
 import { CONTROL_ICON_SIZES } from '../../utils/controlIconSizes';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { Button } from '../Button';
 import { CommandMenu } from '../Command/CommandMenu';
 import type { CommandMenuGroup, CommandMenuItem } from '../Command/CommandMenu';
@@ -36,7 +40,7 @@ export interface SelectGroup<T extends string = string> {
 
 export type SelectSize = ControlSize;
 
-interface SelectBaseProps<T extends string = string> {
+interface SelectBaseProps<T extends string = string> extends DataAttributes {
   /** The currently selected value */
   value?: T;
   /** Callback when selection changes. Receives undefined when deselected. */
@@ -148,6 +152,7 @@ function OptionSelect<T extends string = string>({
   align = 'start',
   'aria-label': ariaLabel,
   'data-testid': dataTestId,
+  ...rest
 }: SelectProps<T>) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -240,6 +245,7 @@ function OptionSelect<T extends string = string>({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          {...pickDataAttributes(rest)}
           role="combobox"
           aria-expanded={open}
           aria-label={ariaLabel ?? placeholder}
@@ -249,6 +255,9 @@ function OptionSelect<T extends string = string>({
           className={cn(
             'box-border w-full justify-between py-0',
             CONTROL_SIZES[size].heightClassName,
+            disabled
+              ? 'border-muted bg-input-disabled text-disabled dark:bg-input-disabled'
+              : 'bg-input border-muted hover:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none',
             triggerClassName
           )}
           disabled={disabled}
@@ -259,7 +268,7 @@ function OptionSelect<T extends string = string>({
             aria-hidden
             icon={CaretDownIcon}
             iconClassName={CONTROL_ICON_SIZES[size].iconClassName}
-            className="text-inherit"
+            className={disabled ? 'text-icon-disabled' : 'text-inherit'}
             weight="regular"
           />
         </Button>

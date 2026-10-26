@@ -5,7 +5,16 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 
 import { CaretDoubleRightIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { mergeRefs } from '../../utils/merge-refs';
+import {
+  ModalLayerProvider,
+  useCurrentModalLayer,
+  useModalLayer,
+} from '../../utils/ModalLayerContext';
 import { useZIndex } from '../../utils/useZIndex';
 import { ScrollParentProvider } from '../../utils/VirtuosoCustomScrollParentContext';
 import {
@@ -22,7 +31,7 @@ import { TopBarPaneSlot } from './Pane.utils';
 
 const PaneDepth = createContext<number>(1);
 
-interface CorePaneProps {
+interface CorePaneProps extends DataAttributes {
   open: boolean;
   animation?: boolean;
   onClose: () => void;
@@ -61,32 +70,25 @@ function PlainPane({
   preventInteractOutside,
   onEscapeKeyDown,
   requireConfirmationOnClose,
-  zIndex,
-}: CorePaneProps) {
+  zIndex: paneZIndex,
+  ...rest
+}: CorePaneProps & { zIndex: number }) {
   const depth = useContext(PaneDepth);
+  const layer = useCurrentModalLayer();
   const scrollParentRef = useScrollParent();
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [contentNode, setContentNode] = useState<HTMLDivElement | null>(null);
-  const paneZIndex = useZIndex(zIndex ?? zIndices.pane);
-
-  const handleRequestClose = () => {
-    if (requireConfirmationOnClose) {
-      setShowConfirmModal(true);
-    } else {
-      onClose();
-    }
-  };
 
   return (
     <>
       <RadixDialog.Root
-        open={open}
+        open={open && !layer?.suspended}
         onOpenChange={(o) => {
-          if (!o) handleRequestClose();
+          if (!o) onClose();
         }}
       >
-        <RadixDialog.Portal>
+        <RadixDialog.Portal forceMount={open || undefined}>
           <RadixDialog.Overlay
+            forceMount={open || undefined}
             data-pane-interaction-boundary
             className={cn(
               'fixed inset-0 bg-overlay',
@@ -96,76 +98,70 @@ function PlainPane({
             )}
             style={{
               zIndex: paneZIndex,
+              ...(!transparentBackdrop && layer?.backdropStyle),
+              display: layer?.suspended ? 'none' : undefined,
             }}
-          >
-            <RadixDialog.Content
-              ref={mergeRefs([scrollParentRef, setContentNode])}
-              className={cn(
-                'relative flex h-[100vh] flex-col items-stretch overflow-y-auto bg-elevated shadow-lg',
-                'focus:outline-hidden focus-visible:outline-hidden',
-                animation &&
-                  'data-[state=open]:animate-slide-left data-[state=closed]:animate-slide-right motion-reduce:animate-none'
-              )}
-              style={{
-                marginLeft: `${depth * 5.0}rem`,
-                marginRight: `var(--polly-chat-width, 0px)`,
-                ...dialogStyle,
-              }}
-              onScroll={(e) => handleScroll?.(e.nativeEvent)}
-              onOpenAutoFocus={(e) => {
+          />
+          <RadixDialog.Content
+            {...pickDataAttributes(rest)}
+            forceMount={open || undefined}
+            ref={mergeRefs([scrollParentRef, setContentNode])}
+            className={cn(
+              'fixed inset-0 flex h-[100vh] flex-col items-stretch overflow-y-auto bg-elevated shadow-lg',
+              'focus:outline-hidden focus-visible:outline-hidden',
+              animation &&
+                'data-[state=open]:animate-slide-left data-[state=closed]:animate-slide-right motion-reduce:animate-none'
+            )}
+            style={{
+              marginLeft: `${depth * 5.0}rem`,
+              marginRight: `var(--polly-chat-width, 0px)`,
+              ...dialogStyle,
+              zIndex: paneZIndex + 1,
+              display: layer?.suspended ? 'none' : undefined,
+            }}
+            onScroll={(e) => handleScroll?.(e.nativeEvent)}
+            onOpenAutoFocus={(e) => {
+              e.preventDefault();
+              const target = e.currentTarget as HTMLDivElement;
+              if (target) {
+                target.focus();
+              }
+            }}
+            onEscapeKeyDown={(e) => {
+              onEscapeKeyDown?.(e);
+              if (e.defaultPrevented) return;
+              if (requireConfirmationOnClose) {
                 e.preventDefault();
-                const target = e.currentTarget as HTMLDivElement;
-                if (target) {
-                  target.focus();
-                }
-              }}
-              onEscapeKeyDown={(e) => {
-                onEscapeKeyDown?.(e);
-                if (e.defaultPrevented) return;
-                if (requireConfirmationOnClose) {
-                  e.preventDefault();
-                  setShowConfirmModal(true);
-                }
-              }}
-              onPointerDownOutside={
-                preventInteractOutside
-                  ? (e) => {
-                      e.preventDefault();
-                    }
-                  : undefined
+                onClose();
               }
-              onInteractOutside={
-                preventInteractOutside
-                  ? (e) => {
-                      e.preventDefault();
-                    }
-                  : undefined
-              }
-            >
-              <ZIndexProvider value={paneZIndex}>
-                <DialogContainerContext.Provider value={contentNode}>
-                  <TopBarPaneSlot.Context>
-                    <PaneDepth.Provider value={depth + 1}>
-                      {children}
-                    </PaneDepth.Provider>
-                  </TopBarPaneSlot.Context>
-                </DialogContainerContext.Provider>
-              </ZIndexProvider>
-            </RadixDialog.Content>
-          </RadixDialog.Overlay>
+            }}
+            onPointerDownOutside={
+              preventInteractOutside
+                ? (e) => {
+                    e.preventDefault();
+                  }
+                : undefined
+            }
+            onInteractOutside={
+              preventInteractOutside
+                ? (e) => {
+                    e.preventDefault();
+                  }
+                : undefined
+            }
+          >
+            <ZIndexProvider value={paneZIndex + 1}>
+              <DialogContainerContext.Provider value={contentNode}>
+                <TopBarPaneSlot.Context>
+                  <PaneDepth.Provider value={depth + 1}>
+                    {children}
+                  </PaneDepth.Provider>
+                </TopBarPaneSlot.Context>
+              </DialogContainerContext.Provider>
+            </ZIndexProvider>
+          </RadixDialog.Content>
         </RadixDialog.Portal>
       </RadixDialog.Root>
-      <UnsavedChangesDialog
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onDiscard={() => {
-          setShowConfirmModal(false);
-          onClose();
-        }}
-        title="Unsaved Changes"
-        description="You may have unsaved changes. Are you sure you want to exit?"
-        discardCopy="Exit"
-      />
     </>
   );
 }
@@ -192,32 +188,29 @@ export function Pane({
   onEscapeKeyDown,
   requireConfirmationOnClose,
   zIndex,
+  ...rest
 }: PaneProps) {
+  const layer = useModalLayer(open);
+  const paneZIndex = useZIndex(layer.zIndex ?? zIndex ?? zIndices.pane);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  const handleCloseClick = () => {
-    if (onBack) {
-      onBack();
-    } else if (requireConfirmationOnClose) {
-      setShowConfirmModal(true);
-    } else {
-      onClose();
-    }
+  const requestClose = () => {
+    if (requireConfirmationOnClose) setShowConfirmModal(true);
+    else onClose();
   };
-
   const paneComponent = (
-    <>
+    <ModalLayerProvider layer={layer}>
       <PlainPane
+        {...pickDataAttributes(rest)}
         open={open}
         animation={animation}
-        onClose={onClose}
+        onClose={requestClose}
         dialogStyle={dialogStyle}
         transparentBackdrop={transparentBackdrop}
         handleScroll={handleScroll}
         preventInteractOutside={preventInteractOutside}
         onEscapeKeyDown={onEscapeKeyDown}
         requireConfirmationOnClose={requireConfirmationOnClose}
-        zIndex={zIndex}
+        zIndex={paneZIndex}
       >
         <header
           className={cn(
@@ -231,7 +224,7 @@ export function Pane({
             <IconButton
               label="Close"
               icon={CaretDoubleRightIcon}
-              onClick={handleCloseClick}
+              onClick={onBack ?? requestClose}
               variant="plain"
               size="sm"
               iconClassName="size-5 text-quaternary"
@@ -275,7 +268,7 @@ export function Pane({
           {children}
         </div>
       </PlainPane>
-      {!onBack && (
+      <ZIndexProvider value={paneZIndex + 1}>
         <UnsavedChangesDialog
           isOpen={showConfirmModal}
           onClose={() => setShowConfirmModal(false)}
@@ -287,8 +280,8 @@ export function Pane({
           description="You may have unsaved changes. Are you sure you want to exit?"
           discardCopy="Exit"
         />
-      )}
-    </>
+      </ZIndexProvider>
+    </ModalLayerProvider>
   );
   return scrollRef ? (
     <ScrollParentContext.Provider value={scrollRef}>

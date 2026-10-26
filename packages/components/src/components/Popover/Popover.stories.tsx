@@ -2,7 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from '../Button/Button';
 import { Text } from '../Text/Text';
-import { Popover, PopoverContent, PopoverTrigger } from './Popover';
+import {
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+} from './Popover';
 
 const meta = {
   title: 'Components/Popovers/Popover',
@@ -93,6 +98,28 @@ export const WithForm: Story = {
         </div>
       </PopoverContent>
     </Popover>
+  ),
+};
+
+export const WithArrow: Story = {
+  render: () => (
+    <div className="flex gap-space-6">
+      {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+        <Popover key={side}>
+          <PopoverTrigger asChild>
+            <Button variant="outlined" color="secondary" size="sm">
+              {side}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent side={side}>
+            <Text variant="sm">
+              A bordered arrow without an elevation shadow in dark mode.
+            </Text>
+            <PopoverArrow width={12} height={6} />
+          </PopoverContent>
+        </Popover>
+      ))}
+    </div>
   ),
 };
 

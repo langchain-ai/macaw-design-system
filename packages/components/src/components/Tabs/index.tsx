@@ -13,6 +13,10 @@ import {
 } from '@headlessui/react';
 
 import { cn } from '../../utils/cn';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import type { BadgeProps } from '../Badge';
 import { Badge } from '../Badge';
 import { Text } from '../Text';
@@ -45,6 +49,7 @@ export function TabLabel({
   dataTestId,
   onClick,
   onBlur,
+  ...rest
 }: {
   label: React.ReactNode;
   icon?: ComponentType<{ className?: string }>;
@@ -54,11 +59,12 @@ export function TabLabel({
   dataTestId?: string;
   onClick?: () => void;
   onBlur?: () => void;
-}) {
+} & DataAttributes) {
   // Absolute positioning uses the padding box; -2px places the indicator inside
   // the reserved bottom border, keeping it visible in scrollable tab lists.
   return (
     <Tab
+      {...pickDataAttributes(rest)}
       onClick={onClick}
       onBlur={onBlur}
       className={cn(

@@ -42,7 +42,7 @@ const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
               {index > 0 && (
                 <span
                   aria-hidden="true"
-                  className="shrink-0 text-xxs text-icon-quaternary"
+                  className="shrink-0 text-xxs text-quaternary"
                 >
                   {separator}
                 </span>
@@ -75,7 +75,7 @@ const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
       ...props,
       ref,
       className: cn(
-        'inline-flex min-w-0 items-center gap-space-1 rounded-sm text-quaternary hover:text-secondary hover:underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
+        'inline-flex min-w-0 items-center gap-space-1 rounded-sm text-quaternary hover:text-secondary hover:underline underline-offset-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus',
         as?.props.className,
         className
       ),

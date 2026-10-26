@@ -7,14 +7,25 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
   Dialog,
+  ModalProvider,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from '.';
 import { Button } from '../Button/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../DropdownMenu';
 import { Input } from '../Input/Input';
+import { Pane } from '../Pane';
+import { Select } from '../Select';
 import { Text } from '../Text/Text';
+import { Textarea } from '../Textarea';
+import { Typeahead } from '../Typeahead';
 
 const meta = {
   title: 'Components/Layout/Dialog',
@@ -155,6 +166,90 @@ export const WithForm: Story = {
                 Cancel
               </Button>
               <Button onClick={() => setOpen(false)}>Create</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const WithPickers: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('My project');
+    const [description, setDescription] = useState('');
+    const [region, setRegion] = useState<string | undefined>('us');
+    const [environment, setEnvironment] = useState<string | null | undefined>(
+      null
+    );
+
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open picker dialog</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            title="Configure project"
+            description="Choose a region and environment."
+          >
+            <div className="flex flex-col gap-space-3">
+              <Input
+                label="Project Name"
+                size="md"
+                value={name}
+                onChange={setName}
+              />
+              <Textarea
+                label="Description"
+                size="md"
+                rows={2}
+                placeholder="Describe your project..."
+                value={description}
+                onChange={setDescription}
+              />
+              <div className="flex flex-col gap-space-1">
+                <Text variant="sm">Region</Text>
+                <Select
+                  aria-label="Region"
+                  size="md"
+                  value={region}
+                  onChange={setRegion}
+                  options={[
+                    { value: 'us', label: 'United States' },
+                    { value: 'eu', label: 'Europe' },
+                  ]}
+                />
+              </div>
+              <div className="flex flex-col gap-space-1">
+                <Text variant="sm">Environment</Text>
+                <Typeahead
+                  aria-label="Environment"
+                  placeholder="Search environments..."
+                  options={['Development', 'Staging', 'Production']}
+                  value={environment}
+                  onChange={setEnvironment}
+                />
+              </div>
+            </div>
+            <div className="flex justify-between gap-space-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button color="secondary" variant="outlined" size="md">
+                    More options
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Use defaults</DropdownMenuItem>
+                  <DropdownMenuItem>Duplicate settings</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                color="secondary"
+                size="md"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -341,6 +436,37 @@ export const NoTitle: Story = {
           </DialogContent>
         </Dialog>
       </>
+    );
+  },
+};
+
+export const TwoModalLayers: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [name, setName] = useState('Draft profile');
+    return (
+      <ModalProvider>
+        <Button onClick={() => setOpen(true)}>Open preferences</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            title="Preferences"
+            description="Manage your preferences"
+          >
+            <Text>The background dims further while editing.</Text>
+            <Button onClick={() => setEditorOpen(true)}>Edit profile</Button>
+            <Pane
+              open={editorOpen}
+              onClose={() => setEditorOpen(false)}
+              title="Profile"
+              description="Edit your profile"
+              requireConfirmationOnClose
+            >
+              <Input label="Name" value={name} onChange={setName} />
+            </Pane>
+          </DialogContent>
+        </Dialog>
+      </ModalProvider>
     );
   },
 };
