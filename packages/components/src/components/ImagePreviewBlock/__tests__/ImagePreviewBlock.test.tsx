@@ -23,6 +23,26 @@ function HostExample({ caption }: { caption?: string }) {
 }
 
 describe('ImagePreviewBlock', () => {
+  it('preserves image data URLs in the block and its preview', async () => {
+    const src =
+      'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    const { user } = render(
+      <ImagePreviewBlock src={src} alt="Embedded image" />
+    );
+    expect(screen.getByRole('img', { name: 'Embedded image' })).toHaveAttribute(
+      'src',
+      src
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Preview Embedded image' })
+    );
+    const dialog = screen.getByRole('dialog', { name: 'Embedded image' });
+    expect(within(dialog).getByAltText('Embedded image')).toHaveAttribute(
+      'src',
+      src
+    );
+  });
+
   it('names the figure from its caption and reads the caption before host actions', () => {
     render(<HostExample caption="Engine workflow illustration" />);
     const figure = screen.getByRole('figure', {

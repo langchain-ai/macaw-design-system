@@ -1,8 +1,7 @@
 import { useId, useState, type ReactNode } from 'react';
 
-import { sanitizeUrl } from '@braintree/sanitize-url';
-
 import { cn } from '../../utils/cn';
+import { sanitizeImageSrc } from '../../utils/sanitizeImageSrc';
 import { Button } from '../Button';
 import { ImagePreviewDialog } from '../ImagePreviewDialog';
 import { Text } from '../Text';
@@ -52,7 +51,7 @@ export function ImagePreviewBlock({
           className="h-auto w-full min-w-0 whitespace-normal rounded-sm bg-surface-level-2 p-space-5 shadow-none"
         >
           <img
-            src={sanitizeUrl(src)}
+            src={sanitizeImageSrc(src)}
             alt={alt}
             className="block h-auto max-w-full"
           />

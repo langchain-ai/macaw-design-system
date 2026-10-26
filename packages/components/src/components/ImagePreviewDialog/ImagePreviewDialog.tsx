@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { sanitizeUrl } from '@braintree/sanitize-url';
 import { ArrowsOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowsOut';
 import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/ssr/DownloadSimple';
 import { MagnifyingGlassMinusIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlassMinus';
@@ -8,6 +7,7 @@ import { MagnifyingGlassPlusIcon } from '@phosphor-icons/react/dist/ssr/Magnifyi
 import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
+import { sanitizeImageSrc } from '../../utils/sanitizeImageSrc';
 import {
   Dialog,
   DialogClose,
@@ -300,7 +300,7 @@ function ImagePreviewContent({
                 </div>
               )}
               <img
-                src={sanitizeUrl(src)}
+                src={sanitizeImageSrc(src)}
                 alt={alt}
                 draggable={false}
                 className={cn(

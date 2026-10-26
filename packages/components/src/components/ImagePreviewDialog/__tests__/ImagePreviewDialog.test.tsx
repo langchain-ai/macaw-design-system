@@ -24,6 +24,33 @@ function PreviewExample() {
 afterEach(() => vi.restoreAllMocks());
 
 describe('ImagePreviewDialog', () => {
+  it('keeps non-image data URLs and script URLs blocked', () => {
+    const { rerender } = render(
+      <ImagePreviewDialog
+        open
+        onOpenChange={() => {}}
+        src="data:text/html,<script>alert(1)</script>"
+        alt="Untrusted image"
+      />
+    );
+    expect(screen.getByAltText('Untrusted image')).toHaveAttribute(
+      'src',
+      'about:blank'
+    );
+    rerender(
+      <ImagePreviewDialog
+        open
+        onOpenChange={() => {}}
+        src="javascript:alert(1)"
+        alt="Untrusted image"
+      />
+    );
+    expect(screen.getByAltText('Untrusted image')).toHaveAttribute(
+      'src',
+      'about:blank'
+    );
+  });
+
   it('fits, zooms, and resets when reopened', async () => {
     // jsdom does not lay out viewports or decode images.
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(800);
