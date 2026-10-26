@@ -6,7 +6,7 @@ import LangChainLogo from './assets/LangChainLogoColor.svg';
 
 export default create({
   brandTitle: 'Macaw Design System',
-  brandUrl: 'https://langchain.com',
+  brandUrl: '/',
   brandImage: LangChainLogo,
   brandTarget: '_self',
   colorPrimary: '#006ddd',
