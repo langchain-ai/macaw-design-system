@@ -106,7 +106,7 @@ const resolveAxisLayouts = (
       domain,
       nice,
       thickness:
-        Math.max(LINE_CHART_VALUE_AXIS_THICKNESS, tickLabelThickness) +
+        tickLabelThickness +
         (config.label == null ? 0 : CHART_AXIS_LABEL_THICKNESS),
     };
   });
