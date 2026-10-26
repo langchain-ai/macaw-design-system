@@ -12,6 +12,7 @@ import sampleImage from '../../stories/assets/attachment-preview.png';
 import { Button } from '../Button';
 import { Dialog, DialogContent } from '../Dialog';
 import { IconButton } from '../IconButton';
+import { ImagePreviewDialog } from '../ImagePreviewDialog';
 import { Input } from '../Input';
 import { Text } from '../Text';
 
@@ -300,18 +301,18 @@ function FileActionsDemo() {
       <Text variant="xs" color="secondary" role="status">
         {notice}
       </Text>
-      <Dialog
+      <ImagePreviewDialog
         open={dialog === 'preview'}
         onOpenChange={(open) => !open && setDialog(null)}
-      >
-        <DialogContent title={name}>
-          <img
-            src={sampleImage}
-            alt={name}
-            className="max-h-96 w-full object-contain"
-          />
-        </DialogContent>
-      </Dialog>
+        src={sampleImage}
+        alt={name}
+        title={name}
+        onDownload={() =>
+          setNotice(
+            'Download callback invoked. This example does not fetch a file.'
+          )
+        }
+      />
       <Dialog
         open={dialog === 'rename'}
         onOpenChange={(open) => !open && setDialog(null)}
