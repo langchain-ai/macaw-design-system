@@ -10,9 +10,13 @@
   height: auto;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2.4412;
+  stroke-width: 2px;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.waveform path {
+  vector-effect: non-scaling-stroke;
 }
 
 .label {
