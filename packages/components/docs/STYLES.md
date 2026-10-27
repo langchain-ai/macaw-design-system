@@ -81,14 +81,18 @@ The same tier name is meaningful only within its family.
 | Family                                                                                                                                            | Tiers                   | Guidance                                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
 | Visual elements — `VISUAL_ELEMENT_SIZES` (decorated `Icon`, `Avatar`, `Spinner`)                                                                  | `xxs`, `xs`, `sm`, `md` | Choose `md` for standard UI, smaller tiers for dense/inline UI; expose `xxs` only when needed.      |
-| Controls — `CONTROL_SIZES` (`Button`, `IconButton`, `ButtonGroup`, `CopyButton`, `Input`, `CommandInput`, `Select`, `Typeahead`, `GroupedTabs`)   | `xs`, `sm`, `md`, `lg`  | Choose `md` for standard UI, `sm` for dense UI, `xs` for compact UI; retain `lg` for compatibility. |
+| Controls — `CONTROL_SIZES` (`Input`, `CommandInput`, `Select`, `Typeahead`, `GroupedTabs`)                                                        | `xs`, `sm`, `md`, `lg`  | Choose `md` for standard UI, `sm` for dense UI, `xs` for compact UI; retain `lg` for compatibility. |
 | Selection controls — `SELECTION_CONTROL_SIZES` (`Checkbox`, `RadioButton`, `RadioCard`, `Switch`; `RadioGroupItem` and `Slider` remain intrinsic) | `sm`, `md`              | The tier controls indicator geometry, not labeled-row or card height.                               |
 | Option rows — `OPTION_ROW_SIZES` (menu, select, and typeahead rows)                                                                               | `sm`, `md`              | Use `md` unless the menu is dense; multiline rows may grow.                                         |
 
 - Family dimensions measure the **outer border box**. Use `box-sizing: border-box`
   and fit padding, borders, typography, icons, and loading indicators inside it.
-- Visual elements and square selection indicators set width and height. Controls
-  set exact height with intrinsic/container width; `Switch` and `Slider` own their widths.
+- Visual elements and square selection indicators set width and height. Field
+  controls set exact height with intrinsic/container width; `Switch` and `Slider`
+  own their widths.
+- `Button`, `IconButton`, `ButtonGroup`, and `CopyButton` derive their height
+  from the selected typography line-height and vertical padding. Their visual
+  borders are positioned pseudo-elements and do not contribute to layout size.
 - Selection indicators retain at least a 24px interactive hit area independent
   of their visual geometry. This hit area does not set row or card height.
 - Option rows and multi-value `Typeahead` use `min-height` and grow with content.

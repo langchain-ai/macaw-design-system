@@ -15,8 +15,8 @@ export const VISUAL_ELEMENT_SIZES = {
 export type VisualElementSize = keyof typeof VISUAL_ELEMENT_SIZES;
 
 /**
- * Components: Button, IconButton, ButtonGroup, CopyButton, Input,
- * CommandInput, Select, Typeahead, and GroupedTabs.
+ * Components: Input, CommandInput, Select, Typeahead, and GroupedTabs.
+ * Button-family controls derive their height from typography and padding.
  */
 export const CONTROL_SIZES = {
   xs: {

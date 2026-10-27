@@ -1,14 +1,13 @@
 import { cloneElement, forwardRef, isValidElement } from 'react';
 
 import { cn } from '../../utils/cn';
-import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import { buttonStyleMap } from '../Button/constants';
 import { Spinner } from '../Spinner';
 import type { TooltipProps } from '../Tooltip';
 import { Tooltip } from '../Tooltip';
 
-type IconButtonSize = 'xxs' | Exclude<ControlSize, 'lg'>;
+type IconButtonSize = 'xxs' | 'xs' | 'sm' | 'md';
 
 interface IconButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -32,7 +31,7 @@ interface IconButtonProps extends Omit<
   iconClassName?: string;
   /** Phosphor weight used to render the icon */
   iconWeight?: IconWeight;
-  /** Square outer box. xxs=16px is reserved for dense icon-only actions. */
+  /** Typography tier used to derive the button's intrinsic height. */
   size?: IconButtonSize;
   /** Whether the button is loading */
   loading?: boolean;
@@ -66,15 +65,14 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     const baseStyles = cn(
       "lc-button relative box-border inline-flex flex-none items-center justify-center px-0 py-0.5 transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:content-['']",
       {
-        'size-4': size === 'xxs',
-        [CONTROL_SIZES.xs.heightClassName]: size === 'xs',
-        [CONTROL_SIZES.sm.heightClassName]: size === 'sm',
-        [CONTROL_SIZES.md.heightClassName]: size === 'md',
+        'leading-type-xs': size === 'xxs' || size === 'xs',
+        'leading-type-sm': size === 'sm',
+        'leading-type-md': size === 'md',
       },
       {
-        'w-5': size === 'xs',
-        'w-6': size === 'sm',
-        'w-8': size === 'md',
+        'w-4': size === 'xxs',
+        'w-5': size === 'xs' || size === 'sm',
+        'w-6': size === 'md',
       },
       {
         'shadow-[0px_1px_2px_0px_var(--shadow-color-subtle)]':
@@ -88,14 +86,14 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     );
 
     const children = loading ? (
-      <Spinner size={size === 'xxs' || size === 'xs' ? 'xxs' : 'xs'} />
+      <Spinner size={size === 'xxs' ? 'xxs' : size === 'md' ? 'sm' : 'xs'} />
     ) : (
       <Icon
         aria-hidden
         className={cn(
           size === 'xxs' && 'size-3',
-          size === 'xs' && 'size-3.5',
-          (size === 'sm' || size === 'md') && 'size-4',
+          (size === 'xs' || size === 'sm') && 'size-4',
+          size === 'md' && 'size-5',
           'flex-shrink-0',
           '[&_path]:stroke-[1.5px]',
           iconClassName
