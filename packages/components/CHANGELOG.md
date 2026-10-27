@@ -1,3 +1,13 @@
+## 1.2.0 (2026-10-27)
+
+### 🚀 Features
+
+- add horizontal bar chart loading skeleton ([#64](https://github.com/langchain-ai/macaw-design-system/pull/64))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.1.1 (2026-10-26)
 
 ### 🚀 Features
