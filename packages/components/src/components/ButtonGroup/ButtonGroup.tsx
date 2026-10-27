@@ -41,7 +41,7 @@ function ButtonGroup({
 }: ButtonGroupProps) {
   const baseStyles = cn(
     'inline-flex items-stretch',
-    '[&>*:not(:first-child)]:border-l-0', // Remove left border on all but first child
+    '[&>*:not(:first-child)]:before:border-l-0', // Remove left border on all but first child
     '[&>*:not(:first-child):not(:last-child)]:rounded-none', // Remove border radius on middle children
     '[&>*:first-child]:rounded-r-none', // Remove right border radius on first child
     '[&>*:last-child]:rounded-l-none', // Remove left border radius on last child

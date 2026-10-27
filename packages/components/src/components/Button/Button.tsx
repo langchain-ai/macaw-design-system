@@ -64,13 +64,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles = cn(
-      'lc-button relative box-border inline-flex flex-none items-center justify-center gap-1.5 truncate transition-all duration-200',
+      "lc-button relative box-border inline-flex flex-none items-center justify-center gap-1.5 truncate py-0.5 transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:content-['']",
       CONTROL_SIZES[size].heightClassName,
       '[&_*]:[text-box-trim:trim-both]',
       {
-        'text-xxs leading-[1.15] tracking-normal': size === 'xs',
-        'text-xs leading-tight tracking-snug': size === 'sm',
-        'text-sm leading-[1.15] tracking-tighter': size === 'md',
+        'text-xxs leading-type-xs tracking-normal': size === 'xs',
+        'text-xs leading-type-sm tracking-snug': size === 'sm',
+        'text-sm leading-type-md tracking-tighter': size === 'md',
       },
       {
         'px-space-2': variant !== 'underlined',

@@ -64,7 +64,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     ref
   ) => {
     const baseStyles = cn(
-      'lc-button relative box-border inline-flex flex-none items-center justify-center p-0 transition-all duration-200',
+      "lc-button relative box-border inline-flex flex-none items-center justify-center px-0 py-0.5 transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:content-['']",
       {
         'size-4': size === 'xxs',
         [CONTROL_SIZES.xs.heightClassName]: size === 'xs',

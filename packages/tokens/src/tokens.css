@@ -4,6 +4,26 @@
   --popover: var(--bg-primary);
   --background: 0 0% 100%;
 
+  /* TYPOGRAPHY — rem values resolve against the standard 16px browser root.
+   * md (14px) is the baseline text size. */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.8125rem; /* 13px */
+  --font-size-md: 0.875rem; /* 14px */
+  --font-size-lg: 1rem; /* 16px */
+  --font-size-lg-plus: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.75rem; /* 28px */
+
+  --line-height-xs: 1rem; /* 16px */
+  --line-height-sm: 1rem; /* 16px */
+  --line-height-md: 1.25rem; /* 20px */
+  --line-height-lg: 1.5rem; /* 24px */
+  --line-height-lg-plus: 1.75rem; /* 28px */
+  --line-height-xl: 2rem; /* 32px */
+  --line-height-2xl: 2rem; /* 32px */
+  --line-height-3xl: 2.25rem; /* 36px */
+
   /* colors */
   /* gray colors  */
   --gray-25: #fcfcfc;
@@ -799,11 +819,7 @@ html.dark,
   --border-faint: var(--neutral-100);
   --border-strong: var(--neutral-600);
   --border-disabled: var(--neutral-300);
-  --border-focus: color-mix(
-    in srgb,
-    var(--brand-700) 80%,
-    var(--neutral-500)
-  );
+  --border-focus: color-mix(in srgb, var(--brand-700) 80%, var(--neutral-500));
   --border-error: var(--red-200);
   --border-error-strong: var(--red-600);
   --border-brand: var(--brand-400);

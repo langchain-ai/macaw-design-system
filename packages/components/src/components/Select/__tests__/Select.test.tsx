@@ -120,7 +120,7 @@ describe('Select variant', () => {
     expect(trigger).toHaveClass(
       'w-auto',
       'bg-transparent',
-      'border-transparent'
+      'before:border-transparent'
     );
     for (const fieldClass of ['w-full', 'bg-input', 'border-muted']) {
       expect(trigger).not.toHaveClass(fieldClass);
