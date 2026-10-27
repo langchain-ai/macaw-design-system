@@ -173,6 +173,10 @@ export type { SwitchProps } from './Switch';
 // menu depends on @radix-ui/react-dropdown-menu. Import it directly:
 //   import { Accordion, AccordionItem } from '@langchain/macaw-components/Accordion'
 //
+// NOTE: ChatConversationList is excluded for the same reason: its row and group
+// menus depend on @radix-ui/react-dropdown-menu. Import it directly:
+//   import { ChatConversationList, ... } from '@langchain/macaw-components/ChatConversationList'
+//
 // NOTE: Dialog and Pane are likewise excluded — both wrap @radix-ui/react-dialog.
 // Import directly:
 //   import { Dialog, DialogContent } from '@langchain/macaw-components/Dialog'

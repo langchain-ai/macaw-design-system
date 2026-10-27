@@ -76,6 +76,10 @@
       "types": "./dist/components/ChartTooltip/index.d.ts",
       "import": "./dist/components/ChartTooltip/index.js"
     },
+    "./ChatConversationList": {
+      "types": "./dist/components/ChatConversationList/index.d.ts",
+      "import": "./dist/components/ChatConversationList/index.js"
+    },
     "./Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
       "import": "./dist/components/Checkbox/index.js"
@@ -364,6 +368,10 @@
     "./components/ChartTooltip": {
       "types": "./dist/components/ChartTooltip/index.d.ts",
       "import": "./dist/components/ChartTooltip/index.js"
+    },
+    "./components/ChatConversationList": {
+      "types": "./dist/components/ChatConversationList/index.d.ts",
+      "import": "./dist/components/ChatConversationList/index.js"
     },
     "./components/Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
