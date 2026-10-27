@@ -1,0 +1,50 @@
+packages/components/src/components/Button/Button.tsx
+  s_7cc1e4d258aaf7::t_628b39ed3de148 67,71-73
+packages/components/src/components/MetricChart/__tests__/MetricChart.test.tsx
+  s_7cc1e4d258aaf7::t_d64d56a25be930 21,65,69-71
+packages/tokens/src/tokens.css
+  s_7cc1e4d258aaf7::t_4f65f21ab1b929 822
+  s_7cc1e4d258aaf7::t_628b39ed3de148 7-26
+packages/components/src/components/Text/Text.stories.tsx
+  s_7cc1e4d258aaf7::t_08bc8f7ca1f831 15-31,47-81,155,163,171,179,187,194,201,210
+packages/components/src/components/ButtonGroup/ButtonGroup.tsx
+  s_7cc1e4d258aaf7::t_628b39ed3de148 44
+packages/components/src/components/Select/__tests__/Select.test.tsx
+  s_7cc1e4d258aaf7::t_d64d56a25be930 123
+packages/components/src/components/Text/Text.tsx
+  s_7cc1e4d258aaf7::t_628b39ed3de148 5-28,30,47-61,77-81
+packages/tokens/docs/TOKENS.md
+  s_7cc1e4d258aaf7::t_08bc8f7ca1f831 27-32,43-45
+  s_7cc1e4d258aaf7::t_3269d64c566716 33-42
+packages/components/src/components/IconButton/IconButton.tsx
+  s_7cc1e4d258aaf7::t_08bc8f7ca1f831 67
+packages/components/src/components/Button/constants.ts
+  s_7cc1e4d258aaf7::t_628b39ed3de148 5,7,9,11,15,17,19,21,25,27,29,31,35,37,39-41,45,47,49,51,55,57,59,61
+packages/components/src/utils/cn.tsx
+  s_7cc1e4d258aaf7::t_987b2edf151198 50-66,102
+  s_7cc1e4d258aaf7::t_4a25aca6993e8d 104
+packages/components/docs/STYLES.md
+  s_7cc1e4d258aaf7::t_08bc8f7ca1f831 108-115,126-130
+  s_7cc1e4d258aaf7::t_3269d64c566716 116-125
+  s_7cc1e4d258aaf7::t_4f65f21ab1b929 152-182,283,286-288
+packages/components/tailwind.preset.cjs
+  s_7cc1e4d258aaf7::t_628b39ed3de148 43-76,139-146
+packages/components/docs/DESIGN.md
+  s_7cc1e4d258aaf7::t_08bc8f7ca1f831 158-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7ef26ce35c33bd249654b3852b987dcc5ed8baf3",
+  "prompts": {},
+  "sessions": {
+    "s_7cc1e4d258aaf7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e54-fcc8-7033-8c99-c4548096fdac",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
