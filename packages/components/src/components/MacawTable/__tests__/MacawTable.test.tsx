@@ -271,7 +271,7 @@ describe('MacawTable', () => {
       [...screen.getByRole('table').querySelectorAll('col')].map(
         (column) => column.style.width
       )
-    ).toEqual(['180px', '40px', '100px', '60px', '']);
+    ).toEqual(['180px', '40px', '100px', '', '60px']);
     expect(
       screen.queryByRole('button', { name: 'Move Name' })
     ).not.toBeInTheDocument();

@@ -27,8 +27,22 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
   const draggedId = useRef<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('');
-  const reorderable =
-    props.enableColumnReordering && table.getHeaderGroups().length === 1;
+  const hasSpacer = !table
+    .getCenterVisibleLeafColumns()
+    .some((column) => columnOptions?.[column.id]?.fill);
+  const leftGroups = table.getLeftHeaderGroups();
+  const centerGroups = table.getCenterHeaderGroups();
+  const rightGroups = table.getRightHeaderGroups();
+  const groups = table.getHeaderGroups().map((group, index) => ({
+    ...group,
+    headers: [
+      ...(leftGroups[index]?.headers ?? []),
+      ...(centerGroups[index]?.headers ?? []),
+      ...(hasSpacer ? [null] : []),
+      ...(rightGroups[index]?.headers ?? []),
+    ],
+  }));
+  const reorderable = props.enableColumnReordering && groups.length === 1;
   const visibleMovable = table
     .getVisibleLeafColumns()
     .filter((c) => canReorder(c, columnOptions?.[c.id]));
@@ -44,12 +58,24 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
 
   return (
     <>
-      {table.getHeaderGroups().map((group) => (
+      {groups.map((group) => (
         <tr key={group.id}>
           {group.headers.map((header) => {
+            if (!header)
+              return (
+                <th
+                  key="spacer"
+                  aria-hidden
+                  role="presentation"
+                  className="border-b border-subtle bg-surface-level-1 p-0"
+                />
+              );
             const column = header.column;
             const options = columnOptions?.[column.id];
-            const pinned = column.getIsPinned();
+            const leaves = header
+              .getLeafHeaders()
+              .filter((leaf) => leaf.subHeaders.length === 0);
+            const pinned = leaves[0]?.column.getIsPinned();
             const sorted = column.getIsSorted();
             const label = columnLabel(column);
             const canMove = reorderable && canReorder(column, options);
@@ -89,11 +115,11 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                         position: 'sticky',
                         left:
                           pinned === 'left'
-                            ? column.getStart('left')
+                            ? leaves[0].column.getStart('left')
                             : undefined,
                         right:
                           pinned === 'right'
-                            ? column.getAfter('right')
+                            ? leaves[leaves.length - 1].column.getAfter('right')
                             : undefined,
                         zIndex: zIndices.tableStickyHeader,
                       }
@@ -309,7 +335,7 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                       </div>
                     )}
                 </div>
-                {header.id === table.getHeaderGroups()[0]?.headers[0]?.id && (
+                {header === groups[0]?.headers.find(Boolean) && (
                   <span role="status" className="sr-only">
                     {announcement}
                   </span>
@@ -317,18 +343,6 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
               </th>
             );
           })}
-          {!table
-            .getVisibleLeafColumns()
-            .some(
-              (column) =>
-                columnOptions?.[column.id]?.fill && !column.getIsPinned()
-            ) && (
-            <th
-              aria-hidden
-              role="presentation"
-              className="border-b border-subtle bg-surface-level-1 p-0"
-            />
-          )}
         </tr>
       ))}
     </>

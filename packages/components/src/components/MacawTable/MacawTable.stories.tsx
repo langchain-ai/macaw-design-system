@@ -539,7 +539,7 @@ export const CustomScrollParent: Story = {
   render: () => <InfiniteExample virtualized external />,
 };
 
-function GroupedExample() {
+function GroupedExample({ pinned = false }: { pinned?: boolean }) {
   const grouped = useMemo<ColumnDef<Item>[]>(
     () => [
       {
@@ -563,6 +563,11 @@ function GroupedExample() {
     data,
     columns: grouped,
     getRowId: (row) => row.id,
+    initialState: {
+      columnPinning: pinned
+        ? { left: ['name'], right: ['updated'] }
+        : { left: [], right: [] },
+    },
   });
   return (
     <MacawTable
@@ -574,6 +579,30 @@ function GroupedExample() {
   );
 }
 export const GroupedHeaders: Story = { render: () => <GroupedExample /> };
+
+export const GroupedPinnedColumns: Story = {
+  render: () => <GroupedExample pinned />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const header = canvas.getByRole('columnheader', { name: /Last Updated/ });
+    const cell = canvas.getByText('2 minutes ago').closest('td')!;
+    const scroller = canvas.getByRole('region', {
+      name: 'Grouped workflow columns scroll area',
+    });
+    await waitFor(() => {
+      expect(cell.getBoundingClientRect().width).toBe(180);
+      expect(header.getBoundingClientRect().right).toBe(
+        cell.getBoundingClientRect().right
+      );
+      expect(cell.getBoundingClientRect().right).toBe(
+        scroller.getBoundingClientRect().right
+      );
+    });
+    expect(
+      canvas.getAllByRole('columnheader', { name: 'Activity' })
+    ).toHaveLength(2);
+  },
+};
 
 function NoColumnsExample() {
   const table = useMacawTable({
@@ -600,7 +629,13 @@ function NoColumnsExample() {
 }
 export const NoColumns: Story = { render: () => <NoColumnsExample /> };
 
-function PinnedExample({ fill = false }: { fill?: boolean }) {
+function PinnedExample({
+  fill = false,
+  virtualized = false,
+}: {
+  fill?: boolean;
+  virtualized?: boolean;
+}) {
   const configured = useMemo(
     () =>
       columns.map((column) =>
@@ -619,10 +654,11 @@ function PinnedExample({ fill = false }: { fill?: boolean }) {
     },
   });
   return (
-    <div style={{ maxWidth: fill ? 1040 : 640 }}>
+    <div style={{ maxWidth: 1040 }}>
       <MacawTable
         table={table}
         label="Pinned workflow columns"
+        virtualized={virtualized}
         height={300}
         columnOptions={{
           name: { customTextOverflow: true },
@@ -632,29 +668,60 @@ function PinnedExample({ fill = false }: { fill?: boolean }) {
     </div>
   );
 }
+const checkPinnedColumns: Story['play'] = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  const selectionCell = (
+    await canvas.findByRole('checkbox', {
+      name: 'Select Production Assistant',
+    })
+  ).closest('td')!;
+  const nameCell = canvas
+    .getByText('Production Assistant', { exact: true })
+    .closest('td')!;
+  const actionsCell = canvas
+    .getByRole('button', {
+      name: 'Actions for Production Assistant',
+    })
+    .closest('td')!;
+  const actionsHeader = canvas.getByRole('columnheader', { name: 'Actions' });
+  const scroller = canvas.getByRole('region', {
+    name: /^Pinned workflow columns( scroll area)?$/,
+  });
+  const container = scroller.closest(
+    '[data-slot="macaw-table"]'
+  )!.parentElement!;
+  for (const width of [1040, 640]) {
+    container.style.maxWidth = `${width}px`;
+    for (const left of [0, scroller.scrollWidth]) {
+      scroller.scrollTo({ left });
+      await waitFor(() => {
+        expect(selectionCell.getBoundingClientRect().width).toBe(40);
+        expect(nameCell.getBoundingClientRect().width).toBe(300);
+        expect(nameCell.getBoundingClientRect().left).toBe(
+          selectionCell.getBoundingClientRect().right
+        );
+        expect(actionsCell.getBoundingClientRect().width).toBe(40);
+        expect(actionsCell.getBoundingClientRect().right).toBe(
+          scroller.getBoundingClientRect().right
+        );
+        expect(actionsHeader.getBoundingClientRect().right).toBe(
+          actionsCell.getBoundingClientRect().right
+        );
+      });
+    }
+  }
+  container.style.maxWidth = '1040px';
+  scroller.scrollTo({ left: 0 });
+};
 export const PinnedColumns: Story = {
   render: () => <PinnedExample />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const selectionCell = canvas
-      .getByRole('checkbox', {
-        name: 'Select Production Assistant',
-      })
-      .closest('td')!;
-    const nameCell = canvas
-      .getByText('Production Assistant', { exact: true })
-      .closest('td')!;
-    await expect(selectionCell.getBoundingClientRect().width).toBe(40);
-    await expect(nameCell.getBoundingClientRect().width).toBe(300);
-    const scroller = canvas.getByRole('region', {
-      name: 'Pinned workflow columns scroll area',
-    });
-    scroller.scrollTo({ left: scroller.scrollWidth });
-    await waitFor(() =>
-      expect(nameCell.getBoundingClientRect().left).toBe(
-        selectionCell.getBoundingClientRect().right
-      )
-    );
-  },
+  play: checkPinnedColumns,
 };
-export const FillColumn: Story = { render: () => <PinnedExample fill /> };
+export const VirtualizedPinnedColumns: Story = {
+  render: () => <PinnedExample virtualized />,
+  play: checkPinnedColumns,
+};
+export const FillColumn: Story = {
+  render: () => <PinnedExample fill />,
+  play: checkPinnedColumns,
+};

@@ -23,7 +23,7 @@ import { MacawTableHeader } from './MacawTableHeader';
 import type { MacawTableProps } from './types';
 
 const TABLE_CLASS =
-  'min-w-full table-fixed border-separate border-spacing-y-space-1 text-left text-sm text-primary';
+  'min-w-full table-fixed border-separate border-spacing-x-0 border-spacing-y-space-1 text-left text-sm text-primary';
 const ROW_HEIGHT = '2.5rem';
 const INTERACTIVE =
   'a,button,input,select,textarea,[role="button"],[role="checkbox"],[role="switch"],[role="radio"],[role="link"],[role="combobox"],[contenteditable="true"],[data-table-interactive]';
@@ -102,28 +102,36 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
     disabled = false,
   } = props;
   const rows = table.getRowModel().rows;
-  const columns = [
-    ...table.getLeftVisibleLeafColumns(),
-    ...table.getCenterVisibleLeafColumns(),
-    ...table.getRightVisibleLeafColumns(),
-  ];
+  const leftColumns = table.getLeftVisibleLeafColumns();
+  const centerColumns = table.getCenterVisibleLeafColumns();
+  const rightColumns = table.getRightVisibleLeafColumns();
+  const columns = [...leftColumns, ...centerColumns, ...rightColumns];
   const hasSpacer = !columns.some(
     (column) => props.columnOptions?.[column.id]?.fill && !column.getIsPinned()
   );
+  const columnSlots = [
+    ...leftColumns,
+    ...centerColumns,
+    ...(hasSpacer ? [null] : []),
+    ...rightColumns,
+  ];
   const colGroup = (
     <colgroup>
-      {columns.map((column) => (
-        <col
-          key={column.id}
-          style={{
-            width:
-              props.columnOptions?.[column.id]?.fill && !column.getIsPinned()
-                ? undefined
-                : column.getSize(),
-          }}
-        />
-      ))}
-      {hasSpacer && <col />}
+      {columnSlots.map((column) =>
+        column ? (
+          <col
+            key={column.id}
+            style={{
+              width:
+                props.columnOptions?.[column.id]?.fill && !column.getIsPinned()
+                  ? undefined
+                  : column.getSize(),
+            }}
+          />
+        ) : (
+          <col key="spacer" />
+        )
+      )}
     </colgroup>
   );
   const busy = isLoading || isValidating;
@@ -227,17 +235,25 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
     if (!row)
       return (
         <>
-          {columns.map((column) => (
-            <td
-              key={column.id}
-              aria-hidden
-              className="px-space-2 py-space-3"
-              style={{ height: ROW_HEIGHT, width: column.getSize() }}
-            >
-              <Skeleton className="h-space-3 w-full" />
-            </td>
-          ))}
-          {hasSpacer && <td aria-hidden role="presentation" className="p-0" />}
+          {columnSlots.map((column) =>
+            column ? (
+              <td
+                key={column.id}
+                aria-hidden
+                className="px-space-2 py-space-3"
+                style={{ height: ROW_HEIGHT, width: column.getSize() }}
+              >
+                <Skeleton className="h-space-3 w-full" />
+              </td>
+            ) : (
+              <td
+                key="spacer"
+                aria-hidden
+                role="presentation"
+                className="p-0"
+              />
+            )
+          )}
         </>
       );
     const fullWidth = props.renderFullWidthRow?.(row);
@@ -264,7 +280,21 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
       );
     return (
       <>
-        {row.getVisibleCells().map((cell) => {
+        {[
+          ...row.getLeftVisibleCells(),
+          ...row.getCenterVisibleCells(),
+          ...(hasSpacer ? [null] : []),
+          ...row.getRightVisibleCells(),
+        ].map((cell) => {
+          if (!cell)
+            return (
+              <td
+                key="spacer"
+                aria-hidden
+                role="presentation"
+                className={cn('p-0 last:rounded-e-md', cellBackground)}
+              />
+            );
           const column = cell.column;
           const pinned = column.getIsPinned();
           const options = props.columnOptions?.[column.id];
@@ -310,13 +340,6 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
             </td>
           );
         })}
-        {hasSpacer && (
-          <td
-            aria-hidden
-            role="presentation"
-            className={cn('rounded-e-md p-0', cellBackground)}
-          />
-        )}
       </>
     );
   };
