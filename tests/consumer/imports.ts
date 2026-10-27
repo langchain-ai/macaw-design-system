@@ -110,3 +110,52 @@ void [
   tailwindPreset,
   useScrollParent,
 ];
+
+// Keep the heavy table family available through its explicit subpath.
+import {
+  MacawTable,
+  MacawTableToolbar,
+  MacawTablePagination,
+  MacawTableColumnVisibility,
+  MacawTableRowExpander,
+  createMacawTableSelectionColumn,
+  useMacawTable,
+} from '@langchain/macaw-components/MacawTable';
+import type {
+  MacawTableProps,
+  UseMacawTableOptions,
+} from '@langchain/macaw-components/MacawTable';
+import type { Table, ColumnDef } from '@langchain/macaw-components/MacawTable';
+type TableRecord = { id: string; name: string };
+const tableColumns: ColumnDef<TableRecord>[] = [
+  createMacawTableSelectionColumn<TableRecord>(),
+  { accessorKey: 'name', header: 'Name' },
+];
+const tableOptions: UseMacawTableOptions<TableRecord> = {
+  data: [],
+  columns: tableColumns,
+  getRowId: (row) => row.id,
+  manualPagination: true,
+  rowCount: 100,
+};
+function verifyTableContract(table: Table<TableRecord>) {
+  return {
+    table,
+    label: 'Items',
+    columnOptions: { name: { fill: true } },
+    onRowClick: (row) => {
+      void row.id;
+    },
+    renderFullWidthRow: (row) => row.original.name,
+  } satisfies MacawTableProps<TableRecord>;
+}
+void [
+  MacawTable,
+  MacawTableToolbar,
+  MacawTablePagination,
+  MacawTableColumnVisibility,
+  MacawTableRowExpander,
+  useMacawTable,
+  tableOptions,
+  verifyTableContract,
+];

@@ -80,6 +80,16 @@ pass an explicit `collisionBoundary` to override it.
 The base backdrop uses 75% of the semantic overlay color. The foreground layer
 adds 50% of that color, giving a visible increase in dimming in both themes.
 
+## Data tables
+
+Import `MacawTable`, `MacawTableToolbar`, and `MacawTablePagination` from
+`@langchain/macaw-components/MacawTable` for interactive data grids. Pass an
+existing TanStack v8 table or create one with `useMacawTable`. Use stable row IDs
+and a meaningful table `label`. The family supports selection, sorting, column
+controls, nested/full-width rows, server state, and optional virtualization.
+Applications own routing, fetching, persistence, permissions, and bulk operations.
+See [MacawTable usage and migration guidance](./MACAW_TABLE.md).
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
