@@ -8,15 +8,22 @@ const SAMPLE_COUNT = 120;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
+function smootherstep(start: number, end: number, value: number) {
+  const t = Math.min(1, Math.max(0, (value - start) / (end - start)));
+  return t ** 3 * (t * (t * 6 - 15) + 10);
+}
+
 function createPath(line: number, time = 0, hasCenterPoint = false) {
   const phase = line * 2.4;
   const spread = (line / (LINE_COUNT - 1)) * 2 - 1;
-  const frequency = 2 + Math.sin(time * 0.05 + phase) * 1.4;
+  const frequency = 1.5 + Math.sin(time * 0.05 + phase) * 0.65;
   const amplitude = 0.65 + Math.sin(time * 0.31 + phase) * 0.25;
 
   return Array.from({ length: SAMPLE_COUNT + 1 }, (_, sample) => {
     const x = sample / SAMPLE_COUNT;
-    const envelope = Math.sin(Math.PI * x * (hasCenterPoint ? 2 : 1)) ** 2;
+    const taper = smootherstep(0, 0.12, x) * (1 - smootherstep(0.04, 0.86, x));
+    const envelope =
+      taper * (hasCenterPoint ? Math.sin(Math.PI * 2 * x) ** 2 : 1);
     const wave = Math.sin(x * Math.PI * 2 * frequency - time * 0.7 + phase);
     const y = HEIGHT / 2 + envelope * wave * spread * amplitude * HEIGHT * 0.4;
     return `${sample === 0 ? 'M' : 'L'}${x * WIDTH},${y.toFixed(2)}`;
