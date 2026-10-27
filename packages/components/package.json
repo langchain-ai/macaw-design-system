@@ -108,6 +108,22 @@
       "types": "./dist/components/Divider/index.d.ts",
       "import": "./dist/components/Divider/index.js"
     },
+    "./DotLoader": {
+      "types": "./dist/components/DotLoader/index.d.ts",
+      "import": "./dist/components/DotLoader/index.js"
+    },
+    "./components/DotLoader": {
+      "types": "./dist/components/DotLoader/index.d.ts",
+      "import": "./dist/components/DotLoader/index.js"
+    },
+    "./DotSkeleton": {
+      "types": "./dist/components/DotSkeleton/index.d.ts",
+      "import": "./dist/components/DotSkeleton/index.js"
+    },
+    "./components/DotSkeleton": {
+      "types": "./dist/components/DotSkeleton/index.d.ts",
+      "import": "./dist/components/DotSkeleton/index.js"
+    },
     "./DonutChart": {
       "types": "./dist/components/DonutChart/index.d.ts",
       "import": "./dist/components/DonutChart/index.js"
