@@ -63,6 +63,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
 - Set `speed="slow"` on `ThinkingState` or `LoadingIndicator` for a slower animation; reduced-motion preferences still take precedence.
 - Use `Spinner` for routine saves, fetches, or refreshes, even within AI screens (e.g. fetching chat history).
+- Use `DotLoader` for calm branded loading regions; it follows the app theme and respects reduced motion. Use `DotSkeleton` for compact numeric placeholders that inherit the surrounding text color.
 - Use `Skeleton` for known content shapes, `LinearProgress` for regional loading, and `ProgressBar` for measurable completion.
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.

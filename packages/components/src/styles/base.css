@@ -316,3 +316,32 @@
 .scroll-mask-b {
   --scroll-mask-fade-from-b: 80%;
 }
+
+@keyframes lc-dot-skeleton {
+  0%,
+  100% {
+    opacity: 0.16;
+  }
+  12% {
+    opacity: 0.95;
+  }
+  40% {
+    opacity: 0.16;
+  }
+}
+
+@layer langchain-ds-components {
+  .lc-dot-skeleton__dot {
+    opacity: 0.16;
+    animation-name: lc-dot-skeleton;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-dot-skeleton__dot {
+      animation: none;
+      opacity: 0.22;
+    }
+  }
+}

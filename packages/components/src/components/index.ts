@@ -177,3 +177,8 @@ export type { SwitchProps } from './Switch';
 // Import directly:
 //   import { Dialog, DialogContent } from '@langchain/macaw-components/Dialog'
 //   import { Pane, TopBarPaneSlot } from '@langchain/macaw-components/Pane'
+
+export { DotLoader } from './DotLoader';
+export type { DotLoaderProps } from './DotLoader';
+export { DotSkeleton } from './DotSkeleton';
+export type { DotSkeletonProps } from './DotSkeleton';
