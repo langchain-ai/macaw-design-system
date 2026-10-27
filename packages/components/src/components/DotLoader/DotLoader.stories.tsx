@@ -8,6 +8,7 @@ const meta = {
   parameters: {
     layout: 'centered',
     docs: {
+      story: { inline: false, height: 160 },
       description: {
         component:
           'Four dotted waves settle into one calm line. Follows AppThemeProvider, with optional CSS color overrides. Speed presets: slow (6s), medium (4s, default), fast (2s). Stops for reduced motion.',
