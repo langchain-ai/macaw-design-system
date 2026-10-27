@@ -573,7 +573,6 @@
     "test:a11y": "vitest run --config ../../vitest.storybook.config.ts"
   },
   "dependencies": {
-    "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-json": "^6.0.2",

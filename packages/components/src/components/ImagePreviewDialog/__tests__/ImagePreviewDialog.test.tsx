@@ -15,7 +15,7 @@ function PreviewExample() {
         open={open}
         onOpenChange={setOpen}
         src="/workflow.png"
-        alt="Engine workflow"
+        altText="Engine workflow"
       />
     </>
   );
@@ -30,7 +30,7 @@ describe('ImagePreviewDialog', () => {
         open
         onOpenChange={() => {}}
         src="data:text/html,<script>alert(1)</script>"
-        alt="Untrusted image"
+        altText="Untrusted image"
       />
     );
     expect(screen.getByAltText('Untrusted image')).toHaveAttribute(
@@ -42,7 +42,7 @@ describe('ImagePreviewDialog', () => {
         open
         onOpenChange={() => {}}
         src="javascript:alert(1)"
-        alt="Untrusted image"
+        altText="Untrusted image"
       />
     );
     expect(screen.getByAltText('Untrusted image')).toHaveAttribute(
@@ -99,7 +99,7 @@ describe('ImagePreviewDialog', () => {
         open
         onOpenChange={() => {}}
         src="/missing.png"
-        alt="Missing image"
+        altText="Missing image"
       />
     );
     // jsdom does not issue image load/error events.
@@ -113,7 +113,7 @@ describe('ImagePreviewDialog', () => {
         open
         onOpenChange={() => {}}
         src="/workflow.png"
-        alt="Engine workflow"
+        altText="Engine workflow"
       />
     );
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();

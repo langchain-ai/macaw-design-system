@@ -24,7 +24,7 @@ export interface ImagePreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   src: string;
-  alt: string;
+  altText: string;
   /** Omit to keep the visible title area hidden. */
   title?: string;
   /** The consumer owns download behavior and permissions. */
@@ -35,7 +35,7 @@ export function ImagePreviewDialog({
   open,
   onOpenChange,
   src,
-  alt,
+  altText,
   title,
   onDownload,
 }: ImagePreviewDialogProps) {
@@ -69,7 +69,7 @@ export function ImagePreviewDialog({
         <ImagePreviewContent
           key={`${src}:${open}`}
           src={src}
-          alt={alt}
+          altText={altText}
           title={title}
           onDownload={onDownload}
         />
@@ -80,10 +80,10 @@ export function ImagePreviewDialog({
 
 function ImagePreviewContent({
   src,
-  alt,
+  altText,
   title,
   onDownload,
-}: Pick<ImagePreviewDialogProps, 'src' | 'alt' | 'title' | 'onDownload'>) {
+}: Pick<ImagePreviewDialogProps, 'src' | 'altText' | 'title' | 'onDownload'>) {
   const titleRef = useRef<HTMLElement | null>(null);
   const [titleTruncated, setTitleTruncated] = useState(false);
   const [titleTooltipOpen, setTitleTooltipOpen] = useState(false);
@@ -173,7 +173,7 @@ function ImagePreviewContent({
               </Text>
             </Tooltip>
           ) : (
-            alt || 'Image preview'
+            altText || 'Image preview'
           )}
         </DialogTitle>
         <div className="flex shrink-0 items-center gap-space-2">
@@ -301,7 +301,7 @@ function ImagePreviewContent({
               )}
               <img
                 src={sanitizeImageSrc(src)}
-                alt={alt}
+                alt={altText}
                 draggable={false}
                 className={cn(
                   'block max-w-none shrink-0',

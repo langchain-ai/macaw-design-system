@@ -305,7 +305,7 @@ function FileActionsDemo() {
         open={dialog === 'preview'}
         onOpenChange={(open) => !open && setDialog(null)}
         src={sampleImage}
-        alt={name}
+        altText={name}
         title={name}
         onDownload={() =>
           setNotice(
@@ -406,7 +406,7 @@ function ThumbnailsDemo() {
         open={selected !== undefined}
         onOpenChange={(open) => !open && setSelected(undefined)}
         src={sampleImage}
-        alt={selected ?? 'Image preview'}
+        altText={selected ?? 'Image preview'}
         title={selected}
       />
     </>

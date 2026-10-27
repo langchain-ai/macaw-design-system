@@ -24,7 +24,7 @@ const meta = {
     open: false,
     onOpenChange: () => {},
     src: sampleImage,
-    alt: 'Engine workflow illustration',
+    altText: 'Engine workflow illustration',
   },
   render: function PreviewExample(args) {
     const [open, setOpen] = useState(false);
@@ -52,8 +52,7 @@ export const LongTitle: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Hover or focus a truncated title to see its full name.',
+        story: 'Hover or focus a truncated title to see its full name.',
       },
     },
   },

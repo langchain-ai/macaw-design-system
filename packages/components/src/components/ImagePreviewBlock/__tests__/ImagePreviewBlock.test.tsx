@@ -11,7 +11,7 @@ function HostExample({ caption }: { caption?: string }) {
   return (
     <ImagePreviewBlock
       src="/workflow.png"
-      alt="Engine workflow"
+      altText="Engine workflow"
       caption={caption}
       actions={
         <Button disabled={saved} onClick={() => setSaved(true)}>
@@ -27,7 +27,7 @@ describe('ImagePreviewBlock', () => {
     const src =
       'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     const { user } = render(
-      <ImagePreviewBlock src={src} alt="Embedded image" />
+      <ImagePreviewBlock src={src} altText="Embedded image" />
     );
     expect(screen.getByRole('img', { name: 'Embedded image' })).toHaveAttribute(
       'src',
@@ -61,7 +61,7 @@ describe('ImagePreviewBlock', () => {
 
   it('opens with the keyboard, hides the visible title by default, and restores focus after Escape', async () => {
     const { user } = render(
-      <ImagePreviewBlock src="/workflow.png" alt="Engine workflow" />
+      <ImagePreviewBlock src="/workflow.png" altText="Engine workflow" />
     );
     const trigger = screen.getByRole('button', {
       name: 'Preview Engine workflow',
@@ -79,15 +79,15 @@ describe('ImagePreviewBlock', () => {
     expect(trigger).toHaveFocus();
   });
 
-  it('supports an optional visible title and host download behavior', async () => {
+  it('uses the caption as the preview title and supports host download behavior', async () => {
     function Example() {
       const [downloaded, setDownloaded] = useState(false);
       return (
         <>
           <ImagePreviewBlock
             src="/workflow.png"
-            alt="Engine workflow"
-            previewTitle="Workflow Details"
+            altText="Engine workflow"
+            caption="Workflow Details"
             onDownload={() => setDownloaded(true)}
           />
           <output>{downloaded ? 'Download requested' : ''}</output>
@@ -111,6 +111,19 @@ describe('ImagePreviewBlock', () => {
     expect(screen.getByText('Download requested')).toBeVisible();
   });
 
+  it('accepts a custom open label', () => {
+    render(
+      <ImagePreviewBlock
+        src="/workflow.png"
+        altText="Engine workflow"
+        openLabel="Open image"
+      />
+    );
+    expect(
+      screen.getByRole('button', { name: 'Open image' })
+    ).toBeInTheDocument();
+  });
+
   it('keeps host actions independent of image preview', async () => {
     const { user } = render(<HostExample />);
     expect(screen.getByRole('figure')).not.toHaveAccessibleName();
@@ -127,10 +140,14 @@ describe('ImagePreviewBlock', () => {
       <>
         <ImagePreviewBlock
           src="/engine.png"
-          alt="Engine logo"
+          altText="Engine logo"
           caption="Engine"
         />
-        <ImagePreviewBlock src="/fleet.png" alt="Fleet logo" caption="Fleet" />
+        <ImagePreviewBlock
+          src="/fleet.png"
+          altText="Fleet logo"
+          caption="Fleet"
+        />
       </>
     );
     expect(
@@ -140,7 +157,7 @@ describe('ImagePreviewBlock', () => {
     ).toBeVisible();
     const trigger = screen.getByRole('button', { name: 'Preview Fleet logo' });
     await user.click(trigger);
-    expect(screen.getByRole('dialog', { name: 'Fleet logo' })).toBeVisible();
+    expect(screen.getByRole('dialog', { name: 'Fleet' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Close preview' }));
     expect(trigger).toHaveFocus();
   });

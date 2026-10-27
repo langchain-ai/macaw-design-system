@@ -8,10 +8,11 @@ import { Text } from '../Text';
 
 export interface ImagePreviewBlockProps {
   src: string;
-  alt: string;
+  altText: string;
+  /** Also used as the preview's visible title. Omit to keep it hidden. */
   caption?: string;
-  /** Omit to keep the preview's visible title area hidden. */
-  previewTitle?: string;
+  /** Accessible name for the preview button. Defaults to "Preview {altText}". */
+  openLabel?: string;
   /** Hosts own download behavior and permissions. */
   onDownload?: () => void;
   /** Hosts own action behavior, permissions, and follow-up state. */
@@ -21,9 +22,9 @@ export interface ImagePreviewBlockProps {
 
 export function ImagePreviewBlock({
   src,
-  alt,
+  altText,
   caption,
-  previewTitle,
+  openLabel = `Preview ${altText || 'image'}`,
   onDownload,
   actions,
   className,
@@ -46,13 +47,13 @@ export function ImagePreviewBlock({
           type="button"
           color="secondary"
           variant="plain"
-          aria-label={`Preview ${alt || 'image'}`}
+          aria-label={openLabel}
           onClick={() => setOpen(true)}
           className="h-auto w-full min-w-0 whitespace-normal rounded-sm bg-surface-level-2 p-space-5 shadow-none"
         >
           <img
             src={sanitizeImageSrc(src)}
-            alt={alt}
+            alt={altText}
             className="block h-auto max-w-full"
           />
         </Button>
@@ -80,8 +81,8 @@ export function ImagePreviewBlock({
         open={open}
         onOpenChange={setOpen}
         src={src}
-        alt={alt}
-        title={previewTitle}
+        altText={altText}
+        title={caption}
         onDownload={onDownload}
       />
     </div>
