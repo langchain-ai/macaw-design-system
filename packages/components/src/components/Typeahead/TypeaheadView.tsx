@@ -377,8 +377,6 @@ export function TypeaheadView<TOption>({
                 ? 'flex flex-wrap items-center gap-space-1'
                 : 'flex items-center gap-space-1 overflow-hidden',
               !disabled &&
-                'focus-within:bg-input hover:bg-input-hover',
-              !disabled &&
                 !isError &&
                 '[&:hover:not(:focus-within)]:border-input-hover focus-within:border-focus focus-within:shadow-[0_0_0_1px_var(--border-focus)]',
               controlHeightClass,

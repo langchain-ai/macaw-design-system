@@ -138,7 +138,7 @@
   --bg-disabled: var(--neutral-100);
   --bg-elevated: var(--white); /* raised cards, panes, controls */
   --bg-input: var(--white);
-  --bg-input-hover: var(--bg-input);
+  --bg-input-hover: var(--bg-input); /* prevents fill shift */
   --bg-input-disabled: var(--bg-disabled);
   --bg-popover: var(--neutral-25);
   --bg-sidebar: var(--neutral-50);
@@ -752,7 +752,7 @@ html.dark,
   --bg-disabled: var(--neutral-200);
   --bg-elevated: var(--neutral-50);
   --bg-input: var(--neutral-100);
-  --bg-input-hover: var(--bg-elevated-hover);
+  --bg-input-hover: var(--neutral-200);
   --bg-input-disabled: var(--neutral-50);
   --bg-popover: var(--neutral-100);
   --bg-sidebar: var(--neutral-35);

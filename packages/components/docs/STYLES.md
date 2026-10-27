@@ -259,7 +259,7 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-disabled`              | Disabled input or control fill                                    |
 | `bg-elevated`              | Raised cards and panes                                           |
 | `bg-input`                 | Input and textarea fields, picker controls, filled popup triggers |
-| `bg-input-hover`           | Hover fill for Select and Typeahead controls                       |
+| `bg-input-hover`           | Hover fill for Select controls                                     |
 | `bg-input-disabled`        | Disabled field fill, independent of general disabled controls     |
 | `bg-elevated-hover`        | Hover state inside a raised or floating surface                    |
 | `bg-elevated-selected`     | Selected item inside a raised or floating surface                  |
@@ -277,9 +277,9 @@ use `neutral-100`.
 
 Outlined fields use `border-input` at rest and `border-input-hover` on hover.
 These resolve to `border-subtle` / `border-default` in light mode and
-`border-muted` / `border-subtle` in dark mode. Select and Typeahead use
-`bg-input-hover` for their hover fill: white in light mode and `bg-elevated-hover`
-in dark mode. Fields retain semantic focus and error indicators and a 1px outer
+`border-muted` / `border-subtle` in dark mode. Input, Textarea, and Typeahead
+keep `bg-input` on hover. Select uses `bg-input-hover` to override the Button
+hover fill: white in light mode and `neutral-200` in dark mode. Fields retain semantic focus and error indicators and a 1px outer
 focus ring; native inputs stay unoutlined inside their containers.
 Use `text-placeholder` for field hints. Plain fields remain borderless at rest.
 This applies to Input, Textarea, Select, and Typeahead, including multi-value fields.
