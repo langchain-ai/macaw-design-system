@@ -5,9 +5,6 @@ import { cn } from '../../utils/cn';
 export interface DotSkeletonProps {
   rows?: number;
   cols?: number;
-  size?: number;
-  gap?: number;
-  step?: number;
   className?: string;
   style?: CSSProperties;
 }
@@ -15,13 +12,11 @@ export interface DotSkeletonProps {
 export function DotSkeleton({
   rows = 2,
   cols = 9,
-  size = 3,
-  gap,
-  step = 0.07,
   className,
   style,
 }: DotSkeletonProps) {
-  const g = gap ?? size;
+  const size = 3;
+  const step = 0.07;
   const count = rows * cols;
 
   const cycle = count * step + 0.6;
@@ -33,7 +28,7 @@ export function DotSkeleton({
       className={cn('inline-grid align-middle', className)}
       style={{
         gridTemplateColumns: `repeat(${cols}, ${size}px)`,
-        gap: g,
+        gap: size,
         ...style,
       }}
     >

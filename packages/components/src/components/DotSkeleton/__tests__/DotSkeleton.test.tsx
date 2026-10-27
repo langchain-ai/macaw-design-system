@@ -9,26 +9,21 @@ it('renders the default dot matrix with one accessible status', () => {
   expect(container.querySelector('style')).toBeNull();
 });
 
-it('supports compact cells, custom sizing and staggered timing', () => {
+it('supports custom rows and columns with built-in spacing and timing', () => {
   const { container } = render(
-    <DotSkeleton
-      rows={1}
-      cols={6}
-      size={4}
-      gap={2}
-      step={0.1}
-      className="text-secondary"
-    />
+    <DotSkeleton rows={1} cols={6} className="text-secondary" />
   );
   expect(screen.getByRole('status')).toHaveStyle({
-    gridTemplateColumns: 'repeat(6, 4px)',
-    gap: '2px',
+    gridTemplateColumns: 'repeat(6, 3px)',
+    gap: '3px',
   });
   const dots = container.querySelectorAll('[aria-hidden="true"]');
   expect(dots).toHaveLength(6);
   expect(dots[1]).toHaveClass('bg-current');
   expect(dots[1]).toHaveStyle({
-    animationDelay: '0.100s',
-    animationDuration: '1.2000000000000002s',
+    width: '3px',
+    height: '3px',
+    animationDelay: '0.070s',
+    animationDuration: '1.02s',
   });
 });
