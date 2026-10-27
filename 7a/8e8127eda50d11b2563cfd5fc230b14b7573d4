@@ -1,0 +1,32 @@
+packages/components/src/components/IconButton/IconButton.tsx
+  s_7cc1e4d258aaf7::t_31490bca546121 10,34,69-70,73-75
+  s_7cc1e4d258aaf7::t_656cf354309965 89
+  s_7cc1e4d258aaf7::t_514ca80a7371e2 68,95-96
+packages/components/docs/STYLES.md
+  s_7cc1e4d258aaf7::t_31490bca546121 90-95
+  s_7cc1e4d258aaf7::t_cda750cba81f1c 84
+packages/components/src/components/ButtonGroup/ButtonGroup.tsx
+  s_7cc1e4d258aaf7::t_31490bca546121 8,16-17
+packages/components/src/stories/ComponentSizes.stories.tsx
+  s_7cc1e4d258aaf7::t_31490bca546121 508
+packages/components/src/components/Button/Button.tsx
+  s_7cc1e4d258aaf7::t_31490bca546121 16,19
+packages/components/src/utils/componentSizes.ts
+  s_7cc1e4d258aaf7::t_31490bca546121 18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7a8e8127eda50d11b2563cfd5fc230b14b7573d4",
+  "prompts": {},
+  "sessions": {
+    "s_7cc1e4d258aaf7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e54-fcc8-7033-8c99-c4548096fdac",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
