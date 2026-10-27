@@ -90,6 +90,16 @@ const meta = {
       description:
         'Numeric series with optional color, y-axis assignment, stroke width, dash pattern, opacity, and active-marker visibility.',
     },
+    variant: {
+      control: 'inline-radio',
+      options: ['line', 'stacked-area'],
+      description:
+        'Draw each series as a line, or stack series that share a y axis as solid areas.',
+      table: {
+        type: { summary: "'line' | 'stacked-area'" },
+        defaultValue: { summary: 'line' },
+      },
+    },
     xScale: {
       description:
         'Use linear for elapsed-distance spacing or band for evenly spaced buckets.',
@@ -124,7 +134,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs', 'line graph', 'time series', 'trend'],
+  tags: ['autodocs', 'line graph', 'time series', 'trend', 'stacked area'],
   args: {
     'aria-label': 'Requests by environment',
     series: requestSeries,
@@ -463,6 +473,81 @@ export const BandScaleWithBrushSelection: Story = {
           {' – '}
           {formatDate(Math.max(selectionRange.from, selectionRange.to))}
         </Text>
+      </div>
+    );
+  },
+};
+
+export const StackedAreas: Story = {
+  name: 'Stacked areas with consumer tooltip',
+  args: { variant: 'stacked-area' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Stacked areas show how series add up to a total. Switch `variant` to compare the same series as lines; legend selection, legend emphasis, and the crosshair work in both. Pointer callbacks report each series’ own value rather than its stacked height.',
+      },
+    },
+  },
+  render: ({ variant }) => {
+    const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
+      () => new Set()
+    );
+    const [hovered, setHovered] = useState<LineChartInteractionDatum | null>(
+      null
+    );
+
+    return (
+      <div className="relative mx-auto h-80 w-full max-w-3xl">
+        <LineChart
+          aria-label="Requests by environment"
+          variant={variant}
+          series={requestSeries}
+          formatXValue={formatDate}
+          grid={{ columns: false }}
+          selectedIds={selectedIds}
+          activeX={hovered?.x}
+          onDatumPointerMove={setHovered}
+          onDatumPointerOut={() => setHovered(null)}
+          legendProps={{
+            onItemClick: (item) =>
+              setSelectedIds((current) => toggleId(current, item.id)),
+          }}
+        />
+        {hovered != null && (
+          <div
+            className="pointer-events-none absolute top-0 -translate-x-1/2 p-space-2"
+            style={{ left: hovered.xPosition }}
+          >
+            <ChartTooltip>
+              <ChartTooltipHeader title={formatDate(hovered.x)} />
+              <ChartTooltipBody>
+                {hovered.points.map((point) => (
+                  <ChartTooltipRow
+                    key={point.seriesId}
+                    label={point.seriesLabel}
+                    markerColor={point.color}
+                    value={
+                      point.value == null
+                        ? 'No data'
+                        : numberFormatter.format(point.value)
+                    }
+                  />
+                ))}
+                <ChartTooltipRow
+                  label="Total"
+                  variant="total"
+                  value={numberFormatter.format(
+                    hovered.points.reduce(
+                      (total, point) => total + (point.value ?? 0),
+                      0
+                    )
+                  )}
+                />
+              </ChartTooltipBody>
+            </ChartTooltip>
+          </div>
+        )}
       </div>
     );
   },

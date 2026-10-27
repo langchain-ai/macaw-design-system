@@ -1,8 +1,10 @@
 import { scaleBand, scaleLinear } from '@visx/scale';
 
 import type {
+  LineChartDisplaySeries,
   LineChartPoint,
   LineChartSeries,
+  LineChartStackedSeries,
   LineChartXScale,
 } from './LineChart.types';
 
@@ -238,4 +240,40 @@ export const getLineChartYDomainValues = (
   }
 
   return values;
+};
+
+/**
+ * Stacks series per y axis in input order, at every x value on that axis.
+ * Positive values stack up from zero and negative values down, matching
+ * stacked bars.
+ */
+export const stackLineChartSeries = (
+  series: readonly LineChartDisplaySeries[]
+): readonly LineChartStackedSeries[] => {
+  const xValuesByAxis = new Map<string, Set<number>>();
+  for (const item of series) {
+    const xValues = xValuesByAxis.get(item.yAxisId) ?? new Set<number>();
+    for (const point of item.points) xValues.add(point.x);
+    xValuesByAxis.set(item.yAxisId, xValues);
+  }
+  // Running stack heights keyed by axis, sign, and x.
+  const totals = new Map<string, number>();
+
+  return series.map((item) => {
+    const values = new Map(item.points.map((point) => [point.x, point.y]));
+    const xValues = Array.from(xValuesByAxis.get(item.yAxisId) ?? []).sort(
+      (left, right) => left - right
+    );
+    return {
+      ...item,
+      points: xValues.map((x) => {
+        const y = values.get(x) ?? null;
+        const key = `${item.yAxisId}:${(y ?? 0) < 0 ? '-' : '+'}:${x}`;
+        const y0 = totals.get(key) ?? 0;
+        const y1 = y0 + (y ?? 0);
+        totals.set(key, y1);
+        return { x, y, y0, y1 };
+      }),
+    };
+  });
 };
