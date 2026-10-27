@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Four dotted waves settle into one calm line. Follows AppThemeProvider, with optional CSS color overrides. Speed presets: slow (6s, default), medium (4s), fast (2s). Stops for reduced motion.',
+          'Four dotted waves settle into one calm line. Follows AppThemeProvider, with optional CSS color overrides. Speed presets: slow (6s), medium (4s, default), fast (2s). Stops for reduced motion.',
       },
     },
   },

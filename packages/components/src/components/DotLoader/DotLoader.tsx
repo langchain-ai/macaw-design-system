@@ -106,7 +106,7 @@ export function DotLoader({
   color,
   mutedColor,
   label,
-  speed = 'slow',
+  speed = 'medium',
   className,
   style,
 }: DotLoaderProps) {
@@ -200,7 +200,7 @@ export function DotLoader({
         aria-hidden="true"
       />
       {label ? (
-        <Text variant="xs" className="text-secondary">
+        <Text variant="xs" className="text-primary">
           {label}
         </Text>
       ) : null}

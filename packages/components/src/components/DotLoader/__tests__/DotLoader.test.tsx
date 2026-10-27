@@ -28,6 +28,7 @@ it('announces loading, sizes the canvas, and cancels animation on unmount', () =
   );
   expect(screen.getByRole('status')).toHaveAccessibleName('Loading traces');
   expect(screen.getByText('Loading traces')).toBeVisible();
+  expect(screen.getByText('Loading traces')).toHaveClass('text-primary');
   expect(container.querySelector('canvas')).toHaveStyle({
     width: '320px',
     height: '64px',
@@ -38,7 +39,7 @@ it('announces loading, sizes the canvas, and cancels animation on unmount', () =
 });
 
 it.each([
-  [undefined, 6],
+  [undefined, 4],
   ['slow', 6],
   ['medium', 4],
   ['fast', 2],
