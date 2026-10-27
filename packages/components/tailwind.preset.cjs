@@ -153,6 +153,7 @@ module.exports = {
       },
       backgroundColor: {
         input: 'var(--bg-input)',
+        'input-hover': 'var(--bg-input-hover)',
         'input-disabled': 'var(--bg-input-disabled)',
         'surface-level-1': 'var(--bg-surface-level-1)',
         'surface-level-1-hover': 'var(--bg-surface-level-1-hover)',
@@ -252,6 +253,8 @@ module.exports = {
         'warning-secondary': 'var(--bg-warning-secondary)',
       },
       borderColor: {
+        input: 'var(--border-input)',
+        'input-hover': 'var(--border-input-hover)',
         default: 'var(--border-default)',
         subtle: 'var(--border-subtle)',
         muted: 'var(--border-muted)',

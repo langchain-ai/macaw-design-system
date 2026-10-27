@@ -123,6 +123,7 @@ Choose color by meaning:
 - `bg-sidebar` is reserved for app navigation, independent of fields and floating surfaces.
 - `bg-elevated` is for raised cards and panes; `bg-elevated-hover` and `bg-elevated-selected` are interaction states within raised or floating surfaces.
 - `bg-input` is for Input and Textarea fields, Select and Typeahead controls. Select and Typeahead own their field styles; Button does not infer appearance from ARIA attributes. Custom Button-based picker migration is deferred; prefer Select for standard pickers. Action-menu buttons retain their normal button styles. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
+- Outlined fields use `border-input` at rest and `border-input-hover` on hover. Light-mode fields use a white `bg-input` fill; Select and Typeahead use `bg-input-hover` to keep the fill white on hover. Plain fields remain borderless.
 - `bg-input-disabled` is for disabled fields, paired with `border-muted` and disabled text/icon colors. Do not fade the entire field with opacity.
 - `bg-popover` is for floating overlays: tooltips (including chart tooltips), popovers, select and typeahead menus, dropdowns, context menus, and command menus. It is independent of the field fill even when the colors match.
 - Success, warning, and error tokens describe general feedback and validation.

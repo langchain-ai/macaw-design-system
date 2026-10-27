@@ -259,6 +259,7 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-disabled`              | Disabled input or control fill                                    |
 | `bg-elevated`              | Raised cards and panes                                           |
 | `bg-input`                 | Input and textarea fields, picker controls, filled popup triggers |
+| `bg-input-hover`           | Hover fill for Select and Typeahead controls                       |
 | `bg-input-disabled`        | Disabled field fill, independent of general disabled controls     |
 | `bg-elevated-hover`        | Hover state inside a raised or floating surface                    |
 | `bg-elevated-selected`     | Selected item inside a raised or floating surface                  |
@@ -269,12 +270,17 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 `bg-sidebar` is reserved for app navigation: `neutral-50` in light mode and
 `neutral-35` in dark mode, independent of fields, popovers, and raised surfaces.
 
-`bg-input` and `bg-popover` use `neutral-25` in light mode and `neutral-100` in
-dark mode but remain independent semantic roles. Light-mode hover and selection
-fills use `neutral-100`; raised `bg-elevated` surfaces stay white. Outlined fields
-use `border-muted` at rest and `border-subtle` on hover in
-both themes, with semantic focus and error indicators. Outlined fields use a
-1px outer focus ring; native inputs stay unoutlined inside their containers.
+`bg-input` is white in light mode; `bg-popover` uses `neutral-25`. Both use
+`neutral-100` in dark mode and remain independent semantic roles. Raised
+`bg-elevated` surfaces stay white in light mode; menu hover and selection fills
+use `neutral-100`.
+
+Outlined fields use `border-input` at rest and `border-input-hover` on hover.
+These resolve to `border-subtle` / `border-default` in light mode and
+`border-muted` / `border-subtle` in dark mode. Select and Typeahead use
+`bg-input-hover` for their hover fill: white in light mode and `bg-elevated-hover`
+in dark mode. Fields retain semantic focus and error indicators and a 1px outer
+focus ring; native inputs stay unoutlined inside their containers.
 Use `text-placeholder` for field hints. Plain fields remain borderless at rest.
 This applies to Input, Textarea, Select, and Typeahead, including multi-value fields.
 Select and Typeahead own their field treatment; Button does not infer appearance
@@ -341,6 +347,8 @@ Used internally by Checkbox, RadioButton, Switch, and Slider. Prefer those compo
 
 | Class                 | When to use                              |
 | --------------------- | ---------------------------------------- |
+| `border-input`       | Enabled field border; adapts per theme     |
+| `border-input-hover` | Enabled field hover border                 |
 | `border-default`      | Default input, card, or container border |
 | `border-subtle`       | Subtle divider                           |
 | `border-muted`        | Very subtle divider                      |
