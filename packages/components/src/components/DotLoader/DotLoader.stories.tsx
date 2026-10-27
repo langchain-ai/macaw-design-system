@@ -10,12 +10,13 @@ const meta = {
     docs: {
       description: {
         component:
-          'Four dotted waves settle into one calm line. Follows AppThemeProvider, with optional CSS color overrides. The approved motion uses a six-second loop and stops for reduced motion.',
+          'Four dotted waves settle into one calm line. Follows AppThemeProvider, with optional CSS color overrides. Speed presets: slow (6s, default), medium (4s), fast (2s). Stops for reduced motion.',
       },
     },
   },
   tags: ['autodocs', 'loading', 'wave', 'dots', 'indeterminate'],
   argTypes: {
+    speed: { control: 'select', options: ['slow', 'medium', 'fast'] },
     color: { control: 'color' },
     mutedColor: { control: 'color' },
   },
@@ -36,3 +37,6 @@ export const DarkWithLabel: Story = {
 };
 export const LightWide: Story = { ...Light, args: { width: 320, height: 64 } };
 export const DarkWide: Story = { ...Dark, args: { width: 320, height: 64 } };
+export const Slow: Story = { ...Dark, args: { speed: 'slow' } };
+export const Medium: Story = { ...Dark, args: { speed: 'medium' } };
+export const Fast: Story = { ...Dark, args: { speed: 'fast' } };

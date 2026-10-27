@@ -10,7 +10,7 @@ export interface DotLoaderProps {
   color?: string;
   mutedColor?: string;
   label?: string;
-  duration?: number;
+  speed?: 'slow' | 'medium' | 'fast';
   className?: string;
   style?: CSSProperties;
 }
@@ -98,13 +98,15 @@ function drawDotLoader(
   }
 }
 
+const DURATIONS = { slow: 6, medium: 4, fast: 2 };
+
 export function DotLoader({
   width = 200,
   height = 48,
   color,
   mutedColor,
   label,
-  duration = 6,
+  speed = 'slow',
   className,
   style,
 }: DotLoaderProps) {
@@ -145,7 +147,7 @@ export function DotLoader({
     const opts: DrawOptions = {
       color: resolveColor(getComputedStyle(accentRef.current).color),
       mutedColor: resolveColor(getComputedStyle(mutedRef.current).color),
-      duration: Number.isFinite(duration) && duration > 0 ? duration : 6,
+      duration: DURATIONS[speed],
       animate: !media.matches,
     };
     let raf = 0;
@@ -166,7 +168,7 @@ export function DotLoader({
       cancelAnimationFrame(raf);
       media.removeEventListener('change', updateMotion);
     };
-  }, [width, height, color, mutedColor, duration, resolvedMode]);
+  }, [width, height, color, mutedColor, speed, resolvedMode]);
 
   return (
     <div

@@ -37,6 +37,21 @@ it('announces loading, sizes the canvas, and cancels animation on unmount', () =
   expect(window.cancelAnimationFrame).toHaveBeenCalledWith(1);
 });
 
+it.each([
+  [undefined, 6],
+  ['slow', 6],
+  ['medium', 4],
+  ['fast', 2],
+] as const)('maps speed %s to a %s-second loop', (speed, duration) => {
+  vi.spyOn(performance, 'now').mockReturnValue(0);
+  render(<DotLoader speed={speed} />);
+  const frame = vi.mocked(window.requestAnimationFrame).mock.calls.at(-1)![0];
+  context.arc.mockClear();
+  act(() => frame(500));
+  const theta = Math.PI * 2 * (1.15 * 0.01 - 0.5 / duration);
+  expect(context.arc.mock.calls[0][1]).toBeCloseTo(24 + Math.sin(theta) * 22);
+});
+
 it('draws a static frame and responds to reduced-motion changes', () => {
   let change = () => {};
   const media = {
