@@ -102,6 +102,11 @@ const meta = {
         'Sort direction or a custom comparator. Sorting happens before the limit is applied.',
       table: { defaultValue: { summary: 'descending' } },
     },
+    categoryLabelWidth: {
+      control: { type: 'number', min: 0 },
+      description:
+        'Overrides the automatically measured width of visible category labels.',
+    },
     limit: {
       control: { type: 'number', min: 0 },
       description: 'Maximum number of sorted rows to render.',
@@ -113,7 +118,6 @@ const meta = {
     items,
     limit: 5,
     valueAxisLabel: 'Runs',
-    categoryLabelWidth: 180,
   },
   render: (args) => (
     <div className="mx-auto h-72 w-full max-w-2xl">

@@ -485,6 +485,32 @@ describe('BarChart', () => {
     );
   });
 
+  it.each(['A', 'A much longer category label'])(
+    'measures horizontal category labels: %s',
+    (label) => {
+      const { container } = render(
+        <BarChart
+          aria-label="Measured categories"
+          orientation="horizontal"
+          showLegend={false}
+          series={[
+            {
+              id: 'requests',
+              label: 'Requests',
+              data: [{ category: 'a', value: 1 }],
+            },
+          ]}
+          categoryAxis={{ formatValue: () => label }}
+        />
+      );
+      const axis = container.querySelector('.visx-axis-left');
+      const plot = axis?.parentElement;
+      expect(plot?.getAttribute('transform')).toBe(
+        `translate(${label.length * 7 + 11}, 8)`
+      );
+    }
+  );
+
   it('reserves vertical gutter for explicit value tick labels', () => {
     const customTick = 0.123456;
     const customLabel = 'Custom currency tick';

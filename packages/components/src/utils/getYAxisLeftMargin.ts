@@ -1,8 +1,8 @@
 import { scaleLinear } from '@visx/scale';
-import { getStringWidth } from '@visx/text';
+
+import { getChartAxisThickness } from './chartAxisLayout';
 
 const XYCHART_TICK_LENGTH = 4;
-const TICK_LABEL_DX_EM = 0.25;
 
 export interface GetYAxisLeftMarginArgs {
   yDomain: [number, number];
@@ -26,13 +26,9 @@ export function getYAxisLeftMargin({
   const scale = scaleLinear({ domain: yDomain, range: [0, 100], nice });
   const resolvedTickValues = tickValues ?? scale.ticks(numTicks);
 
-  const tickLabelStyle = { fontSize: `${fontSize}px` };
-  const maxLabelWidth = Math.max(
-    0,
-    ...resolvedTickValues.map(
-      (value) => getStringWidth(formatTick(value), tickLabelStyle) ?? 0
-    )
-  );
-
-  return Math.ceil(maxLabelWidth) + tickLength + TICK_LABEL_DX_EM * fontSize;
+  return getChartAxisThickness({
+    tickLabels: resolvedTickValues.map(formatTick),
+    fontSize,
+    tickLength,
+  });
 }

@@ -31,7 +31,7 @@ export type TopListProps<Item extends TopListItem = TopListItem> = Omit<
   /** Formats value-axis ticks, value labels, and default accessible names. */
   formatValue?: (value: number) => string;
   valueAxisLabel?: string;
-  /** Reserved width for category labels, in pixels. Defaults to 112. */
+  /** Reserved width for category labels, in pixels. Defaults to the widest visible label plus padding. */
   categoryLabelWidth?: number;
   activeItemId?: string | null;
   /** Defaults to `<label>: <formatted value>`. */

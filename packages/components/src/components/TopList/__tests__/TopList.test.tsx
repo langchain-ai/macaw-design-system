@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type * as MantineHooks from '@mantine/hooks';
+import { getStringWidth } from '@visx/text';
 import type * as VisxText from '@visx/text';
 
 import { render, screen, within } from '../../../test-utils';
@@ -19,7 +20,7 @@ vi.mock('@mantine/hooks', async (importOriginal) => ({
 
 vi.mock('@visx/text', async (importOriginal) => ({
   ...(await importOriginal<typeof VisxText>()),
-  getStringWidth: (text: string) => text.length * 7,
+  getStringWidth: vi.fn((text: string) => text.length * 7),
 }));
 
 const items: readonly TopListItem[] = [
@@ -30,8 +31,63 @@ const items: readonly TopListItem[] = [
 
 describe('TopList', () => {
   beforeEach(() => {
+    vi.mocked(getStringWidth).mockImplementation((text) => text.length * 7);
     resizeObserverDimensions.width = 640;
     resizeObserverDimensions.height = 320;
+  });
+
+  it('measures only visible category labels after limiting', () => {
+    const { container } = render(
+      <TopList
+        aria-label="Measured top models"
+        limit={1}
+        items={[
+          { id: 'first', label: 'Short', value: 2 },
+          { id: 'second', label: 'A much longer hidden label', value: 1 },
+        ]}
+      />
+    );
+
+    expect(container.querySelector('foreignObject')).toHaveAttribute(
+      'width',
+      '47'
+    );
+  });
+
+  it.each([0, null, Number.NaN])(
+    'keeps space for labels when measurement returns %s',
+    (width) => {
+      vi.mocked(getStringWidth).mockImplementation((text) =>
+        text === 'Alpha' ? width : text.length * 7
+      );
+      const { container } = render(
+        <TopList
+          aria-label="Unmeasured labels"
+          items={[{ id: 'alpha', label: 'Alpha', value: 12 }]}
+        />
+      );
+
+      expect(container.querySelector('foreignObject')).toHaveAttribute(
+        'width',
+        '72'
+      );
+      expect(screen.getByText('Alpha')).toBeVisible();
+    }
+  );
+
+  it('preserves an explicit category label width', () => {
+    const { container } = render(
+      <TopList
+        aria-label="Fixed labels"
+        items={items}
+        categoryLabelWidth={80}
+      />
+    );
+
+    expect(container.querySelector('foreignObject')).toHaveAttribute(
+      'width',
+      '80'
+    );
   });
 
   it('renders a descending, limited list with category and value labels', () => {

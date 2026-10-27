@@ -16,6 +16,8 @@ import {
   CHART_DIMMED_OPACITY,
   CHART_DASHED_STROKE_DASHARRAY,
   CHART_TICK_FONT_SIZE,
+  CHART_TICK_LABEL_DX_EM,
+  CHART_TICK_LABEL_DY_EM,
   CHART_VALUE_AXIS_TICK_LENGTH,
 } from '../../utils/chartConstants';
 import {
@@ -346,8 +348,8 @@ export const LineChartPlot = ({
                 fill: 'var(--text-tertiary)',
                 fontSize: CHART_TICK_FONT_SIZE,
                 textAnchor,
-                dx: index === 0 ? '-0.25em' : '0.25em',
-                dy: '0.25em',
+                dx: `${index === 0 ? -CHART_TICK_LABEL_DX_EM : CHART_TICK_LABEL_DX_EM}em`,
+                dy: `${CHART_TICK_LABEL_DY_EM}em`,
               },
             };
             return index === 0 ? (
