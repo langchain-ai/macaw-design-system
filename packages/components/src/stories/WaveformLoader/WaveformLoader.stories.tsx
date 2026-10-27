@@ -23,6 +23,7 @@ const meta = {
       options: ['slow', 'medium', 'fast'],
     },
     hasCenterPoint: { control: 'boolean' },
+    showLayering: { control: 'boolean' },
     className: { table: { disable: true } },
   },
   args: { speed: 'medium' },
@@ -39,6 +40,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Layering: Story = {
+  args: { showLayering: true },
+};
 
 export const CenterPoint: Story = {
   args: { hasCenterPoint: true },

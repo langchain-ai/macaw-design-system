@@ -28,12 +28,14 @@ const LINES = Array.from({ length: LINE_COUNT }, (_, line) => line);
 interface WaveformLoaderProps {
   speed?: keyof typeof SPEEDS;
   hasCenterPoint?: boolean;
+  showLayering?: boolean;
   className?: string;
 }
 
 function WaveformLoader({
   speed = 'medium',
   hasCenterPoint = false,
+  showLayering = false,
   className,
 }: WaveformLoaderProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -90,7 +92,11 @@ function WaveformLoader({
         className={styles.waveform}
       >
         {LINES.map((line) => (
-          <path key={line} d={createPath(line, 0, hasCenterPoint)} />
+          <path
+            key={line}
+            d={createPath(line, 0, hasCenterPoint)}
+            opacity={showLayering ? 0.15 + (0.85 * line) / (LINE_COUNT - 1) : 1}
+          />
         ))}
       </svg>
     </div>
