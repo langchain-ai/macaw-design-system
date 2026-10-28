@@ -33,7 +33,10 @@ export type TopListProps<Item extends TopListItem = TopListItem> = Omit<
   valueAxisLabel?: string;
   /** Reserved width for category labels, in pixels. Defaults to 112. */
   categoryLabelWidth?: number;
-  /** Aligns labels within the category-label column. Defaults to end. */
+  /**
+   * Aligns labels within the category-label column. Defaults to end; use start
+   * only for multi-word labels of widely varying length.
+   */
   categoryLabelAlign?: 'start' | 'end';
   activeItemId?: string | null;
   /** Defaults to `<label>: <formatted value>`. */

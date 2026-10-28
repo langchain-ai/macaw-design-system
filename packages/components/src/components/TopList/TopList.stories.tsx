@@ -110,7 +110,7 @@ const meta = {
       control: 'inline-radio',
       options: ['end', 'start'],
       description:
-        'Aligns category labels within their reserved column. Use start to align them with content above the list.',
+        'Aligns category labels within their reserved column. Keep end for short identifiers; use start for multi-word labels of widely varying length, such as generated category names.',
       table: { defaultValue: { summary: 'end' } },
     },
   },
