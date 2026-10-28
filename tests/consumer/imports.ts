@@ -23,6 +23,8 @@ import { BarChart } from '@langchain/macaw-components/BarChart';
 import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
+import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
+import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
   Code,
   CodeLanguageSelect,
@@ -84,6 +86,12 @@ void [
     status: 'uploading',
     disabled: true,
   } satisfies AttachmentProps,
+  ChatConversation,
+  {
+    children: null,
+    label: 'Support chat',
+    viewportRef: { current: null },
+  } satisfies ChatConversationProps,
   HeatmapChart,
   HeatmapBlock,
   {

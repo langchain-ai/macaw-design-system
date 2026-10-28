@@ -47,6 +47,9 @@ export type {
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
 
+export { ChatConversation } from './ChatConversation';
+export type { ChatConversationProps } from './ChatConversation';
+
 export { Checkbox, getCheckedState } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 

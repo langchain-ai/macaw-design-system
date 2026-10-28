@@ -76,6 +76,10 @@
       "types": "./dist/components/ChartTooltip/index.d.ts",
       "import": "./dist/components/ChartTooltip/index.js"
     },
+    "./ChatConversation": {
+      "types": "./dist/components/ChatConversation/index.d.ts",
+      "import": "./dist/components/ChatConversation/index.js"
+    },
     "./Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
       "import": "./dist/components/Checkbox/index.js"
