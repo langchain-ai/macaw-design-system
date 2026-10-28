@@ -197,6 +197,34 @@ dashboard visualization shells.
   reordering; `variant="full-width"` hides the move handle.
 - Use `expandButtonProps` and `menuItems` for optional, feature-owned actions.
 
+## Line Charts
+
+Use `LineChart` from `@langchain/macaw-components/LineChart` for numeric series
+over time or ordered buckets. Choose `variant` by the question the chart answers:
+
+| `variant`        | Answers                                                | Example values                                 |
+| ---------------- | ------------------------------------------------------ | ---------------------------------------------- |
+| `line` (default) | How does each series change, and how do they compare?  | Per-category trends, latency, error rate       |
+| `stacked-area`   | How large is the total, and what does each series add? | Request counts by environment, cost by service |
+
+- Stack only series with the same unit whose values add up to a meaningful
+  total, such as counts, volumes, or costs. Keep `line` for averages, rates,
+  ratios, latency, percentiles, and scores; their stacked height means nothing.
+- Series stack per y axis in input order, with the first series at the bottom.
+  Positive values stack up from zero and negative values stack down. A missing
+  or null value adds nothing to its stack. Legend selection restacks only the
+  selected series.
+- Areas are solid fills from the categorical fill palette. Leave `color` unset
+  or pass a categorical line color, and the chart switches it to the
+  hue-matched fill. Any other color is used as given. Per-series stroke width
+  and dash patterns do not apply.
+- To offer both views of the same data, pass the same series and switch
+  `variant`. Each series keeps its hue, and legend, crosshair, points, markers,
+  and bands behave the same.
+- Pointer callbacks report each series' own value and its area color, not its
+  stacked height. Show those values in the tooltip with one `ChartTooltipRow`
+  per series, and add a `variant="total"` row when the total matters.
+
 ## Top Lists
 
 Use `TopList` from `@langchain/macaw-components/TopList` for ranked top-K

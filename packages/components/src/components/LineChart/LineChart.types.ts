@@ -157,7 +157,10 @@ export type LineChartProps = Omit<
   LineChartLegendConfig & {
     series: readonly LineChartSeries[];
     /**
-     * `stacked-area` stacks series that share a y axis as solid areas, using
+     * `line` compares how individual series change. `stacked-area` shows a
+     * total and each series' contribution, so use it only for same-unit values
+     * that add up, such as counts, never averages, rates, latency, or
+     * percentiles. It stacks series that share a y axis as solid areas, using
      * the fill palette and ignoring stroke styles. A missing or null value adds
      * nothing to its stack. Defaults to line.
      */

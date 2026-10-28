@@ -75,7 +75,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A responsive line-chart renderer for one or more numeric series. Linear x spacing is the default; use `xScale="band"` for evenly spaced buckets. Grid guides are solid by default, and each series can control width, dashes, opacity, and crosshair-marker visibility. Pointer callbacks expose both the nearest bucket (`x`) and raw domain position (`pointerX`) so consumers can own tooltips and brushing while the chart renders a controlled `selectionRange`. Axis baselines remain hidden, and the consumer owns domain-specific loading and transformations.',
+          'A responsive line-chart renderer for one or more numeric series. Set `variant="stacked-area"` to show additive series, such as counts, as a total and each series’ contribution. Linear x spacing is the default; use `xScale="band"` for evenly spaced buckets. Grid guides are solid by default, and each series can control width, dashes, opacity, and crosshair-marker visibility. Pointer callbacks expose both the nearest bucket (`x`) and raw domain position (`pointerX`) so consumers can own tooltips and brushing while the chart renders a controlled `selectionRange`. Axis baselines remain hidden, and the consumer owns domain-specific loading and transformations.',
       },
     },
   },
@@ -94,7 +94,7 @@ const meta = {
       control: 'inline-radio',
       options: ['line', 'stacked-area'],
       description:
-        'Draw each series as a line, or stack series that share a y axis as solid areas.',
+        'Use line to compare how individual series change. Use stacked-area to show a total and each series’ contribution, only for same-unit values that add up, such as counts; never averages, rates, latency, or percentiles.',
       table: {
         type: { summary: "'line' | 'stacked-area'" },
         defaultValue: { summary: 'line' },
