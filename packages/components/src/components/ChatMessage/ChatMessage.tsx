@@ -1,4 +1,9 @@
-import { Fragment, type ComponentPropsWithRef, type ReactNode } from 'react';
+import {
+  Fragment,
+  useState,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from 'react';
 
 import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr/ArrowClockwise';
 import { CopySimpleIcon } from '@phosphor-icons/react/dist/ssr/CopySimple';
@@ -59,7 +64,7 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
 /**
  * One message in a conversation. Renders a header and the message's content
  * blocks, or `children` in their place for custom layouts. The footer is
- * hidden while the message streams.
+ * hidden, but keeps its space, while the message streams.
  */
 export function ChatMessage({
   message,
@@ -75,14 +80,13 @@ export function ChatMessage({
   ...props
 }: ChatMessageProps) {
   const alignment = align ?? (message.role === 'user' ? 'end' : 'start');
+  const isStreaming = message.status === 'streaming';
 
   return (
     <div
       role="article"
       aria-label={`${message.identity?.name ?? roleLabels[message.role]} message`}
-      aria-busy={
-        message.status === 'streaming' || message.status === 'submitting'
-      }
+      aria-busy={isStreaming || message.status === 'submitting'}
       data-message-id={message.id}
       data-message-role={message.role}
       data-status={message.status}
@@ -117,10 +121,13 @@ export function ChatMessage({
             />
           </>
         )}
-        {footer != null && message.status !== 'streaming' && (
+        {footer != null && (
           <div
+            // Reserve the footer's space while streaming so it doesn't pop in.
+            inert={isStreaming}
             className={cn(
               'flex min-w-0 max-w-full flex-wrap items-center gap-space-2 [overflow-wrap:anywhere]',
+              isStreaming && 'invisible',
               // Earlier messages hide their footer until hovered or focused,
               // except on touch screens, which have no hover to reveal it.
               !isLatest &&
@@ -143,7 +150,10 @@ export interface ChatMessageHeaderProps extends ComponentPropsWithRef<'div'> {
   status?: ChatMessageStatus;
 }
 
-/** Identity and status line. Renders nothing without an identity, status, or children. */
+/**
+ * Identity and status line. Renders nothing without an identity, status, or
+ * children, unless it has shown a streaming status.
+ */
 export function ChatMessageHeader({
   messageRole,
   identity,
@@ -154,15 +164,22 @@ export function ChatMessageHeader({
   className,
   ...props
 }: ChatMessageHeaderProps) {
+  const [hasStreamed, setHasStreamed] = useState(status === 'streaming');
+  if (status === 'streaming' && !hasStreamed) setHasStreamed(true);
+
   const statusLabel = statusLabels[status];
   const identityVisible = showIdentity && messageRole !== 'user';
+  const isEmpty = !identityVisible && !statusLabel && children == null;
 
-  if (!identityVisible && !statusLabel && children == null) return null;
+  if (isEmpty && !hasStreamed) return null;
 
   return (
     <div
       className={cn(
         'flex min-w-0 max-w-full flex-wrap items-center gap-space-2 [overflow-wrap:anywhere]',
+        // Keep the line the streaming status used so the text below doesn't
+        // jump up when it ends.
+        isEmpty && 'min-h-lh text-xxs leading-snug',
         className
       )}
       {...props}

@@ -339,6 +339,20 @@ export const ParagraphAnimation: Story = {
     },
   },
   render: () => <ParagraphRevealExample />,
+  play: async ({ canvas, userEvent }) => {
+    // Finishing the stream must not move the text that's already there.
+    const addParagraph = canvas.getByRole('button', { name: 'Add paragraph' });
+    await userEvent.click(addParagraph);
+    const first = canvas.getByText(/^For a relaxed coastal weekend/);
+    const streamingTop = first.getBoundingClientRect().top;
+    await userEvent.click(addParagraph);
+    await userEvent.click(addParagraph);
+    await expect(canvas.getByRole('article')).toHaveAttribute(
+      'data-status',
+      'completed'
+    );
+    await expect(first.getBoundingClientRect().top).toBe(streamingTop);
+  },
 };
 
 function ActionsExample({

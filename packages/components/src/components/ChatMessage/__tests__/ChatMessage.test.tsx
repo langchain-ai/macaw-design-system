@@ -132,6 +132,37 @@ describe('ChatMessage', () => {
     expect(screen.getByText('Tool')).toBeVisible();
   });
 
+  it('keeps the status line after streaming ends', () => {
+    const { rerender } = render(
+      <ChatMessageHeader
+        messageRole="assistant"
+        status="streaming"
+        data-testid="header"
+      />
+    );
+    expect(screen.getByText('Responding')).toBeVisible();
+
+    rerender(
+      <ChatMessageHeader
+        messageRole="assistant"
+        status="completed"
+        data-testid="header"
+      />
+    );
+    expect(screen.getByTestId('header')).toBeEmptyDOMElement();
+  });
+
+  it('renders no header for a completed message without identity', () => {
+    render(
+      <ChatMessageHeader
+        messageRole="assistant"
+        status="completed"
+        data-testid="header"
+      />
+    );
+    expect(screen.queryByTestId('header')).not.toBeInTheDocument();
+  });
+
   it('supports host-owned copy, edit, and retry actions', async () => {
     const { user } = render(<ActionExample status="failed" />);
 
@@ -150,13 +181,15 @@ describe('ChatMessage', () => {
     ).toHaveTextContent('Retrying');
   });
 
-  it('hides actions while streaming and restores them when complete', async () => {
+  it('keeps the footer inert while streaming and restores it when complete', async () => {
     const { user, rerender } = render(<ActionExample status="streaming" />);
 
-    expect(
-      screen.queryByRole('group', { name: 'Message actions' })
-    ).not.toBeInTheDocument();
+    const footer = screen.getByRole('group', {
+      name: 'Message actions',
+    }).parentElement;
+    expect(footer).toHaveAttribute('inert');
     rerender(<ActionExample status="completed" />);
+    expect(footer).not.toHaveAttribute('inert');
     await user.click(screen.getByRole('button', { name: 'Copy message' }));
     expect(
       screen.getByRole('status', { name: 'Action result' })
