@@ -164,19 +164,16 @@ describe('ChatMessage', () => {
   });
 
   it.each<ChatMessageStatus>(['queued', 'submitting'])(
-    'restricts actions while %s',
+    'hides edit and retry while %s',
     async (status) => {
       const { user } = render(<ActionExample status={status} />);
 
-      const edit = screen.getByRole('button', { name: 'Edit message' });
-      const retry = screen.getByRole('button', { name: 'Retry message' });
-      expect(edit).toBeDisabled();
-      expect(retry).toBeDisabled();
-      await user.click(edit);
-      await user.click(retry);
       expect(
-        screen.getByRole('status', { name: 'Action result' })
-      ).toHaveTextContent('No action yet');
+        screen.queryByRole('button', { name: 'Edit message' })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Retry message' })
+      ).not.toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'Copy message' }));
       expect(
         screen.getByRole('status', { name: 'Action result' })
@@ -184,39 +181,43 @@ describe('ChatMessage', () => {
     }
   );
 
-  it('keeps read-only messages copyable while disabling mutations', async () => {
+  it('keeps read-only messages copyable while hiding edit and retry', async () => {
     const { user } = render(<ActionExample readOnly />);
 
     expect(screen.queryByText('Read-only')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Edit message' })).toBeDisabled();
     expect(
-      screen.getByRole('button', { name: 'Retry message' })
-    ).toBeDisabled();
+      screen.queryByRole('button', { name: 'Edit message' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Retry message' })
+    ).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Copy message' }));
     expect(
       screen.getByRole('status', { name: 'Action result' })
     ).toHaveTextContent('Copied');
   });
 
-  it('respects host-specific unavailability', () => {
+  it('renders only the actions the host provides', () => {
     render(
       <ChatMessage
         message={message}
         footer={
-          <ChatMessageActions
-            actions={{
-              copy: {
-                onClick: () => {},
-                disabledReason: 'The content is unavailable.',
-              },
-            }}
-          />
+          <ChatMessageActions actions={{ copy: { onClick: () => {} } }} />
         }
       />
     );
-    expect(screen.getByRole('button', { name: 'Copy message' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Copy message' })).toBeVisible();
     expect(
       screen.queryByRole('button', { name: 'Edit message' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders no action group when every action is unavailable', () => {
+    render(
+      <ChatMessageActions readOnly actions={{ edit: { onClick: () => {} } }} />
+    );
+    expect(
+      screen.queryByRole('group', { name: 'Message actions' })
     ).not.toBeInTheDocument();
   });
 

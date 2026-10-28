@@ -275,14 +275,13 @@ const actionDefinitions: {
   { name: 'retry', label: 'Retry message', icon: ArrowClockwiseIcon },
 ];
 
-function getMutationDisabledReason(
-  status: ChatMessageStatus,
-  readOnly: boolean
-) {
-  if (readOnly) return 'This message is read-only.';
-  if (status === 'queued' || status === 'submitting' || status === 'streaming')
-    return 'Wait until the message has finished.';
-  return undefined;
+function canChangeMessage(status: ChatMessageStatus, readOnly: boolean) {
+  return (
+    !readOnly &&
+    status !== 'queued' &&
+    status !== 'submitting' &&
+    status !== 'streaming'
+  );
 }
 
 export interface ChatMessageActionsProps extends ComponentPropsWithRef<'div'> {
@@ -293,8 +292,8 @@ export interface ChatMessageActionsProps extends ComponentPropsWithRef<'div'> {
 
 /**
  * Copy, edit, and retry buttons, plus any host actions in `children`. Edit
- * and retry are disabled while the message is pending or read-only; copy
- * stays available.
+ * and retry are hidden while the message is pending or read-only; copy stays
+ * available. Renders nothing when no actions remain.
  */
 export function ChatMessageActions({
   actions,
@@ -304,10 +303,14 @@ export function ChatMessageActions({
   className,
   ...props
 }: ChatMessageActionsProps) {
-  if (!actions?.copy && !actions?.edit && !actions?.retry && children == null)
-    return null;
-
-  const mutationDisabledReason = getMutationDisabledReason(status, readOnly);
+  const canChange = canChangeMessage(status, readOnly);
+  const visibleActions = actionDefinitions.flatMap((definition) => {
+    const action = actions?.[definition.name];
+    return action && (definition.name === 'copy' || canChange)
+      ? [{ ...definition, action }]
+      : [];
+  });
+  if (visibleActions.length === 0 && children == null) return null;
 
   return (
     <div
@@ -319,30 +322,18 @@ export function ChatMessageActions({
       )}
       {...props}
     >
-      {actionDefinitions.map(({ name, label, icon }) => {
-        const action = actions?.[name];
-        if (!action) return null;
-        const disabledReason =
-          action.disabledReason ||
-          (name === 'copy' ? undefined : mutationDisabledReason);
-
-        return (
-          <IconButton
-            key={name}
-            icon={icon}
-            iconWeight="regular"
-            label={action.label ?? label}
-            color="secondary"
-            variant="plain"
-            size="xs"
-            disabled={Boolean(disabledReason)}
-            tooltipProps={
-              disabledReason ? { title: disabledReason } : undefined
-            }
-            onClick={action.onClick}
-          />
-        );
-      })}
+      {visibleActions.map(({ name, label, icon, action }) => (
+        <IconButton
+          key={name}
+          icon={icon}
+          iconWeight="regular"
+          label={action.label ?? label}
+          color="secondary"
+          variant="plain"
+          size="xs"
+          onClick={action.onClick}
+        />
+      ))}
       {children}
     </div>
   );

@@ -62,7 +62,7 @@ const meta = {
         component: [
           '- Compose header, ordered content, and actions.',
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
-          '- Pass `status` and `readOnly` to `ChatMessageActions` to disable edit/retry.',
+          '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
           '- Identity is hidden by default; opt in with `showIdentity` for non-user messages.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
         ].join('\n'),

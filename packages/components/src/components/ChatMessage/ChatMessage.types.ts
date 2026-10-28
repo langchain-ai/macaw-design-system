@@ -32,8 +32,6 @@ export interface ChatMessageIdentity {
 export interface ChatMessageAction {
   onClick: () => void;
   label?: string;
-  /** A host-specific reason disables the action and describes why. */
-  disabledReason?: string;
 }
 
 export interface ChatMessageActionCapabilities {
