@@ -1,3 +1,13 @@
+## 1.2.2 (2026-10-28)
+
+### 🚀 Features
+
+- **components:** add stacked-area LineChart variant and TopList label alignment ([#73](https://github.com/langchain-ai/macaw-design-system/pull/73))
+
+### ❤️ Thank You
+
+- Andy Young
+
 ## 1.2.1 (2026-10-28)
 
 ### 🩹 Fixes
