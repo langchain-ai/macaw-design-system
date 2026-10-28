@@ -50,14 +50,14 @@ export const SelectTrigger = React.forwardRef<
     !props.disabled &&
     (isError
       ? 'border-error-strong focus-visible:border-error-strong focus-visible:shadow-[0_0_0_1px_var(--border-error-strong)] focus-visible:outline-none'
-      : '[&:enabled:hover:not(:focus-visible)]:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none');
+      : '[&:enabled:hover:not(:focus-visible)]:border-input-hover focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none');
 
   if (props.asChild) {
     return (
       <RadixSelect.Trigger
         ref={ref}
         className={cn(
-          'flex items-center justify-between gap-space-2 rounded-md border border-muted bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+          'flex items-center justify-between gap-space-2 rounded-md border border-input bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
           triggerStateStyles,
           className
         )}
@@ -72,7 +72,7 @@ export const SelectTrigger = React.forwardRef<
     <RadixSelect.Trigger
       ref={ref}
       className={cn(
-        'flex items-center justify-between gap-space-2 rounded-md border border-muted bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
+        'flex items-center justify-between gap-space-2 rounded-md border border-input bg-input p-1.5 px-2.5 text-sm disabled:cursor-not-allowed disabled:border-muted disabled:bg-input-disabled disabled:text-disabled enabled:data-[placeholder]:text-secondary disabled:[&_svg]:text-icon-disabled [&>span]:line-clamp-1',
         triggerStateStyles,
         className
       )}

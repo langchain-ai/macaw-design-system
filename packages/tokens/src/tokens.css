@@ -137,7 +137,8 @@
   --bg-surface-level-4: var(--neutral-200);
   --bg-disabled: var(--neutral-100);
   --bg-elevated: var(--white); /* raised cards, panes, controls */
-  --bg-input: var(--neutral-25);
+  --bg-input: var(--white);
+  --bg-input-hover: var(--bg-input); /* prevents fill shift */
   --bg-input-disabled: var(--bg-disabled);
   --bg-popover: var(--neutral-25);
   --bg-sidebar: var(--neutral-50);
@@ -184,6 +185,8 @@
   --bg-selected-hover: var(--brand-50);
 
   /* BORDER COLORS */
+  --border-input: var(--border-subtle);
+  --border-input-hover: var(--border-default);
   --border-default: var(--neutral-300);
   --border-subtle: var(--neutral-200);
   --border-muted: var(--neutral-100);
@@ -749,6 +752,7 @@ html.dark,
   --bg-disabled: var(--neutral-200);
   --bg-elevated: var(--neutral-50);
   --bg-input: var(--neutral-100);
+  --bg-input-hover: var(--neutral-200);
   --bg-input-disabled: var(--neutral-50);
   --bg-popover: var(--neutral-100);
   --bg-sidebar: var(--neutral-35);
@@ -793,6 +797,8 @@ html.dark,
   --bg-selected-hover: var(--brand-100);
 
   /* BORDER */
+  --border-input: var(--border-muted);
+  --border-input-hover: var(--border-subtle);
   --border-default: var(--neutral-400);
   --border-subtle: var(--neutral-300);
   --border-muted: var(--neutral-200);
@@ -836,8 +842,8 @@ html.dark,
   --text-brand-tertiary: var(--brand-500);
   --text-brand-disabled: var(--brand-300);
   --text-brand-on-fill: var(--black);
-  --text-link: var(--brand-700);
-  --text-link-hover: var(--brand-800);
+  --text-link: var(--brand-600);
+  --text-link-hover: var(--brand-700);
   --text-purple: var(--purple-700);
 
   /* ICON */

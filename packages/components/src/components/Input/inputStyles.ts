@@ -50,13 +50,13 @@ export function getInputContainerClasses({
     INPUT_RADIUS_CLASSES[size],
     'focus-within:outline-hidden',
     {
-      'border border-muted bg-input': variant === 'outlined',
+      'border border-input bg-input': variant === 'outlined',
       'border border-transparent bg-input': variant === 'plain',
     },
     outlined &&
       !disabled &&
       !isError &&
-      '[&:hover:not(:focus-within)]:border-subtle',
+      '[&:hover:not(:focus-within)]:border-input-hover',
     !disabled &&
       !isError &&
       (outlined
