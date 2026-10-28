@@ -1,0 +1,60 @@
+@reference "../../styles/tailwind.css";
+
+.editor :global(p.is-editor-empty:first-child)::before {
+  @apply pointer-events-none float-left h-0 text-placeholder;
+  content: attr(data-placeholder);
+}
+
+.editor p {
+  @apply m-0;
+}
+
+.editor > * + * {
+  @apply mt-space-2;
+}
+
+.editor h1,
+.editor h2,
+.editor h3,
+.editor h4,
+.editor h5,
+.editor h6 {
+  @apply text-base font-semibold;
+}
+
+.editor ul {
+  @apply list-outside list-disc pl-space-5;
+}
+
+.editor ol {
+  @apply list-outside list-decimal pl-space-5;
+}
+
+.editor blockquote {
+  @apply border-l-2 border-default pl-space-3 text-secondary;
+}
+
+.editor :not(pre) > code {
+  @apply rounded-sm bg-surface-level-2 px-space-1 font-mono;
+}
+
+.editor pre code {
+  @apply bg-transparent p-0;
+}
+
+.editor table {
+  @apply w-full table-fixed border-collapse;
+}
+
+.editor th,
+.editor td {
+  @apply break-words border border-default p-space-2 align-top;
+}
+
+.editor th {
+  @apply bg-surface-level-2 font-semibold;
+}
+
+.editor hr {
+  @apply border-default;
+}

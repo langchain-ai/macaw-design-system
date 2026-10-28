@@ -24,6 +24,12 @@ import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
 import {
+  ChatComposer,
+  ChatComposerContext,
+  ChatComposerInput,
+} from '@langchain/macaw-components/ChatComposer';
+import type { ChatComposerInputProps } from '@langchain/macaw-components/ChatComposer';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -84,6 +90,10 @@ void [
     status: 'uploading',
     disabled: true,
   } satisfies AttachmentProps,
+  ChatComposer,
+  ChatComposerContext,
+  ChatComposerInput,
+  { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
   HeatmapChart,
   HeatmapBlock,
   {

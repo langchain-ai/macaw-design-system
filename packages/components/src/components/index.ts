@@ -47,6 +47,30 @@ export type {
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
 
+export {
+  ChatComposer,
+  ChatComposerAction,
+  ChatComposerAttachment,
+  ChatComposerAttachmentMenu,
+  ChatComposerAttachments,
+  ChatComposerContext,
+  ChatComposerInput,
+  ChatComposerModelSelect,
+  ChatComposerToolbar,
+} from './ChatComposer';
+export type {
+  ChatComposerActionProps,
+  ChatComposerAttachmentMenuProps,
+  ChatComposerAttachmentProps,
+  ChatComposerAttachmentsProps,
+  ChatComposerContextValue,
+  ChatComposerInputHandle,
+  ChatComposerInputProps,
+  ChatComposerModelSelectProps,
+  ChatComposerProps,
+  ChatComposerToolbarProps,
+} from './ChatComposer';
+
 export { Checkbox, getCheckedState } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 
