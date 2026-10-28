@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 
-import { expect, fn, waitFor } from 'storybook/test';
+import { expect, fn, waitFor, within } from 'storybook/test';
 
 import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -156,13 +156,14 @@ export const Default: Story = {
   play: async ({ canvas, userEvent }) => {
     // An earlier message reveals its hidden footer when an action takes focus.
     await userEvent.tab();
-    const [firstCopy] = canvas.getAllByRole('button', { name: 'Copy message' });
-    await expect(firstCopy).toHaveFocus();
+    const [firstActions] = canvas.getAllByRole('group', {
+      name: 'Message actions',
+    });
+    await expect(
+      within(firstActions).getByRole('button', { name: 'Copy message' })
+    ).toHaveFocus();
     await waitFor(() =>
-      expect(
-        getComputedStyle(firstCopy.closest('[role=group]')!.parentElement!)
-          .opacity
-      ).toBe('1')
+      expect(firstActions.parentElement).toHaveStyle({ opacity: '1' })
     );
   },
 };

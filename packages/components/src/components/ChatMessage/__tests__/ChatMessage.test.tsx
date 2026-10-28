@@ -150,22 +150,23 @@ describe('ChatMessage', () => {
     ).toHaveTextContent('Retrying');
   });
 
-  it.each<ChatMessageStatus>(['queued', 'submitting', 'streaming'])(
+  it('hides actions while streaming and restores them when complete', async () => {
+    const { user, rerender } = render(<ActionExample status="streaming" />);
+
+    expect(
+      screen.queryByRole('group', { name: 'Message actions' })
+    ).not.toBeInTheDocument();
+    rerender(<ActionExample status="completed" />);
+    await user.click(screen.getByRole('button', { name: 'Copy message' }));
+    expect(
+      screen.getByRole('status', { name: 'Action result' })
+    ).toHaveTextContent('Copied');
+  });
+
+  it.each<ChatMessageStatus>(['queued', 'submitting'])(
     'restricts actions while %s',
     async (status) => {
-      const { user, rerender } = render(<ActionExample status={status} />);
-
-      if (status === 'streaming') {
-        expect(
-          screen.queryByRole('group', { name: 'Message actions' })
-        ).not.toBeInTheDocument();
-        rerender(<ActionExample status="completed" />);
-        await user.click(screen.getByRole('button', { name: 'Copy message' }));
-        expect(
-          screen.getByRole('status', { name: 'Action result' })
-        ).toHaveTextContent('Copied');
-        return;
-      }
+      const { user } = render(<ActionExample status={status} />);
 
       const edit = screen.getByRole('button', { name: 'Edit message' });
       const retry = screen.getByRole('button', { name: 'Retry message' });

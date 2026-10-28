@@ -143,7 +143,7 @@ export interface ChatMessageHeaderProps extends ComponentPropsWithRef<'div'> {
   status?: ChatMessageStatus;
 }
 
-/** Identity and status line. Renders nothing when neither applies. */
+/** Identity and status line. Renders nothing without an identity, status, or children. */
 export function ChatMessageHeader({
   messageRole,
   identity,
@@ -355,7 +355,6 @@ export interface ChatTurnDividerProps extends Omit<
   label: string;
 }
 
-/** Labeled boundary between conversation turns, such as a date. */
 export function ChatTurnDivider({
   label,
   className,
