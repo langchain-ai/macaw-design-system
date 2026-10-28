@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 
-import { expect, fn, waitFor, within } from 'storybook/test';
+import { expect, fn, within } from 'storybook/test';
 
 import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -154,7 +154,8 @@ export const Default: Story = {
   },
   render: () => <ConversationExample />,
   play: async ({ canvas, userEvent }) => {
-    // An earlier message reveals its hidden footer when an action takes focus.
+    // An earlier message reveals its hidden footer, without a fade, when an
+    // action takes keyboard focus.
     await userEvent.tab();
     const [firstActions] = canvas.getAllByRole('group', {
       name: 'Message actions',
@@ -162,9 +163,7 @@ export const Default: Story = {
     await expect(
       within(firstActions).getByRole('button', { name: 'Copy message' })
     ).toHaveFocus();
-    await waitFor(() =>
-      expect(firstActions.parentElement).toHaveStyle({ opacity: '1' })
-    );
+    await expect(firstActions.parentElement).toHaveStyle({ opacity: '1' });
   },
 };
 

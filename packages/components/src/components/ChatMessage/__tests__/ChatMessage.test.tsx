@@ -287,6 +287,31 @@ describe('ChatMessage', () => {
     expect(screen.getByText('Here is the answer')).toBeVisible();
   });
 
+  it('fades in new paragraphs but not ones already settled at mount', () => {
+    const paragraph = (text: string) =>
+      screen.getByText(text).classList.contains('animate-in');
+    const history: ChatMessageModel = {
+      ...message,
+      content: [{ id: 'history', type: 'text', text: 'From history' }],
+    };
+    const { rerender } = render(
+      <ChatMessage animateParagraphs message={history} />
+    );
+    expect(paragraph('From history')).toBe(false);
+
+    rerender(
+      <ChatMessage
+        animateParagraphs
+        message={{
+          ...history,
+          status: 'streaming',
+          content: [{ id: 'retry', type: 'text', text: 'Retried answer' }],
+        }}
+      />
+    );
+    expect(paragraph('Retried answer')).toBe(true);
+  });
+
   it('renders an accessible turn boundary', () => {
     render(<ChatTurnDivider label="Yesterday" />);
     expect(screen.getByRole('separator', { name: 'Yesterday' })).toBeVisible();

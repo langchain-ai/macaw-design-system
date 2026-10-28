@@ -44,6 +44,13 @@ const statusLabels: Record<ChatMessageStatus, string | null> = {
   completed: null,
 };
 
+const settledStatuses = new Set<ChatMessageStatus>([
+  'completed',
+  'failed',
+  'stopped',
+  'interrupted',
+]);
+
 export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
   message: ChatMessageModel;
   /** Metadata and actions share the message's footer layout and visibility. */
@@ -56,7 +63,10 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
   align?: 'start' | 'end';
   /** Keeps the footer visible; earlier messages reveal it on hover or focus. */
   isLatest?: boolean;
-  /** Fade in complete text blocks as they mount; keep their IDs stable. */
+  /**
+   * Fade in complete text blocks as they mount; keep their IDs stable. A
+   * message that mounts already settled, such as history, doesn't fade in.
+   */
   animateParagraphs?: boolean;
   contentClassName?: string;
 }
@@ -81,6 +91,9 @@ export function ChatMessage({
 }: ChatMessageProps) {
   const alignment = align ?? (message.role === 'user' ? 'end' : 'start');
   const isStreaming = message.status === 'streaming';
+  const isSettled = settledStatuses.has(message.status);
+  const [isHistory, setIsHistory] = useState(isSettled);
+  if (isHistory && !isSettled) setIsHistory(false);
 
   return (
     <div
@@ -116,7 +129,7 @@ export function ChatMessage({
             />
             <ChatMessageBody
               blocks={message.content}
-              animateParagraphs={animateParagraphs}
+              animateParagraphs={animateParagraphs && !isHistory}
               className={alignment === 'end' ? 'items-end' : undefined}
             />
           </>
@@ -130,8 +143,9 @@ export function ChatMessage({
               isStreaming && 'invisible',
               // Earlier messages hide their footer until hovered or focused,
               // except on touch screens, which have no hover to reveal it.
+              // Keyboard focus reveals it without a fade.
               !isLatest &&
-                'transition-opacity duration-fast motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:focus-within:opacity-100 pointer-fine:group-hover/chat-message:opacity-100 pointer-fine:has-[[data-state=open]]:opacity-100'
+                'transition-opacity duration-fast focus-within:transition-none motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:focus-within:opacity-100 pointer-fine:group-hover/chat-message:opacity-100 pointer-fine:has-[[data-state=open]]:opacity-100'
             )}
           >
             {footer}
