@@ -413,6 +413,7 @@ test.each([
   ['drawer side panel', 'Pane'],
   ['copy text to clipboard', 'CopyButton'],
   ['line chart', 'LineChart'],
+  ['stacked area chart', 'LineChart'],
   ['Buttn', 'Button'],
   ['RadioCard', 'RadioCard'],
   ['CommandMenu', 'CommandMenu'],

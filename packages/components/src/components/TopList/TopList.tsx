@@ -2,6 +2,7 @@ import { animated, useReducedMotion, useSpring } from '@react-spring/web';
 import { getStringWidth } from '@visx/text';
 
 import { getFillChartColorForKey } from '../../utils/chartColors';
+import { cn } from '../../utils/cn';
 import {
   BarChart,
   type BarChartCategory,
@@ -70,6 +71,7 @@ type TopListOverlayProps<Item extends TopListItem> = BarChartPlotSlotProps &
   > & {
     getItem: (category: BarChartCategory) => Item | undefined;
     categoryLabelWidth: number;
+    categoryLabelAlign: 'start' | 'end';
     valueLabelPadding: number;
     hasNegativeValues: boolean;
   };
@@ -82,6 +84,7 @@ const TopListOverlay = <Item extends TopListItem>({
   getCategoryPosition,
   getItem,
   categoryLabelWidth,
+  categoryLabelAlign,
   valueLabelPadding,
   hasNegativeValues,
   onItemPointerMove,
@@ -155,7 +158,12 @@ const TopListOverlay = <Item extends TopListItem>({
           width={categoryLabelWidth}
           height={bandwidth}
         >
-          <div className="flex size-full min-w-0 items-center justify-end overflow-hidden pr-space-3">
+          <div
+            className={cn(
+              'flex size-full min-w-0 items-center overflow-hidden pr-space-3',
+              categoryLabelAlign === 'start' ? 'justify-start' : 'justify-end'
+            )}
+          >
             <Text
               as="span"
               variant="xs"
@@ -179,6 +187,7 @@ export const TopList = <Item extends TopListItem>({
   formatValue = defaultFormatValue,
   valueAxisLabel,
   categoryLabelWidth = TOP_LIST_DEFAULT_CATEGORY_LABEL_WIDTH,
+  categoryLabelAlign = 'end',
   activeItemId,
   getItemAriaLabel,
   isRendering = true,
@@ -300,6 +309,7 @@ export const TopList = <Item extends TopListItem>({
               {...slotProps}
               getItem={getItem}
               categoryLabelWidth={resolvedCategoryLabelWidth}
+              categoryLabelAlign={categoryLabelAlign}
               valueLabelPadding={valueLabelPadding}
               hasNegativeValues={hasNegativeValues}
               onItemPointerMove={onItemPointerMove}
