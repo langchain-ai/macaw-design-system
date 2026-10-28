@@ -66,7 +66,7 @@ describe('ImagePreviewDialog', () => {
     fireEvent.load(image);
     expect(
       screen.getByRole('status', { name: 'Image zoom' })
-    ).toHaveTextContent('50%');
+    ).toHaveTextContent('Fit');
     await user.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(
       screen.getByRole('status', { name: 'Image zoom' })
@@ -74,7 +74,7 @@ describe('ImagePreviewDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Fit image' }));
     expect(
       screen.getByRole('status', { name: 'Image zoom' })
-    ).toHaveTextContent('50%');
+    ).toHaveTextContent('Fit');
     await user.click(screen.getByRole('button', { name: 'Zoom out' }));
     expect(
       screen.getByRole('status', { name: 'Image zoom' })
@@ -90,7 +90,42 @@ describe('ImagePreviewDialog', () => {
     fireEvent.load(reopened);
     expect(
       screen.getByRole('status', { name: 'Image zoom' })
-    ).toHaveTextContent('50%');
+    ).toHaveTextContent('Fit');
+  });
+
+  it('zooms with trackpad pinch instead of the browser', async () => {
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(800);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
+    const { user } = render(<PreviewExample />);
+    await user.click(screen.getByRole('button', { name: 'Preview image' }));
+    const image = screen.getByAltText('Engine workflow');
+    Object.defineProperties(image, {
+      naturalWidth: { value: 1600 },
+      naturalHeight: { value: 1200 },
+    });
+    fireEvent.load(image);
+    const viewport = screen.getByRole('region', { name: 'Image viewport' });
+    const zoomStatus = screen.getByRole('status', { name: 'Image zoom' });
+
+    // Plain wheel scrolling stays native.
+    expect(fireEvent.wheel(viewport, { deltaY: -25 })).toBe(true);
+    expect(zoomStatus).toHaveTextContent('Fit');
+
+    // Chromium and Firefox pinch: ctrl+wheel.
+    expect(fireEvent.wheel(viewport, { deltaY: -25, ctrlKey: true })).toBe(
+      false
+    );
+    expect(zoomStatus).toHaveTextContent('64%');
+
+    // Safari pinch: gesture events with a cumulative scale.
+    fireEvent(viewport, new Event('gesturestart', { cancelable: true }));
+    const gesture = Object.assign(
+      new Event('gesturechange', { cancelable: true }),
+      { scale: 2, clientX: 0, clientY: 0 }
+    );
+    fireEvent(viewport, gesture);
+    expect(gesture.defaultPrevented).toBe(true);
+    expect(zoomStatus).toHaveTextContent('128%');
   });
 
   it('shows a load failure, disables zoom, and starts fresh for a different source', () => {
