@@ -24,6 +24,11 @@ import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
 import {
+  ChatMessage,
+  ChatMessageActions,
+} from '@langchain/macaw-components/ChatMessage';
+import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -84,6 +89,14 @@ void [
     status: 'uploading',
     disabled: true,
   } satisfies AttachmentProps,
+  ChatMessage,
+  ChatMessageActions,
+  {
+    id: 'message',
+    role: 'assistant',
+    status: 'completed',
+    content: [{ id: 'text', type: 'text', text: 'Hello' }],
+  } satisfies ChatMessageModel,
   HeatmapChart,
   HeatmapBlock,
   {

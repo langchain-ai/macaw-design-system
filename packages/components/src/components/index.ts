@@ -47,6 +47,28 @@ export type {
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
 
+export {
+  ChatMessage,
+  ChatMessageActions,
+  ChatMessageBody,
+  ChatMessageHeader,
+  ChatTurnDivider,
+} from './ChatMessage';
+export type {
+  ChatMessageAction,
+  ChatMessageActionCapabilities,
+  ChatMessageActionsProps,
+  ChatMessageBodyProps,
+  ChatMessageContentBlock,
+  ChatMessageHeaderProps,
+  ChatMessageIdentity,
+  ChatMessageModel,
+  ChatMessageProps,
+  ChatMessageRole,
+  ChatMessageStatus,
+  ChatTurnDividerProps,
+} from './ChatMessage';
+
 export { Checkbox, getCheckedState } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 
