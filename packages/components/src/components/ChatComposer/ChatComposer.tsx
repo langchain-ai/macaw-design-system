@@ -13,9 +13,23 @@ import {
   useChatComposerContext,
 } from './ChatComposerContext';
 
+export type ChatComposerDrawerIntent = 'neutral' | 'info' | 'warning' | 'error';
+
+const DRAWER_INTENT_CLASSES: Record<ChatComposerDrawerIntent, string> = {
+  neutral: 'border-subtle bg-surface-level-2',
+  info: 'border-brand-subtle bg-brand-subtle',
+  warning: 'border-warning bg-warning',
+  error: 'border-error bg-error',
+};
+
 export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
   /** Supplementary content attached above the editor, inside the composer form. */
   drawer?: ReactNode;
+  /**
+   * Drawer surface color. Color alone doesn't convey severity, so the drawer
+   * content should also say it in text or with an icon.
+   */
+  drawerIntent?: ChatComposerDrawerIntent;
   disabled?: boolean;
   submitDisabled?: boolean;
   onFilesSelected?: (files: File[]) => void;
@@ -51,6 +65,7 @@ function reportFieldsetValidity(fieldset: HTMLFieldSetElement | null) {
 export function ChatComposer({
   children,
   drawer,
+  drawerIntent = 'neutral',
   className,
   ref,
   disabled = false,
@@ -156,7 +171,8 @@ export function ChatComposer({
           <div
             className={cn(
               // Extends under the composer's rounded top so the seam stays hidden.
-              'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 overflow-y-auto overscroll-contain rounded-t-xl border border-b-0 border-subtle bg-surface-level-2 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
+              'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 overflow-y-auto overscroll-contain rounded-t-xl border border-b-0 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
+              DRAWER_INTENT_CLASSES[drawerIntent],
               disabled && 'border-disabled'
             )}
           >

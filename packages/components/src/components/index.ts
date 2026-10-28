@@ -64,6 +64,7 @@ export type {
   ChatComposerAttachmentProps,
   ChatComposerAttachmentsProps,
   ChatComposerContextValue,
+  ChatComposerDrawerIntent,
   ChatComposerInputHandle,
   ChatComposerInputProps,
   ChatComposerModelSelectProps,

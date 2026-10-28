@@ -4,6 +4,7 @@ export {
   ChatComposerAction,
 } from './ChatComposer';
 export type {
+  ChatComposerDrawerIntent,
   ChatComposerProps,
   ChatComposerToolbarProps,
   ChatComposerActionProps,

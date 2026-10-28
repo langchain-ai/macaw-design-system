@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
+import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
 import { SparkleIcon } from '@phosphor-icons/react/dist/ssr/Sparkle';
 import { StopIcon } from '@phosphor-icons/react/dist/ssr/Stop';
+import { WarningIcon } from '@phosphor-icons/react/dist/ssr/Warning';
+import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
@@ -17,6 +20,7 @@ import {
 import type {
   ChatComposerAttachmentProps,
   ChatComposerAttachmentsProps,
+  ChatComposerDrawerIntent,
   ChatComposerProps,
 } from '.';
 import { useResizeObserver } from '../../hooks/useResizeObserver';
@@ -50,7 +54,7 @@ const meta = {
         component: [
           'Composable Markdown input with editable code blocks, attachments, model selection, and toolbar slots. Import from `@langchain/macaw-components/ChatComposer`.',
           'Control the draft with `value`/`onChange`; consumers handle sending, uploads, and streaming. Use `action="stop"` with `onStop` during generation.',
-          'Use `drawer` for content attached above the editor. For questions, compose `ChatRichContent presentation="drawer"` and submit answers through the composer. An input ref exposes `focus()` for external controls.',
+          'Use `drawer` for content attached above the editor, such as questions the reader answers before sending; the composer still owns submission. An input ref exposes `focus()` for external controls.',
           'Menu `accept`/`multiple` configure the picker only; validate all files in `onFilesSelected`.',
           '`ChatComposerInput` grows from `minHeight` (40px) to `maxHeight` (240px).',
           'Enter sends from plain paragraphs; Shift+Enter continues editing; Ctrl/⌘+Enter sends from any block. Three backticks create a code block.',
@@ -89,6 +93,8 @@ interface ComposerDemoProps {
   disabled?: boolean;
   minHeight?: number;
   maxHeight?: number;
+  drawer?: ReactNode;
+  drawerIntent?: ChatComposerDrawerIntent;
 }
 
 const MODEL_OPTIONS = [
@@ -156,6 +162,8 @@ function ComposerDemo({
   disabled = false,
   minHeight,
   maxHeight,
+  drawer,
+  drawerIntent,
 }: ComposerDemoProps) {
   const [draft, setDraft] = useState(initialDraft);
   const [model, setModel] = useState('balanced');
@@ -197,6 +205,8 @@ function ComposerDemo({
       )}
       <ChatComposer
         {...actionProps}
+        drawer={drawer}
+        drawerIntent={drawerIntent}
         disabled={disabled}
         submitDisabled={!canSubmit}
         aria-label="Chat composer"
@@ -246,7 +256,7 @@ function ComposerDemo({
           minHeight={minHeight}
           maxHeight={maxHeight}
           placeholder={
-            narrow ? 'Ask Polly…' : 'Ask a question or describe a task…'
+            narrow ? 'Ask a question…' : 'Ask a question or describe a task…'
           }
         />
         <ChatComposerToolbar
@@ -476,5 +486,80 @@ export const Disabled: Story = {
         },
       ]}
     />
+  ),
+};
+
+const DRAWER_EXAMPLES: {
+  intent: ChatComposerDrawerIntent;
+  title: string;
+  message: string;
+  icon?: typeof InfoIcon;
+  iconClassName?: string;
+}[] = [
+  {
+    intent: 'neutral',
+    title: 'Neutral',
+    message: 'Answer two questions before the agent continues.',
+  },
+  {
+    intent: 'info',
+    title: 'Info',
+    message: 'Replies use the workspace knowledge base.',
+    icon: InfoIcon,
+    iconClassName: 'text-brand-primary',
+  },
+  {
+    intent: 'warning',
+    title: 'Warning',
+    message: 'This run will edit 14 files in the main branch.',
+    icon: WarningIcon,
+    iconClassName: 'text-warning-primary',
+  },
+  {
+    intent: 'error',
+    title: 'Error',
+    message: 'The last tool call failed. Retry or change the request.',
+    icon: WarningCircleIcon,
+    iconClassName: 'text-error-primary',
+  },
+];
+
+export const DrawerIntents: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`drawerIntent` sets the drawer surface: `neutral` (default), `info`, `warning`, or `error`. Color alone does not convey severity, so state it in the drawer content too.',
+      },
+    },
+  },
+  render: () => (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-space-6">
+      {DRAWER_EXAMPLES.map(
+        ({ intent, title, message, icon: Icon, iconClassName }) => (
+          <ComposerDemo
+            key={intent}
+            drawerIntent={intent}
+            drawer={
+              <div className="flex items-start gap-space-2 px-space-3 py-space-3">
+                {Icon && (
+                  <Icon
+                    size={16}
+                    weight="regular"
+                    aria-hidden
+                    className={cn('mt-0.5 shrink-0', iconClassName)}
+                  />
+                )}
+                <Text variant="sm">
+                  <span className="font-medium">{title}: </span>
+                  {message}
+                </Text>
+              </div>
+            }
+          />
+        )
+      )}
+    </div>
   ),
 };

@@ -75,7 +75,6 @@ export function ChatComposerAttachmentMenu({
           {children}
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* oxlint-disable-next-line react/forbid-elements -- native file picker opened by the attachment menu */}
       <input
         ref={fileInputRef}
         type="file"
@@ -116,7 +115,7 @@ export function ChatComposerAttachments({
       <AttachmentList
         {...props}
         layout={layout}
-        className={cn('no-scrollbar', className)}
+        className={cn('no-scrollbar scroll-mask-l scroll-mask-r', className)}
       />
     </AttachmentAppearanceContext.Provider>
   );
