@@ -112,6 +112,7 @@ const meta = {
           '- Messages and footer share a centered column capped at 672px.',
           '- Follows new content while the reader is within 48px of the bottom; scrolling up pauses following and shows **Jump to latest**.',
           '- Remount with a conversation `key` when switching threads.',
+          '- The message log does not announce changes; announce completed replies from a polite `role="status"` region in the host (see Streaming).',
           '- Not included: history fetching, pagination, virtualization, or anchoring when older messages are inserted above the viewport. Hosts that load history upward can adjust `scrollTop` through `viewportRef`.',
         ].join('\n'),
       },
@@ -199,30 +200,18 @@ const streamedParagraphs = [
 
 function StreamingExample() {
   const [messages, setMessages] = useState(historyMessages);
-  const [streamedCount, setStreamedCount] = useState<number>();
+  const [reply, setReply] = useState<{ id: string; streamed: number }>();
+  const isStreaming =
+    reply !== undefined && reply.streamed < streamedParagraphs.length;
 
   useEffect(() => {
-    if (streamedCount === undefined) return;
-    if (streamedCount >= streamedParagraphs.length) return;
-    const timer = window.setTimeout(() => {
-      setMessages((current) => {
-        const reply = current.at(-1);
-        if (!reply) return current;
-        return [
-          ...current.slice(0, -1),
-          {
-            ...reply,
-            paragraphs: streamedParagraphs.slice(0, streamedCount + 1),
-          },
-        ];
-      });
-      setStreamedCount(streamedCount + 1);
-    }, 900);
+    if (!reply || reply.streamed >= streamedParagraphs.length) return;
+    const timer = window.setTimeout(
+      () => setReply({ ...reply, streamed: reply.streamed + 1 }),
+      900
+    );
     return () => window.clearTimeout(timer);
-  }, [streamedCount]);
-
-  const isStreaming =
-    streamedCount !== undefined && streamedCount < streamedParagraphs.length;
+  }, [reply]);
 
   function send() {
     const id = `stream-${messages.length}`;
@@ -235,8 +224,14 @@ function StreamingExample() {
       },
       { id: `${id}-assistant`, role: 'assistant', paragraphs: [] },
     ]);
-    setStreamedCount(0);
+    setReply({ id: `${id}-assistant`, streamed: 0 });
   }
+
+  const shownMessages = messages.map((message) =>
+    message.id === reply?.id
+      ? { ...message, paragraphs: streamedParagraphs.slice(0, reply.streamed) }
+      : message
+  );
 
   return (
     <ChatConversation
@@ -248,10 +243,13 @@ function StreamingExample() {
           <Button size="sm" disabled={isStreaming} onClick={send}>
             Send
           </Button>
+          <div role="status" className="sr-only">
+            {reply && !isStreaming ? 'Reply complete.' : ''}
+          </div>
         </div>
       }
     >
-      <PlaceholderMessages messages={messages} />
+      <PlaceholderMessages messages={shownMessages} />
     </ChatConversation>
   );
 }
@@ -282,8 +280,7 @@ const threads = [
 ];
 
 function SwitchingExample() {
-  const [threadId, setThreadId] = useState(threads[0].id);
-  const thread = threads.find((item) => item.id === threadId) ?? threads[0];
+  const [thread, setThread] = useState(threads[0]);
 
   return (
     <ChatConversation
@@ -296,7 +293,7 @@ function SwitchingExample() {
               size="sm"
               color={item.id === thread.id ? 'primary' : 'secondary'}
               aria-pressed={item.id === thread.id}
-              onClick={() => setThreadId(item.id)}
+              onClick={() => setThread(item)}
             >
               {item.title}
             </Button>
@@ -319,6 +316,19 @@ export const SwitchingConversations: Story = {
     },
   },
   render: () => <SwitchingExample />,
+};
+
+export const CustomBackground: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The top edge fades into whatever background the host sets, once the reader scrolls away from the top.',
+      },
+    },
+  },
+  args: { className: 'bg-brand-subtle', footer: <PlaceholderComposer /> },
 };
 
 export const Narrow: Story = {
