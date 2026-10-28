@@ -120,7 +120,7 @@ export function ChatConversation({
           aria-label={`${label} messages`}
           aria-live="off"
           tabIndex={0}
-          className="scroll-mask-t min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden [--scroll-mask-fade-from-t:calc(100%_-_1.5rem)]"
+          className="scroll-mask-t min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden"
         >
           <div
             ref={contentRef}
