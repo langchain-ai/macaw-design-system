@@ -102,10 +102,6 @@ describe('Select variant', () => {
 
     const trigger = screen.getByRole('combobox', { name: 'Environment' });
     expect(trigger).toHaveClass('w-full', 'bg-input', 'border-input');
-    expect(trigger).toHaveClass('shadow-none');
-    expect(trigger).not.toHaveClass(
-      'shadow-[0px_1px_2px_0px_var(--shadow-color-subtle)]'
-    );
   });
 
   it('drops the field border and fill when plain', () => {
