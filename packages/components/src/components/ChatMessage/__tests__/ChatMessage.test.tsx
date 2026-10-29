@@ -84,17 +84,17 @@ describe('ChatMessage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('forwards the message element ref and gives icon identities a text label', () => {
+  it('forwards the message element ref and shows an avatar with the identity name', () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <ChatMessage
         ref={ref}
-        showIdentity
+        showName
         message={{
           ...message,
           identity: { name: 'Research assistant' },
         }}
-        leading={
+        avatar={
           <Icon
             icon={SparkleIcon}
             size="xs"
@@ -111,12 +111,12 @@ describe('ChatMessage', () => {
     );
   });
 
-  it('supports a labeled icon when composing the header directly', () => {
+  it('supports a labeled avatar when composing the header directly', () => {
     render(
       <ChatMessageHeader
         messageRole="tool"
-        showIdentity
-        leading={
+        showName
+        avatar={
           <Icon
             icon={WrenchIcon}
             size="xs"
@@ -310,6 +310,28 @@ describe('ChatMessage', () => {
       />
     );
     expect(paragraph('Retried answer')).toBe(true);
+  });
+
+  it('controls the avatar and name separately, for user messages too', () => {
+    const { rerender } = render(
+      <ChatMessageHeader
+        messageRole="user"
+        identity={{ name: 'Ada' }}
+        avatar={<span role="img" aria-label="Ada's avatar" />}
+      />
+    );
+    expect(screen.getByRole('img', { name: "Ada's avatar" })).toBeVisible();
+    expect(screen.queryByText('Ada')).not.toBeInTheDocument();
+
+    rerender(
+      <ChatMessageHeader
+        messageRole="user"
+        identity={{ name: 'Ada' }}
+        showName
+      />
+    );
+    expect(screen.getByText('Ada')).toBeVisible();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
   it('renders an accessible turn boundary', () => {

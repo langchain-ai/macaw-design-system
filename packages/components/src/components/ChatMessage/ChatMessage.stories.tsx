@@ -63,7 +63,7 @@ const meta = {
           '- Compose header, ordered content, and actions.',
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
           '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
-          '- Identity is hidden by default; opt in with `showIdentity` for non-user messages.',
+          '- The header shows no identity by default; opt in with `avatar` and `showName`, separately and for any role.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
         ].join('\n'),
       },
@@ -346,10 +346,7 @@ export const ParagraphAnimation: Story = {
     const streamingTop = first.getBoundingClientRect().top;
     await userEvent.click(addParagraph);
     await userEvent.click(addParagraph);
-    await expect(canvas.getByRole('article')).toHaveAttribute(
-      'data-status',
-      'completed'
-    );
+    await expect(addParagraph).toBeDisabled();
     await expect(first.getBoundingClientRect().top).toBe(streamingTop);
   },
 };
@@ -446,7 +443,7 @@ export const NarrowWidth: Story = {
       />
       <ChatMessage
         isLatest
-        showIdentity
+        showName
         message={{
           id: 'narrow-answer',
           role: 'assistant',
