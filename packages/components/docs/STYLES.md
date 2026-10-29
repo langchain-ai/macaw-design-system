@@ -233,6 +233,15 @@ owns sorting, row limits, truncated category labels, formatted end labels, and
 accessible item interactions. Use `BarChart` directly for grouped, stacked, or
 vertical bars that are not a ranked list.
 
+Category labels are end-aligned by default, so each label sits against its
+bar. Keep the default for short identifiers such as model, environment, or
+status names. Set `categoryLabelAlign="start"` when labels are multi-word names
+of widely varying length, such as generated category names, so readers can scan
+them from a shared left edge. Labels too long for `categoryLabelWidth` are
+truncated and look the same either way, so alignment only changes shorter
+labels. With `start`, keep the width close to the typical label length so short
+labels stay near their bars. Use one alignment for every top list in a view.
+
 Feature adapters still own fetching, domain-specific “Other” aggregation,
 tooltips, navigation, loading, error, and empty states. Pass a custom comparator
 when a semantic row such as “Other” must stay last regardless of value.
