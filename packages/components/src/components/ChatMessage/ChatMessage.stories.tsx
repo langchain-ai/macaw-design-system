@@ -26,9 +26,6 @@ const message: DemoMessage = {
   id: 'answer',
   role: 'assistant',
   status: 'completed',
-  identity: {
-    name: 'Assistant',
-  },
   timestamp: <time dateTime="2026-09-28T09:41:00">9:41 AM</time>,
   content: [
     {
@@ -63,7 +60,7 @@ const meta = {
           '- Compose header, ordered content, and actions.',
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
           '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
-          '- The header shows no identity by default; opt in with `avatar` and `showName`, separately and for any role.',
+          '- The header shows no avatar or name by default; pass `avatar` and `name`, separately and for any role.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
         ].join('\n'),
       },
@@ -101,9 +98,6 @@ const conversationMessages: DemoMessage[] = [
     id: 'history',
     role: 'assistant',
     status: 'completed',
-    identity: {
-      name: 'Assistant',
-    },
     timestamp: <time dateTime="2026-09-30T19:07:00">7:07 PM</time>,
     content: [
       {
@@ -365,7 +359,6 @@ function ActionsExample({
         ...message,
         status,
         readOnly,
-        identity: undefined,
         content:
           status === 'streaming'
             ? []
@@ -443,12 +436,11 @@ export const NarrowWidth: Story = {
       />
       <ChatMessage
         isLatest
-        showName
+        name="Research assistant with a long name"
         message={{
           id: 'narrow-answer',
           role: 'assistant',
           status: 'failed',
-          identity: { name: 'Research assistant with a long name' },
           content: [
             {
               id: 'narrow-answer-text',

@@ -20,7 +20,6 @@ import { ThinkingState } from '../ThinkingState';
 import type {
   ChatMessageActionCapabilities,
   ChatMessageContentBlock,
-  ChatMessageIdentity,
   ChatMessageModel,
   ChatMessageRole,
   ChatMessageStatus,
@@ -57,8 +56,11 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
   footer?: ReactNode;
   /** Icon or picture shown before the name in the default header. */
   avatar?: ReactNode;
-  /** Shows the identity name, or the role label without one, in the default header. */
-  showName?: boolean;
+  /**
+   * Name shown after the avatar in the default header. A string name also
+   * labels the message for screen readers; otherwise the role label does.
+   */
+  name?: ReactNode;
   /** Defaults to end for user messages and start for other roles. */
   align?: 'start' | 'end';
   /** Keeps the footer visible; earlier messages reveal it on hover or focus. */
@@ -80,7 +82,7 @@ export function ChatMessage({
   message,
   footer,
   avatar,
-  showName = false,
+  name,
   align,
   isLatest = false,
   animateParagraphs = false,
@@ -98,7 +100,7 @@ export function ChatMessage({
   return (
     <div
       role="article"
-      aria-label={`${message.identity?.name ?? roleLabels[message.role]} message`}
+      aria-label={`${typeof name === 'string' ? name : roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
       className={cn(
         'group/chat-message flex w-full min-w-0 text-primary',
@@ -117,10 +119,8 @@ export function ChatMessage({
         {children ?? (
           <>
             <ChatMessageHeader
-              messageRole={message.role}
-              identity={message.identity}
               avatar={avatar}
-              showName={showName}
+              name={name}
               status={message.status}
             />
             <ChatMessageBody
@@ -153,10 +153,8 @@ export function ChatMessage({
 }
 
 export interface ChatMessageHeaderProps extends ComponentPropsWithRef<'div'> {
-  messageRole: ChatMessageRole;
-  identity?: ChatMessageIdentity;
   avatar?: ReactNode;
-  showName?: boolean;
+  name?: ReactNode;
   status?: ChatMessageStatus;
 }
 
@@ -165,10 +163,8 @@ export interface ChatMessageHeaderProps extends ComponentPropsWithRef<'div'> {
  * children, unless it has shown a streaming status.
  */
 export function ChatMessageHeader({
-  messageRole,
-  identity,
   avatar,
-  showName = false,
+  name,
   status = 'completed',
   children,
   className,
@@ -179,7 +175,7 @@ export function ChatMessageHeader({
 
   const statusLabel = statusLabels[status];
   const isEmpty =
-    avatar == null && !showName && !statusLabel && children == null;
+    avatar == null && name == null && !statusLabel && children == null;
 
   if (isEmpty && !hasStreamed) return null;
 
@@ -199,9 +195,9 @@ export function ChatMessageHeader({
           {avatar}
         </div>
       )}
-      {showName && (
+      {name != null && (
         <Text as="span" variant="xs" weight="medium" className="leading-snug">
-          {identity?.name ?? roleLabels[messageRole]}
+          {name}
         </Text>
       )}
       {status === 'streaming' ? (

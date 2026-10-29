@@ -61,7 +61,6 @@ export type {
   ChatMessageBodyProps,
   ChatMessageContentBlock,
   ChatMessageHeaderProps,
-  ChatMessageIdentity,
   ChatMessageModel,
   ChatMessageProps,
   ChatMessageRole,

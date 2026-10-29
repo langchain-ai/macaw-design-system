@@ -84,16 +84,13 @@ describe('ChatMessage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('forwards the message element ref and shows an avatar with the identity name', () => {
+  it('forwards the message element ref and labels it with a string name', () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <ChatMessage
         ref={ref}
-        showName
-        message={{
-          ...message,
-          identity: { name: 'Research assistant' },
-        }}
+        name="Research assistant"
+        message={message}
         avatar={
           <Icon
             icon={SparkleIcon}
@@ -114,8 +111,7 @@ describe('ChatMessage', () => {
   it('supports a labeled avatar when composing the header directly', () => {
     render(
       <ChatMessageHeader
-        messageRole="tool"
-        showName
+        name="Tool"
         avatar={
           <Icon
             icon={WrenchIcon}
@@ -134,32 +130,16 @@ describe('ChatMessage', () => {
 
   it('keeps the status line after streaming ends', () => {
     const { rerender } = render(
-      <ChatMessageHeader
-        messageRole="assistant"
-        status="streaming"
-        data-testid="header"
-      />
+      <ChatMessageHeader status="streaming" data-testid="header" />
     );
     expect(screen.getByText('Responding')).toBeVisible();
 
-    rerender(
-      <ChatMessageHeader
-        messageRole="assistant"
-        status="completed"
-        data-testid="header"
-      />
-    );
+    rerender(<ChatMessageHeader status="completed" data-testid="header" />);
     expect(screen.getByTestId('header')).toBeEmptyDOMElement();
   });
 
-  it('renders no header for a completed message without identity', () => {
-    render(
-      <ChatMessageHeader
-        messageRole="assistant"
-        status="completed"
-        data-testid="header"
-      />
-    );
+  it('renders no header for a completed message without an avatar or name', () => {
+    render(<ChatMessageHeader status="completed" data-testid="header" />);
     expect(screen.queryByTestId('header')).not.toBeInTheDocument();
   });
 
@@ -313,25 +293,35 @@ describe('ChatMessage', () => {
   });
 
   it('controls the avatar and name separately, for user messages too', () => {
+    const userMessage: ChatMessageModel = { ...message, role: 'user' };
     const { rerender } = render(
-      <ChatMessageHeader
-        messageRole="user"
-        identity={{ name: 'Ada' }}
+      <ChatMessage
+        message={userMessage}
         avatar={<span role="img" aria-label="Ada's avatar" />}
       />
     );
     expect(screen.getByRole('img', { name: "Ada's avatar" })).toBeVisible();
     expect(screen.queryByText('Ada')).not.toBeInTheDocument();
 
-    rerender(
-      <ChatMessageHeader
-        messageRole="user"
-        identity={{ name: 'Ada' }}
-        showName
-      />
-    );
+    rerender(<ChatMessage message={userMessage} name="Ada" />);
     expect(screen.getByText('Ada')).toBeVisible();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('labels a message with a rich name by its role', () => {
+    render(
+      <ChatMessage
+        message={message}
+        name={
+          <>
+            Research assistant <span>· gpt-5</span>
+          </>
+        }
+      />
+    );
+    expect(
+      screen.getByRole('article', { name: 'Assistant message' })
+    ).toHaveTextContent('Research assistant · gpt-5');
   });
 
   it('renders an accessible turn boundary', () => {

@@ -16,7 +16,6 @@ export type {
   ChatMessageAction,
   ChatMessageActionCapabilities,
   ChatMessageContentBlock,
-  ChatMessageIdentity,
   ChatMessageModel,
   ChatMessageRole,
   ChatMessageStatus,

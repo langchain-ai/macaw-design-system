@@ -25,10 +25,6 @@ export type ChatMessageContentBlock = {
     }
 );
 
-export interface ChatMessageIdentity {
-  name: string;
-}
-
 export interface ChatMessageAction {
   onClick: () => void;
   label?: string;
@@ -46,6 +42,5 @@ export interface ChatMessageModel {
   role: ChatMessageRole;
   status: ChatMessageStatus;
   readOnly?: boolean;
-  identity?: ChatMessageIdentity;
   content: readonly ChatMessageContentBlock[];
 }
