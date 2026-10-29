@@ -57,7 +57,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
 - Use the Tabs family for tabbed navigation, with routing handled by the app, and `GroupedTabs` for a local view switch.
-- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation.
+- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
 - Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
