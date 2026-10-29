@@ -1,0 +1,14 @@
+packages/components/src/components/Button/Button.tsx
+  h_a27749d4737027 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dc543896dba25235d9312c7f9e826e0d473a0ecd",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
