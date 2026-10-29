@@ -117,6 +117,9 @@ module.exports = {
       ringColor: {
         focus: 'var(--border-focus)',
       },
+      outlineColor: {
+        focus: 'var(--border-focus)',
+      },
       boxShadow: {
         DEFAULT: 'var(--shadow-default)',
         'slider-thumb': 'var(--shadow-slider-thumb)',

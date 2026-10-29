@@ -31,6 +31,11 @@ export type {
 export { Attachment, AttachmentList } from './Attachment';
 export type { AttachmentProps, AttachmentListProps } from './Attachment';
 
+export { ImagePreviewDialog } from './ImagePreviewDialog';
+export type { ImagePreviewDialogProps } from './ImagePreviewDialog';
+export { ImagePreviewBlock } from './ImagePreviewBlock';
+export type { ImagePreviewBlockProps } from './ImagePreviewBlock';
+
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
 
