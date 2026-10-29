@@ -1,0 +1,28 @@
+packages/components/src/components/Button/Button.stories.tsx
+  s_20584d6ab50e51::t_cab52677c39d22 625-626,685
+  s_20584d6ab50e51::t_c00dea58952089 16
+  s_20584d6ab50e51::t_00d4449b11d246 496-511
+  s_20584d6ab50e51::t_da4452ddf74326 1-2
+  s_20584d6ab50e51::t_6d62933a156295 403-404,414-445
+  s_20584d6ab50e51::t_6f2fa560232cba 6,14
+  s_20584d6ab50e51::t_3e78f20572eb84 394-402,405-413,446-484,487-488,490-495,512-576,578-598,600-604,611-624,627-641,658-684,686-696
+  s_20584d6ab50e51::t_31461a6db87029 642-657
+  s_20584d6ab50e51::t_573f63da28b5ce 485-486,489,577
+  s_20584d6ab50e51::t_d63afc2b62c03b 599,605-610
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "acd88c8d9ae8c52f7a2ebd2f4f4fcde52a11fc41",
+  "prompts": {},
+  "sessions": {
+    "s_20584d6ab50e51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95c211e-3897-4307-9d48-58c067a11dad",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
