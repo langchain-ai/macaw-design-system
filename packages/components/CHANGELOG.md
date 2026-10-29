@@ -1,3 +1,13 @@
+## 1.3.0 (2026-10-29)
+
+### 🚀 Features
+
+- add image preview components [FEP-571] ([#66](https://github.com/langchain-ai/macaw-design-system/pull/66))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.2.2 (2026-10-28)
 
 ### 🚀 Features
