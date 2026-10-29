@@ -1,3 +1,13 @@
+## 1.3.1 (2026-10-29)
+
+### 🩹 Fixes
+
+- make toast duration independent of variant ([#67](https://github.com/langchain-ai/macaw-design-system/pull/67))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.3.0 (2026-10-29)
 
 ### 🚀 Features
