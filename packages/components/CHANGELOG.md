@@ -1,3 +1,13 @@
+## 1.3.2 (2026-10-29)
+
+### 🩹 Fixes
+
+- remove button shadow from outlined Select trigger ([#81](https://github.com/langchain-ai/macaw-design-system/pull/81))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.3.1 (2026-10-29)
 
 ### 🩹 Fixes
