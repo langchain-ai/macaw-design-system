@@ -145,6 +145,8 @@ const customTwMerge = extendTailwindMerge({
       ],
       // Extend border-color to include custom border colors
       'border-color': [
+        'border-control',
+        'border-control-hover',
         'border-input',
         'border-input-hover',
         'border-default',
