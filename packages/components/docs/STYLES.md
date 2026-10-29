@@ -288,6 +288,7 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-elevated`              | Raised cards and panes                                           |
 | `bg-input`                 | Input and textarea fields, picker controls, filled popup triggers |
 | `bg-input-hover`           | Hover fill for Select controls                                     |
+| `bg-input-plain`           | Fill for borderless (`variant="plain"`) Input and CommandInput    |
 | `bg-input-disabled`        | Disabled field fill, independent of general disabled controls     |
 | `bg-elevated-hover`        | Hover state inside a raised or floating surface                    |
 | `bg-elevated-selected`     | Selected item inside a raised or floating surface                  |
