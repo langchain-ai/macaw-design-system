@@ -4,6 +4,7 @@ import {
   cloneElement,
   forwardRef,
   isValidElement,
+  MouseEvent,
 } from 'react';
 
 import { cn } from '../../utils/cn';
@@ -22,24 +23,29 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   color?: 'primary' | 'secondary' | 'error';
   /** Button visual variant */
   variant?: 'normal' | 'outlined' | 'plain' | 'underlined';
-  /** Click handler */
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+
+
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+
+
   /** Icon component to display on the left side */
   leftDecorator?: IconComponent;
   /** Icon component to display on the right side */
   rightDecorator?: IconComponent;
-  /** Whether the button is disabled */
+
+
+  loading?: boolean;
   disabled?: boolean;
+
   /** Tag text to display */
   tagText?: string;
   /** Position of the tag */
   tagPosition?: 'left' | 'right';
-  /** Button content */
+  /** @deprecated Button content */
   children: React.ReactNode;
-  /** Whether the button is loading */
-  loading?: boolean;
+
   /** Pass through the `<button>` props to a child component */
-  as?: ReactElement<{ children: React.ReactNode; [key: string]: unknown }>;
+  as?: ReactElement<{ children: React.ReactNode;[key: string]: unknown }>;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
