@@ -1,0 +1,22 @@
+packages/components/src/components/Button/Button.tsx
+  s_032329451a3f69::t_2d7a8517e39527 52,117
+  s_032329451a3f69::t_8ce20e90f41764 4-5,22
+  s_032329451a3f69::t_868702119eb77a 49,53-72,74-76,78-112,115-116,118-196,198-221
+  s_032329451a3f69::t_9e283bb46753b3 46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e8c07196e83f17172e1a34f924838bf7ee567c40",
+  "prompts": {},
+  "sessions": {
+    "s_032329451a3f69": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a189e3-0e45-7b73-bbe7-9529e3a8e78f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
