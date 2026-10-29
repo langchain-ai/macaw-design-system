@@ -121,7 +121,7 @@ export const GroupedTabs = <T extends string | number>({
         {...pickDataAttributes(rest)}
         ref={containerRef}
         className={cn(
-          'relative box-border flex w-fit border border-subtle bg-surface-level-1 dark:border-muted',
+          'relative box-border flex w-fit border border-control bg-surface-level-1',
           CONTROL_SIZES[size].heightClassName,
           size === 'md' ? 'p-0.5' : 'p-px',
           size === 'xs' ? 'gap-px' : 'gap-0.5',
