@@ -60,7 +60,7 @@ const meta = {
           '- Compose header, ordered content, and actions.',
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
           '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
-          '- The header shows no avatar or name by default; pass `avatar` and `name`, separately and for any role.',
+          '- The header shows no avatar or name by default; pass `avatar` (`Avatar` props) and `name`, separately and for any role.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
         ].join('\n'),
       },
@@ -436,6 +436,7 @@ export const NarrowWidth: Story = {
       />
       <ChatMessage
         isLatest
+        avatar={{ label: 'Research assistant with a long name' }}
         name="Research assistant with a long name"
         message={{
           id: 'narrow-answer',

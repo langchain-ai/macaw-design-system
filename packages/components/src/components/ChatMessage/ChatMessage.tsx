@@ -12,6 +12,7 @@ import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle'
 
 import { cn } from '../../utils/cn';
 import type { IconComponent } from '../../utils/icon-types';
+import { Avatar, type AvatarProps } from '../Avatar';
 import { Divider } from '../Divider';
 import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
@@ -54,11 +55,12 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
   message: ChatMessageModel;
   /** Metadata and actions share the message's footer layout and visibility. */
   footer?: ReactNode;
-  /** Icon or picture shown before the name in the default header. */
-  avatar?: ReactNode;
+  /** `Avatar` shown before the name in the default header, sized to match it. */
+  avatar?: Omit<AvatarProps, 'size'>;
   /**
    * Name shown after the avatar in the default header. A string name also
-   * labels the message for screen readers; otherwise the role label does.
+   * labels the message for screen readers; otherwise the avatar's label or
+   * the role label does.
    */
   name?: ReactNode;
   /** Defaults to end for user messages and start for other roles. */
@@ -100,7 +102,7 @@ export function ChatMessage({
   return (
     <div
       role="article"
-      aria-label={`${typeof name === 'string' ? name : roleLabels[message.role]} message`}
+      aria-label={`${typeof name === 'string' ? name : avatar?.label || roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
       className={cn(
         'group/chat-message flex w-full min-w-0 text-primary',
@@ -153,7 +155,7 @@ export function ChatMessage({
 }
 
 export interface ChatMessageHeaderProps extends ComponentPropsWithRef<'div'> {
-  avatar?: ReactNode;
+  avatar?: Omit<AvatarProps, 'size'>;
   name?: ReactNode;
   status?: ChatMessageStatus;
 }
@@ -190,10 +192,12 @@ export function ChatMessageHeader({
       )}
       {...props}
     >
-      {avatar != null && (
-        <div className="inline-flex shrink-0 items-center justify-center">
-          {avatar}
-        </div>
+      {avatar && (
+        // The name and the message label already identify the speaker; this
+        // keeps the avatar's initial from being read out before the name.
+        <span aria-hidden="true" className="inline-flex shrink-0">
+          <Avatar size="xs" {...avatar} />
+        </span>
       )}
       {name != null && (
         <Text as="span" variant="xs" weight="medium" className="leading-snug">

@@ -1,11 +1,7 @@
 import { createRef, useState } from 'react';
 
-import { SparkleIcon } from '@phosphor-icons/react/dist/ssr/Sparkle';
-import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
-
 import { render, screen, within } from '../../../test-utils';
 import { Button } from '../../Button';
-import { Icon } from '../../Icon';
 import {
   ChatMessage,
   ChatMessageActions,
@@ -91,14 +87,7 @@ describe('ChatMessage', () => {
         ref={ref}
         name="Research assistant"
         message={message}
-        avatar={
-          <Icon
-            icon={SparkleIcon}
-            size="xs"
-            weight="regular"
-            aria-hidden="true"
-          />
-        }
+        avatar={{ label: 'Research assistant' }}
       />
     );
 
@@ -108,23 +97,12 @@ describe('ChatMessage', () => {
     );
   });
 
-  it('supports a labeled avatar when composing the header directly', () => {
-    render(
-      <ChatMessageHeader
-        name="Tool"
-        avatar={
-          <Icon
-            icon={WrenchIcon}
-            size="xs"
-            weight="regular"
-            role="img"
-            aria-label="File search"
-          />
-        }
-      />
-    );
+  it('hides the avatar from screen readers next to the name', () => {
+    render(<ChatMessageHeader name="Tool" avatar={{ label: 'Tool' }} />);
 
-    expect(screen.getByRole('img', { name: 'File search' })).toBeVisible();
+    expect(
+      screen.getByText('T').closest('[aria-hidden="true"]')
+    ).not.toBeNull();
     expect(screen.getByText('Tool')).toBeVisible();
   });
 
@@ -295,17 +273,17 @@ describe('ChatMessage', () => {
   it('controls the avatar and name separately, for user messages too', () => {
     const userMessage: ChatMessageModel = { ...message, role: 'user' };
     const { rerender } = render(
-      <ChatMessage
-        message={userMessage}
-        avatar={<span role="img" aria-label="Ada's avatar" />}
-      />
+      <ChatMessage message={userMessage} avatar={{ label: 'Ada' }} />
     );
-    expect(screen.getByRole('img', { name: "Ada's avatar" })).toBeVisible();
+    expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.queryByText('Ada')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('article', { name: 'Ada message' })
+    ).toBeInTheDocument();
 
     rerender(<ChatMessage message={userMessage} name="Ada" />);
     expect(screen.getByText('Ada')).toBeVisible();
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.queryByText('A')).not.toBeInTheDocument();
   });
 
   it('labels a message with a rich name by its role', () => {
