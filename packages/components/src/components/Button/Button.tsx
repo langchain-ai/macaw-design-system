@@ -45,7 +45,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 
   /** Pass through the `<button>` props to a child component */
-  as?: ReactElement<{ children: ReactNode; [key: string]: unknown }>;
+  as?: ReactElement<{ children: ReactNode;[key: string]: unknown }>;
 }
 
 const Button = ({
@@ -99,7 +99,6 @@ const Button = ({
     if (props['aria-label']) {
       return props['aria-label'];
     }
-
     // If children is a string, use it as aria-label
     if (typeof children === 'string') {
       return children;
@@ -108,7 +107,6 @@ const Button = ({
     if (tagText) {
       return tagText;
     }
-
     // Fallback to generic "button"
     return 'button';
   };
