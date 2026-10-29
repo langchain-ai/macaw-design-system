@@ -139,7 +139,7 @@
   --bg-elevated: var(--white); /* raised cards, panes, controls */
   --bg-input: var(--white);
   --bg-input-hover: var(--bg-input); /* prevents fill shift */
-  --bg-input-plain: var(--neutral-25); /* borderless fields need a fill to read as fields */
+  --bg-input-plain: var(--neutral-50); /* borderless fields need a fill to read as fields */
   --bg-input-disabled: var(--bg-disabled);
   --bg-popover: var(--neutral-25);
   --bg-sidebar: var(--neutral-50);
