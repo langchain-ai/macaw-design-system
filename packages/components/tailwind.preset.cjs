@@ -157,6 +157,7 @@ module.exports = {
       backgroundColor: {
         input: 'var(--bg-input)',
         'input-hover': 'var(--bg-input-hover)',
+        'input-plain': 'var(--bg-input-plain)',
         'input-disabled': 'var(--bg-input-disabled)',
         'surface-level-1': 'var(--bg-surface-level-1)',
         'surface-level-1-hover': 'var(--bg-surface-level-1-hover)',

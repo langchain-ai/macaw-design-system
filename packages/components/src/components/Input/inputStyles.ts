@@ -51,7 +51,7 @@ export function getInputContainerClasses({
     'focus-within:outline-hidden',
     {
       'border border-input bg-input': variant === 'outlined',
-      'border border-transparent bg-input': variant === 'plain',
+      'border border-transparent bg-input-plain': variant === 'plain',
     },
     outlined &&
       !disabled &&
