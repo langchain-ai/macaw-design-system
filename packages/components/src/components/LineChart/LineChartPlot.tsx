@@ -334,13 +334,12 @@ export const LineChartPlot = ({
             hideAxisLine
             hideTicks
             tickFormat={(value) => formatXValue(value.valueOf())}
-            tickLabelProps={(_, index, ticks) => ({
+            tickLabelProps={{
               fill: 'var(--text-tertiary)',
               fontSize: CHART_TICK_FONT_SIZE,
-              textAnchor:
-                index > 0 && index === ticks.length - 1 ? 'end' : 'middle',
+              textAnchor: 'middle',
               dy: '0.5em',
-            })}
+            }}
           />
           {axes.map((axis, index) => {
             const tickFormat = (value: { valueOf(): number }) =>
