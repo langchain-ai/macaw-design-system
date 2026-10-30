@@ -70,7 +70,13 @@ export function useChatComposerEditor({
     extensions: [
       StarterKit.configure({ codeBlock: false, link: false }),
       PlainTextTables,
-      Markdown.configure({ html: false, transformPastedText: true }),
+      Markdown.configure({
+        html: false,
+        // A single newline in a host value would otherwise collapse to a
+        // space the first time the draft is edited.
+        breaks: true,
+        transformPastedText: true,
+      }),
       Placeholder.configure({ placeholder }),
       ChatComposerCodeBlock,
     ],
