@@ -540,7 +540,7 @@ export const DrawerIntents: Story = {
                     size={16}
                     weight="regular"
                     aria-hidden
-                    className={cn('mt-0.5 shrink-0', iconClassName)}
+                    className={cn('shrink-0', iconClassName)}
                   />
                 )}
                 <Text variant="sm">
