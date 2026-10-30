@@ -21,7 +21,10 @@ import {
 import { getNearestChartValue } from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { Tooltip } from '../Tooltip';
-import { LINE_CHART_DEFAULT_TICK_COUNT } from './constants';
+import {
+  LINE_CHART_DEFAULT_TICK_COUNT,
+  LINE_CHART_X_TICK_FONT_FAMILY,
+} from './constants';
 import type {
   LineChartDisplayAxis,
   LineChartDisplaySeries,
@@ -329,6 +332,7 @@ export const LineChartPlot = ({
             tickLabelProps={{
               fill: 'var(--text-tertiary)',
               fontSize: CHART_TICK_FONT_SIZE,
+              fontFamily: LINE_CHART_X_TICK_FONT_FAMILY,
               textAnchor: 'middle',
               dy: '0.5em',
             }}
