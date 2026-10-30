@@ -53,6 +53,31 @@ export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
 
 export {
+  ChatComposer,
+  ChatComposerAction,
+  ChatComposerAttachment,
+  ChatComposerAttachmentMenu,
+  ChatComposerAttachments,
+  ChatComposerContext,
+  ChatComposerInput,
+  ChatComposerModelSelect,
+  ChatComposerToolbar,
+} from './ChatComposer';
+export type {
+  ChatComposerActionProps,
+  ChatComposerAttachmentMenuProps,
+  ChatComposerAttachmentProps,
+  ChatComposerAttachmentsProps,
+  ChatComposerContextValue,
+  ChatComposerDrawerIntent,
+  ChatComposerInputHandle,
+  ChatComposerInputProps,
+  ChatComposerModelSelectProps,
+  ChatComposerProps,
+  ChatComposerToolbarProps,
+} from './ChatComposer';
+
+export {
   ChatMessage,
   ChatMessageActions,
   ChatMessageBody,
