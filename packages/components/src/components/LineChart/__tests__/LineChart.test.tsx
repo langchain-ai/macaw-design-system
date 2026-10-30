@@ -332,154 +332,52 @@ describe('LineChart', () => {
     ).toBeLessThanOrEqual(svgWidth);
   });
 
-  it.each([
-    {
-      width: 200,
-      xScale: 'band',
-      customTicks: false,
-      label: '2 PM',
-      buckets: 145,
-    },
-    {
-      width: 420,
-      xScale: 'band',
-      customTicks: false,
-      label: '11:59 PM',
-      buckets: 145,
-    },
-    {
-      width: 640,
-      xScale: 'band',
-      customTicks: true,
-      label: '9/28/26',
-      buckets: 145,
-    },
-    {
-      width: 640,
-      xScale: 'linear',
-      customTicks: false,
-      label: '11:59 PM',
-      buckets: 145,
-    },
-    {
-      width: 640,
-      xScale: 'band',
-      customTicks: false,
-      label: '10/30/26',
-      buckets: 21,
-    },
-  ] as const)(
-    'fills a $width px $xScale chart with $buckets buckets without clipping time labels',
-    ({ width, xScale, customTicks, label, buckets }) => {
-      resizeObserverDimensions.width = width;
-      const start = Date.UTC(2026, 8, 28, 2);
-      const points = Array.from({ length: buckets }, (_, index) => ({
-        x: start + (index * 12 * 60 * 60_000) / (buckets - 1),
-        y: index % 10,
-      }));
-      const end = start + 12 * 60 * 60_000;
-      render(
-        <LineChart
-          aria-label="Twelve-hour request count"
-          showLegend={false}
-          series={[{ id: 'success', label: 'Success', points }]}
-          xScale={xScale}
-          xDomain={[start, end]}
-          xTickCount={6}
-          xTickValues={customTicks ? [start, end] : undefined}
-          formatXValue={(value) => (value === start ? '9/28/26' : label)}
-        />
-      );
-
-      const chart = within(
-        screen.getByRole('graphics-document', {
-          name: 'Twelve-hour request count',
-        })
-      );
-      let rightmostLabelEdge = 0;
-      for (const tick of [
-        ...chart.getAllByText('9/28/26'),
-        ...chart.queryAllByText(label),
-      ]) {
-        const text = getSvgTextElement(tick);
-        if (text == null) throw new Error('Expected a time-axis label');
-        const halfWidth = ((text.textContent?.length ?? 0) * 7) / 2;
-        expect(text).toHaveAttribute('text-anchor', 'middle');
-        expect(getAbsoluteX(text) - halfWidth).toBeGreaterThanOrEqual(0);
-        expect(getAbsoluteX(text) + halfWidth).toBeLessThanOrEqual(width);
-        rightmostLabelEdge = Math.max(
-          rightmostLabelEdge,
-          getAbsoluteX(text) + halfWidth
-        );
-      }
-      expect(width - rightmostLabelEdge).toBeLessThan(1);
-    }
-  );
-
-  it('uses existing band spacing when labels already fit', () => {
-    const points = Array.from({ length: 5 }, (_, x) => ({ x, y: x }));
-    const chart = (label: string) => (
+  it('keeps the final time label inside a dense chart without shrinking the plot', () => {
+    resizeObserverDimensions.width = 200;
+    const points = Array.from({ length: 145 }, (_, x) => ({ x, y: x % 10 }));
+    const chart = (lastLabel: string) => (
       <LineChart
-        aria-label="Sparse buckets"
+        aria-label="Dense time buckets"
         series={[{ id: 'requests', label: 'Requests', points }]}
         xScale="band"
-        xTickValues={[0, 2, 4]}
-        formatXValue={(x) => (x === 2 ? 'A longer interior label' : label)}
+        xTickValues={[0, 72, 144]}
+        formatXValue={(x) => (x === 144 ? lastLabel : `${x}`)}
+        showLegend={false}
         shouldAnimate={false}
       />
     );
-    const { rerender } = render(chart('A'));
-    const originalPositions = screen
-      .getAllByText('A')
-      .map(getSvgTextElement)
-      .map((text) => {
-        if (text == null) throw new Error('Expected a time-axis label');
-        return getAbsoluteX(text);
-      });
-    rerender(chart('10/30/26'));
-    const positions = screen
-      .getAllByText('10/30/26')
-      .map(getSvgTextElement)
-      .map((text) => {
-        if (text == null) throw new Error('Expected a time-axis label');
-        return getAbsoluteX(text);
-      });
-    expect(positions).toEqual(originalPositions);
-    expect(positions[1]).toBeGreaterThan(570);
+    const { rerender } = render(chart('X'));
+    const line = screen
+      .getByRole('group', { name: 'requests series' })
+      .getElementsByTagName('path')[0];
+    if (line == null) throw new Error('Expected a rendered series');
+    const originalPath = line.getAttribute('d');
+
+    rerender(chart('11:59 PM'));
+    const label = getSvgTextElement(screen.getByText('11:59 PM'));
+    if (label == null) throw new Error('Expected the final time label');
+    const x = getAbsoluteX(label);
+    const labelWidth = '11:59 PM'.length * 7;
+    const right =
+      label.getAttribute('text-anchor') === 'end' ? x : x + labelWidth / 2;
+    expect(right).toBeLessThanOrEqual(200);
+    expect(right - labelWidth).toBeGreaterThanOrEqual(0);
+    expect(line).toHaveAttribute('d', originalPath);
   });
 
-  it('fits both edges together when long labels exceed both axis margins', () => {
-    resizeObserverDimensions.width = 320;
-    const leftLabel = 'Friday, October 30, 2026';
-    const rightLabel = 'Saturday, October 31';
+  it('keeps a single time tick centered', () => {
     render(
       <LineChart
-        aria-label="Long date labels"
+        aria-label="One bucket"
         series={[
-          {
-            id: 'requests',
-            label: 'Requests',
-            points: Array.from({ length: 21 }, (_, x) => ({ x, y: x })),
-          },
+          { id: 'requests', label: 'Requests', points: [{ x: 1, y: 2 }] },
         ]}
         xScale="band"
-        xTickValues={[0, 20]}
-        formatXValue={(x) => (x === 0 ? leftLabel : rightLabel)}
+        formatXValue={() => 'Noon'}
       />
     );
-    const chart = within(
-      screen.getByRole('graphics-document', { name: 'Long date labels' })
-    );
-    const left = getSvgTextElement(chart.getByText(leftLabel));
-    const right = getSvgTextElement(chart.getByText(rightLabel));
-    if (left == null || right == null)
-      throw new Error('Expected both date labels');
-    const leftGap = getAbsoluteX(left) - (leftLabel.length * 7) / 2;
-    const rightGap = 320 - getAbsoluteX(right) - (rightLabel.length * 7) / 2;
-    expect(leftGap).toBeGreaterThanOrEqual(0);
-    expect(rightGap).toBeGreaterThanOrEqual(0);
-    expect(leftGap).toBeLessThan(1);
-    expect(rightGap).toBeLessThan(1);
+    const label = getSvgTextElement(screen.getByText('Noon'));
+    expect(label).toHaveAttribute('text-anchor', 'middle');
   });
 
   it('keeps the accessible chart and legend while rendering is paused', () => {

@@ -18,13 +18,13 @@ import {
   CHART_TICK_FONT_SIZE,
   CHART_VALUE_AXIS_TICK_LENGTH,
 } from '../../utils/chartConstants';
-import { getNearestChartValue } from '../../utils/chartValues';
+import {
+  getChartTickValues,
+  getNearestChartValue,
+} from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { Tooltip } from '../Tooltip';
-import {
-  LINE_CHART_DEFAULT_TICK_COUNT,
-  LINE_CHART_X_TICK_FONT_FAMILY,
-} from './constants';
+import { LINE_CHART_DEFAULT_TICK_COUNT } from './constants';
 import type {
   LineChartDisplayAxis,
   LineChartDisplaySeries,
@@ -76,8 +76,8 @@ type LineChartPlotProps = {
   /** Replaces the series lines with areas when set. */
   stackedSeries?: readonly LineChartStackedSeries[];
   formatXValue: (value: number) => string;
-  xTickCount: number;
-  xTickValues: number[];
+  xTickCount?: number;
+  xTickValues?: readonly number[];
   showPoints: boolean;
   connectNulls: boolean;
   showGridRows: boolean;
@@ -149,6 +149,11 @@ export const LineChartPlot = ({
     onDatumPointerDown != null ||
     onDatumPointerMove != null ||
     onDatumPointerUp != null;
+  const resolvedXTickCount = xTickCount ?? (width < 480 ? 3 : 5);
+  const resolvedXTickValues =
+    xTickValues == null
+      ? getChartTickValues(uniqueXValues, resolvedXTickCount)
+      : Array.from(xTickValues);
   const activeXPosition = activeX == null ? null : getXPosition(activeX);
   const hasActiveX =
     activeXPosition != null &&
@@ -309,8 +314,8 @@ export const LineChartPlot = ({
             <GridColumns
               scale={xScale}
               height={innerHeight}
-              numTicks={xTickCount}
-              tickValues={xTickValues}
+              numTicks={resolvedXTickCount}
+              tickValues={resolvedXTickValues}
               stroke="var(--border-subtle)"
               strokeDasharray={CHART_DASHED_STROKE_DASHARRAY}
             />
@@ -324,18 +329,18 @@ export const LineChartPlot = ({
           <AxisBottom
             scale={xScale}
             top={innerHeight}
-            numTicks={xTickCount}
-            tickValues={xTickValues}
+            numTicks={resolvedXTickCount}
+            tickValues={resolvedXTickValues}
             hideAxisLine
             hideTicks
             tickFormat={(value) => formatXValue(value.valueOf())}
-            tickLabelProps={{
+            tickLabelProps={(_, index, ticks) => ({
               fill: 'var(--text-tertiary)',
               fontSize: CHART_TICK_FONT_SIZE,
-              fontFamily: LINE_CHART_X_TICK_FONT_FAMILY,
-              textAnchor: 'middle',
+              textAnchor:
+                index > 0 && index === ticks.length - 1 ? 'end' : 'middle',
               dy: '0.5em',
-            }}
+            })}
           />
           {axes.map((axis, index) => {
             const tickFormat = (value: { valueOf(): number }) =>

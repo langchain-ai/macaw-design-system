@@ -2,7 +2,6 @@ import { useState, type HTMLAttributes } from 'react';
 
 import { useResizeObserver } from '@mantine/hooks';
 import { scaleLinear } from '@visx/scale';
-import { getStringWidth } from '@visx/text';
 
 import {
   getCategoricalFillColor,
@@ -13,14 +12,12 @@ import {
   CHART_TICK_FONT_SIZE,
   CHART_VALUE_AXIS_TICK_LENGTH,
 } from '../../utils/chartConstants';
-import { getChartTickValues } from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { getYAxisLeftMargin } from '../../utils/getYAxisLeftMargin';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
 import {
   LINE_CHART_DEFAULT_TICK_COUNT,
   LINE_CHART_VALUE_AXIS_THICKNESS,
-  LINE_CHART_X_TICK_FONT_FAMILY,
 } from './constants';
 import type {
   LineChartDisplayAxis,
@@ -147,45 +144,6 @@ const resolveAxes = (
     }),
   }));
 
-const resolveXTickMargins = (
-  width: number,
-  base: { left: number; right: number },
-  ticks: readonly { position: number; halfWidth: number }[]
-) => {
-  // Positions are measured on a unit-width scale, including band padding and
-  // any niced domain. Only the part of a label outside the plot needs a margin.
-  const marginsAt = (innerWidth: number) => ({
-    left: Math.max(
-      base.left,
-      ...ticks.map(
-        ({ position, halfWidth }) => halfWidth - position * innerWidth
-      )
-    ),
-    right: Math.max(
-      base.right,
-      ...ticks.map(
-        ({ position, halfWidth }) => halfWidth - (1 - position) * innerWidth
-      )
-    ),
-  });
-  let lower = 0;
-  let upper = Math.max(0, width - base.left - base.right);
-  const fullWidthMargins = marginsAt(upper);
-  if (fullWidthMargins.left + upper + fullWidthMargins.right <= width)
-    return base;
-
-  // Fit both edges together: changing either margin also moves every tick.
-  // Find the widest fitting plot to hundredth-pixel precision.
-  while (upper - lower > 0.01) {
-    const innerWidth = (lower + upper) / 2;
-    const { left, right } = marginsAt(innerWidth);
-    if (left + innerWidth + right <= width) lower = innerWidth;
-    else upper = innerWidth;
-  }
-  const { left, right } = marginsAt(lower);
-  return { left, right: Math.max(right, width - left - lower) };
-};
-
 /**
  * Responsive numeric line or stacked-area chart with nullable observations,
  * multiple axes, legend filtering, configurable grids and x scales, brushing,
@@ -305,44 +263,13 @@ export const LineChart = ({
     resolvedXDomain,
     connectNulls
   );
-  const resolvedXTickCount = xTickCount ?? (dimensions.width < 480 ? 3 : 5);
-  const resolvedXTickValues =
-    xTickValues == null
-      ? getChartTickValues(uniqueXValues, resolvedXTickCount)
-      : Array.from(xTickValues);
-  const unitXScale = createLineChartXScaleAdapter({
-    type: xScaleType,
-    domain: resolvedXDomain,
-    values: uniqueXValues,
-    width: 1,
-    nice: xDomain == null,
-  });
-  const horizontalMargins = resolveXTickMargins(
-    dimensions.width,
-    {
-      left: axisLayouts[0]?.thickness ?? LINE_CHART_VALUE_AXIS_THICKNESS,
-      right:
-        CHART_MARGIN_RIGHT +
-        axisLayouts.slice(1).reduce((total, axis) => total + axis.thickness, 0),
-    },
-    resolvedXTickValues
-      .map((value) => ({
-        position: unitXScale.getPosition(value),
-        halfWidth:
-          (getStringWidth(formatXValue(value), {
-            fontSize: `${CHART_TICK_FONT_SIZE}px`,
-            fontFamily: LINE_CHART_X_TICK_FONT_FAMILY,
-          }) ?? 0) / 2,
-      }))
-      .filter(
-        ({ position }) =>
-          Number.isFinite(position) && position >= 0 && position <= 1
-      )
-  );
   const chartMargin = {
     top: CHART_MARGIN_TOP,
+    right:
+      CHART_MARGIN_RIGHT +
+      axisLayouts.slice(1).reduce((total, axis) => total + axis.thickness, 0),
     bottom: CHART_MARGIN_BOTTOM,
-    ...horizontalMargins,
+    left: axisLayouts[0]?.thickness ?? LINE_CHART_VALUE_AXIS_THICKNESS,
   };
   const innerWidth = Math.max(
     0,
@@ -426,8 +353,8 @@ export const LineChart = ({
         series={renderedSeries}
         stackedSeries={stackedSeries}
         formatXValue={formatXValue}
-        xTickCount={resolvedXTickCount}
-        xTickValues={resolvedXTickValues}
+        xTickCount={xTickCount}
+        xTickValues={xTickValues}
         showPoints={showPoints}
         connectNulls={connectNulls}
         showGridRows={showGridRows}
