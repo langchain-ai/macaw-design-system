@@ -34,6 +34,11 @@ import type {
   ChatConversationListProps,
 } from '@langchain/macaw-components/ChatConversationList';
 import {
+  ChatMessage,
+  ChatMessageActions,
+} from '@langchain/macaw-components/ChatMessage';
+import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -89,7 +94,7 @@ void [
   ChatConversationListItem,
   {
     'aria-label': 'Conversations',
-    state: 'loading',
+    loading: true,
   } satisfies ChatConversationListProps,
   {
     onRename: () => {},
@@ -106,6 +111,14 @@ void [
     status: 'uploading',
     disabled: true,
   } satisfies AttachmentProps,
+  ChatMessage,
+  ChatMessageActions,
+  {
+    id: 'message',
+    role: 'assistant',
+    status: 'completed',
+    content: [{ id: 'text', type: 'text', text: 'Hello' }],
+  } satisfies ChatMessageModel,
   HeatmapChart,
   HeatmapBlock,
   {

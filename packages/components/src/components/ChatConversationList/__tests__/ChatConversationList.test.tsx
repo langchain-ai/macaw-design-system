@@ -93,7 +93,7 @@ describe('ChatConversationList', () => {
     render(
       <ChatConversationList
         aria-label="Conversations"
-        state="loading"
+        loading
         footer={<button type="button">Load more</button>}
       >
         <ChatConversationListItem title="Cached" />
@@ -109,7 +109,7 @@ describe('ChatConversationList', () => {
 
   it('shows the empty state, or the error in its place', () => {
     const { rerender } = render(
-      <ChatConversationList aria-label="Conversations" state="empty" />
+      <ChatConversationList aria-label="Conversations" />
     );
     expect(screen.getByRole('status')).toHaveTextContent(
       'No conversations yet'
@@ -118,7 +118,6 @@ describe('ChatConversationList', () => {
     rerender(
       <ChatConversationList
         aria-label="Conversations"
-        state="empty"
         errorContent="Could not load conversations."
       />
     );
@@ -126,6 +125,44 @@ describe('ChatConversationList', () => {
       'Could not load conversations.'
     );
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('detects empty arrays and fragments and updates when rows arrive', () => {
+    const { rerender } = render(
+      <ChatConversationList aria-label="Conversations">
+        <>
+          {[]}
+          {null}
+          {false}
+          <>{undefined}</>
+        </>
+      </ChatConversationList>
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'No conversations yet'
+    );
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+
+    rerender(
+      <ChatConversationList aria-label="Conversations">
+        <>
+          <ChatConversationListItem title="New conversation" />
+        </>
+      </ChatConversationList>
+    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'New conversation' })
+    ).toBeVisible();
+
+    rerender(
+      <ChatConversationList aria-label="Conversations">
+        {[]}
+      </ChatConversationList>
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'No conversations yet'
+    );
   });
 
   it('keeps cached items and the footer below an error', () => {

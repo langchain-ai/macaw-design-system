@@ -101,7 +101,7 @@ describe('Select variant', () => {
     );
 
     const trigger = screen.getByRole('combobox', { name: 'Environment' });
-    expect(trigger).toHaveClass('w-full', 'bg-input', 'border-muted');
+    expect(trigger).toHaveClass('w-full', 'bg-input', 'border-input');
   });
 
   it('drops the field border and fill when plain', () => {
@@ -122,7 +122,7 @@ describe('Select variant', () => {
       'bg-transparent',
       'border-transparent'
     );
-    for (const fieldClass of ['w-full', 'bg-input', 'border-muted']) {
+    for (const fieldClass of ['w-full', 'bg-input', 'border-input']) {
       expect(trigger).not.toHaveClass(fieldClass);
     }
   });

@@ -1,14 +1,13 @@
 import type { ReactNode } from 'react';
 import { forwardRef } from 'react';
 
-import { sanitizeUrl } from '@braintree/sanitize-url';
-
 import { cn } from '../../utils/cn';
 import {
   VISUAL_ELEMENT_SIZES,
   type VisualElementSize,
 } from '../../utils/componentSizes';
 import { getColorByString } from '../../utils/get-color-by-string';
+import { sanitizeImageSrc } from '../../utils/sanitizeImageSrc';
 import { Tooltip } from '../Tooltip';
 
 type AvatarSize = VisualElementSize | 'lg' | 'xl';
@@ -56,6 +55,10 @@ const TEXT_SIZE: Record<AvatarSize, string> = {
   xl: 'text-xl',
 };
 
+// Keeps the URL inside a quoted CSS `url("")` string.
+const escapeCssString = (value: string) =>
+  value.replace(/["\\\n\r\f]/g, (c) => `\\${c.charCodeAt(0).toString(16)} `);
+
 const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
   (
     {
@@ -102,7 +105,9 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
               'absolute inset-0 size-full bg-cover bg-center',
               rounding
             )}
-            style={{ backgroundImage: `url(${sanitizeUrl(imageUrl)})` }}
+            style={{
+              backgroundImage: `url("${escapeCssString(sanitizeImageSrc(imageUrl))}")`,
+            }}
           />
         ) : label ? (
           <span>{label.charAt(0)}</span>

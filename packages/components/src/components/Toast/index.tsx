@@ -14,8 +14,6 @@ import { IconButton } from '../IconButton';
 import { ToastContext } from './ToastContext';
 
 const DEFAULT_DURATION_MS = 5000;
-// Error toasts do not auto-dismiss; the user must click the close button.
-const ERROR_DURATION_MS = Infinity;
 
 // Provider wraps whole application
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -32,9 +30,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       typeof titleOrConfig === 'string'
         ? { title: titleOrConfig }
         : titleOrConfig;
-    const isError = preConfig.error || preConfig.type === 'error';
     const config: ToastConfig = {
-      duration: isError ? ERROR_DURATION_MS : DEFAULT_DURATION_MS,
+      duration: DEFAULT_DURATION_MS,
       ...preConfig,
     };
 

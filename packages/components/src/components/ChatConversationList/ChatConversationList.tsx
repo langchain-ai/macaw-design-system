@@ -1,29 +1,26 @@
 import type { KeyboardEvent, ReactNode } from 'react';
 
 import { cn } from '../../utils/cn';
+import { hasContent } from '../../utils/hasContent';
 import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
 
 export interface ChatConversationListProps {
-  /** Names the list, and the loading status while `state` is `loading`. */
+  /** Names the list and its loading status. */
   'aria-label': string;
-  /** `ChatConversationListItem`s and `ChatConversationListGroup`s. */
+  /**
+   * `ChatConversationListItem`s and `ChatConversationListGroup`s. Omit children
+   * to show the empty state; arrays and fragments are checked automatically.
+   */
   children?: ReactNode;
   className?: string;
-  /**
-   * Set by the host, since children may be groups or adapters the list can't
-   * count.
-   */
-  state?: 'ready' | 'loading' | 'empty';
-  /** Replaces the default skeleton rows. */
-  loadingContent?: ReactNode;
-  /** Replaces the default "No conversations yet" message. */
-  emptyContent?: ReactNode;
+  /** Shows the standard skeleton rows in place of the list. */
+  loading?: boolean;
   /** Shown above any cached items, in place of the empty state. */
   errorContent?: ReactNode;
   /**
    * Host controls below the list, such as a Load more button. Shown only when
-   * `state` is `ready`.
+   * the list has children and isn't loading.
    */
   footer?: ReactNode;
 }
@@ -85,9 +82,7 @@ export function ChatConversationList({
   'aria-label': ariaLabel,
   children,
   className,
-  state = 'ready',
-  loadingContent,
-  emptyContent,
+  loading = false,
   errorContent,
   footer,
 }: ChatConversationListProps) {
@@ -100,26 +95,24 @@ export function ChatConversationList({
           {errorContent}
         </div>
       )}
-      {state === 'loading' ? (
+      {loading ? (
         <div role="status">
           <span className="sr-only">Loading {ariaLabel}</span>
-          {loadingContent ?? (
-            <div aria-hidden className="flex flex-col gap-space-1">
-              {Array.from({ length: 6 }, (_, index) => (
-                <div
-                  key={index}
-                  className="flex items-center rounded-lg px-space-3 py-space-2"
-                >
-                  <Skeleton className="h-4 w-3/5 motion-reduce:animate-none" />
-                </div>
-              ))}
-            </div>
-          )}
+          <div aria-hidden className="flex flex-col gap-space-1">
+            {Array.from({ length: 6 }, (_, index) => (
+              <div
+                key={index}
+                className="flex items-center rounded-lg px-space-3 py-space-2"
+              >
+                <Skeleton className="h-4 w-3/5 motion-reduce:animate-none" />
+              </div>
+            ))}
+          </div>
         </div>
-      ) : state === 'empty' ? (
+      ) : !hasContent(children) ? (
         !hasError && (
           <div role="status" className="p-space-8 text-center text-tertiary">
-            {emptyContent ?? <Text variant="sm">No conversations yet</Text>}
+            <Text variant="sm">No conversations yet</Text>
           </div>
         )
       ) : (

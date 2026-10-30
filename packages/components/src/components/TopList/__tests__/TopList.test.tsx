@@ -58,6 +58,24 @@ describe('TopList', () => {
     expect(screen.getByText('Runs')).toBeVisible();
   });
 
+  it.each([
+    { categoryLabelAlign: undefined, className: 'justify-end' },
+    { categoryLabelAlign: 'start' as const, className: 'justify-start' },
+  ])(
+    'aligns category labels to $className',
+    ({ categoryLabelAlign, className }) => {
+      render(
+        <TopList
+          aria-label="Aligned labels"
+          items={items}
+          categoryLabelAlign={categoryLabelAlign}
+        />
+      );
+
+      expect(screen.getByText('Beta').parentElement).toHaveClass(className);
+    }
+  );
+
   it('uses IDs for categories so duplicate labels remain separate rows', () => {
     render(
       <TopList

@@ -1,3 +1,33 @@
+## 1.3.3 (2026-10-30)
+
+This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
+
+## 1.3.2 (2026-10-29)
+
+This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
+
+## 1.3.1 (2026-10-29)
+
+This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
+
+## 1.3.0 (2026-10-29)
+
+This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
+
+## 1.2.2 (2026-10-28)
+
+This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
+
+## 1.2.1 (2026-10-28)
+
+### 🩹 Fixes
+
+- refine field contrast and dark link colors ([#72](https://github.com/langchain-ai/macaw-design-system/pull/72))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.2.0 (2026-10-27)
 
 This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.

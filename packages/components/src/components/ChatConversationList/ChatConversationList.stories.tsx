@@ -23,9 +23,10 @@ const onDelete = fn().mockName('onDelete');
 const onMarkRead = fn().mockName('onMarkRead');
 
 const meta = {
-  title: 'Components/Navigation/ChatConversationList',
+  title: 'Components/Chat/ChatConversationList',
   component: ChatConversationList,
   parameters: {
+    a11y: { test: 'error' },
     layout: 'centered',
     docs: {
       description: {
@@ -35,13 +36,14 @@ const meta = {
 - **Menus:** Rename, Pin/Unpin, Delete; customize with \`actions.items\`.
 - **Groups:** One level of collapsible folders, with Rename/Delete actions.
 - **Keyboard:** Up/Down and Home/End move focus; Enter/Space activate; Tab reaches actions.
-- **States:** Ready, loading, empty, and optional error content.
+- **States:** Standard loading skeletons, automatic empty state, and optional error content.
 - **Host-owned:** Data, selection, routing, pagination, mutations, and optional tooltips.`,
       },
     },
   },
   tags: [
     'autodocs',
+    'a11y-test',
     'chat',
     'conversation',
     'list',
@@ -53,10 +55,7 @@ const meta = {
     'group',
     'collapsible',
   ],
-  args: { 'aria-label': 'Conversations', state: 'ready' },
-  argTypes: {
-    state: { control: 'select', options: ['ready', 'loading', 'empty'] },
-  },
+  args: { 'aria-label': 'Conversations', loading: false },
   decorators: [
     (Story) => (
       <div className="w-80 max-w-full bg-surface-level-1">
@@ -217,14 +216,13 @@ export const Indicators: Story = {
   ),
 };
 
-export const Loading: Story = { args: { state: 'loading' } };
+export const Loading: Story = { args: { loading: true } };
 
-export const Empty: Story = { args: { state: 'empty' } };
+export const Empty: Story = {};
 
 export const WithError: Story = {
   name: 'Error',
   args: {
-    state: 'empty',
     errorContent: (
       <Text variant="sm">Could not load conversations. Please try again.</Text>
     ),

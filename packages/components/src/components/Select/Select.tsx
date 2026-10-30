@@ -275,7 +275,7 @@ function OptionSelect<T extends string = string>({
                   'w-full',
                   disabled
                     ? 'border-muted bg-input-disabled text-disabled dark:bg-input-disabled'
-                    : 'bg-input border-muted hover:border-subtle focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none'
+                    : 'bg-input border-input shadow-none hover:bg-input-hover hover:border-input-hover focus-visible:border-focus focus-visible:shadow-[0_0_0_1px_var(--border-focus)] focus-visible:outline-none'
                 ),
             triggerClassName
           )}

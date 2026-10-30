@@ -1,3 +1,63 @@
+## 1.3.3 (2026-10-30)
+
+### 🚀 Features
+
+- **components:** add ChatMessage [FEP-585] ([#78](https://github.com/langchain-ai/macaw-design-system/pull/78))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.3.2 (2026-10-29)
+
+### 🩹 Fixes
+
+- remove button shadow from outlined Select trigger ([#81](https://github.com/langchain-ai/macaw-design-system/pull/81))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.3.1 (2026-10-29)
+
+### 🩹 Fixes
+
+- make toast duration independent of variant ([#67](https://github.com/langchain-ai/macaw-design-system/pull/67))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.3.0 (2026-10-29)
+
+### 🚀 Features
+
+- add image preview components [FEP-571] ([#66](https://github.com/langchain-ai/macaw-design-system/pull/66))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.2.2 (2026-10-28)
+
+### 🚀 Features
+
+- **components:** add stacked-area LineChart variant and TopList label alignment ([#73](https://github.com/langchain-ai/macaw-design-system/pull/73))
+
+### ❤️ Thank You
+
+- Andy Young
+
+## 1.2.1 (2026-10-28)
+
+### 🩹 Fixes
+
+- refine field contrast and dark link colors ([#72](https://github.com/langchain-ai/macaw-design-system/pull/72))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.2.0 (2026-10-27)
 
 ### 🚀 Features

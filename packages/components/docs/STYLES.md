@@ -197,6 +197,34 @@ dashboard visualization shells.
   reordering; `variant="full-width"` hides the move handle.
 - Use `expandButtonProps` and `menuItems` for optional, feature-owned actions.
 
+## Line Charts
+
+Use `LineChart` from `@langchain/macaw-components/LineChart` for numeric series
+over time or ordered buckets. Choose `variant` by the question the chart answers:
+
+| `variant`        | Answers                                                | Example values                                 |
+| ---------------- | ------------------------------------------------------ | ---------------------------------------------- |
+| `line` (default) | How does each series change, and how do they compare?  | Per-category trends, latency, error rate       |
+| `stacked-area`   | How large is the total, and what does each series add? | Request counts by environment, cost by service |
+
+- Stack only series with the same unit whose values add up to a meaningful
+  total, such as counts, volumes, or costs. Keep `line` for averages, rates,
+  ratios, latency, percentiles, and scores; their stacked height means nothing.
+- Series stack per y axis in input order, with the first series at the bottom.
+  Positive values stack up from zero and negative values stack down. A missing
+  or null value adds nothing to its stack. Legend selection restacks only the
+  selected series.
+- Areas are solid fills from the categorical fill palette. Leave `color` unset
+  or pass a categorical line color, and the chart switches it to the
+  hue-matched fill. Any other color is used as given. Per-series stroke width
+  and dash patterns do not apply.
+- To offer both views of the same data, pass the same series and switch
+  `variant`. Each series keeps its hue, and legend, crosshair, points, markers,
+  and bands behave the same.
+- Pointer callbacks report each series' own value and its area color, not its
+  stacked height. Show those values in the tooltip with one `ChartTooltipRow`
+  per series, and add a `variant="total"` row when the total matters.
+
 ## Top Lists
 
 Use `TopList` from `@langchain/macaw-components/TopList` for ranked top-K
@@ -259,6 +287,8 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-disabled`              | Disabled input or control fill                                    |
 | `bg-elevated`              | Raised cards and panes                                           |
 | `bg-input`                 | Input and textarea fields, picker controls, filled popup triggers |
+| `bg-input-hover`           | Hover fill for Select controls                                     |
+| `bg-input-plain`           | Fill for borderless (`variant="plain"`) Input and CommandInput    |
 | `bg-input-disabled`        | Disabled field fill, independent of general disabled controls     |
 | `bg-elevated-hover`        | Hover state inside a raised or floating surface                    |
 | `bg-elevated-selected`     | Selected item inside a raised or floating surface                  |
@@ -269,12 +299,17 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 `bg-sidebar` is reserved for app navigation: `neutral-50` in light mode and
 `neutral-35` in dark mode, independent of fields, popovers, and raised surfaces.
 
-`bg-input` and `bg-popover` use `neutral-25` in light mode and `neutral-100` in
-dark mode but remain independent semantic roles. Light-mode hover and selection
-fills use `neutral-100`; raised `bg-elevated` surfaces stay white. Outlined fields
-use `border-muted` at rest and `border-subtle` on hover in
-both themes, with semantic focus and error indicators. Outlined fields use a
-1px outer focus ring; native inputs stay unoutlined inside their containers.
+`bg-input` is white in light mode; `bg-popover` uses `neutral-25`. Both use
+`neutral-100` in dark mode and remain independent semantic roles. Raised
+`bg-elevated` surfaces stay white in light mode; menu hover and selection fills
+use `neutral-100`.
+
+Outlined fields use `border-input` at rest and `border-input-hover` on hover.
+These resolve to `border-subtle` / `border-default` in light mode and
+`border-muted` / `border-subtle` in dark mode. Input, Textarea, and Typeahead
+keep `bg-input` on hover. Select uses `bg-input-hover` to override the Button
+hover fill: white in light mode and `neutral-200` in dark mode. Fields retain semantic focus and error indicators and a 1px outer
+focus ring; native inputs stay unoutlined inside their containers.
 Use `text-placeholder` for field hints. Plain fields remain borderless at rest.
 This applies to Input, Textarea, Select, and Typeahead, including multi-value fields.
 Select and Typeahead own their field treatment; Button does not infer appearance
@@ -341,6 +376,8 @@ Used internally by Checkbox, RadioButton, Switch, and Slider. Prefer those compo
 
 | Class                 | When to use                              |
 | --------------------- | ---------------------------------------- |
+| `border-input`       | Enabled field border; adapts per theme     |
+| `border-input-hover` | Enabled field hover border                 |
 | `border-default`      | Default input, card, or container border |
 | `border-subtle`       | Subtle divider                           |
 | `border-muted`        | Very subtle divider                      |

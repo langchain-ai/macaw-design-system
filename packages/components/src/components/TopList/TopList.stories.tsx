@@ -106,6 +106,13 @@ const meta = {
       control: { type: 'number', min: 0 },
       description: 'Maximum number of sorted rows to render.',
     },
+    categoryLabelAlign: {
+      control: 'inline-radio',
+      options: ['end', 'start'],
+      description:
+        'Aligns category labels within their reserved column. Use start to align them with content above the list.',
+      table: { defaultValue: { summary: 'end' } },
+    },
   },
   tags: ['autodocs', 'ranked', 'list', 'horizontal', 'bar', 'chart'],
   args: {
@@ -126,6 +133,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Descending: Story = {};
+
+export const StartAlignedLabels: Story = {
+  name: 'Start-aligned labels',
+  args: { categoryLabelAlign: 'start' },
+};
 
 export const Ascending: Story = {
   args: { sort: 'ascending' },
