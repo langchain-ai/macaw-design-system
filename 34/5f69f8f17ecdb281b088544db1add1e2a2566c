@@ -1,0 +1,29 @@
+packages/components/src/components/Button/Button.tsx
+  s_d3fcc4d38bd440::t_f74a24df12d402 12,174
+  s_d3fcc4d38bd440::t_97ead0afa16537 85
+  s_d3fcc4d38bd440::t_f132ce603ef9b0 86
+  s_d3fcc4d38bd440::t_c7c6b44ac59373 175
+packages/components/src/components/IconButton/IconButton.tsx
+  s_d3fcc4d38bd440::t_97ead0afa16537 80-81
+packages/components/src/components/Button/Button.stories.tsx
+  s_d3fcc4d38bd440::t_beae83f3effd75 433,451,454
+  s_d3fcc4d38bd440::t_981e2a1e19e058 525,602
+  s_d3fcc4d38bd440::t_97ead0afa16537 414-432,434-442,446,453,471
+  s_d3fcc4d38bd440::t_d06492de2fd37b 452
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "345f69f8f17ecdb281b088544db1add1e2a2566c",
+  "prompts": {},
+  "sessions": {
+    "s_d3fcc4d38bd440": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a189fa-02fc-73f1-b15a-7c0b33effac2",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
