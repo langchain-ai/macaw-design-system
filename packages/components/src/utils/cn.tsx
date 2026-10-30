@@ -100,6 +100,7 @@ const customTwMerge = extendTailwindMerge({
         'bg-disabled',
         'bg-input',
         'bg-input-hover',
+        'bg-input-plain',
         'bg-input-disabled',
         'bg-elevated',
         'bg-elevated-hover',

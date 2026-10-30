@@ -58,7 +58,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
 - Use the Tabs family for tabbed navigation, with routing handled by the app, and `GroupedTabs` for a local view switch.
-- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation.
+- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
 - Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
@@ -161,7 +161,7 @@ Choose color by meaning:
 - `bg-sidebar` is reserved for app navigation, independent of fields and floating surfaces.
 - `bg-elevated` is for raised cards and panes; `bg-elevated-hover` and `bg-elevated-selected` are interaction states within raised or floating surfaces.
 - `bg-input` is for Input and Textarea fields, Select and Typeahead controls. Select and Typeahead own their field styles; Button does not infer appearance from ARIA attributes. Custom Button-based picker migration is deferred; prefer Select for standard pickers. Action-menu buttons retain their normal button styles. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
-- Outlined fields use `border-input` at rest and `border-input-hover` on hover. Light-mode fields use a white `bg-input` fill. Input, Textarea, and Typeahead keep `bg-input` on hover; Select uses `bg-input-hover` to override the Button hover fill. Plain fields remain borderless.
+- Outlined fields use `border-input` at rest and `border-input-hover` on hover. Light-mode fields use a white `bg-input` fill. Input, Textarea, and Typeahead keep `bg-input` on hover; Select uses `bg-input-hover` to override the Button hover fill. Plain Input and CommandInput fields remain borderless and use `bg-input-plain`, which stays visible on white surfaces and distinct from `bg-input-disabled`.
 - `bg-input-disabled` is for disabled fields, paired with `border-muted` and disabled text/icon colors. Do not fade the entire field with opacity.
 - `bg-popover` is for floating overlays: tooltips (including chart tooltips), popovers, select and typeahead menus, dropdowns, context menus, and command menus. It is independent of the field fill even when the colors match.
 - Success, warning, and error tokens describe general feedback and validation.

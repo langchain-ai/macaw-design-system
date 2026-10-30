@@ -30,6 +30,11 @@ import {
 } from '@langchain/macaw-components/ChatComposer';
 import type { ChatComposerInputProps } from '@langchain/macaw-components/ChatComposer';
 import {
+  ChatMessage,
+  ChatMessageActions,
+} from '@langchain/macaw-components/ChatMessage';
+import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -94,6 +99,14 @@ void [
   ChatComposerContext,
   ChatComposerInput,
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  ChatMessage,
+  ChatMessageActions,
+  {
+    id: 'message',
+    role: 'assistant',
+    status: 'completed',
+    content: [{ id: 'text', type: 'text', text: 'Hello' }],
+  } satisfies ChatMessageModel,
   HeatmapChart,
   HeatmapBlock,
   {
