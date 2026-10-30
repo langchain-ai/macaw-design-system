@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import { cn } from '../../utils/cn';
+import { makeComponentName } from '../../utils/componentUtils';
 import type { IconComponent } from '../../utils/icon-types';
 import { Badge } from '../Badge';
 import { Spinner } from '../Spinner';
@@ -16,6 +17,8 @@ import { Text } from '../Text';
 import { buttonStyleMap } from './constants';
 
 type ButtonSize = 'xs' | 'sm' | 'md';
+
+const COMPONENT_NAME = makeComponentName('Button');
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   ref?: Ref<HTMLButtonElement>;
@@ -79,6 +82,8 @@ const Button = ({
     {
       'shadow-[0px_1px_2px_0px_var(--shadow-color-subtle)]':
         (variant === 'normal' || variant === 'outlined') && !disabled,
+      'active:scale-[0.97] active:brightness-95 motion-reduce:active:scale-100':
+        !disabled,
     },
     variant === 'underlined'
       ? 'rounded-none'
@@ -166,13 +171,15 @@ const Button = ({
       )}
     </>
   );
-  const spinnerSize = size === 'xs' ? 'xxs' : 'xs';
+
+  const spinnerElement = <Spinner size={size === 'xs' ? 'xxs' : 'xs'} />;
 
   if (as) {
     if (!isValidElement(as)) return null;
 
     return cloneElement(as, {
       className: cn(baseStyles, getColorVariantStyles(), className),
+      'data-component': COMPONENT_NAME,
       onClick,
       'aria-label': getAriaLabel(),
       'aria-disabled': disabled || undefined,
@@ -181,9 +188,7 @@ const Button = ({
       children: loading ? (
         <>
           <span className="invisible flex items-center">{content}</span>
-          <span className="absolute">
-            <Spinner size={spinnerSize} />
-          </span>
+          <span className="absolute">{spinnerElement}</span>
         </>
       ) : (
         content
@@ -193,6 +198,7 @@ const Button = ({
 
   return (
     <button
+      data-component={COMPONENT_NAME}
       ref={ref}
       type="button"
       className={cn(baseStyles, getColorVariantStyles(), className)}
@@ -204,9 +210,7 @@ const Button = ({
       {loading ? (
         <>
           <span className="invisible flex items-center">{content}</span>
-          <span className="absolute">
-            <Spinner size={spinnerSize} />
-          </span>
+          <span className="absolute">{spinnerElement}</span>
         </>
       ) : (
         content
@@ -215,7 +219,7 @@ const Button = ({
   );
 };
 
-Button.displayName = 'Button';
+Button.displayName = COMPONENT_NAME;
 
 export { Button };
 export type { ButtonProps };

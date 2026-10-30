@@ -13,7 +13,6 @@ import {
 } from '../../icons/PaddedPhosphorIcons';
 import { IconButton } from '../IconButton';
 import { Button } from './Button';
-import { buttonStyleMap } from './constants';
 
 const meta = {
   title: 'Components/Buttons/Button',
@@ -412,37 +411,47 @@ const STATE_COLUMNS = [
   'Disabled + Decorators',
 ] as const;
 
-// Strip the `hover:` / `dark:hover:` variant prefix so hover styles apply
-// unconditionally — tailwind-merge dedupes the resulting classes against the
-// base styles, so the hover look wins. Used to statically visualize the
-// hover state in the grid without a pseudo-states addon.
+type ButtonPreviewStyleKey =
+  `${(typeof BUTTON_COLORS)[number]}-${(typeof BUTTON_VARIANTS)[number]}`;
+
+// Keep these classes literal so Tailwind generates the unconditional utilities
+// used by the static state matrix. Each entry mirrors the hover classes for the
+// matching enabled style in constants.ts.
+const BUTTON_HOVER_PREVIEW_CLASS_NAMES = {
+  'primary-normal':
+    'before:border-transparent button-primary-bg-hover dark:button-primary-bg-hover dark:before:border-transparent',
+  'primary-outlined':
+    'text-brand-primary bg-brand-muted dark:bg-brand-subtle dark:before:button-primary-border dark:text-brand-primary',
+  'primary-plain':
+    'text-brand-secondary dark:text-brand-primary bg-brand-muted/80',
+  'primary-underlined':
+    'before:button-primary-underlined-border-hover button-primary-underlined-foreground-hover',
+  'secondary-normal':
+    'before:button-secondary-border-hover bg-elevated-hover/80',
+  'secondary-outlined':
+    'before:button-secondary-border-hover bg-elevated-hover/80',
+  'secondary-plain': 'bg-elevated-hover/80 dark:bg-elevated-hover/40',
+  'secondary-underlined':
+    'text-secondary-hover before:button-secondary-underlined-border-hover',
+  'error-normal': 'button-error-bg-hover dark:bg-error',
+  'error-outlined': 'bg-error',
+  'error-plain': 'bg-error/80',
+  'error-underlined':
+    'before:button-error-underlined-border-hover button-error-underlined-foreground-hover',
+} satisfies Record<ButtonPreviewStyleKey, string>;
+
 const forceHoverClassName = (
   color: (typeof BUTTON_COLORS)[number],
   variant: (typeof BUTTON_VARIANTS)[number]
-) => {
-  const key =
-    `${color}-${variant}-enabled` as keyof typeof buttonStyleMap;
-  return (buttonStyleMap[key] ?? '')
-    .split(/\s+/)
-    .filter((c) => c.startsWith('hover:') || c.startsWith('dark:hover:'))
-    .map((c) => c.replace(/^hover:/, '').replace(/^dark:hover:/, 'dark:'))
-    .join(' ');
-};
+) => BUTTON_HOVER_PREVIEW_CLASS_NAMES[`${color}-${variant}`];
 
 const forceIconHoverClassName = (
   color: (typeof BUTTON_COLORS)[number],
   variant: (typeof ICON_BUTTON_VARIANTS)[number]
-) =>
-  forceHoverClassName(
-    color,
-    variant as (typeof BUTTON_VARIANTS)[number]
-  );
+) => forceHoverClassName(color, variant as (typeof BUTTON_VARIANTS)[number]);
 
-// Approximation of the browser's native pressed look: layered on top of the
-// forced-hover classes since a real press always happens while hovering. The
-// Button component itself does not define `active:` styles, so this is a
-// visual indicator rather than a design-system token.
-const PRESSED_INDICATOR = 'scale-[0.97] brightness-95';
+// Mirrors the enabled-only `active:` treatment owned by Button and IconButton.
+const PRESSED_INDICATOR = 'scale-[0.97] brightness-95 motion-reduce:scale-100';
 
 export const AllCombinations: Story = {
   args: {
@@ -459,7 +468,7 @@ export const AllCombinations: Story = {
     layout: 'padded',
   },
   render: () => (
-    <div className="space-y-space-8">
+    <div className="pointer-events-none space-y-space-8">
       {BUTTON_SIZES.map((size) => (
         <section key={size} className="space-y-space-4">
           <h2 className="text-xl font-semibold">Size: {size}</h2>
@@ -513,12 +522,7 @@ export const AllCombinations: Story = {
                     >
                       Button
                     </Button>
-                    <Button
-                      size={size}
-                      color={color}
-                      variant={variant}
-                      loading
-                    >
+                    <Button size={size} color={color} variant={variant} loading>
                       Button
                     </Button>
                     <Button
@@ -595,8 +599,7 @@ export const AllCombinations: Story = {
                 <div
                   className="grid gap-space-3 items-center"
                   style={{
-                    gridTemplateColumns:
-                      'max-content repeat(7, max-content)',
+                    gridTemplateColumns: 'max-content repeat(7, max-content)',
                   }}
                 >
                   <div />
