@@ -1,0 +1,112 @@
+@tailwind utilities;
+html {
+  color-scheme: light dark;
+}
+body {
+  margin: 0;
+}
+@layer utilities {
+  .shell {
+    @apply flex flex-col gap-space-5 bg-surface-level-1 p-space-6 text-primary;
+    min-height: 100vh;
+  }
+  header,
+  .section-heading {
+    @apply flex items-center justify-between gap-space-4;
+  }
+  header > div {
+    @apply flex flex-col gap-space-3;
+  }
+  .eyebrow {
+    @apply text-secondary;
+    letter-spacing: 0.12em;
+  }
+  .notice,
+  .view-switch {
+    @apply flex flex-wrap items-center gap-space-4;
+  }
+  .explorer {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
+    @apply gap-space-4;
+  }
+  .run-list,
+  .detail,
+  .span-list {
+    @apply flex flex-col gap-space-3;
+  }
+  .run-list {
+    @apply mt-space-4;
+  }
+  .run-row {
+    @apply flex flex-col gap-space-2 rounded-md border border-default bg-surface-level-1 p-space-3 text-left text-primary;
+    cursor: pointer;
+  }
+  .run-row:hover,
+  .run-row.selected {
+    @apply bg-selected;
+  }
+  .run-row:focus-visible {
+    @apply outline outline-2 outline-offset-2;
+  }
+  .run-title {
+    font-weight: 500;
+  }
+  .run-meta {
+    @apply block text-secondary;
+    font-size: 0.75rem;
+  }
+  .payloads,
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    @apply gap-space-4;
+  }
+  pre {
+    @apply mt-space-3 rounded-md border border-default bg-surface-level-1 p-space-4 text-secondary;
+    font-size: 0.8rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .table-scroll {
+    overflow: auto;
+    @apply mt-space-4;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th,
+  td {
+    @apply border-b border-default p-space-4 text-left;
+    vertical-align: top;
+    min-width: 180px;
+  }
+  th {
+    @apply bg-surface-level-1;
+    font-weight: 500;
+  }
+  .metric {
+    @apply mt-space-3 flex justify-between gap-space-3;
+    font-size: 0.8rem;
+  }
+  footer {
+    @apply border-t border-default pt-space-4;
+  }
+  @media (max-width: 700px) {
+    .explorer,
+    .payloads,
+    .score-grid {
+      grid-template-columns: 1fr;
+    }
+    header,
+    .section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .shell {
+      @apply p-space-4;
+    }
+  }
+}
