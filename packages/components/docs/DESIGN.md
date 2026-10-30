@@ -158,7 +158,12 @@ general-purpose icon catalog.
 
 ## Typography and labels
 
-Use `Text` for supported typography roles and let its variant own size, line height, and element choice. Use `as="span"` inside buttons and links, and `as="label"` with `htmlFor` when labelling a field. Sans is for UI and prose; mono is for code, keys, and IDs.
+Use `Text` with a size variant and let the variant own font size and line height.
+Choose semantic markup separately with `as`: use `as="span"` inside buttons and
+links, heading elements for headings, and `as="label"` with `htmlFor` when
+labelling a field. The legacy `h1`–`h6` and `body` variants remain for
+compatibility but are deprecated. Sans is for UI and prose; mono is for code,
+keys, and IDs.
 
 Use Title Case for names of things: field labels, section headings, tabs, columns, menu items, and enumerated values. Use sentence case for prose: buttons, empty states, validation, tooltips, helper text, and placeholders. Sibling labels should follow the same convention.
 

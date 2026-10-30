@@ -2,11 +2,10 @@ import type { MouseEventHandler } from 'react';
 import { Children, cloneElement, isValidElement } from 'react';
 
 import { cn } from '../../utils/cn';
-import type { ControlSize } from '../../utils/componentSizes';
 import type { ButtonProps } from '../Button';
 import type { IconButtonProps } from '../IconButton';
 
-type ButtonGroupSize = Exclude<ControlSize, 'lg'>;
+type ButtonGroupSize = 'xs' | 'sm' | 'md';
 
 interface ButtonGroupProps {
   /** Button group color scheme to propagate to children */
@@ -14,8 +13,8 @@ interface ButtonGroupProps {
   /** Button group variant to propagate to children */
   variant?: 'normal' | 'outlined' | 'plain';
   /**
-   * Control height: xs=20px, sm=24px, md=32px. Cloned onto direct React children.
-   * Wrappers must forward it; otherwise set the same size on their inner controls.
+   * Typography tier cloned onto direct React children. Wrappers must forward it;
+   * otherwise set the same size on their inner controls.
    */
   size?: ButtonGroupSize;
   /** Additional CSS classes */
@@ -41,7 +40,7 @@ function ButtonGroup({
 }: ButtonGroupProps) {
   const baseStyles = cn(
     'inline-flex items-stretch',
-    '[&>*:not(:first-child)]:border-l-0', // Remove left border on all but first child
+    '[&>*:not(:first-child)]:before:border-l-0', // Remove left border on all but first child
     '[&>*:not(:first-child):not(:last-child)]:rounded-none', // Remove border radius on middle children
     '[&>*:first-child]:rounded-r-none', // Remove right border radius on first child
     '[&>*:last-child]:rounded-l-none', // Remove left border radius on last child

@@ -12,7 +12,23 @@ const meta = {
   argTypes: {
     variant: {
       control: { type: 'select' },
-      options: ['h1', 'h2', 'h3', 'h4', 'md', 'sm', 'xs', 'body'],
+      options: [
+        '3xl',
+        '2xl',
+        'xl',
+        'lg-plus',
+        'lg',
+        'md',
+        'sm',
+        'xs',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'body',
+      ],
     },
     weight: {
       control: { type: 'select' },
@@ -27,6 +43,41 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+const scaleSamples = [
+  { variant: '3xl', size: '28px / 1.75rem', lineHeight: '36px / 2.25rem' },
+  { variant: '2xl', size: '24px / 1.5rem', lineHeight: '32px / 2rem' },
+  { variant: 'xl', size: '20px / 1.25rem', lineHeight: '32px / 2rem' },
+  {
+    variant: 'lg-plus',
+    size: '18px / 1.125rem',
+    lineHeight: '28px / 1.75rem',
+  },
+  { variant: 'lg', size: '16px / 1rem', lineHeight: '24px / 1.5rem' },
+  { variant: 'md', size: '14px / 0.875rem', lineHeight: '20px / 1.25rem' },
+  { variant: 'sm', size: '13px / 0.8125rem', lineHeight: '16px / 1rem' },
+  { variant: 'xs', size: '12px / 0.75rem', lineHeight: '16px / 1rem' },
+] as const;
+
+export const TypeScale: Story = {
+  args: {
+    children: 'The quick brown fox jumped over the lazy dog',
+  },
+  render: () => (
+    <div className="flex max-w-5xl flex-col gap-space-4">
+      {scaleSamples.map(({ variant, size, lineHeight }) => (
+        <div key={variant}>
+          <Text as="div" variant={variant}>
+            The quick brown fox jumped over the lazy dog
+          </Text>
+          <div className="text-type-xs text-tertiary">
+            {variant}: {size}, line height {lineHeight}
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
+};
 
 export const H1: Story = {
   args: {
@@ -101,7 +152,7 @@ export const AllVariants: Story = {
       <div>
         <Text variant="h1">H1 - Main Page Title</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font weight: 500 | Font size: 24px | Line height: 100% | Letter
+          Font weight: 500 | Font size: 24px | Line height: 32px | Letter
           Spacing: -4%
         </p>
       </div>
@@ -109,7 +160,7 @@ export const AllVariants: Story = {
       <div>
         <Text variant="h2">H2 - LCP Query Runs</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font weight: 500 | Font size: 18px | Line height: 120% | Letter
+          Font weight: 500 | Font size: 18px | Line height: 28px | Letter
           Spacing: -4%
         </p>
       </div>
@@ -117,7 +168,7 @@ export const AllVariants: Story = {
       <div>
         <Text variant="h3">H3 - Runs</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font weight: 600 | Font size: 16px | Line height: 120% | Letter
+          Font weight: 600 | Font size: 16px | Line height: 24px | Letter
           Spacing: -3%
         </p>
       </div>
@@ -125,7 +176,7 @@ export const AllVariants: Story = {
       <div>
         <Text variant="h4">H4 - Section Label</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font weight: 400 | Font size: 14px | Line height: 120% | Letter
+          Font weight: 400 | Font size: 14px | Line height: 20px | Letter
           Spacing: -3% | Uppercase
         </p>
       </div>
@@ -133,21 +184,21 @@ export const AllVariants: Story = {
       <div>
         <Text variant="md">Medium - Primary CTA</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font size: 14px | Line height: 150% | Letter Spacing: -4%
+          Font size: 14px | Line height: 20px | Letter Spacing: -4%
         </p>
       </div>
 
       <div>
         <Text variant="sm">Small - LCP-Query-Runs</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font size: 13px | Line height: 120% | Letter Spacing: -2%
+          Font size: 13px | Line height: 16px | Letter Spacing: -2%
         </p>
       </div>
 
       <div>
         <Text variant="xs">Extra Small - Caption text</Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font size: 12px | Line height: 100% | Letter Spacing: 0%
+          Font size: 12px | Line height: 16px | Letter Spacing: 0%
         </p>
       </div>
 
@@ -156,7 +207,7 @@ export const AllVariants: Story = {
           Body - This is body text for longer paragraphs and content.
         </Text>
         <p className="mt-space-2 text-xs text-tertiary">
-          Font size: 14px | Line height: 150% | Letter Spacing: 0%
+          Font size: 14px | Line height: 20px | Letter Spacing: 0%
         </p>
       </div>
     </div>
