@@ -26,6 +26,11 @@ import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/Chart
 import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
 import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
+  ChatMessage,
+  ChatMessageActions,
+} from '@langchain/macaw-components/ChatMessage';
+import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -92,6 +97,14 @@ void [
     label: 'Support chat',
     viewportRef: { current: null },
   } satisfies ChatConversationProps,
+  ChatMessage,
+  ChatMessageActions,
+  {
+    id: 'message',
+    role: 'assistant',
+    status: 'completed',
+    content: [{ id: 'text', type: 'text', text: 'Hello' }],
+  } satisfies ChatMessageModel,
   HeatmapChart,
   HeatmapBlock,
   {

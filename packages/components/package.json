@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.2.2",
+  "version": "1.3.3",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -80,6 +80,10 @@
       "types": "./dist/components/ChatConversation/index.d.ts",
       "import": "./dist/components/ChatConversation/index.js"
     },
+    "./ChatMessage": {
+      "types": "./dist/components/ChatMessage/index.d.ts",
+      "import": "./dist/components/ChatMessage/index.js"
+    },
     "./Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
       "import": "./dist/components/Checkbox/index.js"
@@ -151,6 +155,14 @@
     "./Input": {
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
+    },
+    "./ImagePreviewDialog": {
+      "types": "./dist/components/ImagePreviewDialog/index.d.ts",
+      "import": "./dist/components/ImagePreviewDialog/index.js"
+    },
+    "./ImagePreviewBlock": {
+      "types": "./dist/components/ImagePreviewBlock/index.d.ts",
+      "import": "./dist/components/ImagePreviewBlock/index.js"
     },
     "./Kbd": {
       "types": "./dist/components/Kbd/index.d.ts",
@@ -441,6 +453,14 @@
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
     },
+    "./components/ImagePreviewDialog": {
+      "types": "./dist/components/ImagePreviewDialog/index.d.ts",
+      "import": "./dist/components/ImagePreviewDialog/index.js"
+    },
+    "./components/ImagePreviewBlock": {
+      "types": "./dist/components/ImagePreviewBlock/index.d.ts",
+      "import": "./dist/components/ImagePreviewBlock/index.js"
+    },
     "./components/Kbd": {
       "types": "./dist/components/Kbd/index.d.ts",
       "import": "./dist/components/Kbd/index.js"
@@ -577,7 +597,6 @@
     "test:a11y": "vitest run --config ../../vitest.storybook.config.ts"
   },
   "dependencies": {
-    "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-json": "^6.0.2",

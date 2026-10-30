@@ -31,6 +31,11 @@ export type {
 export { Attachment, AttachmentList } from './Attachment';
 export type { AttachmentProps, AttachmentListProps } from './Attachment';
 
+export { ImagePreviewDialog } from './ImagePreviewDialog';
+export type { ImagePreviewDialogProps } from './ImagePreviewDialog';
+export { ImagePreviewBlock } from './ImagePreviewBlock';
+export type { ImagePreviewBlockProps } from './ImagePreviewBlock';
+
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
 
@@ -49,6 +54,27 @@ export type { BannerProps } from './Banner/Banner';
 
 export { ChatConversation } from './ChatConversation';
 export type { ChatConversationProps } from './ChatConversation';
+
+export {
+  ChatMessage,
+  ChatMessageActions,
+  ChatMessageBody,
+  ChatMessageHeader,
+  ChatTurnDivider,
+} from './ChatMessage';
+export type {
+  ChatMessageAction,
+  ChatMessageActionCapabilities,
+  ChatMessageActionsProps,
+  ChatMessageBodyProps,
+  ChatMessageContentBlock,
+  ChatMessageHeaderProps,
+  ChatMessageModel,
+  ChatMessageProps,
+  ChatMessageRole,
+  ChatMessageStatus,
+  ChatTurnDividerProps,
+} from './ChatMessage';
 
 export { Checkbox, getCheckedState } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
