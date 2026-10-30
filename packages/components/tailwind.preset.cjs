@@ -138,6 +138,7 @@ module.exports = {
         slower: 'var(--duration-slower)',
       },
       gap: spaceScale,
+      borderSpacing: spaceScale,
       padding: spaceScale,
       margin: spaceScale,
       space: spaceScale,

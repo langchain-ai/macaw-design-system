@@ -580,6 +580,10 @@
     "./components/ThinkingState": {
       "types": "./dist/components/ThinkingState/index.d.ts",
       "import": "./dist/components/ThinkingState/index.js"
+    },
+    "./MacawTable": {
+      "types": "./dist/components/MacawTable/index.d.ts",
+      "import": "./dist/components/MacawTable/index.js"
     }
   },
   "publishConfig": {
@@ -629,6 +633,7 @@
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@react-spring/web": "^10.1.2",
     "@tailwindcss/forms": "^0.5.7",
+    "@tanstack/react-table": "8.21.3",
     "@uiw/codemirror-theme-tokyo-night-day": "^4.25.4",
     "@uiw/codemirror-theme-tokyo-night-storm": "^4.25.4",
     "@uiw/react-codemirror": "^4.25.4",
