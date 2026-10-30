@@ -2,12 +2,8 @@ import { useEffect, useReducer, useRef } from 'react';
 
 import { Markdown, type MarkdownStorage } from 'tiptap-markdown';
 
-import type { Editor } from '@tiptap/core';
+import { Extension, type Editor } from '@tiptap/core';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Table } from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
-import TableRow from '@tiptap/extension-table-row';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -22,6 +18,24 @@ declare module '@tiptap/core' {
     markdown: MarkdownStorage;
   }
 }
+
+// tiptap-markdown writes any table that is not a simple grid as the literal
+// "[table]", so the editor has no table nodes. Pipe rows stay plain text so
+// drafts, host values, and pasted tables keep their content.
+const PlainTextTables = Extension.create({
+  name: 'composerPlainTextTables',
+  addStorage() {
+    return {
+      markdown: {
+        parse: {
+          setup(markdownit: { disable: (rule: string) => unknown }) {
+            markdownit.disable('table');
+          },
+        },
+      },
+    };
+  },
+});
 
 interface UseChatComposerEditorOptions {
   value: string;
@@ -47,6 +61,7 @@ export function useChatComposerEditor({
   'use no memo';
 
   const valueRef = useRef(value);
+  const pastingTableText = useRef(false);
   const [editRevision, reconcileEdit] = useReducer(
     (revision: number) => revision + 1,
     0
@@ -54,10 +69,7 @@ export function useChatComposerEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ codeBlock: false, link: false }),
-      Table.configure({ resizable: false }),
-      TableRow,
-      TableHeader,
-      TableCell,
+      PlainTextTables,
       Markdown.configure({ html: false, transformPastedText: true }),
       Placeholder.configure({ placeholder }),
       ChatComposerCodeBlock,
@@ -65,6 +77,22 @@ export function useChatComposerEditor({
     content: value,
     editorProps: {
       attributes: { class: editorClassName ?? '', ...editorAttributes },
+      handlePaste: (view, event) => {
+        if (pastingTableText.current) return false;
+        const html = event.clipboardData?.getData('text/html') ?? '';
+        const text = event.clipboardData?.getData('text/plain');
+        // Without table nodes, pasted HTML cells run together. Spreadsheets and
+        // browsers also copy the table as text with tabs and line breaks.
+        if (!text || !/<table[\s>]/i.test(html)) return false;
+        // pasteText reruns this handler with the same event.
+        pastingTableText.current = true;
+        try {
+          view.pasteText(text, event);
+        } finally {
+          pastingTableText.current = false;
+        }
+        return true;
+      },
       handleKeyDown: (view, event) => {
         if (!onSubmit || !editable || view.composing || event.key !== 'Enter') {
           return false;
@@ -77,13 +105,9 @@ export function useChatComposerEditor({
           COMPOSER_CODE_FENCE.test($from.parent.textContent);
         for (let depth = $from.depth; depth > 0; depth--) {
           if (
-            [
-              'codeBlock',
-              'listItem',
-              'blockquote',
-              'tableCell',
-              'tableHeader',
-            ].includes($from.node(depth).type.name)
+            ['codeBlock', 'listItem', 'blockquote'].includes(
+              $from.node(depth).type.name
+            )
           ) {
             multiline = true;
             break;

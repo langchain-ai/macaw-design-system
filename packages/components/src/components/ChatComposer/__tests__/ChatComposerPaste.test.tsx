@@ -64,9 +64,10 @@ function PasteHarness({
   );
 }
 
-function clipboard(text: string, withFile = true) {
+function clipboard(text: string, withFile = true, html?: string) {
   const data = new DataTransfer();
   data.setData('text/plain', text);
+  if (html) data.setData('text/html', html);
   // The jsdom DataTransfer stub does not normalize the browser's "text" alias.
   data.setData('text', text);
   Object.defineProperty(data, 'files', {
@@ -140,6 +141,28 @@ describe('ChatComposer paste and drop', () => {
       /^image.png$/
     );
   });
+
+  it.each([
+    ['Markdown', '| Name | Qty |\n| --- | --- |\n| Apple | 2 |', undefined],
+    [
+      'spreadsheet',
+      'Name\tQty\nApple\t2',
+      '<table><tr><td>Name</td><td>Qty</td></tr><tr><td>Apple</td><td>2</td></tr></table>',
+    ],
+  ])(
+    'keeps the text of a pasted %s table in the draft',
+    async (_source, text, html) => {
+      const { user } = render(<PasteHarness rich initialDraft="" />);
+      await screen.findByRole('textbox', { name: 'Message' });
+      await user.tab();
+
+      await user.paste(clipboard(text, false, html));
+
+      expect(screen.getByLabelText('Draft')).toHaveTextContent(
+        /Name\W+Qty\W+Apple\W+2/
+      );
+    }
+  );
 
   it('lets the rich editor insert mixed-paste text into its Markdown draft', async () => {
     const { user } = render(<PasteHarness rich initialDraft="" />);

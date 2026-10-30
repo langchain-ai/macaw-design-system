@@ -42,19 +42,6 @@
   @apply bg-transparent p-0;
 }
 
-.editor table {
-  @apply w-full table-fixed border-collapse;
-}
-
-.editor th,
-.editor td {
-  @apply break-words border border-default p-space-2 align-top;
-}
-
-.editor th {
-  @apply bg-surface-level-2 font-semibold;
-}
-
 .editor hr {
   @apply border-default;
 }
