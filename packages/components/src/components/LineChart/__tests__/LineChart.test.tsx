@@ -332,6 +332,48 @@ describe('LineChart', () => {
     ).toBeLessThanOrEqual(svgWidth);
   });
 
+  it.each([
+    { width: 200, xScale: 'band', customTicks: false, label: '2 PM' },
+    { width: 420, xScale: 'band', customTicks: false, label: '11:59 PM' },
+    { width: 640, xScale: 'band', customTicks: true, label: '9/28/26' },
+    { width: 640, xScale: 'linear', customTicks: false, label: '11:59 PM' },
+  ] as const)(
+    'keeps centered time labels within a $width px $xScale chart',
+    ({ width, xScale, customTicks, label }) => {
+      resizeObserverDimensions.width = width;
+      const start = Date.UTC(2026, 8, 28, 2);
+      const points = Array.from({ length: 145 }, (_, index) => ({
+        x: start + index * 5 * 60_000,
+        y: index % 10,
+      }));
+      const end = start + 12 * 60 * 60_000;
+      render(
+        <LineChart
+          aria-label="Twelve-hour request count"
+          showLegend={false}
+          series={[{ id: 'success', label: 'Success', points }]}
+          xScale={xScale}
+          xDomain={[start, end]}
+          xTickCount={6}
+          xTickValues={customTicks ? [start, end] : undefined}
+          formatXValue={(value) => (value === start ? '9/28/26' : label)}
+        />
+      );
+
+      for (const tick of [
+        ...screen.getAllByText('9/28/26'),
+        ...screen.queryAllByText(label),
+      ]) {
+        const text = getSvgTextElement(tick);
+        if (text == null) throw new Error('Expected a time-axis label');
+        const halfWidth = ((text.textContent?.length ?? 0) * 7) / 2;
+        expect(text).toHaveAttribute('text-anchor', 'middle');
+        expect(getAbsoluteX(text) - halfWidth).toBeGreaterThanOrEqual(0);
+        expect(getAbsoluteX(text) + halfWidth).toBeLessThanOrEqual(width);
+      }
+    }
+  );
+
   it('keeps the accessible chart and legend while rendering is paused', () => {
     render(
       <LineChart

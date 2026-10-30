@@ -2,6 +2,7 @@ import { useState, type HTMLAttributes } from 'react';
 
 import { useResizeObserver } from '@mantine/hooks';
 import { scaleLinear } from '@visx/scale';
+import { getStringWidth } from '@visx/text';
 
 import {
   getCategoricalFillColor,
@@ -12,6 +13,7 @@ import {
   CHART_TICK_FONT_SIZE,
   CHART_VALUE_AXIS_TICK_LENGTH,
 } from '../../utils/chartConstants';
+import { getChartTickValues } from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { getYAxisLeftMargin } from '../../utils/getYAxisLeftMargin';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
@@ -263,13 +265,36 @@ export const LineChart = ({
     resolvedXDomain,
     connectNulls
   );
+  const resolvedXTickCount = xTickCount ?? (dimensions.width < 480 ? 3 : 5);
+  const resolvedXTickValues =
+    xTickValues == null
+      ? getChartTickValues(uniqueXValues, resolvedXTickCount)
+      : Array.from(xTickValues);
+  // Centered ticks can extend beyond the plot, especially with dense bands.
+  // Measure the same labels the axis renders before allocating its margins.
+  const xTickGutter = Math.ceil(
+    Math.max(
+      0,
+      ...resolvedXTickValues.map(
+        (value) =>
+          getStringWidth(formatXValue(value), {
+            fontSize: `${CHART_TICK_FONT_SIZE}px`,
+          }) ?? 0
+      )
+    ) / 2
+  );
   const chartMargin = {
     top: CHART_MARGIN_TOP,
-    right:
+    right: Math.max(
+      xTickGutter,
       CHART_MARGIN_RIGHT +
-      axisLayouts.slice(1).reduce((total, axis) => total + axis.thickness, 0),
+        axisLayouts.slice(1).reduce((total, axis) => total + axis.thickness, 0)
+    ),
     bottom: CHART_MARGIN_BOTTOM,
-    left: axisLayouts[0]?.thickness ?? LINE_CHART_VALUE_AXIS_THICKNESS,
+    left: Math.max(
+      xTickGutter,
+      axisLayouts[0]?.thickness ?? LINE_CHART_VALUE_AXIS_THICKNESS
+    ),
   };
   const innerWidth = Math.max(
     0,
@@ -353,8 +378,8 @@ export const LineChart = ({
         series={renderedSeries}
         stackedSeries={stackedSeries}
         formatXValue={formatXValue}
-        xTickCount={xTickCount}
-        xTickValues={xTickValues}
+        xTickCount={resolvedXTickCount}
+        xTickValues={resolvedXTickValues}
         showPoints={showPoints}
         connectNulls={connectNulls}
         showGridRows={showGridRows}

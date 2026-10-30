@@ -195,6 +195,38 @@ export const TimeAxis: Story = {
   ),
 };
 
+export const DenseTimeBuckets: Story = {
+  name: 'Dense time buckets',
+  render: () => (
+    <div className="mx-auto h-80 w-full max-w-md">
+      <LineChart
+        aria-label="Requests in five-minute buckets"
+        showLegend={false}
+        xScale="band"
+        xTickCount={6}
+        series={[
+          {
+            id: 'requests',
+            label: 'Requests',
+            points: Array.from({ length: 145 }, (_, index) => ({
+              x: START + index * 5 * 60_000,
+              y: 10 + (index % 9),
+            })),
+          },
+        ]}
+        formatXValue={(value) =>
+          formatMetricTime(value, {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'UTC',
+          })
+        }
+      />
+    </div>
+  ),
+};
+
 export const NarrowWithListLegend: Story = {
   name: 'Narrow with list legend',
   render: () => {

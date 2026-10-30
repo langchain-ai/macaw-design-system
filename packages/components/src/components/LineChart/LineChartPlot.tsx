@@ -18,10 +18,7 @@ import {
   CHART_TICK_FONT_SIZE,
   CHART_VALUE_AXIS_TICK_LENGTH,
 } from '../../utils/chartConstants';
-import {
-  getChartTickValues,
-  getNearestChartValue,
-} from '../../utils/chartValues';
+import { getNearestChartValue } from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { Tooltip } from '../Tooltip';
 import { LINE_CHART_DEFAULT_TICK_COUNT } from './constants';
@@ -76,8 +73,8 @@ type LineChartPlotProps = {
   /** Replaces the series lines with areas when set. */
   stackedSeries?: readonly LineChartStackedSeries[];
   formatXValue: (value: number) => string;
-  xTickCount?: number;
-  xTickValues?: readonly number[];
+  xTickCount: number;
+  xTickValues: number[];
   showPoints: boolean;
   connectNulls: boolean;
   showGridRows: boolean;
@@ -149,11 +146,6 @@ export const LineChartPlot = ({
     onDatumPointerDown != null ||
     onDatumPointerMove != null ||
     onDatumPointerUp != null;
-  const resolvedXTickCount = xTickCount ?? (width < 480 ? 3 : 5);
-  const resolvedXTickValues =
-    xTickValues == null
-      ? getChartTickValues(uniqueXValues, resolvedXTickCount)
-      : Array.from(xTickValues);
   const activeXPosition = activeX == null ? null : getXPosition(activeX);
   const hasActiveX =
     activeXPosition != null &&
@@ -314,8 +306,8 @@ export const LineChartPlot = ({
             <GridColumns
               scale={xScale}
               height={innerHeight}
-              numTicks={resolvedXTickCount}
-              tickValues={resolvedXTickValues}
+              numTicks={xTickCount}
+              tickValues={xTickValues}
               stroke="var(--border-subtle)"
               strokeDasharray={CHART_DASHED_STROKE_DASHARRAY}
             />
@@ -329,8 +321,8 @@ export const LineChartPlot = ({
           <AxisBottom
             scale={xScale}
             top={innerHeight}
-            numTicks={resolvedXTickCount}
-            tickValues={resolvedXTickValues}
+            numTicks={xTickCount}
+            tickValues={xTickValues}
             hideAxisLine
             hideTicks
             tickFormat={(value) => formatXValue(value.valueOf())}
