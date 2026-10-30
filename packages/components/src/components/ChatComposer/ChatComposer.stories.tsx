@@ -23,7 +23,6 @@ import type {
   ChatComposerDrawerIntent,
   ChatComposerProps,
 } from '.';
-import { useResizeObserver } from '../../hooks/useResizeObserver';
 import sampleImage from '../../stories/assets/attachment-preview.png';
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
@@ -40,10 +39,16 @@ const meta = {
     'autodocs',
     'chat',
     'composer',
+    'prompt',
+    'message',
+    'send',
+    'stop',
+    'drawer',
     'input',
     'markdown',
     'code',
     'attachments',
+    'upload',
     'model',
     'ai',
   ],
@@ -113,21 +118,10 @@ const MODEL_OPTIONS = [
 
 function ToolsToggle() {
   const [enabled, setEnabled] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const [labelHidden, setLabelHidden] = useState(false);
-  const labelRef = useResizeObserver<HTMLSpanElement>((entries) => {
-    const hidden = entries[0]?.contentRect.width === 0;
-    setLabelHidden(hidden);
-    if (!hidden) setTooltipOpen(false);
-  });
   const label = enabled ? 'Tools enabled' : 'Tools';
 
   return (
-    <Tooltip
-      title={label}
-      open={labelHidden && tooltipOpen}
-      onOpenChange={(open) => setTooltipOpen(open && labelHidden)}
-    >
+    <Tooltip title={label}>
       <Button
         type="button"
         size="sm"
@@ -143,9 +137,7 @@ function ToolsToggle() {
           weight={enabled ? 'fill' : 'regular'}
           aria-hidden
         />
-        <span ref={labelRef} className="hidden @[440px]/composer:inline-block">
-          {label}
-        </span>
+        <span className="hidden @[440px]/composer:inline-block">{label}</span>
       </Button>
     </Tooltip>
   );

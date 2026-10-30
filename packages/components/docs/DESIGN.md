@@ -53,6 +53,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `Button` for actions and `Link` for navigation.
 - Use `IconButton` for an icon-only action and provide its `label`.
 - Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
+- Use `ChatComposer` for a chat message input; see [Chat composer](#chat-composer).
 - Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
@@ -100,6 +101,43 @@ Use `language="plaintext"` to skip syntax highlighting.
 unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
 `onUpdate` when an integration also needs selection or programmatic updates.
+
+## Chat composer
+
+Import the composer parts from `@langchain/macaw-components/ChatComposer`.
+Compose `ChatComposer` with `ChatComposerInput`, optional
+`ChatComposerAttachments`, and a `ChatComposerToolbar` that holds
+`ChatComposerAttachmentMenu`, `ChatComposerModelSelect`, and the default
+`ChatComposerAction` send button. The parts read `disabled`, submission, and
+file handling from the composer and throw outside it.
+
+The consumer owns the draft and every side effect. Control the text with
+`value`/`onChange` on `ChatComposerInput`, send from `onSubmit`, and set
+`submitDisabled` while the draft is empty. During generation, set
+`action="stop"` with `onStop`; the send button becomes a stop button and send
+shortcuts stay reserved. `disabled` locks the whole composer.
+
+Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
+sends from any block. Without `onSubmit`,
+Enter only inserts paragraphs. Three backticks start an editable code block.
+The input grows from `minHeight` (40px) to `maxHeight` (240px), then scrolls.
+Its ref exposes `focus()` for controls outside the editor.
+
+`ChatComposerAttachmentMenu` opens the file picker; `accept` and `multiple`
+only configure that picker. Files also arrive by drop and paste, so validate
+type, size, and count in `onFilesSelected`. Render the accepted files with
+`ChatComposerAttachment` inside `ChatComposerAttachments`; uploads, previews,
+and removal stay with the consumer.
+
+`ChatComposerModelSelect` is a `Select` sized for the toolbar. In a narrow
+composer it shows a "Model" label; its tooltip always names the selected model.
+
+Use `drawer` for content attached above the editor, such as questions to
+answer before sending. The composer still owns submission. Set `drawerIntent`
+to `info`, `warning`, or `error` to tint the drawer, and state the severity in
+its text or an icon too. With a drawer, native validation skips the drawer's
+fields because a collapsed drawer cannot focus them; validate drawer content in
+the consumer. Fields outside the drawer keep native validation.
 
 ## Tokens
 

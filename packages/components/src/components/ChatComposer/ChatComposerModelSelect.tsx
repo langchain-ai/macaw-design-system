@@ -1,6 +1,3 @@
-import { useState } from 'react';
-
-import { useResizeObserver } from '../../hooks/useResizeObserver';
 import { cn } from '../../utils/cn';
 import { Select } from '../Select';
 import type { SelectProps } from '../Select';
@@ -21,24 +18,14 @@ export function ChatComposerModelSelect<T extends string>({
   ...props
 }: ChatComposerModelSelectProps<T>) {
   const composer = useChatComposerContext();
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const [compactLabelVisible, setCompactLabelVisible] = useState(false);
-  const compactLabelRef = useResizeObserver<HTMLSpanElement>((entries) => {
-    const visible = (entries[0]?.contentRect.width ?? 0) > 0;
-    setCompactLabelVisible(visible);
-    if (!visible) setTooltipOpen(false);
-  });
 
   const options =
     props.groups?.flatMap((group) => group.options) ?? props.options ?? [];
   const selectedOption = options.find((option) => option.value === props.value);
   const label = selectedOption?.label ?? selectedOption?.value ?? placeholder;
   return (
-    <Tooltip
-      title={label}
-      open={compactLabelVisible && tooltipOpen}
-      onOpenChange={(open) => setTooltipOpen(open && compactLabelVisible)}
-    >
+    // Narrow composers show "Model" and wide ones can truncate the name.
+    <Tooltip title={label}>
       <div className="flex min-w-0 max-w-full items-center">
         <Select
           aria-label="Model"
@@ -51,7 +38,6 @@ export function ChatComposerModelSelect<T extends string>({
           renderValue={(option) => (
             <>
               <Text
-                ref={compactLabelRef}
                 as="span"
                 variant={size === 'lg' ? 'md' : size}
                 weight="normal"
