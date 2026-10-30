@@ -1,4 +1,4 @@
-import { useState, type HTMLAttributes } from 'react';
+import { useLayoutEffect, useState, type HTMLAttributes } from 'react';
 
 import { useResizeObserver } from '@mantine/hooks';
 import { scaleLinear } from '@visx/scale';
@@ -190,7 +190,8 @@ export const LineChart = ({
   delete rootProps['aria-describedby'];
   delete rootProps['aria-label'];
 
-  const [containerRef, dimensions] = useResizeObserver();
+  const [containerRef, dimensions] = useResizeObserver<HTMLDivElement>();
+  const [xTickRightMargin, setXTickRightMargin] = useState(0);
   const normalizedSeries = normalizeLineChartSeries(series);
   const defaultAxisId = yAxes?.[0]?.id ?? DEFAULT_AXIS_ID;
   const displaySeries: readonly LineChartDisplaySeries[] = normalizedSeries.map(
@@ -265,9 +266,11 @@ export const LineChart = ({
   );
   const chartMargin = {
     top: CHART_MARGIN_TOP,
-    right:
+    right: Math.max(
+      xTickRightMargin,
       CHART_MARGIN_RIGHT +
-      axisLayouts.slice(1).reduce((total, axis) => total + axis.thickness, 0),
+        axisLayouts.slice(1).reduce((total, axis) => total + axis.thickness, 0)
+    ),
     bottom: CHART_MARGIN_BOTTOM,
     left: axisLayouts[0]?.thickness ?? LINE_CHART_VALUE_AXIS_THICKNESS,
   };
@@ -287,6 +290,40 @@ export const LineChart = ({
     nice: xDomain == null,
   });
   const axes = resolveAxes(axisLayouts, innerHeight);
+
+  useLayoutEffect(() => {
+    const axis = containerRef.current?.querySelector('.visx-axis-bottom');
+    if (axis == null || innerWidth <= 0) {
+      setXTickRightMargin(0);
+      return;
+    }
+    const measure = () => {
+      let margin = 0;
+      for (const label of axis.querySelectorAll<SVGTextElement>('text')) {
+        const x = Number(label.getAttribute('x'));
+        const bounds = label.getBBox?.();
+        if (bounds == null || x <= 0 || x > innerWidth) continue;
+        // A tick's position scales with the plot width. Subtract the space
+        // already after it before solving for the required right margin.
+        const position = x / innerWidth;
+        const overhang = bounds.x + bounds.width - x;
+        margin = Math.max(
+          margin,
+          (overhang - (1 - position) * (dimensions.width - chartMargin.left)) /
+            position
+        );
+      }
+      // An unfit label must not consume the entire plot.
+      const required = Math.ceil(margin);
+      setXTickRightMargin(
+        required < dimensions.width - chartMargin.left ? required : 0
+      );
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(axis);
+    return () => observer.disconnect();
+  });
 
   const activeXPos =
     renderedActiveX == null ? null : xScaleAdapter.getPosition(renderedActiveX);

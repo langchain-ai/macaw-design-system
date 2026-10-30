@@ -1,6 +1,15 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 
-import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  it,
+  vi,
+} from 'vitest';
 
 import type * as VisxText from '@visx/text';
 
@@ -25,7 +34,10 @@ const resizeObserverDimensions = vi.hoisted(() => ({
 
 vi.mock('@mantine/hooks', () => ({
   useMediaQuery: () => false,
-  useResizeObserver: () => [vi.fn(), resizeObserverDimensions],
+  useResizeObserver: () => [
+    useRef<HTMLDivElement>(null),
+    resizeObserverDimensions,
+  ],
 }));
 
 vi.mock('@visx/text', async (importOriginal) => ({
@@ -98,6 +110,30 @@ const getAbsoluteX = (element: SVGTextElement) => {
 };
 
 describe('LineChart', () => {
+  const originalGetBBox = Object.getOwnPropertyDescriptor(
+    SVGElement.prototype,
+    'getBBox'
+  );
+  beforeAll(() => {
+    // jsdom has no SVG text geometry; supply deterministic rendered bounds.
+    Object.defineProperty(SVGElement.prototype, 'getBBox', {
+      configurable: true,
+      value(this: SVGElement) {
+        const width = (this.textContent?.length ?? 0) * 7;
+        return {
+          x: Number(this.getAttribute('x')) - width / 2,
+          y: 0,
+          width,
+          height: 12,
+        };
+      },
+    });
+  });
+  afterAll(() => {
+    if (originalGetBBox)
+      Object.defineProperty(SVGElement.prototype, 'getBBox', originalGetBBox);
+    else Reflect.deleteProperty(SVGElement.prototype, 'getBBox');
+  });
   it('requires a text accessible name', () => {
     expectTypeOf<LineChartProps['aria-label']>().toEqualTypeOf<string>();
   });
@@ -330,6 +366,72 @@ describe('LineChart', () => {
     expect(
       getAbsoluteX(secondaryTick) + 'Secondary $123,456.78'.length * 7
     ).toBeLessThanOrEqual(svgWidth);
+  });
+
+  it.each(['band', 'linear'] as const)(
+    'fits centered %s time labels and releases the space for shorter labels',
+    (xScale) => {
+      resizeObserverDimensions.width = 200;
+      const points = Array.from({ length: 145 }, (_, x) => ({ x, y: x % 10 }));
+      const chart = (lastLabel: string) => (
+        <LineChart
+          aria-label="Dense time buckets"
+          series={[{ id: 'requests', label: 'Requests', points }]}
+          xScale={xScale}
+          xTickValues={[0, 72, 144]}
+          formatXValue={(x) => (x === 144 ? lastLabel : `${x}`)}
+          showLegend={false}
+          shouldAnimate={false}
+        />
+      );
+      const { rerender } = render(chart('X'));
+      const line = screen
+        .getByRole('group', { name: 'requests series' })
+        .getElementsByTagName('path')[0];
+      if (line == null) throw new Error('Expected a rendered series');
+      const originalPath = line.getAttribute('d');
+
+      rerender(chart('11:59 PM'));
+      const label = getSvgTextElement(screen.getByText('11:59 PM'));
+      if (label == null) throw new Error('Expected the final time label');
+      const x = getAbsoluteX(label);
+      const labelWidth = '11:59 PM'.length * 7;
+      expect(label).toHaveAttribute('text-anchor', 'middle');
+      const right = x + labelWidth / 2;
+      expect(right).toBeLessThanOrEqual(200);
+      expect(right - labelWidth).toBeGreaterThanOrEqual(0);
+      expect(200 - right).toBeLessThan(1);
+      rerender(chart('X'));
+      expect(line).toHaveAttribute('d', originalPath);
+
+      // An impossible label must not collapse the plot or prevent recovery.
+      rerender(chart('A'.repeat(100)));
+      expect(line).toHaveAttribute('d', originalPath);
+      resizeObserverDimensions.width = 80;
+      rerender(chart('11:59 PM'));
+      resizeObserverDimensions.width = 200;
+      rerender(chart('X'));
+      expect(
+        screen
+          .getByRole('group', { name: 'requests series' })
+          .getElementsByTagName('path')[0]
+      ).toHaveAttribute('d', originalPath);
+    }
+  );
+
+  it('keeps a single time tick centered', () => {
+    render(
+      <LineChart
+        aria-label="One bucket"
+        series={[
+          { id: 'requests', label: 'Requests', points: [{ x: 1, y: 2 }] },
+        ]}
+        xScale="band"
+        formatXValue={() => 'Noon'}
+      />
+    );
+    const label = getSvgTextElement(screen.getByText('Noon'));
+    expect(label).toHaveAttribute('text-anchor', 'middle');
   });
 
   it('keeps the accessible chart and legend while rendering is paused', () => {
