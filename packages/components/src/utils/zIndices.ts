@@ -15,9 +15,6 @@
  * - Modal (2000+): Modal dialogs
  * - Toast (9999): System toasts
  *
- * Note: Tooltips do NOT have a fixed z-index here. They always render at
- * contextZIndex + 1 (relative to their parent caller) via ZIndexContext,
- * so they naturally stack above whichever layer triggered them.
  */
 
 const zIndices = {
@@ -44,6 +41,8 @@ const zIndices = {
 
   // Popover layer — large jump ensures portal overlays always beat page layout
   popover: 1300,
+
+  tooltipOverlay: 1500,
 
   // Dev tool panels (e.g. Eppo control panel) — above popovers/Polly, below dialogs
   devToolPanel: 2500,
