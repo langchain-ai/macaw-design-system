@@ -24,6 +24,16 @@ import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
 import {
+  ChatConversationList,
+  ChatConversationListGroup,
+  ChatConversationListItem,
+} from '@langchain/macaw-components/ChatConversationList';
+import type {
+  ChatConversationListGroupActions,
+  ChatConversationListItemActions,
+  ChatConversationListProps,
+} from '@langchain/macaw-components/ChatConversationList';
+import {
   ChatMessage,
   ChatMessageActions,
 } from '@langchain/macaw-components/ChatMessage';
@@ -79,6 +89,18 @@ void [
     onSelect: () => {},
     tone: 'destructive',
   } satisfies AccordionItemMenuItem,
+  ChatConversationList,
+  ChatConversationListGroup,
+  ChatConversationListItem,
+  {
+    'aria-label': 'Conversations',
+    loading: true,
+  } satisfies ChatConversationListProps,
+  {
+    onRename: () => {},
+    pinned: true,
+  } satisfies ChatConversationListItemActions,
+  { onDelete: () => {} } satisfies ChatConversationListGroupActions,
   StatusBadge,
   'warning' satisfies StatusBadgeVariant,
   { children: 'Active', size: 'sm' } satisfies StatusBadgeProps,
