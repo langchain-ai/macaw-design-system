@@ -104,52 +104,39 @@ unknown language labels, and reports supported `CodeLanguageType` values.
 
 ## Chat composer
 
-Import the composer parts from `@langchain/macaw-components/ChatComposer`.
-Compose `ChatComposer` with `ChatComposerInput`, optional
-`ChatComposerAttachments`, and a `ChatComposerToolbar` that holds
+Import the parts from `@langchain/macaw-components/ChatComposer` and use them
+only inside `ChatComposer`: `ChatComposerInput`, optional
+`ChatComposerAttachments`, and a `ChatComposerToolbar` with
 `ChatComposerAttachmentMenu`, `ChatComposerModelSelect`, and the default
-`ChatComposerAction` send button. The parts read `disabled`, submission, and
-file handling from the composer and throw outside it.
+`ChatComposerAction` send button.
 
-The consumer owns the draft and every side effect. Control the text with
-`value`/`onChange` on `ChatComposerInput`, send from `onSubmit`, and set
-`submitDisabled` while there is nothing to send: no text and no attachments.
-Describe the send button's state with `action`. `action="sending"` shows a
-spinner while a send is pending, and `action="stop"` with `onStop` turns it
-into a stop button during generation. Both block the button and the send
-shortcuts but keep the input and attachments usable. Send → sending → stop is
-one possible flow: an app that queues messages can stay on `send`, and one with
-nothing to cancel can go from `sending` back to `send`. Show uploads with
-`status="uploading"` on `ChatComposerAttachment`. `disabled` locks the whole
-composer.
+Control the draft with `value`/`onChange` on `ChatComposerInput` and send from
+`onSubmit`. Set `submitDisabled` when there is no text and no attachments, and
+`disabled` to lock the whole composer. Set `action="sending"` while a send is
+pending and `action="stop"` with `onStop` during generation. Both block sending
+and keep the input and attachments usable. Skip any state your app does not
+have.
 
 Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
-sends from any block. Without `onSubmit`,
-Enter only inserts paragraphs. Three backticks start an editable code block.
-The input grows from `minHeight` (40px) to `maxHeight` (240px), then scrolls.
-Its ref exposes `focus()` for controls outside the editor. If the rich editor
-fails to load or render, the input switches to a plain textarea that keeps the
-draft as Markdown text, the send shortcuts, and disabled and read-only
-behavior. The error goes to `ErrorReporterContext` from
-`@langchain/macaw-components/contexts/ErrorReporterContext`. Errors thrown later
-inside editor event handlers or async work are not caught.
+sends from any block. Without `onSubmit`, Enter only adds paragraphs. Three
+backticks start a code block. The input grows from `minHeight` (40px) to
+`maxHeight` (240px), and its ref exposes `focus()`. If the rich editor fails to
+load, the input switches to a plain textarea and reports the error to
+`ErrorReporterContext` from
+`@langchain/macaw-components/contexts/ErrorReporterContext`.
 
-`ChatComposerAttachmentMenu` opens the file picker; `accept` and `multiple`
-only configure that picker. Files also arrive by drop and paste, so validate
-type, size, and count in `onFilesSelected`. Render the accepted files with
-`ChatComposerAttachment` inside `ChatComposerAttachments`; uploads, previews,
-and removal stay with the consumer.
+Validate files in `onFilesSelected`, which receives picked, dropped, and pasted
+files. `accept` and `multiple` only configure the picker. Render accepted files
+with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
+`status="uploading"` while they upload.
 
-`ChatComposerModelSelect` is a `Select` sized for the toolbar. In a narrow
-composer it shows a "Model" label instead of the model name. Choosing a model
-moves focus to the message input.
+`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
+model moves focus to the message input.
 
-Use `drawer` for content attached above the editor, such as questions to
-answer before sending. The composer still owns submission. Set `drawerIntent`
-to `info`, `warning`, or `error` to tint the drawer, and state the severity in
-its text or an icon too. With a drawer, native validation skips the drawer's
-fields because a collapsed drawer cannot focus them; validate drawer content in
-the consumer. Fields outside the drawer keep native validation.
+Use `drawer` for content above the editor, such as questions to answer before
+sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
+severity in the drawer's text or an icon too. Validate drawer fields yourself;
+only fields outside the drawer get native validation.
 
 ## Tokens
 
