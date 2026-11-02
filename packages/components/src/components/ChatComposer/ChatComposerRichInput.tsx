@@ -34,7 +34,8 @@ export function ChatComposerRichInput({
   'use no memo';
 
   const composer = useChatComposerContext();
-  const editable = !composer.disabled && !disabled && !readOnly;
+  const isDisabled = composer.disabled || disabled;
+  const editable = !isDisabled && !readOnly;
   const { editor } = useChatComposerEditor({
     value,
     onChange,
@@ -45,14 +46,16 @@ export function ChatComposerRichInput({
     editorClassName: cn(
       styles.editor,
       'min-w-0 break-words px-space-1 text-sm leading-relaxed text-primary outline-hidden',
-      !editable && 'text-disabled'
+      // Read-only text is still the user's message, such as a prefilled draft
+      // being typed in, so only disabled input looks unavailable.
+      isDisabled && 'text-disabled'
     ),
     editorAttributes: {
       role: 'textbox',
       style: `min-height: ${minHeight}px`,
       'aria-label': ariaLabel,
       'aria-multiline': 'true',
-      'aria-disabled': String(composer.disabled || disabled),
+      'aria-disabled': String(isDisabled),
       'aria-readonly': String(readOnly),
       ...(ariaDescribedBy ? { 'aria-describedby': ariaDescribedBy } : {}),
     },

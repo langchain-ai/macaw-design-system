@@ -314,9 +314,9 @@ describe('ChatComposer', () => {
   it('disables editing, attachment selection and submission together', async () => {
     render(<ComposerHarness disabled />);
 
-    expect(
-      await screen.findByRole('textbox', { name: 'Message' })
-    ).toHaveAttribute('contenteditable', 'false');
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    expect(input).toHaveAttribute('contenteditable', 'false');
+    expect(input).toHaveClass('text-disabled');
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
     const attach = screen.getByRole('button', { name: 'Add attachments' });
     expect(attach).toBeDisabled();
@@ -498,10 +498,10 @@ describe('ChatComposer', () => {
     expect(
       screen.getByRole('combobox', { name: 'Code language' })
     ).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: 'Message' })).toHaveAttribute(
-      'contenteditable',
-      'false'
-    );
+    const input = screen.getByRole('textbox', { name: 'Message' });
+    expect(input).toHaveAttribute('contenteditable', 'false');
+    // Read-only content stays readable; only disabled input is greyed out.
+    expect(input).not.toHaveClass('text-disabled');
   });
 
   it('follows controlled replacements and draft resets', async () => {
