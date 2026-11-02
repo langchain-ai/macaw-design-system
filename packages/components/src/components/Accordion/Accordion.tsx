@@ -1,17 +1,11 @@
-import {
-  Children,
-  Fragment,
-  isValidElement,
-  type ReactNode,
-  useId,
-  useState,
-} from 'react';
+import { type ReactNode, useId, useState } from 'react';
 
 import { DotsThreeIcon } from '@phosphor-icons/react/dist/ssr/DotsThree';
 
 import { CaretDownIcon } from '../../icons/PaddedPhosphorIcons';
 import { animation } from '../../utils/animation';
 import { cn } from '../../utils/cn';
+import { hasContent } from '../../utils/hasContent';
 import { Avatar } from '../Avatar';
 import {
   DropdownMenu,
@@ -21,18 +15,6 @@ import {
 } from '../DropdownMenu';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
-
-/**
- * Whether a node renders anything, with fragments opened up, so a fragment of
- * only `false` or `null` children counts as empty.
- */
-function hasContent(node: ReactNode): boolean {
-  return Children.toArray(node).some((child) =>
-    isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment
-      ? hasContent(child.props.children)
-      : true
-  );
-}
 
 export interface AccordionProps {
   title?: ReactNode;
