@@ -34,7 +34,7 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
   submitDisabled?: boolean;
   onFilesSelected?: (files: File[]) => void;
 } & (
-    | { action?: 'send'; onStop?: never }
+    | { action?: 'send' | 'sending'; onStop?: never }
     | { action: 'stop'; onStop: () => void }
   );
 
@@ -236,19 +236,21 @@ export function ChatComposerToolbar({
   );
 }
 
+// Pending sends use the composer's action="sending", which also blocks the
+// send shortcuts; a button-level loading state would only block clicks.
 export type ChatComposerActionProps = Omit<
   IconButtonProps,
-  'icon' | 'type' | 'onClick' | 'asChild' | 'label'
+  'icon' | 'type' | 'onClick' | 'asChild' | 'label' | 'loading'
 > & { label?: string };
 
 export function ChatComposerAction({
   disabled,
   label,
-  loading,
   ...props
 }: ChatComposerActionProps) {
   const composer = useChatComposerContext();
   const isStop = composer.action === 'stop';
+  const isSending = composer.action === 'sending';
   return (
     <IconButton
       size="sm"
@@ -258,14 +260,18 @@ export function ChatComposerAction({
       {...props}
       type={isStop ? 'button' : 'submit'}
       icon={isStop ? StopIcon : ArrowUpIcon}
-      label={label ?? (isStop ? 'Stop response' : 'Send message')}
-      disabled={
-        composer.disabled ||
-        disabled ||
-        loading ||
-        (!isStop && !composer.canSubmit)
+      label={
+        label ??
+        (isStop
+          ? 'Stop response'
+          : isSending
+            ? 'Sending message'
+            : 'Send message')
       }
-      loading={loading}
+      disabled={
+        composer.disabled || disabled || (!isStop && !composer.canSubmit)
+      }
+      loading={isSending}
       onClick={isStop ? composer.onStop : undefined}
     />
   );

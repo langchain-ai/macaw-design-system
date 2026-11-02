@@ -114,10 +114,14 @@ file handling from the composer and throw outside it.
 The consumer owns the draft and every side effect. Control the text with
 `value`/`onChange` on `ChatComposerInput`, send from `onSubmit`, and set
 `submitDisabled` while there is nothing to send: no text and no attachments.
-During generation, set `action="stop"` with `onStop`; the send button becomes a
-stop button and send shortcuts stay reserved. While a send is pending, pass
-`loading` to `ChatComposerAction`; show uploads with `status="uploading"` on
-`ChatComposerAttachment`. `disabled` locks the whole composer.
+Describe the send button's state with `action`. `action="sending"` shows a
+spinner while a send is pending, and `action="stop"` with `onStop` turns it
+into a stop button during generation. Both block the button and the send
+shortcuts but keep the input and attachments usable. Send → sending → stop is
+one possible flow: an app that queues messages can stay on `send`, and one with
+nothing to cancel can go from `sending` back to `send`. Show uploads with
+`status="uploading"` on `ChatComposerAttachment`. `disabled` locks the whole
+composer.
 
 Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
 sends from any block. Without `onSubmit`,

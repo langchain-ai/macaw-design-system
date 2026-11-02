@@ -3,7 +3,7 @@ import { createContext, useContext, type RefObject } from 'react';
 export interface ChatComposerContextValue {
   disabled: boolean;
   canSubmit: boolean;
-  action: 'send' | 'stop';
+  action: 'send' | 'sending' | 'stop';
   submit?: () => void;
   onStop?: () => void;
   onFilesSelected?: (files: File[]) => void;

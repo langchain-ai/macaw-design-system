@@ -161,6 +161,7 @@ function ComposerDemo({
   const [model, setModel] = useState('balanced');
   const [attachments, setAttachments] = useState(initialAttachments);
   const [isResponding, setIsResponding] = useState(initialResponding);
+  const [isSending, setIsSending] = useState(false);
   const [queuedCount, setQueuedCount] = useState(0);
   const [notice, setNotice] = useState('');
   const [lastMessage, setLastMessage] = useState('');
@@ -177,8 +178,9 @@ function ComposerDemo({
     setIsResponding(false);
     setNotice('Response stopped. Your draft is preserved.');
   };
-  const actionProps: ChatComposerProps =
-    isResponding && !queueWhileRunning
+  const actionProps: ChatComposerProps = isSending
+    ? { action: 'sending' }
+    : isResponding && !queueWhileRunning
       ? { action: 'stop', onStop: stop }
       : { action: 'send' };
 
@@ -222,8 +224,13 @@ function ComposerDemo({
             setQueuedCount((count) => count + 1);
             setNotice('Follow-up queued in this demo.');
           } else {
-            setIsResponding(true);
-            setNotice('Message submitted in this demo. Select Stop to finish.');
+            setIsSending(true);
+            setNotice('Sending in this demo…');
+            setTimeout(() => {
+              setIsSending(false);
+              setIsResponding(true);
+              setNotice('Message sent in this demo. Select Stop to finish.');
+            }, 800);
           }
         }}
       >

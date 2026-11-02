@@ -29,12 +29,14 @@ function ComposerHarness({
   disabled = false,
   submitDisabled = false,
   streaming = false,
+  sending = false,
   withSubmitHandler = true,
 }: {
   initialDraft?: string;
   disabled?: boolean;
   submitDisabled?: boolean;
   streaming?: boolean;
+  sending?: boolean;
   withSubmitHandler?: boolean;
 }) {
   const [draft, setDraft] = useState(initialDraft);
@@ -43,7 +45,7 @@ function ComposerHarness({
   const [model, setModel] = useState('balanced');
   const actionProps: ChatComposerProps = streaming
     ? { action: 'stop', onStop: () => setResult('Stopped') }
-    : { action: 'send' };
+    : { action: sending ? 'sending' : 'send' };
 
   return (
     <>
@@ -259,6 +261,7 @@ describe('ChatComposer', () => {
   it.each([
     { state: 'submission is disabled', submitDisabled: true },
     { state: 'a response is streaming', streaming: true },
+    { state: 'a send is pending', sending: true },
   ])('keeps Enter reserved for sending when $state', async (props) => {
     const { user } = render(<ComposerHarness {...props} />);
     const input = await screen.findByRole('textbox', { name: 'Message' });
@@ -275,6 +278,15 @@ describe('ChatComposer', () => {
 
     await user.keyboard('{Shift>}{Enter}{/Shift}');
     expect(within(input).getAllByRole('paragraph')).toHaveLength(2);
+  });
+
+  it('shows a pending send on the disabled send button', async () => {
+    render(<ComposerHarness sending />);
+    await screen.findByRole('textbox', { name: 'Message' });
+
+    expect(
+      screen.getByRole('button', { name: 'Sending message' })
+    ).toBeDisabled();
   });
 
   it.each(['Control', 'Meta'])(
