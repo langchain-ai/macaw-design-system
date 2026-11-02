@@ -113,9 +113,11 @@ file handling from the composer and throw outside it.
 
 The consumer owns the draft and every side effect. Control the text with
 `value`/`onChange` on `ChatComposerInput`, send from `onSubmit`, and set
-`submitDisabled` while the draft is empty. During generation, set
-`action="stop"` with `onStop`; the send button becomes a stop button and send
-shortcuts stay reserved. `disabled` locks the whole composer.
+`submitDisabled` while there is nothing to send: no text and no attachments.
+During generation, set `action="stop"` with `onStop`; the send button becomes a
+stop button and send shortcuts stay reserved. While a send is pending, pass
+`loading` to `ChatComposerAction`; show uploads with `status="uploading"` on
+`ChatComposerAttachment`. `disabled` locks the whole composer.
 
 Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
 sends from any block. Without `onSubmit`,
@@ -130,7 +132,8 @@ type, size, and count in `onFilesSelected`. Render the accepted files with
 and removal stay with the consumer.
 
 `ChatComposerModelSelect` is a `Select` sized for the toolbar. In a narrow
-composer it shows a "Model" label; its tooltip always names the selected model.
+composer it shows a "Model" label instead of the model name. Choosing a model
+moves focus to the message input.
 
 Use `drawer` for content attached above the editor, such as questions to
 answer before sending. The composer still owns submission. Set `drawerIntent`

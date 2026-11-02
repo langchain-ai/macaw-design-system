@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type RefObject } from 'react';
 
 export interface ChatComposerContextValue {
   disabled: boolean;
@@ -7,6 +7,8 @@ export interface ChatComposerContextValue {
   submit?: () => void;
   onStop?: () => void;
   onFilesSelected?: (files: File[]) => void;
+  /** Set by ChatComposerInput; returns false when the input cannot take focus. */
+  inputFocusRef?: RefObject<(() => boolean) | null>;
 }
 
 export const ChatComposerContext =

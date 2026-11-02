@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { createContext, useContext, useRef } from 'react';
+import { createContext, useContext, useRef, useState } from 'react';
 
 import { PaperclipIcon } from '@phosphor-icons/react/dist/ssr/Paperclip';
 import { PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
@@ -38,11 +38,24 @@ export function ChatComposerAttachmentMenu({
   const composer = useChatComposerContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isDisabled = composer.disabled || disabled;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const pointerOverTrigger = useRef(false);
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      {/* Non-modal like the model select, so an outside click reaches its
+          target instead of only closing the menu. */}
+      <DropdownMenu
+        modal={false}
+        open={menuOpen}
+        onOpenChange={(open) => {
+          setMenuOpen(open);
+          setTooltipOpen(false);
+        }}
+      >
+        {/* Radix opens menus on pointerdown, which disabled buttons still get. */}
+        <DropdownMenuTrigger asChild disabled={isDisabled}>
           <IconButton
             type="button"
             icon={PlusIcon}
@@ -52,6 +65,19 @@ export function ChatComposerAttachmentMenu({
             color="secondary"
             variant="plain"
             disabled={isDisabled}
+            onPointerEnter={() => {
+              pointerOverTrigger.current = true;
+            }}
+            onPointerLeave={() => {
+              pointerOverTrigger.current = false;
+            }}
+            // Hover only, and never over the open menu: Radix also opens
+            // tooltips on focus, which the menu returns here when it closes.
+            tooltipProps={{
+              open: tooltipOpen,
+              onOpenChange: (open) =>
+                setTooltipOpen(open && pointerOverTrigger.current && !menuOpen),
+            }}
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent

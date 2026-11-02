@@ -92,6 +92,11 @@ interface SelectBaseProps<T extends string = string> extends DataAttributes {
   side?: 'top' | 'bottom' | 'left' | 'right';
   /** Alignment of the popover relative to the trigger */
   align?: 'start' | 'center' | 'end';
+  /**
+   * Called when the menu closes, before focus returns to the trigger. Move
+   * focus elsewhere and call `event.preventDefault()` to keep it there.
+   */
+  onCloseAutoFocus?: (event: Event) => void;
   /** aria-label for the trigger button */
   'aria-label'?: string;
   /** Test id for the trigger button */
@@ -160,6 +165,7 @@ function OptionSelect<T extends string = string>({
   renderOption,
   side,
   align = 'start',
+  onCloseAutoFocus,
   'aria-label': ariaLabel,
   'data-testid': dataTestId,
   ...rest
@@ -299,6 +305,7 @@ function OptionSelect<T extends string = string>({
         )}
         side={side}
         align={align}
+        onCloseAutoFocus={onCloseAutoFocus}
       >
         {commandGroups ? (
           <CommandMenu groups={commandGroups} {...commandMenuSharedProps} />

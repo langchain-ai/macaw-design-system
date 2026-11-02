@@ -30,6 +30,10 @@
   @apply list-outside list-decimal pl-space-5;
 }
 
+.editor a {
+  @apply text-link underline underline-offset-2;
+}
+
 .editor blockquote {
   @apply border-l-2 border-default pl-space-3 text-secondary;
 }

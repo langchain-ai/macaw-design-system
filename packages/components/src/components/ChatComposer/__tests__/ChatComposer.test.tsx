@@ -12,7 +12,14 @@ import {
   ChatComposerToolbar,
 } from '..';
 import type { ChatComposerProps } from '..';
-import { act, render, screen, within } from '../../../test-utils';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../../../test-utils';
 import { Button } from '../../Button';
 import { Input } from '../../Input';
 import { isComposerSubmitKey } from '../ChatComposerContext';
@@ -311,9 +318,11 @@ describe('ChatComposer', () => {
       await screen.findByRole('textbox', { name: 'Message' })
     ).toHaveAttribute('contenteditable', 'false');
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: 'Add attachments' })
-    ).toBeDisabled();
+    const attach = screen.getByRole('button', { name: 'Add attachments' });
+    expect(attach).toBeDisabled();
+    // Browsers still send pointer events to disabled buttons.
+    fireEvent.pointerDown(attach, { button: 0, ctrlKey: false });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Model' })).toBeDisabled();
   });
 
@@ -363,9 +372,9 @@ describe('ChatComposer', () => {
     expect(screen.getByText('Upload failed.')).toBeVisible();
   });
 
-  it('changes the selected model through the supplied options', async () => {
+  it('changes the selected model and continues in the message', async () => {
     const { user } = render(<ComposerHarness />);
-    await screen.findByRole('textbox', { name: 'Message' });
+    const input = await screen.findByRole('textbox', { name: 'Message' });
 
     await user.click(screen.getByRole('combobox', { name: 'Model' }));
     await user.click(await screen.findByRole('option', { name: 'Reasoning' }));
@@ -373,6 +382,48 @@ describe('ChatComposer', () => {
     expect(screen.getByRole('combobox', { name: 'Model' })).toHaveTextContent(
       'Reasoning'
     );
+    await waitFor(() => expect(input).toHaveFocus());
+  });
+
+  it('shows the attachment tooltip on hover but not around its open menu', async () => {
+    const { user } = render(<ComposerHarness />);
+    await screen.findByRole('textbox', { name: 'Message' });
+    const attach = screen.getByRole('button', { name: 'Add attachments' });
+    const outlastTooltipDelay = () =>
+      act(() => new Promise((resolve) => setTimeout(resolve, 400)));
+
+    await user.hover(attach);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Add attachments'
+    );
+
+    await user.click(attach);
+    await screen.findByRole('menu');
+    await user.unhover(attach);
+    await user.hover(attach);
+    await outlastTooltipDelay();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+    // Escape returns focus to the button, which must not open the tooltip.
+    await user.unhover(attach);
+    await user.keyboard('{Escape}');
+    expect(attach).toHaveFocus();
+    await outlastTooltipDelay();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('lets a click outside the attachment menu reach its target', async () => {
+    const { user } = render(<ComposerHarness />);
+    await screen.findByRole('textbox', { name: 'Message' });
+
+    await user.click(screen.getByRole('button', { name: 'Add attachments' }));
+    expect(await screen.findByRole('menu')).toBeInTheDocument();
+    await user.click(screen.getByRole('combobox', { name: 'Model' }));
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('option', { name: 'Reasoning' })
+    ).toBeVisible();
   });
 
   it('renders editable code inside the same rich input', async () => {
@@ -483,7 +534,16 @@ describe('ChatComposer', () => {
   });
 });
 
-describe('composer validation with a drawer', () => {
+describe('composer with a drawer', () => {
+  it('disables drawer controls with the composer', () => {
+    render(
+      <ChatComposer disabled drawer={<Button>Skip</Button>}>
+        <Button type="submit">Send</Button>
+      </ChatComposer>
+    );
+    expect(screen.getByRole('button', { name: 'Skip' })).toBeDisabled();
+  });
+
   it('blocks submit on an invalid composer field but not on drawer fields', async () => {
     const onSubmit = vi.fn();
     const composer = (composerField: boolean) => (
@@ -505,6 +565,27 @@ describe('composer validation with a drawer', () => {
     rerender(composer(false));
     await user.click(screen.getByRole('button', { name: 'Send' }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('composer input placeholder', () => {
+  it('updates the placeholder when the prop changes', async () => {
+    const composer = (placeholder: string) => (
+      <ChatComposer>
+        <ChatComposerInput
+          value=""
+          onChange={() => {}}
+          placeholder={placeholder}
+        />
+      </ChatComposer>
+    );
+    const { rerender } = render(composer('Ask Polly…'));
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    rerender(composer('Ask a follow-up…'));
+    expect(input.querySelector('[data-placeholder]')).toHaveAttribute(
+      'data-placeholder',
+      'Ask a follow-up…'
+    );
   });
 });
 

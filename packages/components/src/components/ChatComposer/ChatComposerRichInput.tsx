@@ -68,6 +68,16 @@ export function ChatComposerRichInput({
     [editor, editable]
   );
 
+  useImperativeHandle(
+    composer.inputFocusRef,
+    () => () => {
+      if (!editable || !editor) return false;
+      editor.commands.focus('end');
+      return true;
+    },
+    [editor, editable]
+  );
+
   return (
     <div
       className={cn('min-w-0 overflow-y-auto overscroll-contain', className)}

@@ -62,13 +62,21 @@ export function useChatComposerEditor({
 
   const valueRef = useRef(value);
   const pastingTableText = useRef(false);
+  const placeholderRef = useRef(placeholder);
   const [editRevision, reconcileEdit] = useReducer(
     (revision: number) => revision + 1,
     0
   );
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ codeBlock: false, link: false }),
+      StarterKit.configure({
+        codeBlock: false,
+        // Links keep their URL in the draft but never navigate from the editor.
+        link: { openOnClick: false, autolink: false, linkOnPaste: false },
+        // Markdown has no underline, and pasted links carry it as an inline
+        // style that would continue into the text typed after them.
+        underline: false,
+      }),
       PlainTextTables,
       Markdown.configure({
         html: false,
@@ -77,7 +85,7 @@ export function useChatComposerEditor({
         breaks: true,
         transformPastedText: true,
       }),
-      Placeholder.configure({ placeholder }),
+      Placeholder.configure({ placeholder: () => placeholderRef.current }),
       ChatComposerCodeBlock,
     ],
     content: value,
@@ -141,6 +149,13 @@ export function useChatComposerEditor({
     editor.commands.setContent(value, { emitUpdate: false });
     valueRef.current = value;
   }, [value, editor, editRevision]);
+
+  useEffect(() => {
+    if (!editor || placeholderRef.current === placeholder) return;
+    placeholderRef.current = placeholder;
+    // Placeholder decorations only recompute on a transaction.
+    editor.view.dispatch(editor.state.tr);
+  }, [placeholder, editor]);
 
   useEffect(() => {
     if (!editor || editor.isEditable === editable) return;

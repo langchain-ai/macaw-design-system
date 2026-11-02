@@ -169,18 +169,47 @@ describe('ChatComposer paste and drop', () => {
     }
   );
 
-  it('keeps line breaks from the host value when the draft is edited', async () => {
-    const { user } = render(
-      <PasteHarness rich initialDraft={'first\nsecond'} />
-    );
-    await screen.findByRole('textbox', { name: 'Message' });
+  it.each([
+    ['line breaks', 'first\nsecond', /first\\\nsecond/],
+    [
+      'link URLs',
+      'Read [spec](https://example.com/spec)',
+      /\[spec\]\(https:\/\/example\.com\/spec\)/,
+    ],
+  ])(
+    'keeps %s from the host value when the draft is edited',
+    async (_kept, initialDraft, draft) => {
+      const { user } = render(
+        <PasteHarness rich initialDraft={initialDraft} />
+      );
+      await screen.findByRole('textbox', { name: 'Message' });
+      await user.tab();
+
+      await user.paste(clipboard('!', false));
+
+      expect(screen.getByLabelText('Draft').textContent).toMatch(draft);
+    }
+  );
+
+  it('keeps a pasted link without its inline underline style', async () => {
+    const { user } = render(<PasteHarness rich initialDraft="" />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
     await user.tab();
 
-    await user.paste(clipboard('!', false));
-
-    expect(screen.getByLabelText('Draft').textContent).toMatch(
-      /first\\\nsecond/
+    // Chrome copies a link with its computed styles inlined.
+    await user.paste(
+      clipboard(
+        'https://example.com/',
+        false,
+        '<a href="https://example.com/" style="text-decoration: underline">https://example.com/</a>'
+      )
     );
+
+    expect(within(input).getByRole('link')).toHaveAttribute(
+      'href',
+      'https://example.com/'
+    );
+    expect(input.querySelector('u')).not.toBeInTheDocument();
   });
 
   it('lets the rich editor insert mixed-paste text into its Markdown draft', async () => {

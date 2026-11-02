@@ -38,6 +38,9 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
     | { action: 'stop'; onStop: () => void }
   );
 
+// A disabled or read-only part of the composer, such as a read-only message
+// input, does not accept input, so files dropped or pasted onto it are not
+// attached either.
 function isAttachmentTargetBlocked(target: EventTarget) {
   return (
     target instanceof Element &&
@@ -87,6 +90,7 @@ export function ChatComposer({
     !disabled && !submitDisabled && action === 'send' && !!onSubmit;
   const hasDrawer = Boolean(drawer);
   const fieldsetRef = useRef<HTMLFieldSetElement>(null);
+  const inputFocusRef = useRef<(() => boolean) | null>(null);
   // Inert drawer fields cannot be focused to report errors, so the drawer's
   // host validates them; fields outside the drawer keep native checks.
   const validatesFieldsetOnly = noValidate === undefined && hasDrawer;
@@ -99,6 +103,7 @@ export function ChatComposer({
         action,
         onStop,
         onFilesSelected,
+        inputFocusRef,
         submit: onSubmit
           ? () => {
               if (canSubmit) formRef.current?.requestSubmit();
@@ -168,7 +173,8 @@ export function ChatComposer({
         }}
       >
         {hasDrawer && (
-          <div
+          <fieldset
+            disabled={disabled}
             className={cn(
               // Extends under the composer's rounded top so the seam stays hidden.
               'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 overflow-y-auto overscroll-contain rounded-t-xl border border-b-0 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
@@ -177,13 +183,16 @@ export function ChatComposer({
             )}
           >
             {drawer}
-          </div>
+          </fieldset>
         )}
         <fieldset
           ref={fieldsetRef}
           disabled={disabled}
           className={cn(
-            'relative m-0 flex w-full min-w-0 flex-col gap-space-2 rounded-xl border border-subtle bg-elevated p-space-2 transition-[border-color,box-shadow,background-color] duration-normal focus-within:border-focus focus-within:shadow-[0_0_0_1px_var(--border-focus)] motion-reduce:transition-none',
+            'relative m-0 flex w-full min-w-0 flex-col gap-space-2 rounded-xl border border-subtle bg-elevated p-space-2 transition-[border-color,box-shadow,background-color] duration-normal motion-reduce:transition-none',
+            // Toolbar menus portal out, so focus-within would flash as focus
+            // moves from their trigger to the menu; only typing shows focus.
+            'has-[:is(textarea,[contenteditable=true]):focus]:border-focus has-[:is(textarea,[contenteditable=true]):focus]:shadow-[0_0_0_1px_var(--border-focus)]',
             disabled && 'border-disabled bg-input-disabled',
             isDropTarget &&
               !disabled &&
