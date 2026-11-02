@@ -29,7 +29,8 @@ export function ChatComposerPlainInput({
 }: ChatComposerPlainInputProps) {
   const composer = useChatComposerContext();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const editable = !composer.disabled && !disabled && !readOnly;
+  const isDisabled = composer.disabled || disabled;
+  const editable = !isDisabled && !readOnly;
 
   useImperativeHandle(
     ref,
@@ -62,7 +63,7 @@ export function ChatComposerPlainInput({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      disabled={composer.disabled || disabled}
+      disabled={isDisabled}
       readOnly={readOnly}
       autoFocus={autoFocus}
       aria-label={ariaLabel}

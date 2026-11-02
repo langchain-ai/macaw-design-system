@@ -10,6 +10,7 @@ import { IconButton } from '../IconButton';
 import type { IconButtonProps } from '../IconButton';
 import {
   ChatComposerContext,
+  type ChatComposerContextValue,
   useChatComposerContext,
 } from './ChatComposerContext';
 
@@ -236,6 +237,12 @@ export function ChatComposerToolbar({
   );
 }
 
+const ACTION_LABELS = {
+  send: 'Send message',
+  sending: 'Sending message',
+  stop: 'Stop response',
+} satisfies Record<ChatComposerContextValue['action'], string>;
+
 // Pending sends use the composer's action="sending", which also blocks the
 // send shortcuts; a button-level loading state would only block clicks.
 export type ChatComposerActionProps = Omit<
@@ -250,7 +257,6 @@ export function ChatComposerAction({
 }: ChatComposerActionProps) {
   const composer = useChatComposerContext();
   const isStop = composer.action === 'stop';
-  const isSending = composer.action === 'sending';
   return (
     <IconButton
       size="sm"
@@ -260,18 +266,11 @@ export function ChatComposerAction({
       {...props}
       type={isStop ? 'button' : 'submit'}
       icon={isStop ? StopIcon : ArrowUpIcon}
-      label={
-        label ??
-        (isStop
-          ? 'Stop response'
-          : isSending
-            ? 'Sending message'
-            : 'Send message')
-      }
+      label={label ?? ACTION_LABELS[composer.action]}
       disabled={
         composer.disabled || disabled || (!isStop && !composer.canSubmit)
       }
-      loading={isSending}
+      loading={composer.action === 'sending'}
       onClick={isStop ? composer.onStop : undefined}
     />
   );
