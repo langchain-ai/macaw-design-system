@@ -1,3 +1,13 @@
+## 1.3.5 (2026-11-02)
+
+### 🚀 Features
+
+- **storybook:** [FEP-578] brandUrl should not redirect to langchain's site ([#69](https://github.com/langchain-ai/macaw-design-system/pull/69))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+
 ## 1.3.4 (2026-10-31)
 
 ### 🚀 Features
