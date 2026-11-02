@@ -257,6 +257,8 @@ module.exports = {
         'warning-secondary': 'var(--bg-warning-secondary)',
       },
       borderColor: {
+        control: 'var(--border-control)',
+        'control-hover': 'var(--border-control-hover)',
         input: 'var(--border-input)',
         'input-hover': 'var(--border-input-hover)',
         default: 'var(--border-default)',

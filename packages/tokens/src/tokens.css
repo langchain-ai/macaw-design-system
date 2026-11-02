@@ -186,8 +186,10 @@
   --bg-selected-hover: var(--brand-50);
 
   /* BORDER COLORS */
-  --border-input: var(--border-subtle);
-  --border-input-hover: var(--border-default);
+  --border-control: var(--border-subtle); /* outlined controls: secondary buttons, fields, grouped tabs */
+  --border-control-hover: var(--border-default);
+  --border-input: var(--border-control);
+  --border-input-hover: var(--border-control-hover);
   --border-default: var(--neutral-300);
   --border-subtle: var(--neutral-200);
   --border-muted: var(--neutral-100);
@@ -799,8 +801,10 @@ html.dark,
   --bg-selected-hover: var(--brand-100);
 
   /* BORDER */
-  --border-input: var(--border-muted);
-  --border-input-hover: var(--border-subtle);
+  --border-control: var(--border-muted);
+  --border-control-hover: var(--border-subtle);
+  --border-input: var(--border-control);
+  --border-input-hover: var(--border-control-hover);
   --border-default: var(--neutral-400);
   --border-subtle: var(--neutral-300);
   --border-muted: var(--neutral-200);

@@ -304,9 +304,11 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 `bg-elevated` surfaces stay white in light mode; menu hover and selection fills
 use `neutral-100`.
 
-Outlined fields use `border-input` at rest and `border-input-hover` on hover.
-These resolve to `border-subtle` / `border-default` in light mode and
-`border-muted` / `border-subtle` in dark mode. Input, Textarea, and Typeahead
+Outlined controls (secondary Buttons, fields, and Grouped tabs) share
+`border-control` at rest and `border-control-hover` on hover, so controls in
+the same row have the same edge. These resolve to `border-subtle` /
+`border-default` in light mode and `border-muted` / `border-subtle` in dark
+mode. Fields use them through the `border-input` / `border-input-hover` aliases. Input, Textarea, and Typeahead
 keep `bg-input` on hover. Select uses `bg-input-hover` to override the Button
 hover fill: white in light mode and `neutral-200` in dark mode. Fields retain semantic focus and error indicators and a 1px outer
 focus ring; native inputs stay unoutlined inside their containers.
@@ -376,8 +378,10 @@ Used internally by Checkbox, RadioButton, Switch, and Slider. Prefer those compo
 
 | Class                 | When to use                              |
 | --------------------- | ---------------------------------------- |
-| `border-input`       | Enabled field border; adapts per theme     |
-| `border-input-hover` | Enabled field hover border                 |
+| `border-control`       | Outlined control border: secondary buttons, fields, grouped tabs |
+| `border-control-hover` | Outlined control hover border              |
+| `border-input`       | Enabled field border; alias of `border-control` |
+| `border-input-hover` | Enabled field hover border; alias of `border-control-hover` |
 | `border-default`      | Default input, card, or container border |
 | `border-subtle`       | Subtle divider                           |
 | `border-muted`        | Very subtle divider                      |
