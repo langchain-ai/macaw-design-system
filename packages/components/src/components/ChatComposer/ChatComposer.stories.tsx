@@ -92,6 +92,7 @@ interface ComposerDemoProps {
   initialAttachments?: DemoAttachment[];
   attachmentAppearance?: Pick<ChatComposerAttachmentsProps, 'size' | 'variant'>;
   initialResponding?: boolean;
+  initialSending?: boolean;
   queueWhileRunning?: boolean;
   narrow?: boolean;
   showTools?: boolean;
@@ -148,6 +149,7 @@ function ComposerDemo({
   initialAttachments = [],
   attachmentAppearance,
   initialResponding = false,
+  initialSending = false,
   queueWhileRunning = false,
   narrow = false,
   showTools = false,
@@ -161,7 +163,7 @@ function ComposerDemo({
   const [model, setModel] = useState('balanced');
   const [attachments, setAttachments] = useState(initialAttachments);
   const [isResponding, setIsResponding] = useState(initialResponding);
-  const [isSending, setIsSending] = useState(false);
+  const [isSending, setIsSending] = useState(initialSending);
   const [queuedCount, setQueuedCount] = useState(0);
   const [notice, setNotice] = useState('');
   const [lastMessage, setLastMessage] = useState('');
@@ -437,6 +439,24 @@ export const AttachmentStates: Story = {
         />
       </div>
     </div>
+  ),
+};
+
+export const WhileSending: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`action="sending"` shows a spinner on the send button while a send is pending and blocks the button and send shortcuts. The input and attachments stay usable, so the next message can be drafted.',
+      },
+    },
+  },
+  render: () => (
+    <ComposerDemo
+      initialSending
+      initialDraft="Drafting the next message while this one sends…"
+    />
   ),
 };
 
