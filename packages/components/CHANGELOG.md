@@ -1,3 +1,13 @@
+## 1.3.4 (2026-10-31)
+
+### 🚀 Features
+
+- **components:** add ChatConversationList [FEP-584] ([#74](https://github.com/langchain-ai/macaw-design-system/pull/74))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.3.3 (2026-10-30)
 
 ### 🚀 Features
