@@ -127,7 +127,12 @@ Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
 sends from any block. Without `onSubmit`,
 Enter only inserts paragraphs. Three backticks start an editable code block.
 The input grows from `minHeight` (40px) to `maxHeight` (240px), then scrolls.
-Its ref exposes `focus()` for controls outside the editor.
+Its ref exposes `focus()` for controls outside the editor. If the rich editor
+fails to load or render, the input switches to a plain textarea that keeps the
+draft as Markdown text, the send shortcuts, and disabled and read-only
+behavior. The error goes to `ErrorReporterContext` from
+`@langchain/macaw-components/contexts/ErrorReporterContext`. Errors thrown later
+inside editor event handlers or async work are not caught.
 
 `ChatComposerAttachmentMenu` opens the file picker; `accept` and `multiple`
 only configure that picker. Files also arrive by drop and paste, so validate
