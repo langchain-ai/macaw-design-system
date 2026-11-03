@@ -532,7 +532,15 @@ export const LoadingAndErrorStates: Story = {
     return (
       <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2">
         {(
-          ['bar', 'line', 'donut', 'metric', 'sparkline', 'sankey'] as const
+          [
+            'bar',
+            'horizontal-bar',
+            'line',
+            'donut',
+            'metric',
+            'sparkline',
+            'sankey',
+          ] as const
         ).map((skeletonVariant) => (
           <ChartCard
             key={skeletonVariant}
@@ -554,7 +562,7 @@ export const AutoHeightLoadingStates: Story = {
   args: { title: '', children: null },
   render: () => (
     <div className="flex flex-col gap-space-4">
-      {(['bar', 'line', 'sparkline', 'sankey'] as const).map(
+      {(['bar', 'horizontal-bar', 'line', 'sparkline', 'sankey'] as const).map(
         (skeletonVariant) => (
           <ChartCard
             key={skeletonVariant}

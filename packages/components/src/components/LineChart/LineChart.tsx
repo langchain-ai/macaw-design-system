@@ -3,7 +3,10 @@ import { useState, type HTMLAttributes } from 'react';
 import { useResizeObserver } from '@mantine/hooks';
 import { scaleLinear } from '@visx/scale';
 
-import { getCategoricalLineChartColor } from '../../utils/chartColors';
+import {
+  getCategoricalFillColor,
+  getCategoricalLineChartColor,
+} from '../../utils/chartColors';
 import {
   CHART_AXIS_LABEL_THICKNESS,
   CHART_TICK_FONT_SIZE,
@@ -20,6 +23,8 @@ import type {
   LineChartDisplayAxis,
   LineChartDisplaySeries,
   LineChartProps,
+  LineChartStackedSeries,
+  LineChartVariant,
   LineChartYAxis,
 } from './LineChart.types';
 import {
@@ -28,6 +33,7 @@ import {
   getLineSegments,
   getNumericDomain,
   normalizeLineChartSeries,
+  stackLineChartSeries,
 } from './LineChart.utils';
 import { LineChartPlot } from './LineChartPlot';
 
@@ -41,6 +47,7 @@ export type {
   LineChartProps,
   LineChartSelectionRange,
   LineChartSeries,
+  LineChartVariant,
   LineChartVerticalMarker,
   LineChartXScale,
   LineChartYBand,
@@ -65,8 +72,12 @@ const NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
 
 const defaultFormatValue = (value: number) => NUMBER_FORMATTER.format(value);
 
+// Areas are filled marks, so line-palette colors switch to their fill pair.
+const getSeriesColor = (color: string, variant: LineChartVariant) =>
+  variant === 'stacked-area' ? getCategoricalFillColor(color) : color;
+
 const resolveAxisLayouts = (
-  series: readonly LineChartDisplaySeries[],
+  series: readonly Pick<LineChartDisplaySeries, 'yAxisId' | 'points'>[],
   configuredAxes: readonly LineChartYAxis[] | undefined,
   xDomain: readonly [number, number],
   connectNulls: boolean
@@ -112,6 +123,13 @@ const resolveAxisLayouts = (
   });
 };
 
+// A stacked band spans y0 to y1, so both edges bound its axis.
+const getStackedEdges = (series: readonly LineChartStackedSeries[]) =>
+  series.flatMap(({ yAxisId, points }) => [
+    { yAxisId, points: points.map(({ x, y0 }) => ({ x, y: y0 })) },
+    { yAxisId, points: points.map(({ x, y1 }) => ({ x, y: y1 })) },
+  ]);
+
 const resolveAxes = (
   layouts: readonly LineChartAxisLayout[],
   innerHeight: number
@@ -127,12 +145,13 @@ const resolveAxes = (
   }));
 
 /**
- * Responsive numeric line chart with nullable observations, multiple axes,
- * legend filtering, configurable grids and x scales, brushing, and
- * consumer-owned tooltip interactions.
+ * Responsive numeric line or stacked-area chart with nullable observations,
+ * multiple axes, legend filtering, configurable grids and x scales, brushing,
+ * and consumer-owned tooltip interactions.
  */
 export const LineChart = ({
   series,
+  variant = 'line',
   yAxes,
   xDomain,
   formatXValue = defaultFormatValue,
@@ -177,7 +196,10 @@ export const LineChart = ({
   const displaySeries: readonly LineChartDisplaySeries[] = normalizedSeries.map(
     (item, index) => ({
       ...item,
-      color: item.color ?? getCategoricalLineChartColor(index),
+      color: getSeriesColor(
+        item.color ?? getCategoricalLineChartColor(index),
+        variant
+      ),
       yAxisId: item.yAxisId ?? defaultAxisId,
       strokeWidth:
         item.strokeWidth == null || !Number.isFinite(item.strokeWidth)
@@ -231,8 +253,12 @@ export const LineChart = ({
             marker.x >= resolvedXDomain[0] && marker.x <= resolvedXDomain[1]
         )
       : verticalMarkers;
+  const stackedSeries =
+    variant === 'stacked-area'
+      ? stackLineChartSeries(renderedSeries)
+      : undefined;
   const axisLayouts = resolveAxisLayouts(
-    renderedSeries,
+    stackedSeries == null ? renderedSeries : getStackedEdges(stackedSeries),
     yAxes,
     resolvedXDomain,
     connectNulls
@@ -325,6 +351,7 @@ export const LineChart = ({
         uniqueXValues={uniqueXValues}
         axes={axes}
         series={renderedSeries}
+        stackedSeries={stackedSeries}
         formatXValue={formatXValue}
         xTickCount={xTickCount}
         xTickValues={xTickValues}

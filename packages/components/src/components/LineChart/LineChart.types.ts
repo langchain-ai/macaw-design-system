@@ -61,6 +61,8 @@ export type LineChartInteractionDatum = {
 
 export type LineChartXScale = 'linear' | 'band';
 
+export type LineChartVariant = 'line' | 'stacked-area';
+
 export type LineChartSelectionRange = {
   from: number;
   to: number;
@@ -115,6 +117,16 @@ export type LineChartDisplaySeries = {
   showActiveMarker: boolean;
 };
 
+/** A stacked-area point. `y` keeps the series' own value; `y0` and `y1` bound its band. */
+export type LineChartStackedPoint = LineChartPoint & {
+  y0: number;
+  y1: number;
+};
+
+export type LineChartStackedSeries = Omit<LineChartDisplaySeries, 'points'> & {
+  points: readonly LineChartStackedPoint[];
+};
+
 export type LineChartDisplayAxis = LineChartYAxis & {
   thickness: number;
   scale: ReturnType<typeof scaleLinear<number>>;
@@ -144,6 +156,15 @@ export type LineChartProps = Omit<
 > &
   LineChartLegendConfig & {
     series: readonly LineChartSeries[];
+    /**
+     * `line` compares how individual series change. `stacked-area` shows a
+     * total and each series' contribution, so use it only for same-unit values
+     * that add up, such as counts, never averages, rates, latency, or
+     * percentiles. It stacks series that share a y axis as solid areas, using
+     * the fill palette and ignoring stroke styles. A missing or null value adds
+     * nothing to its stack. Defaults to line.
+     */
+    variant?: LineChartVariant;
     yAxes?: readonly LineChartYAxis[];
     xDomain?: readonly [number, number];
     formatXValue?: (value: number) => string;

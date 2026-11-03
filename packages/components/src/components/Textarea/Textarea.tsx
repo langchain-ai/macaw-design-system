@@ -158,10 +158,10 @@ export const Textarea = forwardRef<
           'py-space-2': size === 'lg',
         },
         'focus-within:outline-hidden',
-        'border-muted',
+        'border-input',
         !disabled &&
           !isError &&
-          '[&:hover:not(:focus-within)]:border-subtle',
+          '[&:hover:not(:focus-within)]:border-input-hover',
         !disabled &&
           !isError &&
           'focus-within:border-focus focus-within:shadow-[0_0_0_1px_var(--border-focus)]',

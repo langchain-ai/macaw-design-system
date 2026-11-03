@@ -23,7 +23,7 @@ type BreadcrumbPageProps = ComponentPropsWithoutRef<'span'> & {
 
 const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
   ({ children, className, separator = '/', ...props }, ref) => {
-    const items = Children.toArray(children);
+    const items = Children.toArray(children).filter((item) => item !== '');
     if (!items.length) return null;
 
     return (
@@ -72,6 +72,9 @@ const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
     ref
   ) => {
     const linkProps = {
+      ...(typeof children === 'string' && as?.props.title === undefined
+        ? { title: children }
+        : {}),
       ...props,
       ref,
       className: cn(
@@ -79,8 +82,6 @@ const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
         as?.props.className,
         className
       ),
-      title:
-        props.title ?? (typeof children === 'string' ? children : undefined),
       children: (
         <>
           {LeftIcon && (

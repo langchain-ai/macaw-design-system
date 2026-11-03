@@ -6,7 +6,7 @@ import { curveLinear } from '@visx/curve';
 import { GridColumns, GridRows } from '@visx/grid';
 import { Group } from '@visx/group';
 import type { scaleBand, scaleLinear } from '@visx/scale';
-import { LinePath } from '@visx/shape';
+import { Area, LinePath } from '@visx/shape';
 
 import {
   getChartAxisLabelOffset,
@@ -30,6 +30,7 @@ import type {
   LineChartDisplaySeries,
   LineChartInteractionDatum,
   LineChartSelectionRange,
+  LineChartStackedSeries,
   LineChartVerticalMarker,
   LineChartYBand,
 } from './LineChart.types';
@@ -72,6 +73,8 @@ type LineChartPlotProps = {
   uniqueXValues: readonly number[];
   axes: readonly LineChartDisplayAxis[];
   series: readonly LineChartDisplaySeries[];
+  /** Replaces the series lines with areas when set. */
+  stackedSeries?: readonly LineChartStackedSeries[];
   formatXValue: (value: number) => string;
   xTickCount?: number;
   xTickValues?: readonly number[];
@@ -116,6 +119,7 @@ export const LineChartPlot = ({
   uniqueXValues,
   axes,
   series,
+  stackedSeries,
   formatXValue,
   xTickCount,
   xTickValues,
@@ -163,6 +167,15 @@ export const LineChartPlot = ({
     (activeLegendItemId != null && activeLegendItemId !== item.id
       ? CHART_DIMMED_OPACITY
       : 1);
+  // Points and crosshair markers sit on the top edge of each stacked band.
+  const markSeries: readonly LineChartDisplaySeries[] =
+    stackedSeries?.map((item) => ({
+      ...item,
+      points: item.points.map(({ x, y, y1 }) => ({
+        x,
+        y: y == null ? null : y1,
+      })),
+    })) ?? series;
   const visibleSeriesKey = JSON.stringify(series.map((item) => item.id));
   const [animation] = useSpring(
     () => ({
@@ -362,39 +375,62 @@ export const LineChartPlot = ({
           })}
           <g clipPath={`url(#${clipPathId})`}>
             <g clipPath={`url(#${revealClipPathId})`}>
-              {series.map((item) => {
-                const axis = axisById.get(item.yAxisId);
-                if (axis == null) return null;
-                return (
-                  <g
-                    key={item.id}
-                    role="group"
-                    aria-label={`${item['aria-label'] ?? item.id} series`}
-                  >
-                    {getLineSegments(item.points, connectNulls).map(
-                      (segment, index) => (
-                        <LinePath
-                          key={index}
-                          data={segment}
+              {stackedSeries == null
+                ? series.map((item) => {
+                    const axis = axisById.get(item.yAxisId);
+                    if (axis == null) return null;
+                    return (
+                      <g
+                        key={item.id}
+                        role="group"
+                        aria-label={`${item['aria-label'] ?? item.id} series`}
+                      >
+                        {getLineSegments(item.points, connectNulls).map(
+                          (segment, index) => (
+                            <LinePath
+                              key={index}
+                              data={segment}
+                              curve={curveLinear}
+                              fill="none"
+                              stroke={item.color}
+                              strokeWidth={item.strokeWidth}
+                              strokeDasharray={item.strokeDasharray}
+                              opacity={getSeriesOpacity(item)}
+                              className="transition-opacity duration-fast motion-reduce:transition-none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              x={(point) => getXPosition(point.x)}
+                              y={(point) => axis.scale(point.y ?? 0)}
+                            />
+                          )
+                        )}
+                      </g>
+                    );
+                  })
+                : stackedSeries.map((item) => {
+                    const axis = axisById.get(item.yAxisId);
+                    if (axis == null) return null;
+                    return (
+                      <g
+                        key={item.id}
+                        role="group"
+                        aria-label={`${item['aria-label'] ?? item.id} series`}
+                      >
+                        <Area
+                          data={Array.from(item.points)}
                           curve={curveLinear}
-                          fill="none"
-                          stroke={item.color}
-                          strokeWidth={item.strokeWidth}
-                          strokeDasharray={item.strokeDasharray}
+                          fill={item.color}
                           opacity={getSeriesOpacity(item)}
                           className="transition-opacity duration-fast motion-reduce:transition-none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
                           x={(point) => getXPosition(point.x)}
-                          y={(point) => axis.scale(point.y ?? 0)}
+                          y0={(point) => axis.scale(point.y0)}
+                          y1={(point) => axis.scale(point.y1)}
                         />
-                      )
-                    )}
-                  </g>
-                );
-              })}
+                      </g>
+                    );
+                  })}
               {showPoints &&
-                series.flatMap((item) => {
+                markSeries.flatMap((item) => {
                   const axis = axisById.get(item.yAxisId);
                   if (axis == null) return [];
                   return item.points.flatMap((point, pointIndex) =>
@@ -448,7 +484,7 @@ export const LineChartPlot = ({
                   strokeDasharray={CHART_DASHED_STROKE_DASHARRAY}
                   className="text-quaternary"
                 />
-                {series.flatMap((item) => {
+                {markSeries.flatMap((item) => {
                   if (!item.showActiveMarker) return [];
                   const axis = axisById.get(item.yAxisId);
                   const point = item.points.find(

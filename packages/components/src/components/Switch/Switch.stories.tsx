@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { expect } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Switch } from './Switch';
@@ -61,6 +63,18 @@ export const Checked: Story = {
 
 // Interactive example
 export const Interactive: Story = {
+  play: async ({ canvas, userEvent }) => {
+    const control = canvas.getByRole('switch', { name: 'Toggle me' });
+    await userEvent.tab();
+    await expect(control).toHaveFocus();
+    await expect(control).not.toBeChecked();
+    await userEvent.keyboard('[Space]');
+    await expect(control).toBeChecked();
+    await userEvent.keyboard('[Space]');
+    await expect(control).not.toBeChecked();
+  },
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     checked: false,
     label: 'Toggle me',

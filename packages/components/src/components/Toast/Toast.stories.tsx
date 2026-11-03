@@ -19,7 +19,7 @@ const meta = {
       },
       description: {
         component:
-          'Brief, non-blocking operation feedback. Use Banner when the message must remain visible and Dialog when a decision is required.',
+          'Brief, non-blocking operation feedback. All variants auto-dismiss after five seconds by default. Set duration: Infinity to require manual dismissal, or provide a duration in milliseconds. Use Banner when the message must remain visible and Dialog when a decision is required.',
       },
     },
   },
@@ -74,6 +74,22 @@ export const Error: Story = {
           type: 'error',
           title: 'Failed to save',
           description: 'The server responded with a 500 error.',
+        }}
+      />
+    </ToastProvider>
+  ),
+};
+
+export const PersistentError: Story = {
+  render: () => (
+    <ToastProvider>
+      <Trigger
+        label="Show persistent error toast"
+        config={{
+          type: 'error',
+          title: 'Failed to save',
+          description: 'The server responded with a 500 error.',
+          duration: Infinity,
         }}
       />
     </ToastProvider>

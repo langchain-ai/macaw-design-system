@@ -1,3 +1,43 @@
+## 1.3.5 (2026-11-02)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.3.4 (2026-10-31)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.3.3 (2026-10-30)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.3.2 (2026-10-29)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.3.1 (2026-10-29)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.3.0 (2026-10-29)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.2.2 (2026-10-28)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.2.1 (2026-10-28)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.2.0 (2026-10-27)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.1.1 (2026-10-26)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
 ## 1.1.0 (2026-10-25)
 
 This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.

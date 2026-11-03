@@ -195,22 +195,25 @@ describe('ChartCard', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it.each(['bar', 'line', 'donut', 'metric', 'sparkline', 'sankey'] as const)(
-    'renders the %s chart skeleton',
-    (skeletonVariant) => {
-      render(
-        <ChartCard
-          title="Trace count"
-          state="loading"
-          skeletonVariant={skeletonVariant}
-        />
-      );
+  it.each([
+    'bar',
+    'horizontal-bar',
+    'line',
+    'donut',
+    'metric',
+    'sparkline',
+    'sankey',
+  ] as const)('renders the %s chart skeleton', (skeletonVariant) => {
+    render(
+      <ChartCard
+        title="Trace count"
+        state="loading"
+        skeletonVariant={skeletonVariant}
+      />
+    );
 
-      expect(
-        screen.getByRole('status', { name: 'Loading chart' })
-      ).toBeVisible();
-    }
-  );
+    expect(screen.getByRole('status', { name: 'Loading chart' })).toBeVisible();
+  });
 
   it('renders error content while retaining header actions', () => {
     render(

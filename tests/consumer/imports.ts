@@ -1,4 +1,22 @@
-import { Attachment, Button, Card, Text } from '@langchain/macaw-components';
+import {
+  Attachment,
+  Button,
+  Card,
+  StatusBadge,
+  Text,
+} from '@langchain/macaw-components';
+import type {
+  StatusBadgeProps,
+  StatusBadgeVariant,
+} from '@langchain/macaw-components';
+import {
+  Accordion,
+  AccordionItem,
+} from '@langchain/macaw-components/Accordion';
+import type {
+  AccordionItemMenuItem,
+  AccordionItemProps,
+} from '@langchain/macaw-components/Accordion';
 import { AttachmentList } from '@langchain/macaw-components/Attachment';
 import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
@@ -7,10 +25,29 @@ import {
   BreadcrumbLink,
   BreadcrumbPage,
 } from '@langchain/macaw-components/Breadcrumb';
-import type { BreadcrumbProps } from '@langchain/macaw-components/Breadcrumb';
+import type {
+  BreadcrumbProps,
+  BreadcrumbLinkProps,
+  BreadcrumbPageProps,
+} from '@langchain/macaw-components/Breadcrumb';
 import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
+import {
+  ChatConversationList,
+  ChatConversationListGroup,
+  ChatConversationListItem,
+} from '@langchain/macaw-components/ChatConversationList';
+import type {
+  ChatConversationListGroupActions,
+  ChatConversationListItemActions,
+  ChatConversationListProps,
+} from '@langchain/macaw-components/ChatConversationList';
+import {
+  ChatMessage,
+  ChatMessageActions,
+} from '@langchain/macaw-components/ChatMessage';
+import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
 import {
   Code,
   CodeLanguageSelect,
@@ -57,6 +94,32 @@ void [
   BreadcrumbLink,
   BreadcrumbPage,
   { 'aria-label': 'Breadcrumb' } satisfies BreadcrumbProps,
+  { href: '/files', children: 'Files' } satisfies BreadcrumbLinkProps,
+  { children: 'Notes', title: 'Current note' } satisfies BreadcrumbPageProps,
+  Accordion,
+  AccordionItem,
+  { title: 'Notifications', contents: 'Email' } satisfies AccordionItemProps,
+  {
+    label: 'Remove',
+    description: 'Revokes access immediately',
+    onSelect: () => {},
+    tone: 'destructive',
+  } satisfies AccordionItemMenuItem,
+  ChatConversationList,
+  ChatConversationListGroup,
+  ChatConversationListItem,
+  {
+    'aria-label': 'Conversations',
+    loading: true,
+  } satisfies ChatConversationListProps,
+  {
+    onRename: () => {},
+    pinned: true,
+  } satisfies ChatConversationListItemActions,
+  { onDelete: () => {} } satisfies ChatConversationListGroupActions,
+  StatusBadge,
+  'warning' satisfies StatusBadgeVariant,
+  { children: 'Active', size: 'sm' } satisfies StatusBadgeProps,
   Attachment,
   AttachmentList,
   {
@@ -64,6 +127,14 @@ void [
     status: 'uploading',
     disabled: true,
   } satisfies AttachmentProps,
+  ChatMessage,
+  ChatMessageActions,
+  {
+    id: 'message',
+    role: 'assistant',
+    status: 'completed',
+    content: [{ id: 'text', type: 'text', text: 'Hello' }],
+  } satisfies ChatMessageModel,
   HeatmapChart,
   HeatmapBlock,
   {

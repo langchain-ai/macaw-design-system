@@ -76,35 +76,33 @@ describe('Attachment', () => {
       const { user } = render(<AttachmentDemo variant={variant} />);
       const previewCount = screen.getByLabelText('Previews opened');
 
-      // Padding, borders, and layout gaps target the card itself.
-      await user.click(screen.getByRole('group', { name: 'report.pdf' }));
+      // The open button stretches over the card's padding with CSS, which
+      // jsdom cannot hit-test, so click the button itself.
+      await user.click(screen.getByRole('button', { name: 'View report.pdf' }));
       expect(previewCount).toHaveTextContent('1');
 
-      await user.click(screen.getByRole('button', { name: 'View report.pdf' }));
+      await user.keyboard('{Enter}');
       expect(previewCount).toHaveTextContent('2');
 
-      await user.keyboard('{Enter}');
-      expect(previewCount).toHaveTextContent('3');
-
       await user.keyboard(' ');
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
 
       await user.click(
         screen.getByRole('group', { name: 'Actions for report.pdf' })
       );
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
 
       await user.click(screen.getByRole('button', { name: 'Download' }));
       expect(screen.getByLabelText('Last action')).toHaveTextContent(
         'Downloaded'
       );
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
 
       await user.click(
         screen.getByRole('button', { name: 'Remove report.pdf' })
       );
       expect(screen.getByLabelText('Last action')).toHaveTextContent('Removed');
-      expect(previewCount).toHaveTextContent('4');
+      expect(previewCount).toHaveTextContent('3');
     }
   );
 
@@ -158,7 +156,7 @@ describe('Attachment', () => {
 
       rerender(<AttachmentDemo variant={variant} />);
       expect(card).not.toHaveAttribute('aria-disabled');
-      await user.click(card);
+      await user.click(open);
       expect(screen.getByLabelText('Previews opened')).toHaveTextContent('1');
       await user.click(download);
       expect(screen.getByLabelText('Last action')).toHaveTextContent(

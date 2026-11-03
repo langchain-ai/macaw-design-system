@@ -263,24 +263,16 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         aria-label={name}
         {...props}
         aria-disabled={disabled || undefined}
-        onClick={(event) => {
-          // Extend the preview button to the card's padding and gaps only.
-          if (!disabled && onOpen && event.target === event.currentTarget) {
-            event.stopPropagation();
-            onOpen();
-          }
-        }}
         className={cn(
-          'box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
+          'relative box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
           isThumbnail
             ? [
                 sizeStyles.thumbnail,
-                'group/attachment relative flex-col items-stretch',
+                'group/attachment flex-col items-stretch',
                 size === 'sm' ? 'p-space-1' : 'p-space-2',
               ]
             : [sizeStyles.height, sizeStyles.padding],
           status === 'error' && 'border-error',
-          onOpen && !disabled && 'cursor-pointer',
           disabled && 'cursor-not-allowed opacity-50',
           className
         )}
@@ -294,7 +286,13 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             disabled={disabled}
             aria-describedby={description ? statusId : undefined}
             className={cn(
-              'min-w-0 flex-1 justify-start p-0 text-left',
+              'static min-w-0 flex-1 justify-start p-0 text-left',
+              // Stretch the hit area and focus ring over the whole card.
+              !disabled && [
+                'after:absolute after:inset-0 after:rounded-xs',
+                'focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-focus',
+                'hover:bg-transparent dark:hover:bg-transparent',
+              ],
               isThumbnail
                 ? 'h-auto w-full max-w-full flex-none whitespace-normal'
                 : 'h-full'
@@ -316,7 +314,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             inert={disabled || undefined}
             aria-label={`Actions for ${name}`}
             className={cn(
-              'm-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',
+              'relative m-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',
               isThumbnail && 'flex-wrap'
             )}
             onClick={(event) => event.stopPropagation()}

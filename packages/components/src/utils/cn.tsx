@@ -99,6 +99,8 @@ const customTwMerge = extendTailwindMerge({
         'bg-surface-level-4',
         'bg-disabled',
         'bg-input',
+        'bg-input-hover',
+        'bg-input-plain',
         'bg-input-disabled',
         'bg-elevated',
         'bg-elevated-hover',
@@ -143,6 +145,8 @@ const customTwMerge = extendTailwindMerge({
       ],
       // Extend border-color to include custom border colors
       'border-color': [
+        'border-input',
+        'border-input-hover',
         'border-default',
         'border-subtle',
         'border-muted',

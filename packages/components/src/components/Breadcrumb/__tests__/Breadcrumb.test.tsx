@@ -13,6 +13,7 @@ describe('Breadcrumb', () => {
       <Breadcrumb separator=">">
         <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
         {false}
+        {''}
         <BreadcrumbLink href="/projects/support">Support Agent</BreadcrumbLink>
         <BreadcrumbPage>Trace Details</BreadcrumbPage>
       </Breadcrumb>
@@ -42,7 +43,13 @@ describe('Breadcrumb', () => {
       <MemoryRouter>
         <Breadcrumb aria-label="File path">
           <BreadcrumbLink
-            as={<RouterLink to="/files" className="router-link" />}
+            as={
+              <RouterLink
+                to="/files"
+                className="router-link"
+                title="Open files"
+              />
+            }
             ref={ref}
             target="_blank"
             rel="noreferrer"
@@ -57,6 +64,7 @@ describe('Breadcrumb', () => {
     expect(link).toHaveAttribute('href', '/files');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveClass('router-link');
+    expect(link).toHaveAttribute('title', 'Open files');
     expect(ref.current).toBe(link);
     expect(
       screen.getByRole('navigation', { name: 'File path' })
@@ -81,7 +89,9 @@ describe('Breadcrumb', () => {
   });
 
   it('renders no navigation for empty items and no separator for a single page', () => {
-    const { rerender } = render(<Breadcrumb>{null}</Breadcrumb>);
+    const { rerender } = render(
+      <Breadcrumb>{[null, false, undefined, '']}</Breadcrumb>
+    );
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     rerender(
       <Breadcrumb separator=">">

@@ -26,6 +26,7 @@
     "scripts",
     "vite.config.ts",
     "vitest.config.ts",
+    "vitest.storybook.config.ts",
     "vitest.setup.ts"
   ]
 }
