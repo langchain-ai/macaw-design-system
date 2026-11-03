@@ -23,7 +23,7 @@ type BreadcrumbProps = ComponentPropsWithoutRef<'nav'> & {
   separator?: ReactNode;
   /** Wrap by default; single-line trails scroll when they cannot fit. */
   layout?: 'wrap' | 'single-line';
-  /** Cap labels at 150px instead of 200px. The consuming layout chooses when. */
+  /** Cap labels at 148px instead of 200px. The consuming layout chooses when. */
   condensed?: boolean;
 };
 
@@ -187,10 +187,7 @@ function useBreadcrumbLabel(children: ReactNode) {
     labelRef,
     clipped,
     singleLine,
-    labelClassName: cn(
-      'min-w-0 max-w-50 truncate',
-      condensed && 'max-w-[9.375rem]'
-    ),
+    labelClassName: cn('min-w-0 max-w-50 truncate', condensed && 'max-w-37'),
     tooltipProps: {
       // Keep the trigger mounted when clipping changes, preserving keyboard focus.
       title: (

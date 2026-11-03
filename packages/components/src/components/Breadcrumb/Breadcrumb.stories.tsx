@@ -31,7 +31,7 @@ const meta: Meta<typeof Breadcrumb> = {
     docs: {
       description: {
         component:
-          'Compact navigation trail with native or router links and a noninteractive current page. Labels cap at 200px, or 150px when condensed, and reveal a tooltip only when clipped. The default layout wraps with its separators; single-line trails scroll horizontally when needed. Consumers own routing, layout decisions, data, and loading or error messages.',
+          'Compact navigation trail with native or router links and a noninteractive current page. Labels cap at 200px, or 148px when condensed, and reveal a tooltip only when clipped. The default layout wraps with its separators; single-line trails scroll horizontally when needed. Consumers own routing, layout decisions, data, and loading or error messages.',
       },
     },
   },
@@ -140,7 +140,7 @@ export const Condensed: Story = {
       canvas.getByRole('navigation', { name: 'Condensed breadcrumb' })
     ).getByText('A Very Long Current Page Label That Needs Truncation');
     await expect(standard.getBoundingClientRect().width).toBeCloseTo(200, 0);
-    await expect(condensed.getBoundingClientRect().width).toBeCloseTo(150, 0);
+    await expect(condensed.getBoundingClientRect().width).toBeCloseTo(148, 0);
     await expect(standard.scrollWidth).toBeGreaterThan(standard.clientWidth);
     await expect(condensed.scrollWidth).toBeGreaterThan(condensed.clientWidth);
   },
