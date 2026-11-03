@@ -349,7 +349,7 @@ export const CustomBackground: Story = {
     docs: {
       description: {
         story:
-          'The top edge fades into whatever background the host sets, once the reader scrolls away from the top.',
+          'The top 32px fades into whatever background the host sets, once the reader scrolls away from the top.',
       },
     },
   },
