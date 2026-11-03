@@ -20,6 +20,16 @@ import type {
 import { AttachmentList } from '@langchain/macaw-components/Attachment';
 import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
+import {
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbPage,
+} from '@langchain/macaw-components/Breadcrumb';
+import type {
+  BreadcrumbProps,
+  BreadcrumbLinkProps,
+  BreadcrumbPageProps,
+} from '@langchain/macaw-components/Breadcrumb';
 import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
@@ -80,6 +90,12 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  { 'aria-label': 'Breadcrumb' } satisfies BreadcrumbProps,
+  { href: '/files', children: 'Files' } satisfies BreadcrumbLinkProps,
+  { children: 'Notes', title: 'Current note' } satisfies BreadcrumbPageProps,
   Accordion,
   AccordionItem,
   { title: 'Notifications', contents: 'Email' } satisfies AccordionItemProps,
