@@ -72,19 +72,38 @@ Custom components should compose primitives and keep feature data, permissions, 
 Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
 `@langchain/macaw-components/Breadcrumb`. Place links and the current page directly
 inside `Breadcrumb`; it owns the navigation landmark, ordered list, and decorative
-slash separators. Use `separator` for an alternative such as a chevron.
+10px SVG slash separators. Use `separator` for an alternative such as a chevron.
 
 Use `BreadcrumbLink href="..."` for native navigation or
 `as={<RouterLink to="..." />}` for framework routing. `leftDecorator` accepts an
 icon. `BreadcrumbPage` is noninteractive and marks the current page. Ancestor
 links and the current page use compact xs typography by default, matching the
-LangSmith navigation trail.
+LangSmith navigation trail. Ancestors underline on hover without changing color;
+icons keep a compact 4px label gap.
 
-Labels truncate at 200px and expose their full string as a native title; the
-trail wraps at narrow widths. Empty children render no navigation. Compose
-`Skeleton` while fetching labels, or static text for unavailable ancestors; do
-not use fake links or disabled buttons. Consumers own routing, loading/error
-messages, and any explicit overflow menu or switcher.
+The default `layout="wrap"` keeps each separator with its following item and wraps
+the trail at narrow widths. Use `layout="single-line"` for a header that must stay
+on one row; a trail that does not fit remains reachable by horizontal scrolling
+and keyboard focus. An overflowing list has its own tab stop and focus ring so
+keyboard users can scroll with the left and right arrow keys, including to an
+unclipped current page outside the visible edge. A list that fits has no extra
+tab stop. This layout does not collapse or hide ancestors. Labels cap at 200px;
+`condensed` lowers that cap to 150px in either layout. The consuming layout decides
+when to condense using its available container width, rather than assuming a
+viewport breakpoint or that the smaller cap will make every trail fit.
+
+Clipped labels reveal their full text through the shared `Tooltip` on hover or
+keyboard focus, and update when labels or available space change. A clipped
+`BreadcrumbPage` becomes focusable so keyboard users can read its tooltip; it
+remains a noninteractive span with `aria-current="page"`. Unclipped current pages
+stay out of the tab order, and an explicit `tabIndex` overrides this default.
+Breadcrumb tooltips supply their own provider. Native `title` attributes are not
+generated; explicitly supplied titles are preserved.
+
+Empty children render no navigation. Compose `Skeleton` while fetching labels,
+or static text for unavailable ancestors; do not use fake links or disabled
+buttons. Consumers own routing, saved URLs, page titles, loading/error messages,
+and any explicit overflow menu or switcher.
 
 ## Nested modals
 
