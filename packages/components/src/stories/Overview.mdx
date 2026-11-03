@@ -97,6 +97,7 @@ import { Tooltip } from '../components/Tooltip';
 import { Typeahead } from '../components/Typeahead';
 import { cn } from '../utils/cn';
 import zIndices from '../utils/zIndices';
+import { additionalOverviewEntries } from './overviewEntries';
 
 <Meta title="Components/Overview" parameters={{ docs: { toc: false } }} />
 
@@ -112,6 +113,7 @@ export const STORYBOOK_CATEGORY_TITLES = {
   display: 'Display',
   status: 'Status',
   charts: 'Charts',
+  chat: 'Chat',
 };
 
 export const toStorybookTitle = (name, category) =>
@@ -757,21 +759,10 @@ export const BannerDemo = ({ intent }) => {
       ) : (
         <Banner
           intent={intent}
-          title="Trace retention changes on Sep 1"
+          title="Plan updated"
           dismissible
           onDismiss={() => setDismissed(true)}
-          action={
-            <Button
-              size="xs"
-              variant="underlined"
-              rightDecorator={ArrowRightIcon}
-            >
-              Review plan
-            </Button>
-          }
-        >
-          Traces older than 30 days move to extended retention.
-        </Banner>
+        />
       )}
     </div>
   );
@@ -1492,6 +1483,7 @@ export const CATALOG = [
     },
     render: ({ layout }) => <ChartLegendDemo layout={layout} />,
   }),
+  ...additionalOverviewEntries.map(defineEntry),
 ];
 
 export const CATEGORIES = [
@@ -1513,7 +1505,7 @@ export const CATEGORIES = [
   {
     id: 'navigation',
     label: 'Navigation',
-    blurb: 'Move between views at the same altitude.',
+    blurb: 'Move between views and levels of a hierarchy.',
   },
   {
     id: 'layout',
@@ -1531,9 +1523,14 @@ export const CATEGORIES = [
     blurb: 'Say what the system is doing, or what went wrong.',
   },
   {
+    id: 'chat',
+    label: 'Chat',
+    blurb: 'Browse conversations and compose messages.',
+  },
+  {
     id: 'charts',
     label: 'Charts',
-    blurb: 'The shared chrome around a visualization.',
+    blurb: 'Visualize metrics, trends, proportions, and flows.',
   },
 ];
 
