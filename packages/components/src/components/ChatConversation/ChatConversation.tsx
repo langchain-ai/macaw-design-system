@@ -1,5 +1,6 @@
 import {
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -55,6 +56,10 @@ export function ChatConversation({
   const contentRef = useRef<HTMLDivElement>(null);
   const followingRef = useRef(true);
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const mergedViewportRef = useMemo(
+    () => mergeRefs([viewportRef, externalViewportRef]),
+    [externalViewportRef]
+  );
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
@@ -115,12 +120,12 @@ export function ChatConversation({
       {/* The focus ring lives here so the viewport's scroll mask can't fade it. */}
       <div className="relative flex min-h-0 flex-1 flex-col has-[>[role=log]:focus-visible]:ring-2 has-[>[role=log]:focus-visible]:ring-inset has-[>[role=log]:focus-visible]:ring-focus">
         <div
-          ref={mergeRefs([viewportRef, externalViewportRef])}
+          ref={mergedViewportRef}
           role="log"
           aria-label={`${label} messages`}
           aria-live="off"
           tabIndex={0}
-          className="scroll-mask-t min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden"
+          className="scroll-mask-t min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden [scrollbar-gutter:stable_both-edges]"
         >
           <div
             ref={contentRef}
