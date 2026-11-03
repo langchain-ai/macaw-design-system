@@ -53,6 +53,7 @@ const meta = {
   component: RadarChart,
   tags: [
     'autodocs',
+    'a11y-test',
     'radar',
     'spider chart',
     'multivariate',
@@ -62,6 +63,7 @@ const meta = {
   ],
   parameters: {
     layout: 'padded',
+    a11y: { test: 'error' },
     docs: {
       description: {
         component:

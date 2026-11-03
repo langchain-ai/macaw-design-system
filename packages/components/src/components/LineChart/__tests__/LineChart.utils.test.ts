@@ -6,6 +6,7 @@ import {
   getLineSegments,
   getNumericDomain,
   normalizeLineChartSeries,
+  stackLineChartSeries,
 } from '../LineChart.utils';
 
 describe('LineChart utilities', () => {
@@ -241,5 +242,66 @@ describe('LineChart utilities', () => {
         false
       ).sort((left, right) => left - right)
     ).toEqual([-45, 10]);
+  });
+});
+
+describe('stackLineChartSeries', () => {
+  const base = {
+    label: 'Series',
+    color: 'var(--chart-categorical-fill-1)',
+    strokeWidth: 2,
+    opacity: 1,
+    showActiveMarker: true,
+  };
+
+  it('stacks each axis at every x value it has, keeping each own value', () => {
+    const [first, second, other] = stackLineChartSeries([
+      {
+        ...base,
+        id: 'first',
+        yAxisId: 'runs',
+        points: [
+          { x: 1, y: 10 },
+          { x: 2, y: 4 },
+        ],
+      },
+      {
+        ...base,
+        id: 'second',
+        yAxisId: 'runs',
+        points: [
+          { x: 1, y: 7 },
+          { x: 2, y: null },
+          { x: 3, y: 5 },
+        ],
+      },
+      { ...base, id: 'other', yAxisId: 'cost', points: [{ x: 2, y: 9 }] },
+    ]);
+
+    expect(first?.points).toEqual([
+      { x: 1, y: 10, y0: 0, y1: 10 },
+      { x: 2, y: 4, y0: 0, y1: 4 },
+      { x: 3, y: null, y0: 0, y1: 0 },
+    ]);
+    expect(second?.points).toEqual([
+      { x: 1, y: 7, y0: 10, y1: 17 },
+      { x: 2, y: null, y0: 4, y1: 4 },
+      { x: 3, y: 5, y0: 0, y1: 5 },
+    ]);
+    expect(other?.points).toEqual([{ x: 2, y: 9, y0: 0, y1: 9 }]);
+  });
+
+  it('stacks negative values down from zero', () => {
+    const points = stackLineChartSeries([
+      { ...base, id: 'gain', yAxisId: 'change', points: [{ x: 1, y: 3 }] },
+      { ...base, id: 'loss', yAxisId: 'change', points: [{ x: 1, y: -2 }] },
+      { ...base, id: 'more', yAxisId: 'change', points: [{ x: 1, y: -1 }] },
+    ]).map((item) => item.points[0]);
+
+    expect(points).toEqual([
+      { x: 1, y: 3, y0: 0, y1: 3 },
+      { x: 1, y: -2, y0: 0, y1: -2 },
+      { x: 1, y: -1, y0: -2, y1: -3 },
+    ]);
   });
 });

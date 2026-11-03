@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { render, screen, waitFor } from '../../../test-utils';
 import { Button } from '../../Button';
@@ -76,4 +76,96 @@ it('keeps focus on an outside control clicked to dismiss Select', async () => {
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   );
   expect(nextField).toHaveFocus();
+});
+
+it('forwards data attributes to the trigger', () => {
+  render(
+    <Select
+      aria-label="Environment"
+      onChange={() => {}}
+      options={options}
+      data-analytics-id="environment-select"
+    />
+  );
+
+  expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveAttribute(
+    'data-analytics-id',
+    'environment-select'
+  );
+});
+
+describe('Select variant', () => {
+  it('is an outlined, full-width field by default', () => {
+    render(
+      <Select aria-label="Environment" onChange={() => {}} options={options} />
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Environment' });
+    expect(trigger).toHaveClass('w-full', 'bg-input', 'border-input');
+  });
+
+  it('drops the field border and fill when plain', () => {
+    render(
+      <Select
+        variant="plain"
+        aria-label="Environment"
+        value="staging"
+        onChange={() => {}}
+        options={options}
+      />
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Environment' });
+    expect(trigger).toHaveTextContent('Staging');
+    expect(trigger).toHaveClass(
+      'w-auto',
+      'bg-transparent',
+      'border-transparent'
+    );
+    for (const fieldClass of ['w-full', 'bg-input', 'border-input']) {
+      expect(trigger).not.toHaveClass(fieldClass);
+    }
+  });
+
+  it('uses the disabled fill when plain and disabled', () => {
+    render(
+      <Select
+        variant="plain"
+        disabled
+        aria-label="Environment"
+        value="staging"
+        onChange={() => {}}
+        options={options}
+      />
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Environment' });
+    expect(trigger).toBeDisabled();
+    expect(trigger).toHaveClass('bg-disabled', 'text-disabled');
+    for (const fieldClass of ['bg-input-disabled', 'border-muted']) {
+      expect(trigger).not.toHaveClass(fieldClass);
+    }
+  });
+
+  it('opens a plain select and shows option descriptions', async () => {
+    const onChange = vi.fn();
+    const { user } = render(
+      <Select
+        variant="plain"
+        aria-label="Role"
+        value="viewer"
+        onChange={onChange}
+        options={[
+          { value: 'admin', label: 'Admin', description: 'Manages members' },
+          { value: 'viewer', label: 'Viewer', description: 'Read-only access' },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Role' }));
+    expect(await screen.findByText('Manages members')).toBeVisible();
+    await user.click(screen.getByText('Admin'));
+
+    expect(onChange).toHaveBeenCalledWith('admin');
+  });
 });

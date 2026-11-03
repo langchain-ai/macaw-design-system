@@ -50,7 +50,7 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-surface-level-2',
     className: 'bg-surface-level-2',
-    usage: 'Cards, panels, sidebars, table header groups',
+    usage: 'Cards, panels, table header groups',
   },
   {
     name: 'bg-surface-level-2-hover',
@@ -75,17 +75,37 @@ const surfaceTokens: TokenSwatch[] = [
   {
     name: 'bg-elevated',
     className: 'bg-elevated',
-    usage: 'Popovers, dropdowns, tooltips, context menus',
+    usage: 'Raised cards and panes',
+  },
+  {
+    name: 'bg-input',
+    className: 'bg-input',
+    usage: 'Input and textarea fields, picker controls, filled popup triggers',
+  },
+  {
+    name: 'bg-input-disabled',
+    className: 'bg-input-disabled',
+    usage: 'Disabled field fill without whole-field opacity',
+  },
+  {
+    name: 'bg-popover',
+    className: 'bg-popover',
+    usage: 'Tooltips, popovers, dropdowns, and picker menus',
+  },
+  {
+    name: 'bg-sidebar',
+    className: 'bg-sidebar',
+    usage: 'App navigation sidebar surface',
   },
   {
     name: 'bg-elevated-hover',
     className: 'bg-elevated-hover',
-    usage: 'Hover on elevated surfaces',
+    usage: 'Hover on raised or floating surfaces',
   },
   {
     name: 'bg-elevated-selected',
     className: 'bg-elevated-selected',
-    usage: 'Selected item on elevated surfaces',
+    usage: 'Selected item on raised or floating surfaces',
   },
   {
     name: 'bg-overlay',
@@ -689,7 +709,7 @@ const TokenSection = ({
       {tokens.map((token) => (
         <div
           key={token.name}
-          className="grid grid-cols-[4.5rem,minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
+          className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
         >
           {kind === 'background' && (
             <div
@@ -746,7 +766,7 @@ const UtilityTokenSection = ({
       {tokens.map((token) => (
         <div
           key={token.name}
-          className="grid grid-cols-[4.5rem,minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
+          className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-space-3 rounded-md border border-subtle bg-surface-level-1 p-space-3"
         >
           {kind === 'shadow' && (
             <div
@@ -850,7 +870,7 @@ const NamingConvention = () => (
             <th className="px-space-3 py-space-2 font-semibold">State</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-secondary bg-surface-level-1">
+        <tbody className="*:not-first:border-t *:border-secondary bg-surface-level-1">
           {tokenRows.map((token) => (
             <tr key={token.name}>
               <td className="px-space-3 py-space-2 font-mono text-xs text-primary">
@@ -894,13 +914,13 @@ const SelectedTokenDemo = () => {
           durable selected item is also hovered.
         </p>
       </div>
-      <div className="grid gap-space-4 lg:grid-cols-[minmax(0,1fr),20rem]">
+      <div className="grid gap-space-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="overflow-hidden rounded-md border border-subtle">
-          <div className="grid grid-cols-[minmax(0,1fr),10rem] bg-surface-level-2 px-space-3 py-space-2 text-xs font-semibold uppercase text-tertiary">
+          <div className="grid grid-cols-[minmax(0,1fr)_10rem] bg-surface-level-2 px-space-3 py-space-2 text-xs font-semibold uppercase text-tertiary">
             <div>Name</div>
             <div>State</div>
           </div>
-          <div className="divide-y divide-secondary bg-surface-level-1">
+          <div className="*:not-first:border-t *:border-secondary bg-surface-level-1">
             {selectedRows.map((row) => {
               const isSelected = row.id === selectedId;
               return (
@@ -911,7 +931,7 @@ const SelectedTokenDemo = () => {
                   aria-pressed={isSelected}
                   onClick={() => setSelectedId(row.id)}
                   className={cn(
-                    'grid w-full grid-cols-[minmax(0,1fr),10rem] items-center px-space-3 py-space-3 text-left transition-colors',
+                    'grid w-full grid-cols-[minmax(0,1fr)_10rem] items-center px-space-3 py-space-3 text-left transition-colors',
                     isSelected
                       ? 'bg-selected hover:bg-selected-hover'
                       : 'hover:bg-surface-level-2 active:bg-surface-level-3'
@@ -1020,7 +1040,7 @@ const TokenDocumentation = () => (
       />
       <UtilityTokenSection
         title="Shadow Tokens"
-        description="Use shadow tokens for elevation that adapts across light and dark mode."
+        description="Shadow tokens provide elevation in light mode and become transparent in dark mode. Use surface contrast and borders for dark elevation; focus and selection rings remain visible."
         tokens={shadowTokens}
         kind="shadow"
       />

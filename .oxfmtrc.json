@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": [],
+  "ignorePatterns": [".vscode/**", "**/CHANGELOG.md"],
   "printWidth": 80,
   "singleQuote": true,
   "tabWidth": 2,
@@ -8,9 +8,6 @@
   "bracketSpacing": true,
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "sortTailwindcss": {
-    "functions": ["cn"]
-  },
   "sortImports": {
     "customGroups": [
       {

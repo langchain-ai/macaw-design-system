@@ -171,6 +171,7 @@ describe('RadarChart', () => {
       `Code Review: 0; ${customColor}`
     );
     await user.unhover(label);
+    await user.pointer({ target: document.body, coords: { x: 1000, y: 1000 } });
     await waitFor(() =>
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
     );

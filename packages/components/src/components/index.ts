@@ -1,3 +1,10 @@
+export { Breadcrumb, BreadcrumbLink, BreadcrumbPage } from './Breadcrumb';
+export type {
+  BreadcrumbProps,
+  BreadcrumbLinkProps,
+  BreadcrumbPageProps,
+} from './Breadcrumb';
+
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 
@@ -20,8 +27,21 @@ export type {
 export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
 
+export { HeatmapChart, HeatmapBlock } from './HeatmapChart';
+export type {
+  HeatmapChartProps,
+  HeatmapBlockProps,
+  HeatmapBlockSize,
+  HeatmapBlockColor,
+} from './HeatmapChart';
+
 export { Attachment, AttachmentList } from './Attachment';
 export type { AttachmentProps, AttachmentListProps } from './Attachment';
+
+export { ImagePreviewDialog } from './ImagePreviewDialog';
+export type { ImagePreviewDialogProps } from './ImagePreviewDialog';
+export { ImagePreviewBlock } from './ImagePreviewBlock';
+export type { ImagePreviewBlockProps } from './ImagePreviewBlock';
 
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
@@ -29,8 +49,36 @@ export type { ErrorStateProps } from './ErrorState';
 export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
 
+export { StatusBadge } from './StatusBadge';
+export type {
+  StatusBadgeProps,
+  StatusBadgeSize,
+  StatusBadgeVariant,
+} from './StatusBadge';
+
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
+
+export {
+  ChatMessage,
+  ChatMessageActions,
+  ChatMessageBody,
+  ChatMessageHeader,
+  ChatTurnDivider,
+} from './ChatMessage';
+export type {
+  ChatMessageAction,
+  ChatMessageActionCapabilities,
+  ChatMessageActionsProps,
+  ChatMessageBodyProps,
+  ChatMessageContentBlock,
+  ChatMessageHeaderProps,
+  ChatMessageModel,
+  ChatMessageProps,
+  ChatMessageRole,
+  ChatMessageStatus,
+  ChatTurnDividerProps,
+} from './ChatMessage';
 
 export { Checkbox, getCheckedState } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
@@ -153,6 +201,14 @@ export type { SwitchProps } from './Switch';
 // NOTE: ChartCard is also excluded because its built-in overflow menu depends
 // on @radix-ui/react-dropdown-menu. Import it directly:
 //   import { ChartCard } from '@langchain/macaw-components/ChartCard'
+//
+// NOTE: Accordion is excluded for the same reason: AccordionItem's overflow
+// menu depends on @radix-ui/react-dropdown-menu. Import it directly:
+//   import { Accordion, AccordionItem } from '@langchain/macaw-components/Accordion'
+//
+// NOTE: ChatConversationList is excluded for the same reason: its row and group
+// menus depend on @radix-ui/react-dropdown-menu. Import it directly:
+//   import { ChatConversationList, ... } from '@langchain/macaw-components/ChatConversationList'
 //
 // NOTE: Dialog and Pane are likewise excluded — both wrap @radix-ui/react-dialog.
 // Import directly:

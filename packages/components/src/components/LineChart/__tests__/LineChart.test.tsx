@@ -983,6 +983,95 @@ describe('LineChart', () => {
         .getElementsByTagName('circle')
     ).toHaveLength(1);
   });
+
+  it('stacks series as fill-colored areas scaled to their total', async () => {
+    const { user } = render(
+      <LineChart
+        aria-label="Stacked metrics"
+        variant="stacked-area"
+        series={[
+          series[0],
+          { ...series[1], color: 'var(--chart-categorical-line-5)' },
+        ]}
+        yAxes={[{ id: 'values', formatValue: (value) => `Y ${value}` }]}
+        legendProps={{ layout: 'list' }}
+        shouldAnimate={false}
+      />
+    );
+    const getArea = (name: string) => {
+      const area = screen
+        .getByRole('group', { name })
+        .getElementsByTagName('path')[0];
+      if (area == null) throw new Error(`Expected ${name} to render an area`);
+      return area;
+    };
+    const requestsArea = getArea('requests series');
+    const latencyArea = getArea('latency series');
+
+    expect(requestsArea).toHaveAttribute(
+      'fill',
+      'var(--chart-categorical-fill-1)'
+    );
+    expect(latencyArea).toHaveAttribute(
+      'fill',
+      'var(--chart-categorical-fill-5)'
+    );
+    // The tallest stack is 9 + 12; neither series alone reaches 20.
+    expect(screen.getByText('Y 20')).toBeVisible();
+
+    await user.hover(
+      within(
+        screen.getByRole('group', { name: 'Stacked metrics legend' })
+      ).getByRole('group', { name: 'Requests' })
+    );
+    expect(requestsArea).toHaveAttribute('opacity', '1');
+    expect(latencyArea).toHaveAttribute('opacity', '0.45');
+  });
+
+  it('reports and marks each series’ own value in a stacked chart', async () => {
+    const onDatumPointerMove = vi.fn(
+      (_datum: LineChartInteractionDatum) => undefined
+    );
+    const { user } = render(
+      <LineChart
+        aria-label="Stacked interaction"
+        variant="stacked-area"
+        showLegend={false}
+        series={series}
+        activeX={10}
+        onDatumPointerMove={onDatumPointerMove}
+      />
+    );
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Stacked interaction',
+    });
+    vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue(
+      DOMRect.fromRect({ width: 640, height: 320 })
+    );
+
+    await user.pointer({
+      target: chart,
+      coords: { clientX: 348, clientY: 40 },
+    });
+
+    expect(onDatumPointerMove.mock.calls[0]?.[0]).toMatchObject({
+      x: 10,
+      points: [
+        {
+          seriesId: 'requests',
+          color: 'var(--chart-categorical-fill-1)',
+          value: 7,
+        },
+        {
+          seriesId: 'latency',
+          color: 'var(--chart-categorical-fill-2)',
+          value: null,
+        },
+      ],
+    });
+    expect(chart.getElementsByTagName('circle')).toHaveLength(1);
+  });
+
   const getMarkers = (chartName: string, stroke: string) =>
     Array.from(
       screen

@@ -14,7 +14,7 @@ export const checkboxBaseStyles =
 
 /** Focus ring styles: brand border + shadow haze */
 export const checkboxFocusStyles =
-  'focus-visible:border-brand focus-visible:outline-none focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)]';
+  'focus-visible:border-brand focus-visible:outline-hidden focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)]';
 
 /** Size variant styles */
 export const checkboxSizeStyles = {

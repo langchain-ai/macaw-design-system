@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-design-system",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -11,7 +11,7 @@
     "build-storybook": "storybook build -c packages/components/.storybook -o storybook-static",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "lint": "oxlint packages scripts vite.config.ts vitest.config.ts",
+    "lint": "oxlint packages scripts vite.config.ts vitest.config.ts vitest.storybook.config.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "verify:types:bundler": "tsc --noEmit -p tests/consumer/tsconfig.bundler.json",
@@ -22,9 +22,10 @@
     "pack:check": "pnpm build-all && pnpm verify:package && node scripts/pack.mjs",
     "release:version": "nx release version",
     "release:changelog": "nx release changelog",
-    "release:publish": "nx release publish",
+    "release:publish": "nx release publish --tag latest",
     "design-system": "node packages/components/src/cli.mts",
-    "macaw": "node packages/cli/dist/cli.mjs"
+    "macaw": "node packages/cli/dist/cli.mjs",
+    "test:a11y": "nx run @langchain/macaw-components:test:a11y"
   },
   "devDependencies": {
     "@langchain/macaw-cli": "workspace:*",
@@ -36,9 +37,13 @@
     "@nx/vite": "23.2.1",
     "@nx/vitest": "23.2.1",
     "@nx/web": "23.2.1",
+    "@storybook/addon-a11y": "10.6.2",
     "@storybook/addon-docs": "^10.2.8",
     "@storybook/addon-links": "^10.2.8",
+    "@storybook/addon-vitest": "10.6.2",
     "@storybook/react-vite": "^10.2.8",
+    "@tailwindcss/cli": "4.3.3",
+    "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
@@ -49,25 +54,27 @@
     "@types/react-dom": "19.2.4",
     "@visx/tooltip": "^4.0.0",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/browser-playwright": "4.1.12",
     "jiti": "2.4.2",
     "jsdom": "30.0.1",
     "nx": "23.2.1",
     "oxc-parser": "0.137.0",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
+    "playwright": "1.64.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router-dom": "^7.18.2",
-    "storybook": "^10.2.8",
-    "tailwindcss": "^3.4.4",
+    "storybook": "^10.6.2",
+    "tailwindcss": "4.3.3",
     "typescript": "^5.9.3",
-    "vite": "^8.2.2",
+    "vite": "^8.2.4",
     "vite-plugin-svgr": "^4.5.0",
-    "vitest": "^4.1.8",
+    "vitest": "4.1.12",
     "vitest-fail-on-console": "^0.10.1"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=26"
   },
-  "packageManager": "pnpm@10.27.0"
+  "packageManager": "pnpm@11.28.2"
 }

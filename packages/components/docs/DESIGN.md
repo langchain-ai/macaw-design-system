@@ -18,15 +18,25 @@ utilities used by package components. Use
 not import both.
 
 Applications that author the semantic Tailwind classes may additionally extend
-the optional Tailwind v3 preset:
+the optional Tailwind v4 preset:
 
 ```js
 // tailwind.config.cjs
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   presets: [require('@langchain/macaw-components/tailwind-preset')],
 };
 ```
+
+Load this config explicitly from your application CSS (Tailwind v4 does not
+auto-detect JavaScript config files):
+
+```css
+@import 'tailwindcss';
+@config '../tailwind.config.cjs';
+```
+
+Adjust the relative config path for your stylesheet. Tailwind discovers application
+sources automatically; Macaw component utilities are precompiled.
 
 The preset intentionally does not define consumer `content` paths and does not
 replace the stylesheet import. Consumers scan their own source; the package's
@@ -42,19 +52,49 @@ Use existing components for their interaction contracts, not just their appearan
 
 - Use `Button` for actions and `Link` for navigation.
 - Use `IconButton` for an icon-only action and provide its `label`.
-- Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations.
+- Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
 - Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
 - Use the Tabs family for tabbed navigation, with routing handled by the app, and `GroupedTabs` for a local view switch.
-- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation.
+- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
+- Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
 - Set `speed="slow"` on `ThinkingState` or `LoadingIndicator` for a slower animation; reduced-motion preferences still take precedence.
 - Use `Spinner` for routine saves, fetches, or refreshes, even within AI screens (e.g. fetching chat history).
 - Use `Skeleton` for known content shapes, `LinearProgress` for regional loading, and `ProgressBar` for measurable completion.
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
+
+## Breadcrumbs
+
+Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
+`@langchain/macaw-components/Breadcrumb`. Compose links and the noninteractive
+current page directly inside `Breadcrumb`; it supplies navigation/list semantics
+and slash separators. Use `href` for native links,
+`as={<RouterLink to="/projects" />}` for router links, and `separator` to customize
+the divider. `leftDecorator` adds an icon.
+
+Trails stay on one line and scroll horizontally when space runs out, with
+keyboard scrolling for overflowing trails. Labels cap at
+200px, or 148px with `condensed`. Clipped labels show the shared tooltip on hover
+or focus; clipped current-page text becomes focusable. Consumers choose when to
+condense and own routing, saved URLs, page titles, loading/error states, and
+switchers. Compose `Skeleton` for loading and static text for unavailable ancestors.
+
+## Nested modals
+
+Wrap a related workflow in `ModalProvider` from `@langchain/macaw-components/Dialog`
+to limit it to two visible modal layers. Dialog and modal Pane share the stack
+across portals and sibling roots. A further dialog replaces the foreground layer;
+dismissing it restores the editor with its mounted state. Popovers, tooltips,
+and non-modal SplitViewPane panels do not consume a layer.
+Popover collision handling uses its enclosing Dialog as the boundary by default;
+pass an explicit `collisionBoundary` to override it.
+
+The base backdrop uses 75% of the semantic overlay color. The foreground layer
+adds 50% of that color, giving a visible increase in dimming in both themes.
 
 ## Code editors
 
@@ -63,6 +103,14 @@ Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
 `CodeLite` for read-only snippets. Supply a `toolbar` to compose language controls
 and actions above the editor; include `CopyButton` there when needed. Without a
 toolbar, `showCopyButton` keeps the floating copy control.
+
+Import `CodeLite` from `@langchain/macaw-components/Code/CodeLite`. Its default
+plain variant renders read-only code; `variant="block"` adds a label and copy
+toolbar. Set `label` for a filename, replace the toolbar with `toolbar`, or hide
+it with `toolbar={null}`. `variant="diff"` compares `oldString` and `newString`,
+with an optional `fileName` and `contextLines`; the diff renderer loads on demand.
+The diff toolbar remains visible when there are no changes, with an empty body.
+Use `language="plaintext"` to skip syntax highlighting.
 
 `CodeLanguageSelect` accepts language aliases such as `ts` and `py`, preserves
 unknown language labels, and reports supported `CodeLanguageType` values.
@@ -88,7 +136,12 @@ Component code uses semantic tokens through Tailwind utilities. Do not use primi
 Choose color by meaning:
 
 - `bg-surface-level-1..4` expresses nesting. Use the lowest level that creates enough separation.
-- `bg-elevated*` is for popovers, tooltips, dropdowns, and other floating layers.
+- `bg-sidebar` is reserved for app navigation, independent of fields and floating surfaces.
+- `bg-elevated` is for raised cards and panes; `bg-elevated-hover` and `bg-elevated-selected` are interaction states within raised or floating surfaces.
+- `bg-input` is for Input and Textarea fields, Select and Typeahead controls. Select and Typeahead own their field styles; Button does not infer appearance from ARIA attributes. Custom Button-based picker migration is deferred; prefer Select for standard pickers. Action-menu buttons retain their normal button styles. Embedded inputs can use `inputContainerClassName="border-0 bg-transparent"`; embedded Textarea uses `variant="plain"`. Plain button triggers remain transparent.
+- Outlined fields use `border-input` at rest and `border-input-hover` on hover. Light-mode fields use a white `bg-input` fill. Input, Textarea, and Typeahead keep `bg-input` on hover; Select uses `bg-input-hover` to override the Button hover fill. Plain Input and CommandInput fields remain borderless and use `bg-input-plain`, which stays visible on white surfaces and distinct from `bg-input-disabled`.
+- `bg-input-disabled` is for disabled fields, paired with `border-muted` and disabled text/icon colors. Do not fade the entire field with opacity.
+- `bg-popover` is for floating overlays: tooltips (including chart tooltips), popovers, select and typeahead menus, dropdowns, context menus, and command menus. It is independent of the field fill even when the colors match.
 - Success, warning, and error tokens describe general feedback and validation.
 - Status tokens describe run or system state, not generic validation.
 - `text-*` is for copy; `text-icon-*` is for standalone icons.
@@ -98,7 +151,11 @@ Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Im
 
 Import `RadarChart` from `@langchain/macaw-components/RadarChart` for a single-series radial comparison across at least three axes. Supply axes clockwise from the top and a shared `maxValue` for comparisons across charts; the default scales to the largest value. Negative and nonfinite values render as zero; values above the maximum are clipped geometrically, not in labels. Each axis uses a categorical chart color; set `datum.color` from `utils/chartColors` to keep category colors stable across charts or reordering. Compose a standard `ChartLegend` with the same colors. Labels truncate with a complete accessible summary. Supply `renderTooltip` with `ChartTooltipHeader`, `ChartTooltipBody`, and `ChartTooltipRow` content to enable point/label hover and keyboard focus; the chart owns the `ChartTooltip` container, portal positioning, and Escape dismissal. The renderer receives sanitized values and resolved colors. Without it, the chart is static and labels retain native title text. Narrow containers scroll to preserve legibility. Compose with `ChartCard` for loading and error states; fetching and value formatting remain consumer-owned.
 
+Import `LineChart` from `@langchain/macaw-components/LineChart` for series over time. Keep the default `line` variant to compare how individual series change. Use `variant="stacked-area"` to show a total and each series' contribution, and only for same-unit values that add up, such as counts; never stack averages, rates, latency, or percentiles. See **Line Charts** in [`STYLES.md`](./STYLES.md).
+
 Import `SankeyChart` from `@langchain/macaw-components/SankeyChart` for weighted flow diagrams. Compose it with `ChartCard`, `ChartLegend`, and `ChartTooltip`; consumers own data, value formatting, tooltips, and navigation.
+
+Import `HeatmapChart` and `HeatmapBlock` from `@langchain/macaw-components/HeatmapChart` for percentage matrices. Supply `getBlockLabel` for meaningful row and column names; cells expose details on hover and keyboard focus. The matrix has one Tab stop; arrow keys move between cells, Home/End move within a row, and Ctrl+Home/End move to the first/last cell.
 
 ## Icons
 
@@ -128,6 +185,9 @@ Use Title Case for names of things: field labels, section headings, tabs, column
 Use the 4-point `space-*` scale through utilities such as `gap-space-4` and `px-space-5`. Pick spacing by relationship: small gaps bind one cluster; larger gaps separate sections. Prefer flex or grid `gap` over sibling margins.
 
 Use named `rounded-*`, `shadow-*`, and duration utilities instead of recreating their values. Motion should explain a state change and respect `prefers-reduced-motion`. Use named values from `packages/components/src/utils/zIndices.ts` or `useZIndex` instead of numeric z-indexes.
+
+Decorative elevation shadows are light-mode only. In dark mode, use surface
+contrast and borders; preserve focus, selection, and error indicators.
 
 Component size names are family-specific. Use the tiers supported by the component; do not infer a universal size scale. `packages/components/src/utils/componentSizes.ts` is the source of truth for shared outer-size families.
 

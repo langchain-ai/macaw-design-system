@@ -3,12 +3,16 @@ import { type ReactNode, useState } from 'react';
 import { CopySimpleIcon } from '@phosphor-icons/react/dist/ssr/CopySimple';
 
 import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import { Button } from '../Button';
 import { IconButton, type IconButtonProps } from '../IconButton';
 import { Text } from '../Text';
 import { useCopy } from './useCopy';
 
-export interface CopyButtonProps {
+export interface CopyButtonProps extends DataAttributes {
   copy: string;
   variant?: 'full' | 'icon';
   className?: string;
@@ -19,10 +23,12 @@ export interface CopyButtonProps {
 
 export function CopyButton(props: CopyButtonProps) {
   const { copied, onCopy } = useCopy({ copy: props.copy });
+  const dataAttributes = pickDataAttributes(props);
 
   if (props.variant === 'icon') {
     return (
       <CopyIconButton
+        {...dataAttributes}
         copy={props.copy}
         copyText={props.copyText}
         className={props.className}
@@ -36,6 +42,7 @@ export function CopyButton(props: CopyButtonProps) {
 
   return (
     <Button
+      {...dataAttributes}
       size="sm"
       color="secondary"
       variant="outlined"
@@ -90,7 +97,7 @@ export function CopyButton(props: CopyButtonProps) {
   );
 }
 
-export interface CopyIconButtonProps {
+export interface CopyIconButtonProps extends DataAttributes {
   copy: string;
   className?: string;
   iconClassName?: string;
@@ -116,6 +123,7 @@ export function CopyIconButton(props: CopyIconButtonProps) {
 
   return (
     <IconButton
+      {...pickDataAttributes(props)}
       onClick={(e) => {
         e.stopPropagation();
         onCopy();

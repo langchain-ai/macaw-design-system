@@ -8,7 +8,7 @@ import type { SyntaxNode, Tree } from '@lezer/common';
 import type { Highlighter } from '@lezer/highlight';
 
 import type { CMBundle } from '../../utils/lazy-codemirror-loader';
-import { LANGUAGES } from './languages/languages';
+import type { LANGUAGES } from './languages/languages';
 
 export type FoldRange = { from: number; to: number };
 
@@ -257,10 +257,11 @@ export async function parseFile(
 ): Promise<ParsedFile> {
   if (!code) return EMPTY_FILE;
 
+  const { LANGUAGES: languages } = await import('./languages/languages');
   const { lezerHighlighTree: highlightTree, EditorState, foldNodeProp } = cm;
   // TODO: Make language loading, queueing, and highlighting cancellable; the
   // signal currently only interrupts Lezer parsing cooperatively.
-  const pkg = await LANGUAGES[language];
+  const pkg = await languages[language];
   const tree = await queueParse(pkg, code, options);
 
   const editorState = EditorState.create({ doc: code });

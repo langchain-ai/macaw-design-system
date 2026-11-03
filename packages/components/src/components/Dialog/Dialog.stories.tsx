@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { expect, within } from 'storybook/test';
 
 import { FloppyDiskIcon } from '@phosphor-icons/react/dist/ssr/FloppyDisk';
 import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
@@ -7,14 +9,25 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
   Dialog,
+  ModalProvider,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from '.';
 import { Button } from '../Button/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../DropdownMenu';
 import { Input } from '../Input/Input';
+import { Pane } from '../Pane';
+import { Select } from '../Select';
 import { Text } from '../Text/Text';
+import { Textarea } from '../Textarea';
+import { Typeahead } from '../Typeahead';
 
 const meta = {
   title: 'Components/Layout/Dialog',
@@ -155,6 +168,90 @@ export const WithForm: Story = {
                 Cancel
               </Button>
               <Button onClick={() => setOpen(false)}>Create</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const WithPickers: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('My project');
+    const [description, setDescription] = useState('');
+    const [region, setRegion] = useState<string | undefined>('us');
+    const [environment, setEnvironment] = useState<string | null | undefined>(
+      null
+    );
+
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open picker dialog</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            title="Configure project"
+            description="Choose a region and environment."
+          >
+            <div className="flex flex-col gap-space-3">
+              <Input
+                label="Project Name"
+                size="md"
+                value={name}
+                onChange={setName}
+              />
+              <Textarea
+                label="Description"
+                size="md"
+                rows={2}
+                placeholder="Describe your project..."
+                value={description}
+                onChange={setDescription}
+              />
+              <div className="flex flex-col gap-space-1">
+                <Text variant="sm">Region</Text>
+                <Select
+                  aria-label="Region"
+                  size="md"
+                  value={region}
+                  onChange={setRegion}
+                  options={[
+                    { value: 'us', label: 'United States' },
+                    { value: 'eu', label: 'Europe' },
+                  ]}
+                />
+              </div>
+              <div className="flex flex-col gap-space-1">
+                <Text variant="sm">Environment</Text>
+                <Typeahead
+                  aria-label="Environment"
+                  placeholder="Search environments..."
+                  options={['Development', 'Staging', 'Production']}
+                  value={environment}
+                  onChange={setEnvironment}
+                />
+              </div>
+            </div>
+            <div className="flex justify-between gap-space-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button color="secondary" variant="outlined" size="md">
+                    More options
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Use defaults</DropdownMenuItem>
+                  <DropdownMenuItem>Duplicate settings</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                color="secondary"
+                size="md"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -342,5 +439,98 @@ export const NoTitle: Story = {
         </Dialog>
       </>
     );
+  },
+};
+
+export const TwoModalLayers: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [name, setName] = useState('Draft profile');
+    return (
+      <ModalProvider>
+        <Button onClick={() => setOpen(true)}>Open preferences</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            title="Preferences"
+            description="Manage your preferences"
+          >
+            <Text>The background dims further while editing.</Text>
+            <Button onClick={() => setEditorOpen(true)}>Edit profile</Button>
+            <Pane
+              open={editorOpen}
+              onClose={() => setEditorOpen(false)}
+              title="Profile"
+              description="Edit your profile"
+              requireConfirmationOnClose
+            >
+              <Input label="Name" value={name} onChange={setName} />
+            </Pane>
+          </DialogContent>
+        </Dialog>
+      </ModalProvider>
+    );
+  },
+};
+
+export const KeyboardAccessibility: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    return (
+      <>
+        <Button ref={triggerRef} onClick={() => setOpen(true)}>
+          Open keyboard dialog
+        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              triggerRef.current?.focus();
+            }}
+            title="Keyboard dialog"
+            description="Check dialog focus and dismissal."
+          >
+            <Button color="secondary" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setOpen(false)}>Confirm</Button>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const trigger = canvas.getByRole('button', {
+      name: 'Open keyboard dialog',
+    });
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole('dialog', { name: 'Keyboard dialog' });
+    await expect(dialog).toHaveAccessibleDescription(
+      'Check dialog focus and dismissal.'
+    );
+    await expect(dialog).toContainElement(
+      canvasElement.ownerDocument.activeElement as HTMLElement
+    );
+    const firstFocused = canvasElement.ownerDocument.activeElement;
+    await userEvent.tab({ shift: true });
+    await expect(dialog).toContainElement(
+      canvasElement.ownerDocument.activeElement as HTMLElement
+    );
+    await userEvent.tab();
+    await expect(firstFocused).toHaveFocus();
+    await userEvent.keyboard('{Escape}');
+    await expect(trigger).toHaveFocus();
+    await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+    // Leave the portal open so the automatic axe scan covers its contents.
+    await userEvent.keyboard('{Enter}');
+    await expect(
+      await body.findByRole('dialog', { name: 'Keyboard dialog' })
+    ).toBeVisible();
   },
 };

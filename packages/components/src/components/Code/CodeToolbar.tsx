@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { cn } from '../../utils/cn';
+import { Text } from '../Text';
 
 export interface CodeToolbarProps {
   language?: ReactNode;
@@ -16,13 +17,15 @@ export function CodeToolbar({
   return (
     <div
       className={cn(
-        'flex min-w-0 items-center justify-end border-b border-subtle px-space-2 py-space-1',
+        'gap-space-1 border-subtle px-space-3 py-space-1 flex min-w-0 items-center justify-between border-b',
         className
       )}
     >
-      <div className="min-w-0">{language}</div>
+      <Text as="div" variant="xs" color="secondary" className="min-w-0">
+        {language}
+      </Text>
       {children && (
-        <div className="flex shrink-0 items-center gap-space-1">{children}</div>
+        <div className="gap-space-1 flex shrink-0 items-center">{children}</div>
       )}
     </div>
   );

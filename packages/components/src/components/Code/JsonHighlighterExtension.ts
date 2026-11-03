@@ -51,8 +51,8 @@ export function createJsonHighlighterExtension(
           const isActiveVariable = activeVariable === variableName;
 
           const highlightClass = isActiveVariable
-            ? 'bg-yellow-200 dark:bg-yellow-800'
-            : 'bg-green-100 dark:bg-green-950';
+            ? 'bg-warning-subtle dark:bg-warning'
+            : 'bg-success-subtle dark:bg-success';
 
           if (path === dataType) {
             this.addDecoration(

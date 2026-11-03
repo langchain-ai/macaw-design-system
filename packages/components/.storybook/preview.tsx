@@ -43,6 +43,11 @@ const ThemeSetter = ({
 
 const preview: Preview = {
   parameters: {
+    a11y: {
+      test: 'todo',
+      // Include portals such as dialogs, which render outside the story root.
+      context: 'body',
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

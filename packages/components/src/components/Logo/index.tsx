@@ -1,8 +1,7 @@
 import type { ComponentType } from 'react';
 
-import { sanitizeUrl } from '@braintree/sanitize-url';
-
 import { cn } from '../../utils/cn';
+import { sanitizeImageSrc } from '../../utils/sanitizeImageSrc';
 import EngineBadgeDark from './EngineBadgeDark.svg?react';
 import EngineBadgeLight from './EngineBadgeLight.svg?react';
 import EngineIconLight from './EngineIconLight.svg?react';
@@ -99,7 +98,7 @@ export function Logo(props: LogoProps) {
   if (props.customLogoUrl && !props.brand) {
     return (
       <img
-        src={sanitizeUrl(props.customLogoUrl)}
+        src={sanitizeImageSrc(props.customLogoUrl)}
         alt="Custom Logo"
         className={cn(
           'h-4 w-auto max-w-[7.5rem] shrink-0 object-contain',

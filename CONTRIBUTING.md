@@ -10,15 +10,16 @@ All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Develop locally
 
-Use Node 22 or 24 and pnpm 10.27.0 (`corepack enable`).
+Use the Node.js version supported by `engines.node` and the pnpm version pinned
+in `packageManager` in the root [package.json](package.json).
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build
+pnpm build-all
 pnpm storybook
 ```
 
-Storybook runs at <http://localhost:5264>. Build the package with `pnpm build`;
+Storybook runs at <http://localhost:5264>. Build the packages with `pnpm build-all`;
 each package writes its output to `packages/<name>/dist/`.
 
 Read [DESIGN.md](packages/components/docs/DESIGN.md) for component rules and
@@ -35,34 +36,71 @@ export map and consumer examples when changing the public API.
 Use `pnpm design-system search <capability>` and
 `pnpm --silent design-system inspect <name> --json` to find exact imports and
 colocated stories. This contributor command reads live source and story tags. The published `macaw`
-command reads the built catalog instead. Builds require Node 22.18+ or Node 24.
+command reads the built catalog instead.
 
-## Link to LangChainPlus
+## Link to a consuming project
 
-Once `smith-frontend` has `@langchain/macaw-components` as a dependency, link the
-local checkout instead of publishing a test version. With the repositories as
-sibling directories:
+To test local Macaw changes in any project that depends on
+`@langchain/macaw-components`, link your checkout instead of publishing a test
+version. First, follow the [consumer setup](README.md#install) in that project.
 
 ```sh
-# Terminal 1: macaw-design-system
-pnpm build:watch
+# Terminal 1: your Macaw checkout
+cd /path/to/macaw-design-system
+pnpm build-all
 
-# Terminal 2: langchainplus/smith-frontend
-pnpm link ../../macaw-design-system/packages/components
+# Terminal 2: the consuming application's package directory
+cd /path/to/your-project
+pnpm link /path/to/macaw-design-system/packages/components
 pnpm dev
 ```
 
-Use an absolute path in `pnpm link` if the repositories are not siblings. Link
-`packages/tokens` too when testing direct token imports. For publication checks,
-`pnpm pack:check` tests all three tarballs in an isolated consumer. To
-return to the version in `package.json` and the lockfile:
+Replace the paths with your local directories and use your application's dev
+command in place of `pnpm dev` if it differs. Wait for the Macaw build to finish
+before starting the application. After editing Macaw source, rerun `pnpm build-all`
+from the Macaw checkout to update the linked packages.
+
+Relative paths work too. For example, if `langchainplus` and `macaw-design-system`
+are sibling checkouts, run this from `langchainplus/smith-frontend`:
+
+```sh
+pnpm link ../../macaw-design-system/packages/components
+```
+
+Link `packages/tokens` too when testing direct imports from
+`@langchain/macaw-tokens`. Only code that imports Macaw packages will use the
+linked changes; linking does not replace a project's own components.
+
+For publication checks, run `pnpm pack:check` from the Macaw checkout to test all
+three tarballs in an isolated consumer. To return to the version in the consuming
+project's `package.json` and lockfile, run this from its package directory:
 
 ```sh
 pnpm unlink @langchain/macaw-components
 ```
 
-The current extraction does not yet migrate `smith-frontend` imports to the
-package, so linking it alone will not change existing design-system screens.
+Unlink `@langchain/macaw-tokens` too if you linked it.
+
+## Accessibility checks
+
+The Storybook Accessibility panel runs axe checks on each story, including
+portaled content. Existing catalog findings are reported as warnings (`todo`)
+while stories tagged `a11y-test` use `parameters.a11y.test: 'error'` and block CI
+on violations. The suite uses the addon's default axe rules without additional exclusions.
+
+Run the browser suite locally (Node 26+):
+
+```sh
+pnpm exec playwright install chromium
+pnpm test:a11y
+```
+
+The suite runs the tagged stories in Chromium in both light and dark themes.
+It also checks keyboard toggling, tab selection, disabled-tab navigation, and dialog focus trapping/restoration.
+To expand coverage, tag a story `a11y-test` and set its a11y test mode to `error`.
+Use `play` functions to expose interactive states before the automatic axe scan.
+Keep meaningful accessible names and avoid blanket rule exclusions. Automated
+checks complement manual keyboard and screen-reader testing.
 
 ## Before opening a pull request
 
@@ -96,5 +134,4 @@ code; PR authors should be able to explain and defend their work.
 
 Keep behavior and visuals unchanged when moving files across these boundaries.
 A public contract change needs the matching export map, documentation, and
-consumer verification updates. Releases use a shared version; see
-[RELEASING.md](docs/RELEASING.md).
+consumer verification updates. Releases use a shared version.

@@ -10,8 +10,8 @@ describe('ThinkingState', () => {
     const indicatorRef = createRef<HTMLSpanElement>();
     render(
       <>
-        <ThinkingState ref={statusRef} />
-        <LoadingIndicator ref={indicatorRef} />
+        <ThinkingState ref={statusRef} size="xs" />
+        <LoadingIndicator ref={indicatorRef} size="xs" />
       </>,
       { withProviders: false }
     );
@@ -104,7 +104,12 @@ describe('ThinkingState', () => {
 
   it('uses the supplied operation duration without advancing it internally', () => {
     const { rerender } = render(
-      <ThinkingState showElapsed elapsedMs={65_400} timerPrecision="tenths" />,
+      <ThinkingState
+        size="xs"
+        showElapsed
+        elapsedMs={65_400}
+        timerPrecision="tenths"
+      />,
       { withProviders: false }
     );
     expect(screen.getByRole('timer')).toHaveTextContent('1m 5.4s');

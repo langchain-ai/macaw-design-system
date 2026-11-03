@@ -15,9 +15,19 @@
     box-shadow: none !important;
   }
 
-  /* Set default outline color to match our brand color */
+  /* Tailwind v4 preflight leaves buttons on the UA default cursor. */
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+
+  :disabled {
+    cursor: default;
+  }
+
+  /* Default outlines follow the semantic focus color in each theme. */
   * {
-    outline-color: var(--brand-400);
+    outline-color: var(--border-focus);
   }
 
   html {
@@ -79,7 +89,7 @@
     --button-secondary-bg: var(--white);
     --button-secondary-bg-hover: var(--neutral-50);
     --button-secondary-border: var(--neutral-300);
-    --button-secondary-border-hover: var(--neutral-300);
+    --button-secondary-border-hover: var(--neutral-400);
     /* Button-owned tokens for exact underlined variant colors. */
     --button-secondary-underlined-border: var(--neutral-700);
     --button-secondary-underlined-border-hover: var(--neutral-800);
@@ -89,7 +99,10 @@
     --button-secondary-color-bg-hover: var(--brand-50);
     --button-secondary-color-border: var(--brand-700);
     --button-secondary-color-border-hover: var(--brand-300);
-    /* Button-owned tokens for exact error variant colors. */
+    /* Button-owned error colors retain the v3 appearance in both themes. */
+    --button-error-border: #dc2626;
+    --button-error-outlined-border: #b91c1c;
+    --button-error-bg-hover: #b91c1c;
     --button-error-underlined-foreground-hover: var(--red-400);
     --button-error-underlined-border: var(--red-600);
     --button-error-underlined-border-hover: var(--red-400);
@@ -119,8 +132,8 @@
     --button-secondary-foreground-hover: var(--neutral-100);
     --button-secondary-bg: var(--neutral-900);
     --button-secondary-bg-hover: var(--neutral-800);
-    --button-secondary-border: var(--neutral-700);
-    --button-secondary-border-hover: var(--neutral-700);
+    --button-secondary-border: var(--border-subtle);
+    --button-secondary-border-hover: var(--border-subtle);
     --button-secondary-underlined-border: var(--neutral-700);
     --button-secondary-underlined-border-hover: var(--neutral-800);
     --button-secondary-color-foreground: var(--brand-500);

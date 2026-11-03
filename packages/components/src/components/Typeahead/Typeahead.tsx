@@ -59,6 +59,7 @@ function TypeaheadInner<TOption = string>(
     createNewLabel,
     inputValue: controlledInputValue,
     onInputChange,
+    onOpenChange,
     getOptionLabel,
     getOptionValue,
     getOptionDisabled,
@@ -86,17 +87,22 @@ function TypeaheadInner<TOption = string>(
   const listRef = useRef<HTMLDivElement | null>(null);
   const popoverContentRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpenState] = useState(false);
+  const openRef = useRef(false);
   const [uncontrolledInputValue, setUncontrolledInputValue] = useState('');
   const setOpen = useCallback(
     (nextOpen: boolean) => {
-      if (!disabled || !nextOpen) {
-        setOpenState(nextOpen);
-      }
+      if ((disabled && nextOpen) || openRef.current === nextOpen) return;
+      // Track the change immediately so batched events cannot notify twice.
+      openRef.current = nextOpen;
+      setOpenState(nextOpen);
+      onOpenChange?.(nextOpen);
     },
-    [disabled]
+    [disabled, onOpenChange]
   );
   useEffect(() => {
-    if (disabled) setOpenState(false);
+    if (disabled && open) setOpen(false);
+  }, [disabled, open, setOpen]);
+  useEffect(() => {
     if (autoFocus)
       requestAnimationFrame(() => internalInputRef.current?.focus());
   }, [autoFocus, disabled]);

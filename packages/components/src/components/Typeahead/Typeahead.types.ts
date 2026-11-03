@@ -79,6 +79,8 @@ interface TypeaheadBaseProps<TOption> extends Omit<
   onCreateNew?: (inputValue: string) => void;
   createNewLabel?: (inputValue: string) => ReactNode;
   inputValue?: string;
+  /** Called once when the options popup opens or closes. */
+  onOpenChange?: (open: boolean) => void;
   onInputChange?: (value: string) => void;
   getOptionLabel?: (option: TypeaheadSelectedValue<TOption>) => string;
   getOptionValue?: (option: TypeaheadSelectedValue<TOption>) => string;

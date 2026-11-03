@@ -180,6 +180,15 @@ if (
   !existsSync(resolve(repositoryRoot, 'dist/components.css'))
 )
   fail('styles.css must load compiled component styles');
+// Keep component CSS from globally registering Tailwind's gradient properties.
+if (
+  /@property\s+--tw-gradient-/.test(
+    readFileSync(resolve(repositoryRoot, 'dist/components.css'), 'utf8')
+  )
+)
+  fail(
+    'components.css must not globally register Tailwind gradient properties'
+  );
 if (
   !existsSync(resolve(repositoryRoot, 'dist/components/ThinkingState/NOTICE'))
 )
@@ -198,6 +207,7 @@ await Promise.all([
   import('@langchain/macaw-components'),
   import('@langchain/macaw-components/Attachment'),
   import('@langchain/macaw-components/BarChart'),
+  import('@langchain/macaw-components/HeatmapChart'),
   import('@langchain/macaw-components/Code'),
   import('@langchain/macaw-components/Logo'),
   import('@langchain/macaw-components/ThinkingState'),

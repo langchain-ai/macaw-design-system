@@ -5,11 +5,14 @@ import { Skeleton } from '../Skeleton';
 
 export type ChartCardSkeletonVariant =
   | 'bar'
+  | 'horizontal-bar'
   | 'line'
   | 'donut'
   | 'metric'
   | 'sparkline'
   | 'sankey';
+
+const HORIZONTAL_BAR_WIDTHS = ['35%', '62%', '48%', '78%', '55%'] as const;
 
 const BAR_HEIGHTS = ['35%', '62%', '48%', '78%', '55%', '70%', '42%'] as const;
 
@@ -55,6 +58,19 @@ export const ChartCardSkeleton = ({
               key={index}
               className="min-w-0 flex-1 rounded-b-none rounded-t-md motion-reduce:animate-none"
               style={{ height }}
+            />
+          ))}
+        </div>
+      </Plot>
+    )}
+    {variant === 'horizontal-bar' && (
+      <Plot>
+        <div className="flex size-full flex-col gap-space-2 py-space-2">
+          {HORIZONTAL_BAR_WIDTHS.map((width, index) => (
+            <Skeleton
+              key={index}
+              className="min-h-0 flex-1 rounded-l-none rounded-r-md motion-reduce:animate-none"
+              style={{ width }}
             />
           ))}
         </div>

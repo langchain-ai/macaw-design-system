@@ -115,10 +115,10 @@ export const Slider = ({
             ariaLabel !== undefined && { 'aria-label': ariaLabel })}
           aria-labelledby={hasMultipleThumbs ? undefined : ariaLabelledby}
           className={cn(
-            'block rounded-full border-2 shadow transition',
+            'shadow-slider-thumb block rounded-full border-2 transition',
             SELECTION_CONTROL_SIZES.sm.className,
             SELECTION_CONTROL_HIT_AREA_STYLES,
-            'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-none',
+            'focus-visible:shadow-[0_0_0_4px_var(--bg-brand-subtle)] focus-visible:outline-hidden',
             disabled
               ? 'border-muted bg-surface-level-3'
               : 'cursor-pointer border-brand-300 bg-control-thumb hover:border-brand-400 dark:border-brand-500 dark:hover:border-brand-600'

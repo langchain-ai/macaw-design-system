@@ -11,7 +11,7 @@ export const ChartTooltip = forwardRef<HTMLDivElement, ChartTooltipProps>(
       ref={ref}
       role="tooltip"
       className={cn(
-        'flex w-max max-w-[24rem] flex-col rounded-md border border-subtle bg-elevated p-space-1 text-primary shadow-md',
+        'flex w-max max-w-[24rem] flex-col rounded-md border border-subtle bg-popover p-space-1 text-primary shadow-md',
         className
       )}
       {...props}
@@ -126,7 +126,7 @@ export function ChartTooltipRow({
       <div
         className={cn(
           'flex min-w-0 items-center gap-space-2 rounded-xs px-space-2 py-space-1',
-          highlighted && 'bg-surface-level-2',
+          highlighted && 'bg-elevated-hover',
           className
         )}
         {...props}

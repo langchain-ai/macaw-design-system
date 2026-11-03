@@ -1,16 +1,12 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.2.0",
+  "version": "1.5.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/langchain-ai/macaw-design-system.git",
     "directory": "packages/components"
-  },
-  "scripts": {
-    "build": "node ../../scripts/build-components.mjs",
-    "storybook": "storybook dev -p 5264"
   },
   "files": [
     "dist",
@@ -31,6 +27,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./Accordion": {
+      "types": "./dist/components/Accordion/index.d.ts",
+      "import": "./dist/components/Accordion/index.js"
     },
     "./Attachment": {
       "types": "./dist/components/Attachment/index.d.ts",
@@ -56,6 +56,10 @@
       "types": "./dist/components/BarChart/index.d.ts",
       "import": "./dist/components/BarChart/index.js"
     },
+    "./Breadcrumb": {
+      "types": "./dist/components/Breadcrumb/index.d.ts",
+      "import": "./dist/components/Breadcrumb/index.js"
+    },
     "./Button": {
       "types": "./dist/components/Button/index.d.ts",
       "import": "./dist/components/Button/index.js"
@@ -79,6 +83,14 @@
     "./ChartTooltip": {
       "types": "./dist/components/ChartTooltip/index.d.ts",
       "import": "./dist/components/ChartTooltip/index.js"
+    },
+    "./ChatConversationList": {
+      "types": "./dist/components/ChatConversationList/index.d.ts",
+      "import": "./dist/components/ChatConversationList/index.js"
+    },
+    "./ChatMessage": {
+      "types": "./dist/components/ChatMessage/index.d.ts",
+      "import": "./dist/components/ChatMessage/index.js"
     },
     "./Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
@@ -136,6 +148,10 @@
       "types": "./dist/components/GroupedTabs/index.d.ts",
       "import": "./dist/components/GroupedTabs/index.js"
     },
+    "./HeatmapChart": {
+      "types": "./dist/components/HeatmapChart/index.d.ts",
+      "import": "./dist/components/HeatmapChart/index.js"
+    },
     "./Icon": {
       "types": "./dist/components/Icon/index.d.ts",
       "import": "./dist/components/Icon/index.js"
@@ -147,6 +163,14 @@
     "./Input": {
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
+    },
+    "./ImagePreviewDialog": {
+      "types": "./dist/components/ImagePreviewDialog/index.d.ts",
+      "import": "./dist/components/ImagePreviewDialog/index.js"
+    },
+    "./ImagePreviewBlock": {
+      "types": "./dist/components/ImagePreviewBlock/index.d.ts",
+      "import": "./dist/components/ImagePreviewBlock/index.js"
     },
     "./Kbd": {
       "types": "./dist/components/Kbd/index.d.ts",
@@ -227,6 +251,10 @@
     "./SplitViewPane": {
       "types": "./dist/components/SplitViewPane/index.d.ts",
       "import": "./dist/components/SplitViewPane/index.js"
+    },
+    "./StatusBadge": {
+      "types": "./dist/components/StatusBadge/index.d.ts",
+      "import": "./dist/components/StatusBadge/index.js"
     },
     "./Switch": {
       "types": "./dist/components/Switch/index.d.ts",
@@ -313,6 +341,10 @@
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js"
     },
+    "./components/Accordion": {
+      "types": "./dist/components/Accordion/index.d.ts",
+      "import": "./dist/components/Accordion/index.js"
+    },
     "./components/Attachment": {
       "types": "./dist/components/Attachment/index.d.ts",
       "import": "./dist/components/Attachment/index.js"
@@ -356,6 +388,10 @@
     "./components/ChartTooltip": {
       "types": "./dist/components/ChartTooltip/index.d.ts",
       "import": "./dist/components/ChartTooltip/index.js"
+    },
+    "./components/ChatConversationList": {
+      "types": "./dist/components/ChatConversationList/index.d.ts",
+      "import": "./dist/components/ChatConversationList/index.js"
     },
     "./components/Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
@@ -413,6 +449,10 @@
       "types": "./dist/components/GroupedTabs/index.d.ts",
       "import": "./dist/components/GroupedTabs/index.js"
     },
+    "./components/HeatmapChart": {
+      "types": "./dist/components/HeatmapChart/index.d.ts",
+      "import": "./dist/components/HeatmapChart/index.js"
+    },
     "./components/Icon": {
       "types": "./dist/components/Icon/index.d.ts",
       "import": "./dist/components/Icon/index.js"
@@ -424,6 +464,14 @@
     "./components/Input": {
       "types": "./dist/components/Input/index.d.ts",
       "import": "./dist/components/Input/index.js"
+    },
+    "./components/ImagePreviewDialog": {
+      "types": "./dist/components/ImagePreviewDialog/index.d.ts",
+      "import": "./dist/components/ImagePreviewDialog/index.js"
+    },
+    "./components/ImagePreviewBlock": {
+      "types": "./dist/components/ImagePreviewBlock/index.d.ts",
+      "import": "./dist/components/ImagePreviewBlock/index.js"
     },
     "./components/Kbd": {
       "types": "./dist/components/Kbd/index.d.ts",
@@ -505,6 +553,10 @@
       "types": "./dist/components/SplitViewPane/index.d.ts",
       "import": "./dist/components/SplitViewPane/index.js"
     },
+    "./components/StatusBadge": {
+      "types": "./dist/components/StatusBadge/index.d.ts",
+      "import": "./dist/components/StatusBadge/index.js"
+    },
     "./components/Switch": {
       "types": "./dist/components/Switch/index.d.ts",
       "import": "./dist/components/Switch/index.js"
@@ -547,11 +599,16 @@
     }
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true,
+    "tag": "latest"
   },
-
+  "scripts": {
+    "build": "node ../../scripts/build-components.mjs",
+    "storybook": "storybook dev -p 5264",
+    "test:a11y": "vitest run --config ../../vitest.storybook.config.ts"
+  },
   "dependencies": {
-    "@braintree/sanitize-url": "^7.1.2",
     "@codemirror/commands": "^6.2.4",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-json": "^6.0.2",
@@ -571,6 +628,7 @@
     "@lezer/yaml": "^1.0.4",
     "@mantine/hooks": "^8.3.7",
     "@phosphor-icons/react": "2.1.10",
+    "@pierre/diffs": "1.3.6",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-context-menu": "^2.2.16",
     "@radix-ui/react-dialog": "1.1.23",
@@ -586,7 +644,6 @@
     "@radix-ui/react-tooltip": "^1.2.6",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@react-spring/web": "^10.1.2",
-    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.7",
     "@uiw/codemirror-theme-tokyo-night-day": "^4.25.4",
     "@uiw/codemirror-theme-tokyo-night-storm": "^4.25.4",
@@ -604,15 +661,15 @@
     "linkify-it": "^5.0.2",
     "react-hotkeys-hook": "^4.5.0",
     "react-virtuoso": "^4.18.6",
-    "tailwind-merge": "^2.6",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^9.0.4",
     "yaml": "^2.8.3"
   },
   "peerDependencies": {
-    "react": ">=18.2.0 <20",
-    "react-dom": ">=18.2.0 <20",
-    "tailwindcss": "^3.4.4"
+    "react": ">=19 <20",
+    "react-dom": ">=19 <20",
+    "tailwindcss": "^4.3.3"
   },
   "peerDependenciesMeta": {
     "tailwindcss": {
@@ -620,7 +677,7 @@
     }
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=26"
   },
   "nx": {
     "targets": {

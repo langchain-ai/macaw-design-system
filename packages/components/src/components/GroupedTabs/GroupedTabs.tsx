@@ -1,8 +1,12 @@
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '../../utils/cn';
 import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
+import {
+  type DataAttributes,
+  pickDataAttributes,
+} from '../../utils/dataAttributes';
 import type { IconComponent, IconWeight } from '../../utils/icon-types';
 import { Text } from '../Text';
 import type { TooltipProps } from '../Tooltip';
@@ -37,7 +41,7 @@ export type GroupedTabsProps<T extends string | number> = {
   selectionClassName?: string;
   /** Optional class for the indicator (e.g. to override top/height for custom margins) */
   indicatorClassName?: string;
-};
+} & DataAttributes;
 
 export const GroupedTabs = <T extends string | number>({
   value,
@@ -49,21 +53,26 @@ export const GroupedTabs = <T extends string | number>({
   tooltip,
   selectionClassName,
   indicatorClassName,
+  ...rest
 }: GroupedTabsProps<T>) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [clipState, setClipState] = useState<{
     path: string;
     isFirst: boolean;
-    animate: boolean;
-  }>({ path: '', isFirst: true, animate: false });
+    shouldAnimate: boolean;
+  }>({ path: '', isFirst: true, shouldAnimate: false });
+  const activeIndex = useMemo(
+    () => options.findIndex((option) => option.value === value),
+    [options, value]
+  );
 
-  useEffect(() => {
-    const container = containerRef.current;
-    const activeIndex = options.findIndex((option) => option.value === value);
-    const activeButton = buttonRefs.current[activeIndex];
-
-    if (activeButton && container) {
+  const updateClipState = useCallback(
+    (
+      container: HTMLDivElement,
+      activeButton: HTMLButtonElement,
+      shouldAnimate: boolean
+    ) => {
       const containerRect = container.getBoundingClientRect();
       const buttonRect = activeButton.getBoundingClientRect();
       const roundValue = size === 'xs' ? '1px' : size === 'sm' ? '2px' : '4px';
@@ -75,18 +84,41 @@ export const GroupedTabs = <T extends string | number>({
       const right =
         containerRect.right - buttonRect.right - container.clientLeft;
 
-      setClipState((prev) => ({
-        path: `inset(${top}px ${right}px ${bottom}px ${left}px round ${roundValue})`,
-        isFirst: false,
-        animate: !prev.isFirst,
-      }));
-    }
-  }, [size, value, options]);
+      const path = `inset(${top}px ${right}px ${bottom}px ${left}px round ${roundValue})`;
+      setClipState((prev) =>
+        prev.path === path
+          ? prev
+          : {
+              path,
+              isFirst: false,
+              shouldAnimate: shouldAnimate && !prev.isFirst,
+            }
+      );
+    },
+    [size]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const activeButton = buttonRefs.current[activeIndex];
+    if (!activeButton || !container) return;
+
+    updateClipState(container, activeButton, true);
+
+    const observer = new ResizeObserver(() =>
+      updateClipState(container, activeButton, false)
+    );
+    observer.observe(container);
+    observer.observe(activeButton);
+
+    return () => observer.disconnect();
+  }, [activeIndex, updateClipState, value]);
 
   const isActive = (option: GroupedTabOption<T>) => option.value === value;
   return (
     <Tooltip title={tooltip}>
       <div
+        {...pickDataAttributes(rest)}
         ref={containerRef}
         className={cn(
           'relative box-border flex w-fit border border-subtle bg-surface-level-1 dark:border-muted',
@@ -112,7 +144,7 @@ export const GroupedTabs = <T extends string | number>({
             )}
             style={{
               clipPath: clipState.path,
-              transition: clipState.animate
+              transition: clipState.shouldAnimate
                 ? 'clip-path 0.25s ease-out, background-color 0.25s ease-out'
                 : 'none',
             }}

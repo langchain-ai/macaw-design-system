@@ -30,8 +30,12 @@ const brandTextClasses = BRAND_PALETTE_STEPS.map(
 const buttonBorderColorClasses = [
   'button-primary-underlined-border',
   'button-primary-underlined-border-hover',
+  'button-secondary-border',
+  'button-secondary-border-hover',
   'button-secondary-underlined-border',
   'button-secondary-underlined-border-hover',
+  'button-error-border',
+  'button-error-outlined-border',
   'button-error-underlined-border',
   'button-error-underlined-border-hover',
   'button-error-disabled-border',
@@ -60,6 +64,7 @@ const customTwMerge = extendTailwindMerge({
   extend: {
     theme: {
       spacing: SPACE_SCALE_STEPS,
+      shadow: ['slider-thumb'],
     },
     classGroups: {
       // Extend font-size to include custom display and caps classes
@@ -93,6 +98,10 @@ const customTwMerge = extendTailwindMerge({
         'bg-surface-level-3',
         'bg-surface-level-4',
         'bg-disabled',
+        'bg-input',
+        'bg-input-hover',
+        'bg-input-plain',
+        'bg-input-disabled',
         'bg-elevated',
         'bg-elevated-hover',
         'bg-elevated-selected',
@@ -120,6 +129,7 @@ const customTwMerge = extendTailwindMerge({
         'bg-error-primary',
         'bg-error-secondary',
         'bg-error-strong',
+        'button-error-bg-hover',
         'bg-warning',
         'bg-warning-subtle',
         'bg-warning-primary',
@@ -135,6 +145,8 @@ const customTwMerge = extendTailwindMerge({
       ],
       // Extend border-color to include custom border colors
       'border-color': [
+        'border-input',
+        'border-input-hover',
         'border-default',
         'border-subtle',
         'border-muted',

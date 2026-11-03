@@ -164,10 +164,10 @@ export const Banner = ({
           {iconElement}
         </div>
       )}
-      <div className="min-w-0 flex-1">
+      <Text as="div" variant="sm" className="min-w-0 flex-1">
         {titleElement}
         {contentElement}
-      </div>
+      </Text>
       {action ? (
         <div className="flex shrink-0 items-center">{action}</div>
       ) : null}

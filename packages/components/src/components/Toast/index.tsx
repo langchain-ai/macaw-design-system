@@ -14,8 +14,6 @@ import { IconButton } from '../IconButton';
 import { ToastContext } from './ToastContext';
 
 const DEFAULT_DURATION_MS = 5000;
-// Error toasts do not auto-dismiss; the user must click the close button.
-const ERROR_DURATION_MS = Infinity;
 
 // Provider wraps whole application
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -32,9 +30,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       typeof titleOrConfig === 'string'
         ? { title: titleOrConfig }
         : titleOrConfig;
-    const isError = preConfig.error || preConfig.type === 'error';
     const config: ToastConfig = {
-      duration: isError ? ERROR_DURATION_MS : DEFAULT_DURATION_MS,
+      duration: DEFAULT_DURATION_MS,
       ...preConfig,
     };
 
@@ -61,7 +58,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         </ZIndexProvider>
         <ToastLib.Viewport
           className={cn(
-            'fixed bottom-0 right-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]',
+            'fixed bottom-0 right-0 m-0 flex w-[390px] max-w-full list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-hidden [--viewport-padding:_25px]',
             config?.viewPortClassName
           )}
           style={{ zIndex: zIndices.toast }}
@@ -194,7 +191,7 @@ function Toast({
       className={cn(
         'flex items-start gap-space-2 rounded-md border p-space-3',
         surface,
-        'shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px]',
+        'shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] dark:shadow-none',
         'data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=closed]:animate-hide data-[state=open]:animate-slideIn data-[swipe=end]:animate-swipeOut data-[swipe=cancel]:transition-[transform_200ms_ease-out]'
       )}
       open={open}

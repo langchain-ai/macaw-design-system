@@ -10,6 +10,7 @@ import styles from './ThinkingState.module.css';
 type ThinkingStateVariant = 'drive' | 'dots' | 'orbit';
 
 const SIZES = {
+  xs: VISUAL_ELEMENT_SIZES.xxs.className,
   sm: VISUAL_ELEMENT_SIZES.xs.className,
   md: VISUAL_ELEMENT_SIZES.sm.className,
   lg: VISUAL_ELEMENT_SIZES.md.className,
@@ -20,7 +21,7 @@ interface LoadingIndicatorProps extends Omit<
   'children'
 > {
   variant?: ThinkingStateVariant;
-  /** Indicator outer size: sm=16px, md=20px, lg=24px. */
+  /** Indicator outer size: xs=12px, sm=16px, md=20px, lg=24px. */
   size?: keyof typeof SIZES;
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */

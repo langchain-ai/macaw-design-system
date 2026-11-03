@@ -32,6 +32,8 @@ export interface AttachmentProps extends Omit<
   /** File-row height: sm=24px, md=32px, lg=48px. Thumbnails use larger tiles. */
   size?: 'sm' | 'md' | 'lg';
   status?: 'ready' | 'loading' | 'uploading' | 'error';
+  /** Disables opening, removal, and custom actions. */
+  disabled?: boolean;
   onOpen?: () => void;
   openLabel?: string;
   onRemove?: () => void;
@@ -71,6 +73,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
       variant = 'file',
       size = 'md',
       status = 'ready',
+      disabled = false,
       onOpen,
       openLabel = `View ${name}`,
       onRemove,
@@ -110,6 +113,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
               : 'size-3.5'
         }
         label={`Remove ${name}`}
+        disabled={disabled}
         color="secondary"
         variant={isThumbnail ? 'normal' : 'plain'}
         round={isThumbnail}
@@ -125,7 +129,7 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         size={size === 'sm' ? 'xxs' : size === 'md' ? 'xs' : 'sm'}
         onClick={(event) => {
           event.stopPropagation();
-          onRemove();
+          if (!disabled) onRemove();
         }}
       />
     ) : null;
@@ -258,24 +262,18 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         role="group"
         aria-label={name}
         {...props}
-        onClick={(event) => {
-          // Extend the preview button to the card's padding and gaps only.
-          if (onOpen && event.target === event.currentTarget) {
-            event.stopPropagation();
-            onOpen();
-          }
-        }}
+        aria-disabled={disabled || undefined}
         className={cn(
-          'box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
+          'relative box-border flex min-w-0 max-w-full shrink-0 items-center gap-space-2 rounded-xs border border-subtle bg-surface-level-1',
           isThumbnail
             ? [
                 sizeStyles.thumbnail,
-                'group/attachment relative flex-col items-stretch',
+                'group/attachment flex-col items-stretch',
                 size === 'sm' ? 'p-space-1' : 'p-space-2',
               ]
             : [sizeStyles.height, sizeStyles.padding],
           status === 'error' && 'border-error',
-          onOpen && 'cursor-pointer',
+          disabled && 'cursor-not-allowed opacity-50',
           className
         )}
       >
@@ -285,16 +283,23 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
             color="secondary"
             variant="plain"
             aria-label={openLabel}
+            disabled={disabled}
             aria-describedby={description ? statusId : undefined}
             className={cn(
-              'min-w-0 flex-1 justify-start p-0 text-left',
+              'static min-w-0 flex-1 justify-start p-0 text-left',
+              // Stretch the hit area and focus ring over the whole card.
+              !disabled && [
+                'after:absolute after:inset-0 after:rounded-xs',
+                'focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-focus',
+                'hover:bg-transparent dark:hover:bg-transparent',
+              ],
               isThumbnail
                 ? 'h-auto w-full max-w-full flex-none whitespace-normal'
                 : 'h-full'
             )}
             onClick={(event) => {
               event.stopPropagation();
-              onOpen();
+              if (!disabled) onOpen();
             }}
           >
             {content}
@@ -305,9 +310,11 @@ export const Attachment = forwardRef<HTMLDivElement, AttachmentProps>(
         {isThumbnail && removeButton}
         {(actions != null || (!isThumbnail && onRemove)) && (
           <fieldset
+            disabled={disabled}
+            inert={disabled || undefined}
             aria-label={`Actions for ${name}`}
             className={cn(
-              'm-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',
+              'relative m-0 flex min-w-0 max-w-full shrink-0 items-center justify-end gap-space-1 border-0 p-0',
               isThumbnail && 'flex-wrap'
             )}
             onClick={(event) => event.stopPropagation()}

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { expect } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Text } from '../Text';
@@ -59,6 +61,23 @@ export const RemountedTabGroup: Story = {
 
 // Basic Tabs
 export const BasicTabs: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.tab();
+    await expect(canvas.getByRole('tab', { name: 'Overview' })).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    const analytics = canvas.getByRole('tab', { name: 'Analytics' });
+    await expect(analytics).toHaveFocus();
+    await expect(analytics).toHaveAttribute('aria-selected', 'true');
+    await expect(canvas.getByRole('tabpanel')).toHaveAccessibleName(
+      'Analytics'
+    );
+    await userEvent.keyboard('{End}');
+    await expect(canvas.getByRole('tab', { name: 'Settings' })).toHaveFocus();
+    await userEvent.keyboard('{Home}');
+    await expect(canvas.getByRole('tab', { name: 'Overview' })).toHaveFocus();
+  },
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   render: () => (
     <TabGroup>
       <TabList>
@@ -191,6 +210,18 @@ export const TabsWithBadges: Story = {
 
 // Disabled Tab
 export const DisabledTab: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.tab();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect(
+      canvas.getByRole('tab', { name: 'Another Active Tab' })
+    ).toHaveFocus();
+    await expect(
+      canvas.getByRole('tab', { name: 'Disabled Tab' })
+    ).toBeDisabled();
+  },
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   render: () => (
     <TabGroup>
       <TabList>

@@ -33,7 +33,7 @@ const meta = {
   ],
   argTypes: {
     variant: { control: 'select', options: ['drive', 'dots', 'orbit'] },
-    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg'] },
     tone: { control: 'select', options: ['neutral', 'brand'] },
     motion: { control: 'select', options: ['full', 'subtle', 'none'] },
     speed: { control: 'select', options: ['normal', 'slow'] },
@@ -83,6 +83,10 @@ export const Sizes: Story = {
   render: (args) => (
     <div className="grid grid-cols-[auto_1fr] items-center gap-x-space-6 gap-y-space-5">
       <Text variant="sm" color="secondary">
+        Extra Small
+      </Text>
+      <ThinkingState {...args} size="xs" />
+      <Text variant="sm" color="secondary">
         Small
       </Text>
       <ThinkingState {...args} size="sm" />
@@ -116,6 +120,16 @@ export const Motion: Story = {
       <ThinkingState {...args} motion="none" />
     </div>
   ),
+};
+
+export const ExtraSmall: Story = {
+  args: {
+    size: 'xs',
+    label: 'Gathering context',
+    motion: 'subtle',
+    showElapsed: true,
+    elapsedMs: 12_500,
+  },
 };
 
 export const Slow: Story = { args: { speed: 'slow' } };
