@@ -71,12 +71,17 @@ export function ChatConversation({
       viewport.scrollTop = viewport.scrollHeight;
     };
 
+    let lastScrollTop = viewport.scrollTop;
     const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = viewport;
       const nearBottom =
-        viewport.scrollHeight - viewport.clientHeight - viewport.scrollTop <=
-        FOLLOW_THRESHOLD;
-      followingRef.current = nearBottom;
-      setIsNearBottom(nearBottom);
+        scrollHeight - clientHeight - scrollTop <= FOLLOW_THRESHOLD;
+      // Only scrolling up stops following. The scroll event from our own pin
+      // can land after more content arrives, leaving a gap the reader didn't make.
+      followingRef.current =
+        nearBottom || (followingRef.current && scrollTop >= lastScrollTop);
+      lastScrollTop = scrollTop;
+      setIsNearBottom(followingRef.current);
     };
 
     followContent();

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { expect, waitFor } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ChatConversation } from '.';
@@ -364,4 +366,44 @@ export const Narrow: Story = {
       </div>
     ),
   ],
+};
+
+function appendBlock(content: Element) {
+  const block = document.createElement('div');
+  block.style.height = '200px';
+  block.style.flexShrink = '0';
+  content.append(block);
+}
+
+const nextFrame = () =>
+  new Promise((resolve) => requestAnimationFrame(resolve));
+
+export const FollowsBackToBackGrowth: Story = {
+  tags: ['!dev', '!autodocs', 'a11y-test'],
+  play: async ({ canvas }) => {
+    const log = canvas.getByRole('log');
+    const content = log.firstElementChild!;
+    const gap = () => log.scrollHeight - log.clientHeight - log.scrollTop;
+    await waitFor(() => expect(gap()).toBeLessThanOrEqual(1));
+
+    // Grow again right after the log pins itself, before the browser fires
+    // the scroll event from that pin, so the event sees the taller content.
+    await new Promise<void>((resolve) => {
+      const observer = new ResizeObserver(() => {
+        observer.disconnect();
+        setTimeout(() => {
+          appendBlock(content);
+          resolve();
+        });
+      });
+      appendBlock(content);
+      observer.observe(content);
+    });
+    for (let frame = 0; frame < 3; frame++) await nextFrame();
+
+    expect(gap()).toBeLessThanOrEqual(1);
+    expect(
+      canvas.queryByRole('button', { name: 'Jump to latest' })
+    ).not.toBeInTheDocument();
+  },
 };
