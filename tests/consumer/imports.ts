@@ -25,6 +25,10 @@ import type {
   InputIconAction,
   InputProps,
 } from '@langchain/macaw-components/Input';
+import {
+  RadarChart,
+  type RadarChartProps,
+} from '@langchain/macaw-components/RadarChart';
 import { SankeyChart } from '@langchain/macaw-components/SankeyChart';
 import type { SankeyChartProps } from '@langchain/macaw-components/SankeyChart';
 import tailwindPreset from '@langchain/macaw-components/tailwind-preset';
@@ -42,6 +46,11 @@ void [
   Attachment,
   AttachmentList,
   { name: 'report.pdf', status: 'uploading' } satisfies AttachmentProps,
+  RadarChart,
+  {
+    data: [{ id: 'axis', label: 'Axis', value: 1, color: 'currentColor' }],
+    renderTooltip: (datum) => datum.label,
+  } satisfies RadarChartProps,
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   useDebouncedCommit,

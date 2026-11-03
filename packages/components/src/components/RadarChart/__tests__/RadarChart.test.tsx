@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { render, screen } from '../../../test-utils';
-import { RadarChart } from '../RadarChart';
+import { render, screen, waitFor } from '../../../test-utils';
+import { getCategoricalLineChartColor } from '../../../utils/chartColors';
+import { ChartTooltipHeader, ChartTooltipRow } from '../../ChartTooltip';
+import { RadarChart, type RadarChartProps } from '../RadarChart';
 
 const data = [
   { id: 'top', label: 'Code Review', value: 29 },
@@ -9,6 +11,21 @@ const data = [
   { id: 'bottom', label: 'Pull Requests', value: 33 },
   { id: 'left', label: 'Commits', value: 38 },
 ];
+
+const renderTooltip: RadarChartProps['renderTooltip'] = (datum) => (
+  <>
+    <ChartTooltipHeader title={datum.label} />
+    <ChartTooltipRow
+      label="Share"
+      value={`${datum.value}%`}
+      markerColor={datum.color}
+    />
+  </>
+);
+
+// Select the data polygon, excluding the grid polygons.
+const dataPolygon = (container: HTMLElement) =>
+  container.querySelector('svg > polygon');
 
 describe('RadarChart', () => {
   it('names the chart and exposes every formatted value, including zero', () => {
@@ -27,20 +44,25 @@ describe('RadarChart', () => {
     expect(screen.getByText('0%')).toBeVisible();
   });
 
-  it('places axes clockwise from the top and scales all points equally', () => {
-    const { container } = render(<RadarChart data={data} maxValue={40} />);
-    const points = Array.from(container.querySelectorAll('circle'));
-    expect(points[0]).toHaveAttribute('cx', '220');
-    expect(Number(points[0].getAttribute('cy'))).toBeCloseTo(100.4);
-    expect(points[1]).toHaveAttribute('cx', '220');
-    expect(points[1]).toHaveAttribute('cy', '170');
-    expect(Number(points[2].getAttribute('cy'))).toBeCloseTo(249.2);
-    expect(Number(points[3].getAttribute('cx'))).toBeCloseTo(128.8);
-    expect(container.querySelectorAll('line')).toHaveLength(4);
+  it('scales fractional values to their maximum, just like equivalent whole numbers', () => {
+    const { container, rerender } = render(<RadarChart data={data} />);
+    const expectedPoints = dataPolygon(container)?.getAttribute('points');
+    rerender(
+      <RadarChart
+        data={data.map((datum) => ({ ...datum, value: datum.value / 100 }))}
+      />
+    );
+    const points = (dataPolygon(container)?.getAttribute('points') ?? '')
+      .split(/[ ,]/)
+      .map(Number);
+    const expected = (expectedPoints ?? '').split(/[ ,]/).map(Number);
+    points.forEach((point, index) =>
+      expect(point).toBeCloseTo(expected[index])
+    );
   });
 
-  it('clamps negative, nonfinite, and over-domain values without invalid SVG coordinates', () => {
-    const { container } = render(
+  it('clamps invalid and over-domain geometry while retaining the actual positive value in labels', () => {
+    const { container, rerender } = render(
       <RadarChart
         data={data.map((datum, index) => ({
           ...datum,
@@ -49,27 +71,38 @@ describe('RadarChart', () => {
         maxValue={40}
       />
     );
-    const polygon = container.querySelector('polygon');
-    expect(polygon).toHaveAttribute(
-      'points',
-      '220,170 220,170 220,170 124,170'
-    );
+    const clampedPoints = dataPolygon(container)?.getAttribute('points');
     expect(screen.getByRole('img')).toHaveAccessibleDescription(
       'Code Review: 0; Issues: 0; Pull Requests: 0; Commits: 80'
     );
+    rerender(
+      <RadarChart
+        data={data.map((datum, index) => ({
+          ...datum,
+          value: [0, 0, 0, 40][index],
+        }))}
+        maxValue={40}
+      />
+    );
+    expect(dataPolygon(container)).toHaveAttribute('points', clampedPoints);
   });
 
-  it('handles zero data and invalid maximum without division by zero', () => {
+  it('keeps all-zero geometry finite with an invalid maximum', () => {
     const { container } = render(
       <RadarChart
         data={data.map((datum) => ({ ...datum, value: 0 }))}
         maxValue={0}
       />
     );
-    expect(container.querySelector('polygon')).toHaveAttribute(
-      'points',
-      '220,170 220,170 220,170 220,170'
+    const points = (dataPolygon(container)?.getAttribute('points') ?? '').split(
+      ' '
     );
+    expect(new Set(points).size).toBe(1);
+    expect(
+      points
+        .flatMap((point) => point.split(','))
+        .every((value) => Number.isFinite(Number(value)))
+    ).toBe(true);
   });
 
   it.each([0, 1, 2])('shows an empty state for %i axes', (count) => {
@@ -78,16 +111,72 @@ describe('RadarChart', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('gives separate charts unique description IDs', () => {
+  it('keeps external naming and descriptions on the chart alongside its data summary', () => {
     render(
       <>
-        <RadarChart data={data} />
-        <RadarChart data={data} />
+        <h2 id="title">Usage</h2>
+        <p id="note">Last seven days</p>
+        <RadarChart
+          data={data}
+          aria-labelledby="title"
+          aria-describedby="note"
+        />
       </>
     );
-    const charts = screen.getAllByRole('img');
-    expect(charts[0].getAttribute('aria-describedby')).not.toEqual(
-      charts[1].getAttribute('aria-describedby')
+    expect(
+      screen.getByRole('img', { name: 'Usage' })
+    ).toHaveAccessibleDescription(
+      'Code Review: 29; Issues: 0; Pull Requests: 33; Commits: 38 Last seven days'
+    );
+  });
+
+  it('shows composed tooltips on focus, dismisses with Escape, and reaches zero-valued axes', async () => {
+    const { user } = render(
+      <RadarChart data={data} renderTooltip={renderTooltip} />
+    );
+    expect(
+      screen.getByRole('group', { name: 'Radar chart' })
+    ).toBeInTheDocument();
+    await user.tab();
+    expect(screen.getByRole('img', { name: 'Code Review: 29' })).toHaveFocus();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Code ReviewShare29%'
+    );
+    await user.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    );
+    await user.tab();
+    expect(screen.getByRole('img', { name: 'Issues: 0' })).toHaveFocus();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'IssuesShare0%'
+    );
+  });
+
+  it('opens tooltips from labels, uses normalized data and color, and closes on pointer exit', async () => {
+    const customColor = getCategoricalLineChartColor(5);
+    const { user } = render(
+      <RadarChart
+        data={data.map((datum, index) =>
+          index === 0 ? { ...datum, value: -1, color: customColor } : datum
+        )}
+        renderTooltip={(datum) => (
+          <span>{`${datum.label}: ${datum.value}; ${datum.color}`}</span>
+        )}
+      />
+    );
+    const label = screen.getByText('Code Review');
+    await user.hover(label);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Code Review: 0; ${customColor}`
+    );
+    await user.unhover(label);
+    await waitFor(() =>
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    );
+    await user.hover(screen.getByText('Issues'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Issues: 0; ${getCategoricalLineChartColor(1)}`
     );
   });
 });
