@@ -74,6 +74,25 @@ Import the tool-call presentation family from
 from `@langchain/macaw-components/ChatState`. They are intentionally omitted
 from the root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
 
+## Breadcrumbs
+
+Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
+`@langchain/macaw-components/Breadcrumb`. Place links and the current page directly
+inside `Breadcrumb`; it owns the navigation landmark, ordered list, and decorative
+slash separators. Use `separator` for an alternative such as a chevron.
+
+Use `BreadcrumbLink href="..."` for native navigation or
+`as={<RouterLink to="..." />}` for framework routing. `leftDecorator` accepts an
+icon. `BreadcrumbPage` is noninteractive and marks the current page. Ancestor
+links and the current page use compact xs typography by default, matching the
+LangSmith navigation trail.
+
+Labels truncate at 200px and expose their full string as a native title; the
+trail wraps at narrow widths. Empty children render no navigation. Compose
+`Skeleton` while fetching labels, or static text for unavailable ancestors; do
+not use fake links or disabled buttons. Consumers own routing, loading/error
+messages, and any explicit overflow menu or switcher.
+
 ## Nested modals
 
 Wrap a related workflow in `ModalProvider` from `@langchain/macaw-components/Dialog`
