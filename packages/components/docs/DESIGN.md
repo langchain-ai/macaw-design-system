@@ -76,8 +76,8 @@ and slash separators. Use `href` for native links,
 `as={<RouterLink to="/projects" />}` for router links, and `separator` to customize
 the divider. `leftDecorator` adds an icon.
 
-Trails wrap by default. Use `layout="single-line"` for horizontal scrolling when
-space runs out; overflowing trails support keyboard scrolling. Labels cap at
+Trails stay on one line and scroll horizontally when space runs out, with
+keyboard scrolling for overflowing trails. Labels cap at
 200px, or 148px with `condensed`. Clipped labels show the shared tooltip on hover
 or focus; clipped current-page text becomes focusable. Consumers choose when to
 condense and own routing, saved URLs, page titles, loading/error states, and

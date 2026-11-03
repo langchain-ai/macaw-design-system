@@ -28,6 +28,7 @@ describe('Breadcrumb', () => {
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
     vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(
       function (this: HTMLElement) {
+        if (this.tagName === 'OL') return labelWidths.get('__trail__') ?? 100;
         return labelWidths.get(this.textContent ?? '') ?? 100;
       }
     );
@@ -313,33 +314,24 @@ describe('Breadcrumb', () => {
       </BreadcrumbLink>,
       <BreadcrumbPage key="trace">Trace Details</BreadcrumbPage>,
     ];
-    const { rerender } = render(
-      <Breadcrumb layout="single-line">{contents}</Breadcrumb>,
-      { wrapper: Providers }
-    );
+    render(<Breadcrumb>{contents}</Breadcrumb>, { wrapper: Providers });
     const list = screen.getByRole('list');
     expect(list).toHaveAttribute('tabindex', '-1');
     const user = userEvent.setup();
     await user.tab();
     expect(screen.getByRole('link')).toHaveFocus();
 
-    labelWidths.set('ProjectsTrace Details', 250);
+    labelWidths.set('__trail__', 250);
     resizeLabels();
     expect(list).toHaveAttribute('tabindex', '0');
     await user.tab({ shift: true });
     expect(list).toHaveFocus();
 
-    labelWidths.set('ProjectsTrace Details', 100);
+    labelWidths.set('__trail__', 100);
     resizeLabels();
     expect(screen.getByRole('list')).toBe(list);
     expect(list).toHaveFocus();
     expect(list).toHaveAttribute('tabindex', '-1');
-
-    labelWidths.set('ProjectsTrace Details', 250);
-    rerender(<Breadcrumb key="wrapped">{contents}</Breadcrumb>);
-    expect(screen.getByRole('list')).not.toHaveAttribute('tabindex');
-    await user.tab();
-    expect(screen.getByRole('link')).toHaveFocus();
   });
 
   it.each([false, true])(
@@ -355,7 +347,7 @@ describe('Breadcrumb', () => {
         if (preventDefault) event.preventDefault();
       });
       render(
-        <Breadcrumb layout="single-line">
+        <Breadcrumb>
           <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
           <BreadcrumbPage onFocus={onFocus}>{label}</BreadcrumbPage>
         </Breadcrumb>,

@@ -31,7 +31,7 @@ const meta: Meta<typeof Breadcrumb> = {
     docs: {
       description: {
         component:
-          'Compact navigation trail with native or router links and a noninteractive current page. Labels cap at 200px, or 148px when condensed, and reveal a tooltip only when clipped. The default layout wraps with its separators; single-line trails scroll horizontally when needed. Consumers own routing, layout decisions, data, and loading or error messages.',
+          'Compact navigation trail with native or router links and a noninteractive current page. Labels cap at 200px, or 148px when condensed, and reveal a tooltip only when clipped. Trails stay on one line and scroll horizontally when needed. Consumers own routing, layout decisions, data, and loading or error messages.',
       },
     },
   },
@@ -87,38 +87,14 @@ export const Narrow: Story = {
     );
     await expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
     const items = canvas.getAllByRole('listitem');
-    await expect(items.at(-1)!.getBoundingClientRect().top).toBeGreaterThan(
-      items[0].getBoundingClientRect().top
-    );
-  },
-  render: () => (
-    <div className="w-64 max-w-full">
-      <Breadcrumb>
-        <BreadcrumbLink href="#projects" leftDecorator={FolderIcon}>
-          Projects
-        </BreadcrumbLink>
-        <BreadcrumbLink href="#project">
-          Support Agent With a Very Long Project Name
-        </BreadcrumbLink>
-        <BreadcrumbPage>A Very Long Trace Name That Truncates</BreadcrumbPage>
-      </Breadcrumb>
-    </div>
-  ),
-};
-
-export const SingleLine: Story = {
-  play: async ({ canvas }) => {
-    const items = canvas.getAllByRole('listitem');
     const firstTop = items[0].getBoundingClientRect().top;
     for (const item of items) {
       await expect(item.getBoundingClientRect().top).toBeCloseTo(firstTop, 0);
     }
-    const frame = canvas.getByTestId('breadcrumb-frame');
-    await expect(frame.scrollWidth).toBeLessThanOrEqual(frame.clientWidth);
   },
   render: () => (
-    <div className="w-64 max-w-full" data-testid="breadcrumb-frame">
-      <Breadcrumb layout="single-line">
+    <div className="w-64 max-w-full">
+      <Breadcrumb>
         <BreadcrumbLink href="#projects" leftDecorator={FolderIcon}>
           Projects
         </BreadcrumbLink>
@@ -146,17 +122,13 @@ export const Condensed: Story = {
   },
   render: () => (
     <div className="flex flex-col gap-space-4">
-      <Breadcrumb aria-label="Standard breadcrumb" layout="single-line">
+      <Breadcrumb aria-label="Standard breadcrumb">
         <BreadcrumbLink href="#projects">Projects</BreadcrumbLink>
         <BreadcrumbPage>
           A Very Long Current Page Label That Needs Truncation
         </BreadcrumbPage>
       </Breadcrumb>
-      <Breadcrumb
-        aria-label="Condensed breadcrumb"
-        layout="single-line"
-        condensed
-      >
+      <Breadcrumb aria-label="Condensed breadcrumb" condensed>
         <BreadcrumbLink href="#projects">Projects</BreadcrumbLink>
         <BreadcrumbPage>
           A Very Long Current Page Label That Needs Truncation
@@ -203,7 +175,7 @@ export const DeepTrail: Story = {
   },
   render: () => (
     <div className="w-64 max-w-full">
-      <Breadcrumb layout="single-line" condensed>
+      <Breadcrumb condensed>
         <BreadcrumbLink href="#organization" leftDecorator={FolderIcon}>
           Organization
         </BreadcrumbLink>
@@ -317,7 +289,7 @@ export const ShortCurrentPage: Story = {
   render: () => (
     <div className="flex flex-col items-start gap-space-4">
       <div className="w-64 max-w-full">
-        <Breadcrumb layout="single-line">
+        <Breadcrumb>
           <BreadcrumbLink href="#organization">Organization</BreadcrumbLink>
           <BreadcrumbLink href="#workspace">Workspace</BreadcrumbLink>
           <BreadcrumbLink href="#projects">Projects</BreadcrumbLink>

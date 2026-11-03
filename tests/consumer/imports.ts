@@ -96,10 +96,9 @@ void [
   { 'aria-label': 'Breadcrumb' } satisfies BreadcrumbProps,
   {
     'aria-label': 'Project breadcrumb',
-    layout: 'single-line',
     condensed: true,
   } satisfies BreadcrumbProps,
-  { layout: 'wrap', condensed: false } satisfies BreadcrumbProps,
+  { condensed: false } satisfies BreadcrumbProps,
   { href: '/files', children: 'Files' } satisfies BreadcrumbLinkProps,
   { children: 'Notes', title: 'Current note' } satisfies BreadcrumbPageProps,
   { children: 'Notes', tabIndex: -1 } satisfies BreadcrumbPageProps,

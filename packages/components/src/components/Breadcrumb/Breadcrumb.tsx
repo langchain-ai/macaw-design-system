@@ -21,8 +21,6 @@ import { Tooltip, type TooltipProps } from '../Tooltip';
 
 type BreadcrumbProps = ComponentPropsWithoutRef<'nav'> & {
   separator?: ReactNode;
-  /** Wrap by default; single-line trails scroll when they cannot fit. */
-  layout?: 'wrap' | 'single-line';
   /** Cap labels at 148px instead of 200px. The consuming layout chooses when. */
   condensed?: boolean;
 };
@@ -35,7 +33,6 @@ type BreadcrumbPageProps = ComponentPropsWithoutRef<'span'> & {
 
 const BreadcrumbContext = createContext({
   condensed: false,
-  singleLine: false,
   hasTooltipProvider: false,
 });
 
@@ -64,20 +61,18 @@ const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
       children,
       className,
       separator = <SlashSeparator />,
-      layout = 'wrap',
       condensed = false,
       ...props
     },
     ref
   ) => {
     const items = Children.toArray(children).filter((item) => item !== '');
-    const singleLine = layout === 'single-line';
     const listRef = useRef<HTMLOListElement>(null);
     const [scrollable, setScrollable] = useState(false);
 
     useLayoutEffect(() => {
       const list = listRef.current;
-      if (!singleLine || !list) {
+      if (!list) {
         setScrollable(false);
         return;
       }
@@ -87,13 +82,13 @@ const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
       observer.observe(list);
       for (const item of list.children) observer.observe(item);
       return () => observer.disconnect();
-    }, [singleLine, children, condensed]);
+    }, [children, condensed]);
 
     if (!items.length) return null;
 
     return (
       <BreadcrumbContext.Provider
-        value={{ condensed, singleLine, hasTooltipProvider: true }}
+        value={{ condensed, hasTooltipProvider: true }}
       >
         <TooltipProvider>
           <nav
@@ -105,23 +100,15 @@ const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
             <ol
               ref={listRef}
               role="list"
-              tabIndex={singleLine ? (scrollable ? 0 : -1) : undefined}
-              className={cn(
-                'flex items-center gap-space-2',
-                singleLine
-                  ? 'flex-nowrap overflow-x-auto rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus'
-                  : 'flex-wrap'
-              )}
+              tabIndex={scrollable ? 0 : -1}
+              className="flex flex-nowrap items-center gap-space-2 overflow-x-auto rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
             >
               {items.map((item, index) => (
                 <li
                   key={
                     typeof item === 'object' && 'key' in item ? item.key : index
                   }
-                  className={cn(
-                    'flex min-w-0 max-w-full items-center gap-space-2',
-                    singleLine && 'shrink-0'
-                  )}
+                  className="flex min-w-0 max-w-full shrink-0 items-center gap-space-2"
                 >
                   {index > 0 && (
                     <span
@@ -144,7 +131,7 @@ const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
 Breadcrumb.displayName = 'Breadcrumb';
 
 function useBreadcrumbLabel(children: ReactNode) {
-  const { condensed, singleLine } = useContext(BreadcrumbContext);
+  const { condensed } = useContext(BreadcrumbContext);
   const labelRef = useRef<HTMLElement>(null);
   const [text, setText] = useState('');
   const [clipped, setClipped] = useState(false);
@@ -186,7 +173,6 @@ function useBreadcrumbLabel(children: ReactNode) {
   return {
     labelRef,
     clipped,
-    singleLine,
     labelClassName: cn('min-w-0 max-w-50 truncate', condensed && 'max-w-37'),
     tooltipProps: {
       // Keep the trigger mounted when clipping changes, preserving keyboard focus.
@@ -226,14 +212,13 @@ const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
     },
     ref
   ) => {
-    const { labelRef, labelClassName, singleLine, tooltipProps } =
+    const { labelRef, labelClassName, tooltipProps } =
       useBreadcrumbLabel(children);
     const linkProps = {
       ...props,
       ref,
       className: cn(
-        'inline-flex min-w-0 items-center gap-space-1 rounded-sm text-quaternary hover:underline underline-offset-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus',
-        singleLine && 'focus-visible:ring-inset',
+        'inline-flex min-w-0 items-center gap-space-1 rounded-sm text-quaternary hover:underline underline-offset-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus',
         as?.props.className,
         className
       ),
@@ -289,7 +274,7 @@ const BreadcrumbPage = forwardRef<HTMLSpanElement, BreadcrumbPageProps>(
     },
     ref
   ) => {
-    const { labelRef, labelClassName, clipped, singleLine, tooltipProps } =
+    const { labelRef, labelClassName, clipped, tooltipProps } =
       useBreadcrumbLabel(children);
     return (
       <BreadcrumbTooltip {...tooltipProps}>
@@ -299,7 +284,7 @@ const BreadcrumbPage = forwardRef<HTMLSpanElement, BreadcrumbPageProps>(
           tabIndex={tabIndex ?? (clipped ? 0 : -1)}
           onFocus={(event) => {
             onFocus?.(event);
-            if (singleLine && !event.defaultPrevented) {
+            if (!event.defaultPrevented) {
               event.currentTarget.scrollIntoView({
                 block: 'nearest',
                 inline: 'nearest',
@@ -307,8 +292,7 @@ const BreadcrumbPage = forwardRef<HTMLSpanElement, BreadcrumbPageProps>(
             }
           }}
           className={cn(
-            'inline-flex min-w-0 items-center gap-space-1 rounded-sm text-secondary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus',
-            singleLine && 'focus-visible:ring-inset',
+            'inline-flex min-w-0 items-center gap-space-1 rounded-sm text-secondary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus',
             className
           )}
           {...props}
