@@ -1,3 +1,13 @@
+## 1.5.0 (2026-11-03)
+
+### 🚀 Features
+
+- refine breadcrumb tooltips and single-row navigation ([#89](https://github.com/langchain-ai/macaw-design-system/pull/89))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.4.0 (2026-11-03)
 
 ### 🚀 Features
