@@ -287,8 +287,23 @@ describe('MacawTable', () => {
     });
   });
 
-  it('hides a column from its menu and restores it from the visibility control', async () => {
+  it('sorts and hides a column from its menu and restores it from the visibility control', async () => {
     const { user } = render(<Harness enableColumnActions />);
+    expect(
+      screen.queryByRole('button', { name: /^Sort Count/ })
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Actions for Count' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sort descending' }));
+    expect(screen.getByRole('columnheader', { name: /Count/ })).toHaveAttribute(
+      'aria-sort',
+      'descending'
+    );
+    expect(bodyRows()[0]).toHaveTextContent('Delta');
+    await user.click(screen.getByRole('button', { name: 'Actions for Count' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Clear sort' }));
+    expect(
+      screen.getByRole('columnheader', { name: /Count/ })
+    ).not.toHaveAttribute('aria-sort');
     await user.click(screen.getByRole('button', { name: 'Actions for Count' }));
     await user.click(screen.getByRole('menuitem', { name: 'Hide column' }));
     expect(headerNames()).not.toContain('count');

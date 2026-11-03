@@ -84,10 +84,11 @@ confirmation, and operations stay in the application.
   `enableReordering`, and `renderHeaderActions(column, table)`. This avoids globally
   augmenting TanStack metadata or colliding with consumer fields. Set `fill` on a
   non-resizable, unpinned column to absorb spare space; the remaining columns keep their widths.
-- `enableColumnActions` adds hide/filter and move menu items. `onFilterColumn(id)`
-  opens the application's filter UI. Sorting remains a separate header button.
-  Sort, move, and menu controls appear when the header is hovered or holds focus,
-  and always on touch devices; an active sort direction stays visible.
+- `enableColumnActions` adds a column menu with sort, filter, move, and hide items.
+  `onFilterColumn(id)` opens the application's filter UI. With the menu enabled,
+  the header shows a sort button only for the active direction; without it, each
+  sortable header has its own sort button. Move, menu, and unsorted sort controls
+  appear when the header is hovered or holds focus, and always on touch devices.
 - `enableColumnReordering` adds drag handles, Left/Right keyboard movement, and
   move menu items usable on touch devices.
   Hidden and fixed columns retain their order slots. Selection/action IDs,

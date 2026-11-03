@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 
 import { ArrowDownIcon } from '@phosphor-icons/react/dist/ssr/ArrowDown';
 import { ArrowsDownUpIcon } from '@phosphor-icons/react/dist/ssr/ArrowsDownUp';
@@ -99,6 +99,73 @@ export function MacawTableHeader<TData>(
                 : sorted === 'desc'
                   ? ArrowDownIcon
                   : ArrowsDownUpIcon;
+            // With column actions, sorting lives in the menu and the header
+            // button only shows an active direction.
+            const sortInMenu =
+              !!props.enableColumnActions && column.getCanSort();
+            const menuGroups = [
+              (sortInMenu ||
+                (props.enableColumnActions && props.onFilterColumn)) && (
+                <Fragment key="sort">
+                  {sortInMenu && (
+                    <>
+                      <DropdownMenuItem
+                        onSelect={() => column.toggleSorting(false)}
+                      >
+                        Sort ascending
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => column.toggleSorting(true)}
+                      >
+                        Sort descending
+                      </DropdownMenuItem>
+                      {sorted && (
+                        <DropdownMenuItem
+                          onSelect={() => column.clearSorting()}
+                        >
+                          Clear sort
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  )}
+                  {props.enableColumnActions && props.onFilterColumn && (
+                    <DropdownMenuItem
+                      onSelect={() => props.onFilterColumn?.(column.id)}
+                    >
+                      Filter {label}
+                    </DropdownMenuItem>
+                  )}
+                </Fragment>
+              ),
+              canMove && (
+                <Fragment key="move">
+                  <DropdownMenuItem
+                    disabled={moveIndex === 0}
+                    onSelect={() =>
+                      move(column.id, visibleMovable[moveIndex - 1].id)
+                    }
+                  >
+                    Move left
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={moveIndex === visibleMovable.length - 1}
+                    onSelect={() =>
+                      move(column.id, visibleMovable[moveIndex + 1].id)
+                    }
+                  >
+                    Move right
+                  </DropdownMenuItem>
+                </Fragment>
+              ),
+              props.enableColumnActions && column.getCanHide() && (
+                <DropdownMenuItem
+                  key="hide"
+                  onSelect={() => column.toggleVisibility(false)}
+                >
+                  Hide column
+                </DropdownMenuItem>
+              ),
+            ].filter(Boolean);
             return (
               <th
                 key={header.id}
@@ -207,106 +274,61 @@ export function MacawTableHeader<TData>(
                           header.getContext()
                         )}
                   </Text>
-                  {!header.isPlaceholder && column.getCanSort() && (
-                    <IconButton
-                      icon={sortIcon}
-                      iconWeight="regular"
-                      label={
-                        column.getNextSortingOrder()
-                          ? `Sort ${label} ${column.getNextSortingOrder() === 'asc' ? 'ascending' : 'descending'}`
-                          : `Remove sort for ${label}`
-                      }
-                      size="xs"
-                      variant="plain"
-                      color="secondary"
-                      // The active direction stays visible; the unsorted
-                      // affordance keeps its space so sorting never shifts the label.
-                      className={sorted ? undefined : REVEAL_ON_HEADER}
-                      onClick={column.getToggleSortingHandler()}
-                    />
-                  )}
+                  {!header.isPlaceholder &&
+                    column.getCanSort() &&
+                    (!sortInMenu || sorted) && (
+                      <IconButton
+                        icon={sortIcon}
+                        iconWeight="regular"
+                        label={
+                          column.getNextSortingOrder()
+                            ? `Sort ${label} ${column.getNextSortingOrder() === 'asc' ? 'ascending' : 'descending'}`
+                            : `Remove sort for ${label}`
+                        }
+                        size="xs"
+                        variant="plain"
+                        color="secondary"
+                        // The active direction stays visible; the unsorted
+                        // affordance keeps its space so sorting never shifts the label.
+                        className={sorted ? undefined : REVEAL_ON_HEADER}
+                        onClick={column.getToggleSortingHandler()}
+                      />
+                    )}
                   {!header.isPlaceholder &&
                     options?.renderHeaderActions?.(column, table)}
-                  {!header.isPlaceholder &&
-                    (props.enableColumnActions || canMove) &&
-                    (column.getCanHide() ||
-                      props.onFilterColumn ||
-                      canMove) && (
-                      <span
-                        className={cn(
-                          EXPAND_ON_HEADER,
-                          'has-[[data-state=open]]:w-5'
-                        )}
-                      >
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <IconButton
-                              icon={DotsThreeIcon}
-                              iconWeight="regular"
-                              label={`Actions for ${label}`}
-                              size="xs"
-                              variant="plain"
-                              color="secondary"
-                              className={cn(
-                                REVEAL_ON_HEADER,
-                                'data-[state=open]:opacity-100'
-                              )}
-                            />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {props.enableColumnActions &&
-                              props.onFilterColumn && (
-                                <DropdownMenuItem
-                                  onSelect={() =>
-                                    props.onFilterColumn?.(column.id)
-                                  }
-                                >
-                                  Filter {label}
-                                </DropdownMenuItem>
-                              )}
-                            {canMove && (
-                              <>
-                                <DropdownMenuItem
-                                  disabled={moveIndex === 0}
-                                  onSelect={() =>
-                                    move(
-                                      column.id,
-                                      visibleMovable[moveIndex - 1].id
-                                    )
-                                  }
-                                >
-                                  Move left
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  disabled={
-                                    moveIndex === visibleMovable.length - 1
-                                  }
-                                  onSelect={() =>
-                                    move(
-                                      column.id,
-                                      visibleMovable[moveIndex + 1].id
-                                    )
-                                  }
-                                >
-                                  Move right
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                              </>
+                  {!header.isPlaceholder && menuGroups.length > 0 && (
+                    <span
+                      className={cn(
+                        EXPAND_ON_HEADER,
+                        'has-[[data-state=open]]:w-5'
+                      )}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <IconButton
+                            icon={DotsThreeIcon}
+                            iconWeight="regular"
+                            label={`Actions for ${label}`}
+                            size="xs"
+                            variant="plain"
+                            color="secondary"
+                            className={cn(
+                              REVEAL_ON_HEADER,
+                              'data-[state=open]:opacity-100'
                             )}
-                            {props.enableColumnActions &&
-                              column.getCanHide() && (
-                                <DropdownMenuItem
-                                  onSelect={() =>
-                                    column.toggleVisibility(false)
-                                  }
-                                >
-                                  Hide column
-                                </DropdownMenuItem>
-                              )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </span>
-                    )}
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {menuGroups.map((group, index) => (
+                            <Fragment key={index}>
+                              {index > 0 && <DropdownMenuSeparator />}
+                              {group}
+                            </Fragment>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </span>
+                  )}
                   {!header.isPlaceholder &&
                     column.getCanResize() &&
                     header.subHeaders.length === 0 && (
