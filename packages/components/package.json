@@ -88,6 +88,10 @@
       "types": "./dist/components/ChatMessage/index.d.ts",
       "import": "./dist/components/ChatMessage/index.js"
     },
+    "./ChatRichContent": {
+      "types": "./dist/components/ChatRichContent/index.d.ts",
+      "import": "./dist/components/ChatRichContent/index.js"
+    },
     "./Checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
       "import": "./dist/components/Checkbox/index.js"

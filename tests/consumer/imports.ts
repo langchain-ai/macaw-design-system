@@ -2,6 +2,7 @@ import {
   Attachment,
   Button,
   Card,
+  ChatRichContent as RootChatRichContent,
   StatusBadge,
   Text,
 } from '@langchain/macaw-components';
@@ -47,6 +48,21 @@ import {
   ChatMessageActions,
 } from '@langchain/macaw-components/ChatMessage';
 import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+} from '@langchain/macaw-components/ChatRichContent';
+import type {
+  ChatRichContentChoicesProps,
+  ChatRichContentChoicesValue,
+  ChatRichContentFallbackProps,
+  ChatRichContentNavigation,
+  ChatRichContentProps,
+  ChatRichContentRenderer,
+  ChatRichContentRendererContext,
+  ChatRichContentState,
+} from '@langchain/macaw-components/ChatRichContent';
 import {
   Code,
   CodeLanguageSelect,
@@ -129,6 +145,51 @@ void [
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
   ChatMessage,
   ChatMessageActions,
+  RootChatRichContent,
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+  {
+    title: 'Review changes',
+    variant: 'approval',
+    onApprove: () => {},
+  } satisfies ChatRichContentProps,
+  {
+    title: 'Choose a task',
+    presentation: 'drawer',
+    defaultOpen: true,
+  } satisfies ChatRichContentProps,
+  'validation-error' satisfies ChatRichContentState,
+  {
+    current: 1,
+    total: 2,
+    onChange: () => {},
+  } satisfies ChatRichContentNavigation,
+  {
+    disabled: false,
+    isError: true,
+    errorId: 'answer-error',
+  } satisfies ChatRichContentRendererContext,
+  (({ disabled }) =>
+    disabled
+      ? 'Unavailable'
+      : 'Choose an answer') satisfies ChatRichContentRenderer,
+  {
+    selected: [],
+    custom: { selected: true, text: 'Draft' },
+  } satisfies ChatRichContentChoicesValue,
+  {
+    mode: 'multiple',
+    options: [{ value: 'summary', label: 'Summary' }],
+    value: { selected: [] },
+    onChange: () => {},
+    'aria-label': 'Tasks',
+    'aria-describedby': 'answer-error',
+    allowCustom: true,
+    customInput: 'external',
+    onCustomSelect: () => {},
+  } satisfies ChatRichContentChoicesProps,
+  { actions: null } satisfies ChatRichContentFallbackProps,
   {
     id: 'message',
     role: 'assistant',

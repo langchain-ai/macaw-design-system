@@ -206,6 +206,7 @@ if (!utilities.includes('.bg-surface-level-1'))
 await Promise.all([
   import('@langchain/macaw-components'),
   import('@langchain/macaw-components/Attachment'),
+  import('@langchain/macaw-components/ChatRichContent'),
   import('@langchain/macaw-components/BarChart'),
   import('@langchain/macaw-components/HeatmapChart'),
   import('@langchain/macaw-components/Code'),
