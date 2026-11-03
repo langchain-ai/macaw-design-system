@@ -1,0 +1,90 @@
+packages/components/src/components/ChatState/ChatState.stories.tsx
+  s_5a32006a613a4d::t_f3824aa01a3347 59-60
+  s_5a32006a613a4d::t_adbb35fc02ea67 1-53,55-58,61-153
+  s_5a32006a613a4d::t_98b9c53c2c7b92 54
+packages/components/src/components/ChatToolCall/ChatToolCall.value.ts
+  s_5a32006a613a4d::t_4f742ca96d5fba 1-137
+packages/components/src/components/ChatToolCall/__tests__/ChatToolCall.value.test.ts
+  s_5a32006a613a4d::t_7d9c5eeec84c77 1-123
+packages/components/package.json
+  s_5a32006a613a4d::t_f9c2cd64fdd136 87-94,396-403
+packages/components/src/components/ChatToolCall/index.ts
+  s_5a32006a613a4d::t_0c72ab020e12ef 1-10
+packages/components/src/components/ChatState/index.ts
+  s_5a32006a613a4d::t_5617001881f66c 1
+  s_5a32006a613a4d::t_f3824aa01a3347 2-6
+packages/components/docs/DESIGN.md
+  s_5a32006a613a4d::t_f9c2cd64fdd136 70-76
+packages/components/src/components/ChatToolCall/ChatToolCallDetails.tsx
+  s_5a32006a613a4d::t_02e359f4361aa5 1-89
+packages/components/docs/CHAT.md
+  s_5a32006a613a4d::t_f9c2cd64fdd136 1-30
+packages/components/src/components/ChatToolCall/__tests__/ChatToolCall.test.tsx
+  s_5a32006a613a4d::t_2c8a8618712a77 1-600
+packages/components/src/__tests__/cli.test.ts
+  s_5a32006a613a4d::t_a781d98c9ef059 200
+packages/components/src/components/ChatToolCall/ChatToolCall.types.ts
+  s_5a32006a613a4d::t_9fb34c2856079d 1-17
+packages/components/src/components/ChatToolCall/ChatToolCall.tsx
+  s_5a32006a613a4d::t_5120e15e195cf8 1-150
+tests/consumer/imports.ts
+  s_5a32006a613a4d::t_f9c2cd64fdd136 41-44,46-55,131-133,135-145
+  s_5a32006a613a4d::t_f3824aa01a3347 45,134
+packages/components/src/components/ChatState/ChatState.tsx
+  s_5a32006a613a4d::t_6592842a4104f2 1-12,14-24,27-71,73-165
+  s_5a32006a613a4d::t_f3824aa01a3347 13,25-26,72
+packages/components/src/components/ChatToolCall/ChatToolCallGroup.tsx
+  s_5a32006a613a4d::t_4c34b9f28376ed 37,39-68,70-71
+  s_5a32006a613a4d::t_f9c2cd64fdd136 1,29,38,72-73,75-76
+  s_5a32006a613a4d::t_8b4fa3a679e0c1 2-28,30-36,69,74,77-78
+packages/components/src/components/index.ts
+  s_5a32006a613a4d::t_f9c2cd64fdd136 206-211
+packages/components/src/components/ChatState/ChatStateTimer.tsx
+  s_5a32006a613a4d::t_f3824aa01a3347 4,9
+  s_5a32006a613a4d::t_0eedbb7f9077e8 1-3,5-8,10-85
+packages/components/src/components/ChatState/__tests__/ChatState.test.tsx
+  s_5a32006a613a4d::t_b6111af51c5a61 1-305
+packages/components/src/components/ChatToolCall/ChatToolCallAccordion.tsx
+  s_5a32006a613a4d::t_4c34b9f28376ed 56-68,70-84,86-100
+  s_5a32006a613a4d::t_35d9c3c9ba406e 2-37,39-47,69,85,102-103
+  s_5a32006a613a4d::t_f9c2cd64fdd136 1,38,48-55,101
+packages/components/src/cli-story-tags.mts
+  s_5a32006a613a4d::t_a781d98c9ef059 69-77
+packages/components/src/components/ChatToolCall/ChatToolCallReasoning.tsx
+  s_5a32006a613a4d::t_a313f50cd00287 1-79
+packages/components/src/components/ChatToolCall/ChatToolCallStatusRow.tsx
+  s_5a32006a613a4d::t_ee91702ab5322b 1-61
+packages/components/src/components/ChatToolCall/ChatToolCall.stories.tsx
+  s_5a32006a613a4d::t_98b9c53c2c7b92 128
+  s_5a32006a613a4d::t_150b2d8eb2663c 1-3,5-38,42-52,57-127,129-222,228-345
+  s_5a32006a613a4d::t_b988e30e52ea6c 4,39-41
+  s_5a32006a613a4d::t_5f325732f9664f 53-56,223-227
+packages/components/src/utils/componentUtils.ts
+  s_d3fcc4d38bd440::t_52b92139f95a94 1-5
+packages/components/src/components/Button/__tests__/ButtonStates.test.tsx
+  s_d3fcc4d38bd440::t_e36059caa07150 1-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b42a63d612c2f081fb0c9ba4653b930eab1a0cfe",
+  "prompts": {},
+  "sessions": {
+    "s_5a32006a613a4d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a143-3c7a-72c1-9aad-5b8f000ace22",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    },
+    "s_d3fcc4d38bd440": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a189fa-02fc-73f1-b15a-7c0b33effac2",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
