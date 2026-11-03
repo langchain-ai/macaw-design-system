@@ -430,6 +430,7 @@ test.each([
   ['checkboxes', 'Checkbox'],
   ['render error fallback', 'ErrorBoundary'],
   ['virtual scrolling', 'TextVirtualizer'],
+  ['data grid', 'MacawTable'],
   ['automatic links', 'TextWithLinks'],
   ['discard changes', 'UnsavedChangesDialog'],
 ])('finds %s as %s', (query, expected) => {
@@ -440,7 +441,7 @@ test.each([
   ]);
 });
 
-test.each(['data grid', 'date picker', 'portal slot', 'the and with'])(
+test.each(['date picker', 'portal slot', 'the and with'])(
   'does not suggest unrelated components for %s',
   (query) => {
     const result = invoke('search', query, '--json');
