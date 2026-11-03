@@ -69,7 +69,7 @@ export function MacawTableToolbar<TData>({
       role="group"
       aria-label={label}
       className={cn(
-        'flex min-h-space-8 flex-wrap items-center gap-space-2',
+        'flex min-h-8 flex-wrap items-center gap-space-2',
         className
       )}
       inert={disabled || undefined}
@@ -95,6 +95,7 @@ export function MacawTableToolbar<TData>({
             size="sm"
             variant="plain"
             color="secondary"
+            disabled={disabled}
             onClick={() => table.resetRowSelection(true)}
           />
         </>
@@ -110,10 +111,15 @@ export function MacawTableToolbar<TData>({
               placeholder={searchPlaceholder}
               aria-label={searchLabel}
               leftIcon={MagnifyingGlassIcon}
-              className="min-w-0 flex-1 sm:w-auto sm:flex-none"
+              disabled={disabled}
+              // Sized by the toolbar, not the viewport, so narrow panes keep
+              // search and the column picker on one line.
+              className="min-w-40 max-w-64 flex-1"
             />
           )}
-          {showColumnVisibility && <MacawTableColumnVisibility table={table} />}
+          {showColumnVisibility && (
+            <MacawTableColumnVisibility table={table} disabled={disabled} />
+          )}
           {endActions}
         </>
       )}
@@ -368,7 +374,7 @@ export function MacawTableRowExpander<TData>({
           onClick={row.getToggleExpandedHandler()}
         />
       ) : (
-        <span className="w-space-5" />
+        <span className="w-5" />
       )}
     </span>
   );

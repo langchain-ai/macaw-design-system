@@ -21,12 +21,23 @@ import { Text } from '../Text';
 import { canReorder, columnLabel, moveColumn } from './columnUtils';
 import type { MacawTableProps } from './types';
 
-export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
+// Secondary header controls stay quiet until the header is hovered or holds
+// focus. Touch devices have no hover, so they always show them.
+const REVEAL_ON_HEADER =
+  'opacity-0 group-hover/header:opacity-100 group-focus-within/header:opacity-100 [@media(hover:none)]:opacity-100 motion-reduce:transition-none';
+const EXPAND_ON_HEADER =
+  'w-0 shrink-0 overflow-hidden group-hover/header:w-5 group-focus-within/header:w-5 [@media(hover:none)]:w-5';
+
+export function MacawTableHeader<TData>(
+  props: MacawTableProps<TData> & {
+    /** Receives polite announcements; rendered outside the column headers. */
+    onAnnounce: (message: string) => void;
+  }
+) {
   'use no memo';
   const { table, columnOptions } = props;
   const draggedId = useRef<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
-  const [announcement, setAnnouncement] = useState('');
   const hasSpacer = !table
     .getCenterVisibleLeafColumns()
     .some((column) => columnOptions?.[column.id]?.fill);
@@ -51,7 +62,7 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
     const position =
       table.getVisibleLeafColumns().findIndex((column) => column.id === to) + 1;
     moveColumn(table, from, to, columnOptions);
-    setAnnouncement(
+    props.onAnnounce(
       `Moved ${columnLabel(table.getColumn(from)!)} to column ${position}`
     );
   };
@@ -143,7 +154,7 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                   {canMove && (
                     <span
                       draggable
-                      className="w-0 shrink-0 overflow-hidden group-hover/header:w-space-5 group-focus-within/header:w-space-5 [@media(hover:none)]:w-space-5"
+                      className={EXPAND_ON_HEADER}
                       onDragStart={(event) => {
                         draggedId.current = column.id;
                         event.dataTransfer.effectAllowed = 'move';
@@ -165,7 +176,7 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                           title:
                             'Drag to reorder, or use Left and Right arrow keys',
                         }}
-                        className="cursor-grab opacity-0 group-hover/header:opacity-100 group-focus-within/header:opacity-100 [@media(hover:none)]:opacity-100 motion-reduce:transition-none"
+                        className={cn('cursor-grab', REVEAL_ON_HEADER)}
                         onKeyDown={(event) => {
                           if (
                             event.key !== 'ArrowLeft' &&
@@ -208,6 +219,9 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                       size="xs"
                       variant="plain"
                       color="secondary"
+                      // The active direction stays visible; the unsorted
+                      // affordance keeps its space so sorting never shifts the label.
+                      className={sorted ? undefined : REVEAL_ON_HEADER}
                       onClick={column.getToggleSortingHandler()}
                     />
                   )}
@@ -218,66 +232,80 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                     (column.getCanHide() ||
                       props.onFilterColumn ||
                       canMove) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <IconButton
-                            icon={DotsThreeIcon}
-                            iconWeight="regular"
-                            label={`Actions for ${label}`}
-                            size="xs"
-                            variant="plain"
-                            color="secondary"
-                          />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {props.enableColumnActions &&
-                            props.onFilterColumn && (
-                              <DropdownMenuItem
-                                onSelect={() =>
-                                  props.onFilterColumn?.(column.id)
-                                }
-                              >
-                                Filter {label}
-                              </DropdownMenuItem>
+                      <span
+                        className={cn(
+                          EXPAND_ON_HEADER,
+                          'has-[[data-state=open]]:w-5'
+                        )}
+                      >
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <IconButton
+                              icon={DotsThreeIcon}
+                              iconWeight="regular"
+                              label={`Actions for ${label}`}
+                              size="xs"
+                              variant="plain"
+                              color="secondary"
+                              className={cn(
+                                REVEAL_ON_HEADER,
+                                'data-[state=open]:opacity-100'
+                              )}
+                            />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {props.enableColumnActions &&
+                              props.onFilterColumn && (
+                                <DropdownMenuItem
+                                  onSelect={() =>
+                                    props.onFilterColumn?.(column.id)
+                                  }
+                                >
+                                  Filter {label}
+                                </DropdownMenuItem>
+                              )}
+                            {canMove && (
+                              <>
+                                <DropdownMenuItem
+                                  disabled={moveIndex === 0}
+                                  onSelect={() =>
+                                    move(
+                                      column.id,
+                                      visibleMovable[moveIndex - 1].id
+                                    )
+                                  }
+                                >
+                                  Move left
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  disabled={
+                                    moveIndex === visibleMovable.length - 1
+                                  }
+                                  onSelect={() =>
+                                    move(
+                                      column.id,
+                                      visibleMovable[moveIndex + 1].id
+                                    )
+                                  }
+                                >
+                                  Move right
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                              </>
                             )}
-                          {canMove && (
-                            <>
-                              <DropdownMenuItem
-                                disabled={moveIndex === 0}
-                                onSelect={() =>
-                                  move(
-                                    column.id,
-                                    visibleMovable[moveIndex - 1].id
-                                  )
-                                }
-                              >
-                                Move left
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                disabled={
-                                  moveIndex === visibleMovable.length - 1
-                                }
-                                onSelect={() =>
-                                  move(
-                                    column.id,
-                                    visibleMovable[moveIndex + 1].id
-                                  )
-                                }
-                              >
-                                Move right
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                            </>
-                          )}
-                          {props.enableColumnActions && column.getCanHide() && (
-                            <DropdownMenuItem
-                              onSelect={() => column.toggleVisibility(false)}
-                            >
-                              Hide column
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            {props.enableColumnActions &&
+                              column.getCanHide() && (
+                                <DropdownMenuItem
+                                  onSelect={() =>
+                                    column.toggleVisibility(false)
+                                  }
+                                >
+                                  Hide column
+                                </DropdownMenuItem>
+                              )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </span>
                     )}
                   {!header.isPlaceholder &&
                     column.getCanResize() &&
@@ -293,7 +321,7 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                         aria-valuenow={column.getSize()}
                         tabIndex={0}
                         className={cn(
-                          'absolute inset-y-0 right-0 flex w-space-2 cursor-col-resize touch-none items-center justify-center outline-hidden focus-visible:ring-2 focus-visible:ring-focus',
+                          'absolute inset-y-0 right-0 flex w-2 cursor-col-resize touch-none items-center justify-center outline-hidden focus-visible:ring-2 focus-visible:ring-focus',
                           column.getIsResizing() && 'bg-brand-muted'
                         )}
                         onMouseDown={header.getResizeHandler()}
@@ -335,11 +363,6 @@ export function MacawTableHeader<TData>(props: MacawTableProps<TData>) {
                       </div>
                     )}
                 </div>
-                {header === groups[0]?.headers.find(Boolean) && (
-                  <span role="status" className="sr-only">
-                    {announcement}
-                  </span>
-                )}
               </th>
             );
           })}

@@ -85,7 +85,9 @@ confirmation, and operations stay in the application.
   augmenting TanStack metadata or colliding with consumer fields. Set `fill` on a
   non-resizable, unpinned column to absorb spare space; the remaining columns keep their widths.
 - `enableColumnActions` adds hide/filter and move menu items. `onFilterColumn(id)`
-  opens the application's filter UI. Sorting remains visible independently.
+  opens the application's filter UI. Sorting remains a separate header button.
+  Sort, move, and menu controls appear when the header is hovered or holds focus,
+  and always on touch devices; an active sort direction stays visible.
 - `enableColumnReordering` adds drag handles, Left/Right keyboard movement, and
   move menu items usable on touch devices.
   Hidden and fixed columns retain their order slots. Selection/action IDs,
@@ -119,9 +121,11 @@ modifier behavior. Macaw does not synthesize browser clicks or inspect user agen
 
 Use `virtualized` with `height` (default `24rem`), or provide `customScrollParent`
 for an existing scroll container. Virtual tables have sticky headers, measured
-row heights, stable row keys, and a synchronized top horizontal scrollbar when
-they own the scroller. Standard tables scroll horizontally and can use `height`
-to bound vertical scrolling. Neither mode widens its containing layout.
+row heights, stable row keys, the same row spacing as standard tables, and a
+synchronized top horizontal scrollbar for pointer users when they own the
+scroller. Standard tables scroll horizontally and can use `height` to bound
+vertical scrolling. Neither mode widens its containing layout. Both name their
+keyboard-focusable scroll region "`label` scroll area".
 
 For infinite results, set `hasMore` and `onLoadMore` and use `manualPagination`
 (or disable the pagination row model on an existing table). Standard tables use
@@ -131,8 +135,9 @@ error state, and deduplicated per loaded row count until a loading cycle complet
 A visible load-more button provides keyboard access and explicit retries.
 
 `isLoading` renders five skeleton rows for an empty table (`loadingRowCount`
-customizes this). `isValidating` preserves existing records and announces refresh;
-infinite tables append skeletons while loading another page. Use
+customizes this). `isValidating` preserves existing records, shows a progress bar
+along the top edge without shifting rows, and announces the refresh; infinite
+tables append skeletons while loading another page. Use
 `hideSkeletonsWhileValidating` to suppress them. Skeletons are separate from real
 records and never reach row callbacks. `errorState`, `emptyState`, and
 `noColumnsState` allow contextual recovery content. The default empty state says
@@ -142,9 +147,8 @@ and pagination. Semantic tokens supply light/dark surfaces and focus indicators.
 
 ## DataGridV2 migration map
 
-Audited the `smith-frontend/src/components/DataGridV2` family and importers at
-LangChainPlus commit `f55a9a20bc44845cf8cb87ecf1c8ef2e5a421c37`. Representative
-consumers include RunsTable (virtual/infinite, row tones, custom scroll parent),
+Maps the LangChainPlus `smith-frontend/src/components/DataGridV2` family.
+Representative consumers include RunsTable (virtual/infinite, row tones, custom scroll parent),
 ExamplesTable (custom cell content), EngineSpendBreakdownTable (full-width rows
 and row heights), ContextTable (expandable groups), and resource/settings tables
 (server pagination, bulk actions, search, and persistent columns).
@@ -177,5 +181,4 @@ and row heights), ContextTable (expandable groups), and resource/settings tables
 
 Migration is incremental, not a blind import replacement. Publish Macaw first,
 bump the consumer's pinned version, then migrate an app adapter and verify its
-server state, native links, saved columns, and permission gates. This PR supplies
-the shared capabilities and contract; it does not migrate LangChainPlus routes.
+server state, native links, saved columns, and permission gates.

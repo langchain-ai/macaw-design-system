@@ -344,9 +344,22 @@ export const Overview: Story = {
     await userEvent.clear(
       canvas.getByRole('textbox', { name: 'Search workflows' })
     );
+    const moveHandle = canvas.getByRole('button', { name: 'Move Name' });
+    moveHandle.focus();
+    await waitFor(() =>
+      expect(moveHandle.parentElement!.getBoundingClientRect().width).toBe(20)
+    );
   },
 };
-export const Loading: Story = { render: () => <Showcase mode="loading" /> };
+export const Loading: Story = {
+  render: () => <Showcase mode="loading" />,
+  play: async ({ canvasElement }) => {
+    const skeletons = canvasElement.querySelectorAll('tbody .animate-pulse');
+    await expect(skeletons.length).toBeGreaterThan(0);
+    for (const skeleton of skeletons)
+      await expect(skeleton.getBoundingClientRect().height).toBeGreaterThan(0);
+  },
+};
 export const Updating: Story = { render: () => <Showcase mode="updating" /> };
 export const Empty: Story = { render: () => <Showcase mode="empty" /> };
 export const Error: Story = { render: () => <Showcase mode="error" /> };
@@ -357,10 +370,14 @@ export const Virtualized: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const scroller = canvas.getByRole('region', {
-      name: 'Workflows',
+      name: 'Workflows scroll area',
     });
     await expect(canvas.getAllByRole('row').length).toBeLessThan(100);
     await waitFor(() => expect(scroller.scrollHeight).toBeGreaterThan(100000));
+    const [first, second] = [
+      ...scroller.querySelectorAll('tr[data-row-id]'),
+    ].map((row) => row.getBoundingClientRect());
+    await expect(second.top - first.bottom).toBe(4);
     scroller.scrollTo({ top: scroller.scrollHeight });
     await waitFor(() =>
       expect(canvas.getByText('Search Pipeline 5000')).toBeVisible()
@@ -428,7 +445,18 @@ function TreeExample({ fullWidth = false }: { fullWidth?: boolean }) {
     />
   );
 }
-export const ExpandableRows: Story = { render: () => <TreeExample /> };
+export const ExpandableRows: Story = {
+  render: () => <TreeExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const left = (name: string) =>
+      canvas.getByText(name, { exact: true }).getBoundingClientRect().left;
+    await expect(left('Quality Reviewer')).toBe(left('Production Assistant'));
+    await expect(left('Search Pipeline')).toBeGreaterThan(
+      left('Production Assistant')
+    );
+  },
+};
 export const FullWidthRows: Story = { render: () => <TreeExample fullWidth /> };
 
 function ServerExample() {
@@ -685,7 +713,7 @@ const checkPinnedColumns: Story['play'] = async ({ canvasElement }) => {
     .closest('td')!;
   const actionsHeader = canvas.getByRole('columnheader', { name: 'Actions' });
   const scroller = canvas.getByRole('region', {
-    name: /^Pinned workflow columns( scroll area)?$/,
+    name: 'Pinned workflow columns scroll area',
   });
   const container = scroller.closest(
     '[data-slot="macaw-table"]'

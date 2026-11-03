@@ -253,6 +253,12 @@ describe('MacawTable', () => {
     await user.keyboard('{ArrowRight}');
     expect(headerNames()).toEqual(['select', 'id', 'name', 'actions']);
     expect(move).toHaveFocus();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Moved Name to column 3'
+    );
+    expect(
+      screen.queryByRole('columnheader', { name: /Moved/ })
+    ).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Columns' }));
     await user.click(screen.getByRole('checkbox', { name: 'Count' }));
     await user.keyboard('{Escape}');

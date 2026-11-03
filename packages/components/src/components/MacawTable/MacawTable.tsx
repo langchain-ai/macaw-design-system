@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useState,
   type ComponentProps,
   type ReactNode,
   type Ref,
@@ -13,23 +14,28 @@ import { TableVirtuoso, type TableComponents } from 'react-virtuoso';
 import { flexRender } from '@tanstack/react-table';
 
 import { cn } from '../../utils/cn';
+import { SPACE_SCALE_PX } from '../../utils/spacing';
 import zIndices from '../../utils/zIndices';
 import { Button } from '../Button';
 import { EmptyState } from '../EmptyState';
+import { LinearProgress } from '../LinearProgress';
 import { Skeleton } from '../Skeleton';
-import { Spinner } from '../Spinner';
 import { Text } from '../Text';
 import { MacawTableHeader } from './MacawTableHeader';
 import type { MacawTableProps } from './types';
 
 const TABLE_CLASS =
   'min-w-full table-fixed border-separate border-spacing-x-0 border-spacing-y-space-1 text-left text-sm text-primary';
+// The row gap from border-spacing-y-space-1. Virtual item sizes include it so
+// Virtuoso's offsets match the rendered rows and scrolling does not jump.
+const ROW_GAP_PX = SPACE_SCALE_PX[1];
 const ROW_HEIGHT = '2.5rem';
 const INTERACTIVE =
   'a,button,input,select,textarea,[role="button"],[role="checkbox"],[role="switch"],[role="radio"],[role="link"],[role="combobox"],[contenteditable="true"],[data-table-interactive]';
 
 type VirtualContext = {
   label: string;
+  scrollLabel: string;
   width: number;
   rowCount: number;
   columnCount: number;
@@ -54,7 +60,7 @@ const virtualComponents: TableComponents<number, VirtualContext> = {
       ref={ref}
       tabIndex={0}
       role="region"
-      aria-label={context?.label}
+      aria-label={context?.scrollLabel}
       onScroll={(event) => {
         onScroll?.(event);
         context?.syncScroll(event.currentTarget);
@@ -68,11 +74,25 @@ const virtualComponents: TableComponents<number, VirtualContext> = {
       aria-rowcount={context?.rowCount}
       aria-colcount={context?.columnCount}
       className={TABLE_CLASS}
-      style={{ ...style, width: context?.width, borderCollapse: 'separate' }}
+      // Virtuoso zeroes border-spacing inline; keep the row gap from TABLE_CLASS.
+      style={{ ...style, borderSpacing: undefined, width: context?.width }}
     >
       {context?.colGroup}
       {props.children}
     </table>
+  ),
+  // Item sizes include the row gap, so each filler returns the gap that
+  // border-spacing adds after it.
+  FillerRow: ({ height }) => (
+    <tr aria-hidden>
+      <td
+        style={{
+          height: Math.max(0, height - ROW_GAP_PX),
+          padding: 0,
+          border: 0,
+        }}
+      />
+    </tr>
   ),
   TableHead: forwardRef(({ context: _context, ...props }, ref) => (
     <thead
@@ -166,6 +186,8 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
     count: rows.length,
   };
   const requestedCount = useRef<number | null>(null);
+  const [announcement, setAnnouncement] = useState('');
+  const scrollLabel = `${label} scroll area`;
   const sentinel = useRef<HTMLDivElement>(null);
   const topScroll = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLElement | null>(null);
@@ -243,7 +265,7 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
                 className="px-space-2 py-space-3"
                 style={{ height: ROW_HEIGHT, width: column.getSize() }}
               >
-                <Skeleton className="h-space-3 w-full" />
+                <Skeleton className="h-3 w-full" />
               </td>
             ) : (
               <td
@@ -459,27 +481,18 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
 
   return (
     <div
-      className={cn('min-w-0 bg-surface-level-1', props.className)}
+      className={cn('relative min-w-0 bg-surface-level-1', props.className)}
       style={props.style}
       aria-disabled={disabled || undefined}
       data-slot="macaw-table"
     >
-      <div
-        role="status"
-        className={
-          busy && rows.length > 0
-            ? 'flex items-center gap-space-2 px-space-2 py-space-1'
-            : 'sr-only'
-        }
-      >
+      <div role="status" className="sr-only">
         {busy && (
-          <>
-            {rows.length > 0 && <Spinner size="xs" />}
-            <Text as="span" variant="sm" color="secondary">
-              {rows.length > 0 ? 'Updating results…' : 'Loading results…'}
-            </Text>
-          </>
+          <span>
+            {rows.length > 0 ? 'Updating results…' : 'Loading results…'}
+          </span>
         )}
+        {announcement && <span>{announcement}</span>}
       </div>
       <div inert={disabled || undefined} aria-busy={busy}>
         {state != null ? (
@@ -490,12 +503,13 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
         ) : props.virtualized ? (
           <>
             {!props.customScrollParent && (
+              // A pointer shortcut only: the table's own scroll region is the
+              // keyboard and assistive-technology path.
               <div
                 ref={topScroll}
-                tabIndex={0}
-                role="region"
-                aria-label={`${label} horizontal scroll`}
-                className="overflow-x-auto overflow-y-hidden focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus"
+                aria-hidden
+                tabIndex={-1}
+                className="overflow-x-auto overflow-y-hidden"
                 onScroll={(event) => {
                   if (
                     scroller.current &&
@@ -522,8 +536,12 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
               }}
               data={Array.from({ length: rowCount }, (_, index) => index)}
               computeItemKey={(index) => rows[index]?.id ?? `loading-${index}`}
+              itemSize={(element) =>
+                element.getBoundingClientRect().height + ROW_GAP_PX
+              }
               context={{
                 label,
+                scrollLabel,
                 width,
                 rowCount:
                   rows.length +
@@ -543,7 +561,12 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
               fixedHeaderContent={
                 props.hideHeader
                   ? undefined
-                  : () => <MacawTableHeader {...props} />
+                  : () => (
+                      <MacawTableHeader
+                        {...props}
+                        onAnnounce={setAnnouncement}
+                      />
+                    )
               }
               itemContent={renderCells}
               endReached={loadMore}
@@ -558,7 +581,7 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
               scroller.current = element;
             }}
             role="region"
-            aria-label={`${label} scroll area`}
+            aria-label={scrollLabel}
             tabIndex={0}
             className="overflow-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-focus"
             style={{ maxHeight: props.height }}
@@ -570,7 +593,7 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
                   className="sticky top-0 bg-surface-level-1"
                   style={{ zIndex: zIndices.tableStickyHeader }}
                 >
-                  <MacawTableHeader {...props} />
+                  <MacawTableHeader {...props} onAnnounce={setAnnouncement} />
                 </thead>
               )}
               <tbody>
@@ -583,6 +606,15 @@ export function MacawTable<TData>(props: MacawTableProps<TData>) {
           </div>
         )}
       </div>
+      {/* Overlays the top edge, above the sticky header, so a refresh does not
+          shift the rows. The status region announces it. */}
+      {busy && rows.length > 0 && (
+        <LinearProgress
+          aria-hidden
+          className="absolute inset-x-0 top-0"
+          style={{ zIndex: zIndices.tableStickyHeader }}
+        />
+      )}
     </div>
   );
 }
