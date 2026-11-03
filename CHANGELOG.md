@@ -1,3 +1,13 @@
+## 1.4.0 (2026-11-03)
+
+### 🚀 Features
+
+- add breadcrumbs and refresh the component overview ([#54](https://github.com/langchain-ai/macaw-design-system/pull/54))
+
+### ❤️ Thank You
+
+- Nick @nick-kim-langchain
+
 ## 1.3.5 (2026-11-02)
 
 ### 🚀 Features
