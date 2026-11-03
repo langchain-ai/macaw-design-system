@@ -70,21 +70,18 @@ Custom components should compose primitives and keep feature data, permissions, 
 ## Breadcrumbs
 
 Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
-`@langchain/macaw-components/Breadcrumb`. Place links and the current page directly
-inside `Breadcrumb`; it owns the navigation landmark, ordered list, and decorative
-slash separators. Use `separator` for an alternative such as a chevron.
+`@langchain/macaw-components/Breadcrumb`. Compose links and the noninteractive
+current page directly inside `Breadcrumb`; it supplies navigation/list semantics
+and slash separators. Use `href` for native links,
+`as={<RouterLink to="/projects" />}` for router links, and `separator` to customize
+the divider. `leftDecorator` adds an icon.
 
-Use `BreadcrumbLink href="..."` for native navigation or
-`as={<RouterLink to="..." />}` for framework routing. `leftDecorator` accepts an
-icon. `BreadcrumbPage` is noninteractive and marks the current page. Ancestor
-links and the current page use compact xs typography by default, matching the
-LangSmith navigation trail.
-
-Labels truncate at 200px and expose their full string as a native title; the
-trail wraps at narrow widths. Empty children render no navigation. Compose
-`Skeleton` while fetching labels, or static text for unavailable ancestors; do
-not use fake links or disabled buttons. Consumers own routing, loading/error
-messages, and any explicit overflow menu or switcher.
+Trails stay on one line and scroll horizontally when space runs out, with
+keyboard scrolling for overflowing trails. Labels cap at
+200px, or 148px with `condensed`. Clipped labels show the shared tooltip on hover
+or focus; clipped current-page text becomes focusable. Consumers choose when to
+condense and own routing, saved URLs, page titles, loading/error states, and
+switchers. Compose `Skeleton` for loading and static text for unavailable ancestors.
 
 ## Nested modals
 
