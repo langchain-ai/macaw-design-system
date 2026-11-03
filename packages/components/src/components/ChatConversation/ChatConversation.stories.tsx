@@ -4,33 +4,26 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ChatConversation } from '.';
 import { Button } from '../Button';
+import { ChatMessage, type ChatMessageModel } from '../ChatMessage';
 import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
 
-// Stand-ins for ChatMessage, which lives outside this component.
-interface PlaceholderMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  paragraphs: string[];
+function ConversationMessages({
+  messages,
+}: {
+  messages: readonly ChatMessageModel[];
+}) {
+  return messages.map((message) => (
+    <ChatMessage key={message.id} message={message} animateParagraphs />
+  ));
 }
 
-function PlaceholderMessages({ messages }: { messages: PlaceholderMessage[] }) {
-  return messages.map((message) =>
-    message.role === 'user' ? (
-      <div
-        key={message.id}
-        className="max-w-[80%] self-end rounded-xl bg-surface-level-2 px-space-3 py-space-2"
-      >
-        <Text>{message.paragraphs.join(' ')}</Text>
-      </div>
-    ) : (
-      <div key={message.id} className="flex flex-col gap-space-3">
-        {message.paragraphs.map((paragraph, index) => (
-          <Text key={index}>{paragraph}</Text>
-        ))}
-      </div>
-    )
-  );
+function paragraphBlocks(id: string, paragraphs: readonly string[]) {
+  return paragraphs.map((text, index) => ({
+    id: `${id}-${index}`,
+    type: 'text' as const,
+    text,
+  }));
 }
 
 const exchanges = [
@@ -76,17 +69,26 @@ const exchanges = [
   },
 ];
 
-function historyMessages(prefix = 'history'): PlaceholderMessage[] {
+function historyMessages(prefix = 'history'): ChatMessageModel[] {
   return exchanges.flatMap((exchange, index) => [
     {
       id: `${prefix}-${index}-user`,
       role: 'user',
-      paragraphs: [exchange.question],
+      status: 'completed',
+      content: [
+        {
+          id: `${prefix}-${index}-question`,
+          type: 'text',
+          appearance: 'bubble',
+          text: exchange.question,
+        },
+      ],
     },
     {
       id: `${prefix}-${index}-assistant`,
       role: 'assistant',
-      paragraphs: exchange.answer,
+      status: 'completed',
+      content: paragraphBlocks(`${prefix}-${index}-answer`, exchange.answer),
     },
   ]);
 }
@@ -132,7 +134,7 @@ const meta = {
     viewportRef: { control: false },
   },
   args: {
-    children: <PlaceholderMessages messages={historyMessages()} />,
+    children: <ConversationMessages messages={historyMessages()} />,
   },
 } satisfies Meta<typeof ChatConversation>;
 
@@ -220,17 +222,38 @@ function StreamingExample() {
       {
         id: `${id}-user`,
         role: 'user',
-        paragraphs: ['Can you make it even more relaxed?'],
+        status: 'completed',
+        content: [
+          {
+            id: `${id}-question`,
+            type: 'text',
+            appearance: 'bubble',
+            text: 'Can you make it even more relaxed?',
+          },
+        ],
       },
-      { id: `${id}-assistant`, role: 'assistant', paragraphs: [] },
+      {
+        id: `${id}-assistant`,
+        role: 'assistant',
+        status: 'streaming',
+        content: [],
+      },
     ]);
     setReply({ id: `${id}-assistant`, streamed: 0 });
   }
 
-  const shownMessages = messages.map((message) =>
-    message.id === reply?.id
-      ? { ...message, paragraphs: streamedParagraphs.slice(0, reply.streamed) }
-      : message
+  const shownMessages = messages.map(
+    (message): ChatMessageModel =>
+      message.id === reply?.id
+        ? {
+            ...message,
+            status: isStreaming ? 'streaming' : 'completed',
+            content: paragraphBlocks(
+              reply.id,
+              streamedParagraphs.slice(0, reply.streamed)
+            ),
+          }
+        : message
   );
 
   return (
@@ -249,7 +272,7 @@ function StreamingExample() {
         </div>
       }
     >
-      <PlaceholderMessages messages={shownMessages} />
+      <ConversationMessages messages={shownMessages} />
     </ChatConversation>
   );
 }
@@ -301,7 +324,7 @@ function SwitchingExample() {
         </div>
       }
     >
-      <PlaceholderMessages messages={thread.messages} />
+      <ConversationMessages messages={thread.messages} />
     </ChatConversation>
   );
 }
