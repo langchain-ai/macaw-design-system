@@ -67,6 +67,13 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Chat
+
+Import the tool-call presentation family from
+`@langchain/macaw-components/ChatToolCall` and shared lifecycle presentation
+from `@langchain/macaw-components/ChatState`. They are intentionally omitted
+from the root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
+
 ## Nested modals
 
 Wrap a related workflow in `ModalProvider` from `@langchain/macaw-components/Dialog`
