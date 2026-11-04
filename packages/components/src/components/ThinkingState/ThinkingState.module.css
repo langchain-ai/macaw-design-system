@@ -1,14 +1,21 @@
 @reference "../../styles/tailwind.css";
 
 /* Adapted from TurboKach/ai-native-react-components (MIT). See NOTICE. */
-/* Whole-pixel cells and gaps, so every pixel renders the same size. */
 .grid {
-  --pixel-gap: round(10%, 1px);
-  --pixel-size: round(down, calc((100% - 2 * var(--pixel-gap)) / 3), 1px);
   display: inline-grid;
-  grid-template: repeat(3, var(--pixel-size)) / repeat(3, var(--pixel-size));
-  gap: var(--pixel-gap);
-  place-content: center;
+  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
+  gap: 10%;
+}
+
+/* Whole-pixel cells and gaps, so every pixel renders the same size. */
+@supports (width: round(1px, 1px)) {
+  .grid {
+    --pixel-gap: round(10%, 1px);
+    --pixel-size: round(down, calc((100% - 2 * var(--pixel-gap)) / 3), 1px);
+    grid-template: repeat(3, var(--pixel-size)) / repeat(3, var(--pixel-size));
+    gap: var(--pixel-gap);
+    place-content: center;
+  }
 }
 
 .pixel {
