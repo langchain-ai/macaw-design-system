@@ -73,6 +73,21 @@ import type {
   ChatRichContentRendererContext,
   ChatRichContentState,
 } from '@langchain/macaw-components/ChatRichContent';
+import { ChatState } from '@langchain/macaw-components/ChatState';
+import type {
+  ChatStateProps,
+  ChatStateStatus,
+  ChatStateTimerPrecision,
+} from '@langchain/macaw-components/ChatState';
+import {
+  ChatToolCall,
+  ChatToolCallGroup,
+  ChatToolCallReasoning,
+} from '@langchain/macaw-components/ChatToolCall';
+import type {
+  ChatToolCallModel,
+  ChatToolCallProps,
+} from '@langchain/macaw-components/ChatToolCall';
 import {
   Code,
   CodeLanguageSelect,
@@ -191,6 +206,21 @@ void [
     'aria-label': 'Tasks',
   } satisfies ChatRichContentChoicesProps,
   {} satisfies ChatRichContentFallbackProps,
+  ChatState,
+  { status: 'streaming', showElapsed: true } satisfies ChatStateProps,
+  'input-required' satisfies ChatStateStatus,
+  'tenths' satisfies ChatStateTimerPrecision,
+  ChatToolCall,
+  ChatToolCallGroup,
+  ChatToolCallReasoning,
+  {
+    toolCall: { id: 'search-1', name: 'search', status: 'running' },
+  } satisfies ChatToolCallProps,
+  {
+    id: 'search-1',
+    name: 'search',
+    status: 'succeeded',
+  } satisfies ChatToolCallModel,
   {
     id: 'message',
     role: 'assistant',

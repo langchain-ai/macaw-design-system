@@ -251,6 +251,12 @@ export type { SwitchProps } from './Switch';
 // menus depend on @radix-ui/react-dropdown-menu. Import it directly:
 //   import { ChatConversationList, ... } from '@langchain/macaw-components/ChatConversationList'
 //
+// NOTE: ChatToolCall and ChatState are exposed together through explicit
+// subpaths. ChatToolCall's generic details depend on CodeLite, so importing it
+// from the root would add the code-preview graph to unrelated bundles:
+//   import { ChatState } from '@langchain/macaw-components/ChatState'
+//   import { ChatToolCall, ... } from '@langchain/macaw-components/ChatToolCall'
+//
 // NOTE: Dialog and Pane are likewise excluded — both wrap @radix-ui/react-dialog.
 // Import directly:
 //   import { Dialog, DialogContent } from '@langchain/macaw-components/Dialog'

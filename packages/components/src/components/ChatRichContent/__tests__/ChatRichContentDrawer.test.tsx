@@ -277,4 +277,25 @@ describe('ChatRichContent drawer', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(1);
     expect(screen.getByRole('textbox', { name: 'Message' })).toHaveFocus();
   });
+
+  it('requests error expansion once even if the controlled host stays closed', () => {
+    const onOpenChange = vi.fn();
+    const drawer = (state: ChatRichContentState) => (
+      <ChatRichContent
+        presentation="drawer"
+        title="Choose a region"
+        open={false}
+        onOpenChange={(open) => onOpenChange(open)}
+        state={state}
+      />
+    );
+    const { rerender } = render(drawer('validation-error'));
+    rerender(drawer('validation-error'));
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true);
+    expect(screen.getByRole('alert')).toBeVisible();
+
+    rerender(drawer('unanswered'));
+    rerender(drawer('validation-error'));
+    expect(onOpenChange).toHaveBeenCalledTimes(2);
+  });
 });

@@ -132,12 +132,19 @@ export function ChatRichContent(props: ChatRichContentProps) {
   const open = openProp ?? uncontrolledOpen;
   // Errors stay visible so a collapsed drawer cannot hide why submission failed.
   const expanded = !isDrawer || isError || open;
+  const errorExpansionRequested = useRef(false);
   // Stay open once the error clears so the choices remain while the answer is fixed.
   useLayoutEffect(() => {
-    if (isDrawer && isError && !open) {
-      setUncontrolledOpen(true);
-      onOpenChange?.(true);
+    if (!isDrawer || !isError || open) {
+      errorExpansionRequested.current = false;
+      return;
     }
+    // A controlled host may decline this request. Do not notify it again on
+    // every render (including renders caused by its own onOpenChange handler).
+    if (errorExpansionRequested.current) return;
+    errorExpansionRequested.current = true;
+    setUncontrolledOpen(true);
+    onOpenChange?.(true);
   }, [isDrawer, isError, open, onOpenChange]);
   const statusMessage =
     submission === 'skipping' && editable
@@ -213,7 +220,8 @@ export function ChatRichContent(props: ChatRichContentProps) {
             variant="plain"
             disabled={actionsDisabled}
             loading={submission === 'skipping'}
-            onClick={() => {
+            onClick={(event) => {
+              if (event.detail > 1) return;
               void handleAction(onSkip, 'skipping');
             }}
           >
@@ -396,6 +404,8 @@ export function ChatRichContent(props: ChatRichContentProps) {
               value={rejectionReason.value}
               onChange={rejectionReason.onChange}
               disabled={actionsDisabled || !onReject}
+              isError={isError}
+              aria-describedby={errorId}
             />
           )}
         {showFooter && (

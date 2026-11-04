@@ -256,6 +256,8 @@ export const ApprovalStates: Story = {
           'approved',
           'rejected',
           'submitting',
+          'validation-error',
+          'submission-failed',
           'disabled',
           'expired',
         ] satisfies ChatRichContentState[]
@@ -1118,9 +1120,13 @@ export const CollapsedDrawer: Story = {
     },
   },
   play: async ({ canvas, userEvent }) => {
-    const editor = await canvas.findByRole('textbox', {
-      name: 'How would you like to review changes?',
-    });
+    // The rich editor loads lazily; a cold CI browser can take longer than
+    // Testing Library's default one-second query timeout.
+    const editor = await canvas.findByRole(
+      'textbox',
+      { name: 'How would you like to review changes?' },
+      { timeout: 10_000 }
+    );
     await userEvent.click(
       canvas.getByRole('button', { name: 'Expand question' })
     );
@@ -1502,9 +1508,11 @@ export const DrawerValidation: Story = {
       canvas.getByRole('button', { name: 'Collapse question' })
     );
     await userEvent.type(
-      await canvas.findByRole('textbox', {
-        name: 'What should the plan prioritize?',
-      }),
+      await canvas.findByRole(
+        'textbox',
+        { name: 'What should the plan prioritize?' },
+        { timeout: 10_000 }
+      ),
       'Preserve existing behavior'
     );
     await userEvent.click(

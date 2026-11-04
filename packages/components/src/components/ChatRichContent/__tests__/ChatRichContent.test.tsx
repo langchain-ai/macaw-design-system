@@ -253,6 +253,24 @@ describe('ChatRichContent', () => {
   );
 
   describe('approval', () => {
+    it('associates rejection validation with the editable reason field', () => {
+      render(
+        <ChatRichContent
+          variant="approval"
+          title="Review changes"
+          state="validation-error"
+          message="Explain which change needs revision."
+          onReject={() => {}}
+          rejectionReason={{ value: '', onChange: () => {} }}
+        />
+      );
+      expect(reasonField()).toBeEnabled();
+      expect(reasonField()).toBeInvalid();
+      expect(reasonField()).toHaveAccessibleDescription(
+        'Explain which change needs revision.'
+      );
+    });
+
     it.each([
       { from: 'unanswered', action: 'Reject', pending: 'Rejecting request…' },
       {
@@ -429,6 +447,29 @@ describe('ChatRichContent', () => {
   });
 
   describe('questions', () => {
+    it('skips only one question on a double-click when the host advances immediately', async () => {
+      const onSkip = vi.fn();
+      function StepsExample() {
+        const [current, setCurrent] = useState(1);
+        return (
+          <ChatRichContent
+            title={`Question ${current}`}
+            navigation={{ current, total: 3, onChange: setCurrent }}
+            onSkip={() => {
+              onSkip(current);
+              setCurrent(current + 1);
+            }}
+          />
+        );
+      }
+      const { user } = render(<StepsExample />);
+      await user.dblClick(screen.getByRole('button', { name: 'Skip' }));
+      expect(onSkip).toHaveBeenCalledExactlyOnceWith(1);
+      expect(screen.getByText('2 of 3')).toBeVisible();
+      await user.click(screen.getByRole('button', { name: 'Skip' }));
+      expect(onSkip).toHaveBeenLastCalledWith(2);
+    });
+
     it('keeps answers editable through Next and only submits on the final step', async () => {
       const save = vi.fn().mockResolvedValue(undefined);
       function StepsExample() {

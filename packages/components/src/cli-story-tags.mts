@@ -66,9 +66,15 @@ export function storyTags(file: string): string[] {
     if (tag.value.startsWith('!')) {
       keywords.delete(tag.value.slice(1));
     } else if (
-      !['autodocs', 'dev', 'test', 'manifest', 'play-fn', 'test-fn'].includes(
-        tag.value
-      )
+      ![
+        'autodocs',
+        'a11y-test',
+        'dev',
+        'test',
+        'manifest',
+        'play-fn',
+        'test-fn',
+      ].includes(tag.value)
     ) {
       keywords.add(tag.value);
     }
