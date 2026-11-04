@@ -9,6 +9,7 @@ interface ChatToolCallStatusRowProps {
   status: ReactNode;
   groupLabel: string;
   onInspect?: () => void;
+  inspectLabel?: string;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function ChatToolCallStatusRow({
   status,
   groupLabel,
   onInspect,
+  inspectLabel = 'View tool details',
   className,
 }: ChatToolCallStatusRowProps) {
   const content = (
@@ -38,13 +40,13 @@ export function ChatToolCallStatusRow({
       )}
     >
       {onInspect ? (
-        <Tooltip title="Click to view detailed trace">
+        <Tooltip title={inspectLabel}>
           <Button
             type="button"
             size="xs"
             variant="plain"
             color="secondary"
-            aria-label={`${groupLabel}: Click to view detailed trace`}
+            aria-label={`${groupLabel}: ${inspectLabel}`}
             onClick={onInspect}
             className="focus-visible:ring-focus flex h-auto w-full flex-wrap items-center gap-space-1 rounded-md border-0 px-space-1 py-0 text-left transition-colors duration-fast hover:bg-surface-level-2 focus-visible:outline-hidden focus-visible:ring-2 motion-reduce:transition-none dark:hover:bg-surface-level-2"
           >

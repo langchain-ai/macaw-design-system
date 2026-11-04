@@ -65,7 +65,7 @@ export function ChatToolCallAccordion({
             aria-controls={detailsId}
             aria-expanded={isExpanded}
             onClick={() => setExpanded(!isExpanded)}
-            className="h-auto min-w-0 flex-1 justify-start gap-space-2 bg-transparent px-0 py-space-1 text-left shadow-none hover:bg-transparent"
+            className="h-auto min-w-0 flex-1 justify-start gap-space-2 px-0 py-space-1 text-left shadow-none hover:bg-transparent"
           >
             <CaretRightIcon
               size={12}

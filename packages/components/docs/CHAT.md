@@ -21,8 +21,9 @@ to the public presentation types and preserve stable IDs and stream order.
 getters or `toJSON`. Supply `summary`, `icon`, and `children` only after
 validating product-specific payloads. The `simple` variant delegates inspection
 through `onInspect`; the host owns navigation, dialogs, permissions, and trace
-loading. Reasoning content must be an intentionally disclosed summary, never
-raw hidden model reasoning.
+loading. Use `inspectLabel` to describe the host-owned action when the default
+“View tool details” label is not accurate. Reasoning content must be an
+intentionally disclosed summary, never raw hidden model reasoning.
 
 The default variant provides local expandable details. Groups preserve nested
 expansion state while collapsed. Controlled `expanded` props allow a host to

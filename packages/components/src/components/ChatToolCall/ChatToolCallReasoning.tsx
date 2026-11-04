@@ -11,6 +11,8 @@ export interface ChatToolCallReasoningProps {
   variant?: 'default' | 'simple';
   /** Simple row inspection; the host owns navigation, panes, and permissions. */
   onInspect?: () => void;
+  /** Tooltip and accessible action label for Simple row inspection. */
+  inspectLabel?: string;
   label?: string;
   status?: ChatStateStatus;
   elapsedMs?: number;
@@ -23,6 +25,7 @@ export function ChatToolCallReasoning({
   children,
   variant = 'default',
   onInspect,
+  inspectLabel,
   label = 'Reasoning summary',
   status = 'completed',
   elapsedMs,
@@ -57,6 +60,7 @@ export function ChatToolCallReasoning({
         heading={heading}
         status={state}
         onInspect={onInspect}
+        inspectLabel={inspectLabel}
       />
     );
   }

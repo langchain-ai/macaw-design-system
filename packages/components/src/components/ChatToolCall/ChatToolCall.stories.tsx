@@ -117,7 +117,7 @@ const meta = {
     docs: {
       description: {
         component: `- Default shows summaries and expandable details; Simple is a status-only row.
-- Hosts supply \`onInspect\` for Simple's clickable row and decide whether to open a pane or a new tab.
+- Hosts supply \`onInspect\` for Simple's clickable row, decide whether to open a pane or dialog, and can describe the action with \`inspectLabel\` (default: “View tool details”).
 - Hosts validate tool-specific payloads before passing presentation slots; unknown payloads use the generic fallback.
 - Preserve content order and stable IDs; \`ChatToolCallGroup\` provides the outer accordion for both variants.`,
       },

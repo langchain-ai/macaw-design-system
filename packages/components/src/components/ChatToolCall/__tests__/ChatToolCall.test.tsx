@@ -238,7 +238,7 @@ describe('ChatToolCall', () => {
     async (activation) => {
       const { user } = render(<HostOwnedInspection />, renderOptions);
       const row = screen.getByRole('button', {
-        name: 'ask_user tool call: Click to view detailed trace',
+        name: 'ask_user tool call: View tool details',
       });
       expect(row).toBeVisible();
       expect(row).not.toHaveAttribute('aria-expanded');
@@ -268,14 +268,34 @@ describe('ChatToolCall', () => {
     await user.tab();
     expect(
       screen.getByRole('button', {
-        name: 'ask_user tool call: Click to view detailed trace',
+        name: 'ask_user tool call: View tool details',
       })
     ).toHaveFocus();
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Click to view detailed trace'
+      'View tool details'
     );
     await user.tab();
     expect(screen.getByRole('button', { name: 'Next action' })).toHaveFocus();
+  });
+
+  it('uses a host-provided simple row inspection label', async () => {
+    const { user } = render(
+      <ChatToolCall
+        toolCall={call}
+        variant="simple"
+        onInspect={() => undefined}
+        inspectLabel="Open tool details dialog"
+      />,
+      renderOptions
+    );
+    const row = screen.getByRole('button', {
+      name: 'ask_user tool call: Open tool details dialog',
+    });
+
+    await user.hover(row);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Open tool details dialog'
+    );
   });
 
   it('inspects when clicking the status area of the row', async () => {
@@ -497,12 +517,12 @@ describe('ChatToolCallGroup', () => {
     await user.click(groupTrigger);
     expect(
       screen.queryByRole('button', {
-        name: 'ask_user tool call: Click to view detailed trace',
+        name: 'ask_user tool call: View tool details',
       })
     ).not.toBeInTheDocument();
     await user.keyboard('{Enter}');
     const row = screen.getByRole('button', {
-      name: 'ask_user tool call: Click to view detailed trace',
+      name: 'ask_user tool call: View tool details',
     });
     expect(row).toBeVisible();
     await user.click(row);
@@ -570,6 +590,7 @@ describe('ChatToolCallReasoning', () => {
         status="interrupted"
         expanded
         onInspect={onInspect}
+        inspectLabel="Open reasoning details"
       >
         Public reasoning summary
       </ChatToolCallReasoning>,
@@ -581,7 +602,7 @@ describe('ChatToolCallReasoning', () => {
       screen.queryByText('Public reasoning summary')
     ).not.toBeInTheDocument();
     const row = screen.getByRole('button', {
-      name: 'Reasoning summary: Click to view detailed trace',
+      name: 'Reasoning summary: Open reasoning details',
     });
     expect(row).toBeVisible();
     await user.click(row);

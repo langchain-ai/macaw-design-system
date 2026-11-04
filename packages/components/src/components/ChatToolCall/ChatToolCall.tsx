@@ -29,6 +29,8 @@ export interface ChatToolCallProps {
   variant?: 'default' | 'simple';
   /** Simple row inspection; the host owns navigation, panes, and permissions. */
   onInspect?: () => void;
+  /** Tooltip and accessible action label for Simple row inspection. */
+  inspectLabel?: string;
   label?: string;
   /** Noninteractive presentation slots; response controls belong in a separate content block. */
   icon?: ReactNode;
@@ -60,6 +62,7 @@ export function ChatToolCall({
   toolCall,
   variant = 'default',
   onInspect,
+  inspectLabel,
   label,
   icon,
   summary,
@@ -100,6 +103,7 @@ export function ChatToolCall({
         heading={heading}
         status={<ToolCallStatus toolCall={toolCall} />}
         onInspect={onInspect}
+        inspectLabel={inspectLabel}
         className={className}
       />
     );
