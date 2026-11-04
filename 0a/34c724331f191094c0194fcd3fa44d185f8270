@@ -1,0 +1,18 @@
+.vscode/tasks.json
+  h_a27749d4737027 19
+packages/components/src/components/Input/Input.stories.tsx
+  h_a27749d4737027 13,96
+packages/components/src/components/Textarea/Textarea.stories.tsx
+  h_a27749d4737027 14,52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0a34c724331f191094c0194fcd3fa44d185f8270",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
