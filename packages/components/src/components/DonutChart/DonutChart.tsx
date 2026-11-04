@@ -111,6 +111,13 @@ export type DonutChartProps = Omit<
      */
     selectedIds?: ReadonlySet<string>;
     /**
+     * Segments left out of the donut, whatever `selectedIds` holds. They stay
+     * in the legend, marked excluded with a 0% share; wire them to
+     * `legendProps.onItemExcludeClick`. IDs address the collated list, as
+     * `selectedIds` does.
+     */
+    excludedIds?: ReadonlySet<string>;
+    /**
      * Number to render in the donut hole.
      */
     centerNumber?: string;
@@ -255,6 +262,7 @@ const AnimatedDonutArc = ({
 export const DonutChart = ({
   segments,
   selectedIds,
+  excludedIds,
   centerNumber,
   centerDescriptor,
   scaleCenterNumberSize = false,
@@ -289,7 +297,11 @@ export const DonutChart = ({
     segments,
     otherCollationThreshold
   );
-  const drawnSegments = getDrawnSegments(collatedSegments, selectedIds);
+  const drawnSegments = getDrawnSegments(
+    collatedSegments,
+    selectedIds,
+    excludedIds
+  );
   const renderedSegments = drawnSegments.filter((segment) => segment.value > 0);
   const drawnTotal = sumSegmentValues(drawnSegments);
   const drawnIds = new Set(drawnSegments.map((segment) => segment.id));
@@ -313,6 +325,7 @@ export const DonutChart = ({
   const legendItems = getDonutLegendItems({
     segments: collatedSegments,
     selectedIds,
+    excludedIds,
     drawnIds,
     drawnTotal,
     formatValue,

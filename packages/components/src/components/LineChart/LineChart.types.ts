@@ -172,7 +172,13 @@ export type LineChartProps = Omit<
     xScale?: LineChartXScale;
     xTickCount?: number;
     xTickValues?: readonly number[];
+    /** Controlled legend filter. An empty set renders every series. */
     selectedIds?: ReadonlySet<string>;
+    /**
+     * Series left out, whatever `selectedIds` holds. Their legend items stay,
+     * marked excluded; wire them to `legendProps.onItemExcludeClick`.
+     */
+    excludedIds?: ReadonlySet<string>;
     showPoints?: boolean;
     /** Connects valid observations across null values. Defaults to true. */
     connectNulls?: boolean;

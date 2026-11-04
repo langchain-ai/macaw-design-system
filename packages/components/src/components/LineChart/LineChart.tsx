@@ -159,6 +159,7 @@ export const LineChart = ({
   xTickCount,
   xTickValues,
   selectedIds,
+  excludedIds,
   showPoints = false,
   connectNulls = true,
   grid,
@@ -212,10 +213,13 @@ export const LineChart = ({
       showActiveMarker: item.showActiveMarker ?? true,
     })
   );
-  const visibleSeries =
-    selectedIds == null || selectedIds.size === 0
-      ? displaySeries
-      : displaySeries.filter((item) => selectedIds.has(item.id));
+  const visibleSeries = displaySeries.filter(
+    (item) =>
+      (selectedIds == null ||
+        selectedIds.size === 0 ||
+        selectedIds.has(item.id)) &&
+      !excludedIds?.has(item.id)
+  );
   const xValues = visibleSeries.flatMap((item) =>
     item.points.map((point) => point.x)
   );
@@ -300,6 +304,7 @@ export const LineChart = ({
     label: item.label,
     markerColor: item.color,
     selected: selectedIds?.has(item.id) ?? false,
+    excluded: excludedIds?.has(item.id) ?? false,
   }));
   const hasLegend =
     (showLegend ?? legendItems.length > 1) && legendItems.length > 0;

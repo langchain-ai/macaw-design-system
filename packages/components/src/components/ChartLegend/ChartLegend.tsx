@@ -43,6 +43,12 @@ export type ChartLegendItem = {
   markerColor?: string;
   marker?: ReactNode;
   selected?: boolean;
+  /**
+   * Left out of the chart: the label is struck through, the color marker is
+   * an outline, and the exclude action stays shown. Takes precedence over
+   * `selected`.
+   */
+  excluded?: boolean;
 };
 
 export type ChartLegendProps = Omit<
@@ -52,6 +58,12 @@ export type ChartLegendProps = Omit<
   items: readonly ChartLegendItem[];
   layout?: 'inline' | 'list';
   onItemClick?: (item: ChartLegendItem) => void;
+  /**
+   * Adds an exclude action beside each item, shown on hover and focus and
+   * kept shown on excluded items. Called with the item to toggle whether it is
+   * excluded; pair with a chart's `excludedIds`.
+   */
+  onItemExcludeClick?: (item: ChartLegendItem) => void;
   /** Reports the legend item under the pointer or keyboard focus. */
   onItemActiveChange?: (item: ChartLegendItem | null) => void;
 };
@@ -66,6 +78,7 @@ type ChartLegendBaseProps = Omit<
 const ChartLegendList = ({
   items,
   onItemClick,
+  onItemExcludeClick,
   onItemActiveChange,
   className,
   role = 'group',
@@ -73,7 +86,11 @@ const ChartLegendList = ({
   style,
   ...props
 }: ChartLegendBaseProps) => {
-  const listColumns = getChartLegendListColumns(items, onItemClick != null);
+  const listColumns = getChartLegendListColumns(
+    items,
+    onItemClick != null,
+    onItemExcludeClick != null
+  );
   const gridTemplateColumns = getChartLegendListGridTemplate(listColumns);
 
   return (
@@ -98,6 +115,13 @@ const ChartLegendList = ({
                   onItemClick(item);
                 }
           }
+          onExcludeClick={
+            onItemExcludeClick == null
+              ? undefined
+              : () => {
+                  onItemExcludeClick(item);
+                }
+          }
         />
       ))}
     </div>
@@ -107,6 +131,7 @@ const ChartLegendList = ({
 const ChartLegendInline = ({
   items,
   onItemClick,
+  onItemExcludeClick,
   onItemActiveChange,
   className,
   role = 'group',
@@ -122,7 +147,10 @@ const ChartLegendInline = ({
   const measurementBadgeRefs = useRef<Record<string, HTMLDivElement | null>>(
     {}
   );
-  const isInteractive = onItemClick != null || onItemActiveChange != null;
+  const isInteractive =
+    onItemClick != null ||
+    onItemExcludeClick != null ||
+    onItemActiveChange != null;
 
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
 
@@ -249,6 +277,13 @@ const ChartLegendInline = ({
               onItemClick(item);
             }
       }
+      onExcludeClick={
+        onItemExcludeClick == null
+          ? undefined
+          : () => {
+              onItemExcludeClick(item);
+            }
+      }
     />
   );
 
@@ -301,6 +336,9 @@ const ChartLegendInline = ({
                 <ChartLegendItemRenderer
                   item={item}
                   onClick={onItemClick == null ? undefined : () => undefined}
+                  onExcludeClick={
+                    onItemExcludeClick == null ? undefined : () => undefined
+                  }
                   tabIndex={-1}
                 />
               </div>

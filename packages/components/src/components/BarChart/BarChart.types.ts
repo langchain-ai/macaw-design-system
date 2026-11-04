@@ -277,6 +277,11 @@ export type BarChartProps = Omit<
     orientation?: BarChartOrientation;
     /** Controlled legend filter. An empty set renders every series. */
     selectedIds?: ReadonlySet<string>;
+    /**
+     * Series left out, whatever `selectedIds` holds. Their legend items stay,
+     * marked excluded; wire them to `legendProps.onItemExcludeClick`.
+     */
+    excludedIds?: ReadonlySet<string>;
     grid?: BarChartGrid;
     valueBands?: readonly BarChartValueBand[];
     /** Highlights one category band and draws a guide through its center. */

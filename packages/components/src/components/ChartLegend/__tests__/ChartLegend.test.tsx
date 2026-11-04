@@ -124,6 +124,63 @@ describe('ChartLegend', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('toggles exclusion from an action beside each item', async () => {
+    const onItemClick = vi.fn();
+    const onItemExcludeClick = vi.fn();
+    const excludable: readonly ChartLegendItem[] = [
+      { id: 'alpha', label: 'Alpha', markerColor: 'red' },
+      // Exclusion takes precedence over selection.
+      { id: 'bravo', label: 'Bravo', selected: true, excluded: true },
+    ];
+    const { user } = render(
+      <ChartLegend
+        items={excludable}
+        layout="list"
+        onItemClick={onItemClick}
+        onItemExcludeClick={onItemExcludeClick}
+      />
+    );
+
+    const alpha = screen.getByRole('button', { name: 'Alpha' });
+    const excludeAlpha = screen.getByRole('button', { name: 'Exclude Alpha' });
+    // The action sits beside the item, never inside its button.
+    expect(within(alpha).queryByRole('button')).not.toBeInTheDocument();
+    expect(excludeAlpha).toHaveAttribute('aria-pressed', 'false');
+    await user.click(excludeAlpha);
+    expect(onItemExcludeClick).toHaveBeenCalledWith(excludable[0]);
+    expect(onItemClick).not.toHaveBeenCalled();
+
+    const bravo = screen.getByRole('button', { name: 'Bravo' });
+    expect(bravo).toHaveAttribute('aria-pressed', 'false');
+    expect(within(bravo).getByText('Bravo')).toHaveClass('line-through');
+    expect(
+      screen.getByRole('button', { name: 'Exclude Bravo' })
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('keeps an item active while focus moves to its exclude action', async () => {
+    const onItemActiveChange = vi.fn();
+    const { user } = render(
+      <ChartLegend
+        items={items.slice(0, 1)}
+        layout="list"
+        onItemClick={vi.fn()}
+        onItemExcludeClick={vi.fn()}
+        onItemActiveChange={onItemActiveChange}
+      />
+    );
+
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Alpha' })).toHaveFocus();
+    expect(onItemActiveChange).toHaveBeenLastCalledWith(items[0]);
+    onItemActiveChange.mockClear();
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Exclude Alpha' })).toHaveFocus();
+    expect(onItemActiveChange).not.toHaveBeenCalledWith(null);
+    await user.tab();
+    expect(onItemActiveChange).toHaveBeenLastCalledWith(null);
+  });
+
   it('keeps selected overflow items in their input position', async () => {
     const { user } = render(
       <ChartLegend items={items} onItemClick={vi.fn()} />,

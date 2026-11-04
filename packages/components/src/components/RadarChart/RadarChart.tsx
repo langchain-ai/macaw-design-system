@@ -82,6 +82,7 @@ export type RadarChartSingleSeriesProps = RadarChartBaseProps & {
   series?: never;
   renderAxisTooltip?: never;
   selectedIds?: never;
+  excludedIds?: never;
   activeLegendItemId?: never;
 };
 
@@ -100,6 +101,8 @@ export type RadarChartMultiSeriesProps = RadarChartBaseProps & {
   renderAxisTooltip?: (axis: RadarChartAxisValues) => ReactNode;
   /** When non-empty, only these series are drawn. Colors keep their series order. */
   selectedIds?: ReadonlySet<string>;
+  /** Series left out, whatever `selectedIds` holds. */
+  excludedIds?: ReadonlySet<string>;
   /** Emphasizes one series from an external legend and dims the rest. */
   activeLegendItemId?: string | null;
   data?: never;
@@ -223,6 +226,7 @@ export const RadarChart = (props: RadarChartProps) => {
     renderTooltip: _renderTooltip,
     renderAxisTooltip: _renderAxisTooltip,
     selectedIds,
+    excludedIds,
     activeLegendItemId,
     maxValue,
     formatValue = formatNumber,
@@ -442,10 +446,13 @@ export const RadarChart = (props: RadarChartProps) => {
         values: axes.map(({ id }) => sanitize(item.values[id])),
       };
     });
-    const visibleSeries =
-      selectedIds === undefined || selectedIds.size === 0
-        ? resolvedSeries
-        : resolvedSeries.filter(({ id }) => selectedIds.has(id));
+    const visibleSeries = resolvedSeries.filter(
+      ({ id }) =>
+        (selectedIds === undefined ||
+          selectedIds.size === 0 ||
+          selectedIds.has(id)) &&
+        !excludedIds?.has(id)
+    );
     const maximum = getMaximum(
       visibleSeries.flatMap(({ values }) => values),
       maxValue

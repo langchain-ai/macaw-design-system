@@ -100,20 +100,26 @@ export const collateDonutSegments = (
 };
 
 /**
- * Filters collated segments to a legend selection. An empty or absent selection
- * draws everything, and so does a selection that names no segment the donut
- * has: ids outlive the data they came from — a group can be collated away or
- * disappear from a refetch — and drawing nothing would strand the chart empty
- * with no row left to toggle the stale id off.
+ * Filters collated segments to a legend selection, then leaves out excluded
+ * segments. An empty or absent selection draws everything, and so does a
+ * selection that names no segment the donut has: ids outlive the data they
+ * came from — a group can be collated away or disappear from a refetch — and
+ * drawing nothing would strand the chart empty with no row left to toggle the
+ * stale id off. Excluding every segment draws none; their rows stay in the
+ * legend to include them again.
  */
 export const getDrawnSegments = (
   segments: readonly DonutChartSegment[],
-  selectedIds: ReadonlySet<string> | undefined
+  selectedIds: ReadonlySet<string> | undefined,
+  excludedIds?: ReadonlySet<string>
 ): DonutChartSegment[] => {
-  if (selectedIds == null || selectedIds.size === 0) return [...segments];
-
-  const selected = segments.filter((segment) => selectedIds.has(segment.id));
-  return selected.length > 0 ? selected : [...segments];
+  const selected =
+    selectedIds == null || selectedIds.size === 0
+      ? segments
+      : segments.filter((segment) => selectedIds.has(segment.id));
+  return (selected.length > 0 ? selected : segments).filter(
+    (segment) => !excludedIds?.has(segment.id)
+  );
 };
 
 /**
@@ -127,12 +133,14 @@ export const getDrawnSegments = (
 export const getDonutLegendItems = ({
   segments,
   selectedIds,
+  excludedIds,
   drawnIds,
   drawnTotal,
   formatValue,
 }: {
   segments: readonly DonutChartSegment[];
   selectedIds: ReadonlySet<string> | undefined;
+  excludedIds?: ReadonlySet<string>;
   drawnIds: ReadonlySet<string>;
   drawnTotal: number;
   formatValue: (value: number) => ReactNode;
@@ -149,5 +157,6 @@ export const getDonutLegendItems = ({
         isDrawn && drawnTotal > 0 ? (segment.value / drawnTotal) * 100 : 0
       )}%`,
       selected: selectedIds?.has(segment.id) ?? false,
+      excluded: excludedIds?.has(segment.id) ?? false,
     };
   });

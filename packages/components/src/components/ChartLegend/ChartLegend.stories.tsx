@@ -97,7 +97,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A chart legend with inline and list layouts. Items can act as selected chart filters. The default inline layout collapses overflow into a +N badge and popover, while the list layout displays every item with optional value columns.',
+          'A chart legend with inline and list layouts. Items can act as selected chart filters, and with `onItemExcludeClick` each item gets an exclude action that leaves it out of the chart. The default inline layout collapses overflow into a +N badge and popover, while the list layout displays every item with optional value columns.',
       },
     },
   },
@@ -188,6 +188,70 @@ export const List: Story = {
           layout={layout}
           onItemClick={(item) =>
             setSelectedIds((current) => toggleId(current, item.id))
+          }
+        />
+      </div>
+    );
+  },
+};
+
+/**
+ * Clicking an item keeps only the selected series; the prohibit action beside
+ * it leaves a series out instead. Pair with a chart's `selectedIds` and
+ * `excludedIds`.
+ */
+export const Exclude: Story = {
+  args: {
+    items: legendItems.slice(0, 6),
+  },
+  render: ({ items: sourceItems, layout }) => {
+    const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
+      () => new Set()
+    );
+    const [excludedIds, setExcludedIds] = useState<ReadonlySet<string>>(
+      () => new Set(sourceItems[2] == null ? [] : [sourceItems[2].id])
+    );
+
+    return (
+      <div className="flex w-[48rem] max-w-[90vw] flex-col gap-space-4">
+        <ChartPreview />
+        <ChartLegend
+          items={sourceItems.map((item) => ({
+            ...item,
+            selected: selectedIds.has(item.id),
+            excluded: excludedIds.has(item.id),
+          }))}
+          layout={layout}
+          onItemClick={(item) => {
+            setSelectedIds((current) => toggleId(current, item.id));
+            setExcludedIds((current) => {
+              const next = new Set(current);
+              next.delete(item.id);
+              return next;
+            });
+          }}
+          onItemExcludeClick={(item) => {
+            setExcludedIds((current) => toggleId(current, item.id));
+            setSelectedIds((current) => {
+              const next = new Set(current);
+              next.delete(item.id);
+              return next;
+            });
+          }}
+        />
+        <ChartLegend
+          aria-label="Chart legend list"
+          items={sourceItems.map((item) => ({
+            ...item,
+            selected: selectedIds.has(item.id),
+            excluded: excludedIds.has(item.id),
+          }))}
+          layout="list"
+          onItemClick={(item) =>
+            setSelectedIds((current) => toggleId(current, item.id))
+          }
+          onItemExcludeClick={(item) =>
+            setExcludedIds((current) => toggleId(current, item.id))
           }
         />
       </div>

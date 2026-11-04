@@ -169,6 +169,7 @@ export const BarChart = ({
   mode = 'grouped',
   orientation = 'vertical',
   selectedIds,
+  excludedIds,
   grid,
   valueBands = [],
   activeCategory,
@@ -232,10 +233,13 @@ export const BarChart = ({
               : clamp(item.opacity, 0, 1),
         })
       );
-      const visible =
-        selectedIds == null || selectedIds.size === 0
-          ? resolved
-          : resolved.filter((item) => selectedIds.has(item.id));
+      const visible = resolved.filter(
+        (item) =>
+          (selectedIds == null ||
+            selectedIds.size === 0 ||
+            selectedIds.has(item.id)) &&
+          !excludedIds?.has(item.id)
+      );
       const allCategories = getBarChartCategories(
         resolved,
         categoryAxis?.domain
@@ -247,7 +251,14 @@ export const BarChart = ({
         bars: getBarChartLayout(visible, allCategories, mode),
         axisIds: getAxisIds(valueAxes, visible),
       };
-    }, [series, valueAxes, selectedIds, categoryAxis?.domain, mode]);
+    }, [
+      series,
+      valueAxes,
+      selectedIds,
+      excludedIds,
+      categoryAxis?.domain,
+      mode,
+    ]);
 
   // A vertical value axis is only as wide as its widest tick label needs, so
   // currency and large counts are not clipped by a fixed gutter.
@@ -366,6 +377,7 @@ export const BarChart = ({
     label: item.label,
     markerColor: item.color,
     selected: selectedIds?.has(item.id) ?? false,
+    excluded: excludedIds?.has(item.id) ?? false,
   }));
   const hasLegend =
     (showLegend ?? legendItems.length > 1) && legendItems.length > 0;

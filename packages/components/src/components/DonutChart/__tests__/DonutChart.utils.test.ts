@@ -100,9 +100,50 @@ describe('getDrawnSegments', () => {
       segments
     );
   });
+
+  it('leaves excluded segments out, whatever the selection', () => {
+    expect(
+      getDrawnSegments(segments, undefined, new Set(['retriever']))
+    ).toEqual([segments[0], segments[2]]);
+    expect(
+      getDrawnSegments(
+        segments,
+        new Set(['chain', 'retriever']),
+        new Set(['chain'])
+      )
+    ).toEqual([segments[1]]);
+    // Excluding everything draws nothing; the legend keeps the rows.
+    expect(
+      getDrawnSegments(
+        segments,
+        undefined,
+        new Set(segments.map((segment) => segment.id))
+      )
+    ).toEqual([]);
+  });
 });
 
 describe('getDonutLegendItems', () => {
+  it('marks excluded segments, which report no share', () => {
+    const items = getDonutLegendItems({
+      segments,
+      selectedIds: undefined,
+      excludedIds: new Set(['retriever']),
+      drawnIds: new Set(['chain', 'rollup']),
+      drawnTotal: 995,
+      formatValue: String,
+    });
+
+    expect(items[1]).toEqual(
+      expect.objectContaining({
+        id: 'retriever',
+        excluded: true,
+        secondaryValue: '0%',
+      })
+    );
+    expect(items[0]).toEqual(expect.objectContaining({ excluded: false }));
+  });
+
   it('reports each segment share of the drawn total', () => {
     const collated = collateDonutSegments(segments, 2);
     const items = getDonutLegendItems({

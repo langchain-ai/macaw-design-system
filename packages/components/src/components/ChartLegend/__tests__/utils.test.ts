@@ -24,6 +24,7 @@ describe('ChartLegend list columns', () => {
       value: false,
       secondaryValue: false,
       action: false,
+      exclude: false,
     });
     expect(getChartLegendListGridTemplate(columns)).toBe('minmax(0, 1fr)');
   });
@@ -42,6 +43,7 @@ describe('ChartLegend list columns', () => {
       value: true,
       secondaryValue: true,
       action: true,
+      exclude: false,
     });
     expect(getChartLegendListGridTemplate(columns)).toBe(
       'auto minmax(0, 1fr) auto auto auto'
@@ -53,5 +55,14 @@ describe('ChartLegend list columns', () => {
 
     expect(columns.action).toBe(true);
     expect(getChartLegendListGridTemplate(columns)).toBe('minmax(0, 1fr) auto');
+  });
+
+  it('reserves a last column for the exclude action', () => {
+    const columns = getChartLegendListColumns([{}], true, true);
+
+    expect(columns.exclude).toBe(true);
+    expect(getChartLegendListGridTemplate(columns)).toBe(
+      'minmax(0, 1fr) auto auto'
+    );
   });
 });
