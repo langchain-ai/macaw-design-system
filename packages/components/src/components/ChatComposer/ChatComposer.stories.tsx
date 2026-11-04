@@ -23,7 +23,7 @@ import type {
   ChatComposerDrawerIntent,
   ChatComposerProps,
 } from '.';
-import sampleImage from '../../stories/assets/attachment-preview.png';
+import sampleImage from '../../docs/assets/attachment-preview.png';
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { DropdownMenuItem, DropdownMenuSeparator } from '../DropdownMenu';
