@@ -220,3 +220,17 @@ export const InCard: Story = {
     </ChartCard>
   ),
 };
+
+export const Loading: Story = {
+  render: () => (
+    <ChartCard
+      title="Work Type"
+      description="60 of 68 threads labeled"
+      state="loading"
+      skeletonVariant="radar"
+      // Reserve the 440:340 plot plus its legend and gap, like the ready story.
+      skeletonClassName="aspect-[440/364]"
+      className="max-w-lg"
+    />
+  ),
+};

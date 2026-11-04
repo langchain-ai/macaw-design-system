@@ -540,6 +540,8 @@ export const LoadingAndErrorStates: Story = {
             'metric',
             'sparkline',
             'sankey',
+            'radar',
+            'heatmap',
           ] as const
         ).map((skeletonVariant) => (
           <ChartCard
@@ -562,16 +564,24 @@ export const AutoHeightLoadingStates: Story = {
   args: { title: '', children: null },
   render: () => (
     <div className="flex flex-col gap-space-4">
-      {(['bar', 'horizontal-bar', 'line', 'sparkline', 'sankey'] as const).map(
-        (skeletonVariant) => (
-          <ChartCard
-            key={skeletonVariant}
-            title={`${skeletonVariant} chart`}
-            state="loading"
-            skeletonVariant={skeletonVariant}
-          />
-        )
-      )}
+      {(
+        [
+          'bar',
+          'horizontal-bar',
+          'line',
+          'sparkline',
+          'sankey',
+          'radar',
+          'heatmap',
+        ] as const
+      ).map((skeletonVariant) => (
+        <ChartCard
+          key={skeletonVariant}
+          title={`${skeletonVariant} chart`}
+          state="loading"
+          skeletonVariant={skeletonVariant}
+        />
+      ))}
     </div>
   ),
 };

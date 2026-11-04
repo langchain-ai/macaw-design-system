@@ -203,6 +203,8 @@ describe('ChartCard', () => {
     'metric',
     'sparkline',
     'sankey',
+    'radar',
+    'heatmap',
   ] as const)('renders the %s chart skeleton', (skeletonVariant) => {
     render(
       <ChartCard

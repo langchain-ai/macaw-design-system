@@ -177,6 +177,8 @@ void [
     onClick: () => {},
   } satisfies InputIconAction,
   'line' satisfies ChartCardSkeletonVariant,
+  'radar' satisfies ChartCardSkeletonVariant,
+  'heatmap' satisfies ChartCardSkeletonVariant,
   ChartCardSkeleton,
   AppThemeProvider,
   BarChart,
