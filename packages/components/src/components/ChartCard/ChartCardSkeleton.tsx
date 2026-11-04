@@ -156,10 +156,10 @@ export const ChartCardSkeleton = ({
     {variant === 'heatmap' && (
       <div
         aria-hidden="true"
-        className="grid min-h-0 flex-1 grid-cols-10 grid-rows-5 gap-space-1"
+        className="grid min-h-0 flex-1 grid-cols-15 grid-rows-6 gap-space-1"
       >
-        {/* A sparse 5-by-10 grid suggests a matrix without visual clutter. */}
-        {Array.from({ length: 5 * 10 }, (_, index) => (
+        {/* A 6-by-15 grid balances a recognizable matrix with visual breathing room. */}
+        {Array.from({ length: 6 * 15 }, (_, index) => (
           <Skeleton
             key={index}
             className="h-full min-h-0 rounded-xs motion-reduce:animate-none"
