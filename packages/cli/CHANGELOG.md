@@ -1,3 +1,7 @@
+## 1.6.2 (2026-11-04)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
 ## 1.6.1 (2026-11-04)
 
 This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.

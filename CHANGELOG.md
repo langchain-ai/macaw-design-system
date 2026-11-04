@@ -1,3 +1,13 @@
+## 1.6.2 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** [FEP-606] Add Changelog To Storybook, Organize Folders ([#96](https://github.com/langchain-ai/macaw-design-system/pull/96))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+
 ## 1.6.1 (2026-11-04)
 
 ### 🚀 Features
