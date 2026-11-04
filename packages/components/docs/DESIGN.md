@@ -54,6 +54,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `IconButton` for an icon-only action and provide its `label`.
 - Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
 - Use `ChatComposer` for a chat message input; see [Chat composer](#chat-composer).
+- Use `ChatRichContent` for a form or approval in chat; see [Chat rich content](#chat-rich-content).
 - Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
@@ -160,6 +161,29 @@ Use `drawer` for content above the editor, such as questions to answer before
 sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
+
+## Chat rich content
+
+Import the parts from `@langchain/macaw-components/ChatRichContent`. The host
+owns the controls, answers, validation, and persistence. Pass a render function
+as children to get `disabled`, `isError`, and `errorId` for custom controls,
+and focus the invalid field after validation fails. With
+`ChatRichContentChoices`, exclude deselected custom text from the response.
+
+For questions above a message input, put `presentation="drawer"` in
+`ChatComposer`'s `drawer` slot instead of nesting a block form. The composer
+owns submission, so keep its `disabled`, `submitDisabled`, `action`, and
+`drawerIntent` in sync with `state`. Set `customInput="external"` on choices to
+take custom text from the composer input, and focus it from `onCustomSelect`.
+
+Use `variant="approval"` for decisions. Set `submitted`, `approved`, or
+`rejected` only after saving. An action stays pending until `state` changes from
+where it started (ignoring `submitting`), so throw from the callback when a
+retry fails with the same error state. Key the card by request ID for a new
+request.
+
+Render `ChatRichContentFallback` for a payload the host can't render; pass
+`actions` only for recovery the host supports.
 
 ## Tokens
 

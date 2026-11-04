@@ -85,6 +85,22 @@ export type {
 } from './ChatComposer';
 
 export {
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+} from './ChatRichContent';
+export type {
+  ChatRichContentChoicesProps,
+  ChatRichContentChoicesValue,
+  ChatRichContentFallbackProps,
+  ChatRichContentNavigation,
+  ChatRichContentProps,
+  ChatRichContentRenderer,
+  ChatRichContentRendererContext,
+  ChatRichContentState,
+} from './ChatRichContent';
+
+export {
   ChatMessage,
   ChatMessageActions,
   ChatMessageBody,
