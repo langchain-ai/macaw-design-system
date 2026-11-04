@@ -1,3 +1,13 @@
+## 1.5.2 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** Migration of ChatToolCalls ([#90](https://github.com/langchain-ai/macaw-design-system/pull/90))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+
 ## 1.5.1 (2026-11-04)
 
 ### 🚀 Features
