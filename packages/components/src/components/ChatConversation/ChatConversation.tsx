@@ -1,9 +1,9 @@
 import {
   useLayoutEffect,
-  type CSSProperties,
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
   type Ref,
 } from 'react';
@@ -17,7 +17,11 @@ import { Button } from '../Button';
 /** Distance from the bottom, in px, that still counts as reading the latest output. */
 const FOLLOW_THRESHOLD = 48;
 
-const viewportMaskStyle = {
+const COLUMN_CLASS_NAME = 'mx-auto w-full min-w-0 max-w-3xl px-space-4';
+
+// Caps the top fade at 32px. Inline because the unlayered `.scroll-mask-t`
+// rule in base.css overrides utility classes.
+const VIEWPORT_MASK_STYLE = {
   '--scroll-mask-fade-from-t': 'calc(100% - 2rem)',
 } as CSSProperties;
 
@@ -31,8 +35,6 @@ export interface ChatConversationProps {
   /** Accessible name for the region; the message log is named "{label} messages". */
   label?: string;
   className?: string;
-  /** Overrides for the centered message column, which also wraps `footer`. */
-  contentClassName?: string;
   /**
    * The scrolling element. Older messages inserted above the viewport are not
    * anchored; hosts that load history upward can adjust `scrollTop` here.
@@ -54,7 +56,6 @@ export function ChatConversation({
   footer,
   label = 'Conversation',
   className,
-  contentClassName,
   viewportRef: externalViewportRef,
 }: ChatConversationProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -113,11 +114,6 @@ export function ChatConversation({
     viewport.focus({ preventScroll: true });
   }
 
-  const columnClassName = cn(
-    'mx-auto w-full min-w-0 max-w-2xl px-space-4',
-    contentClassName
-  );
-
   return (
     <section
       aria-label={label}
@@ -134,13 +130,13 @@ export function ChatConversation({
           aria-label={`${label} messages`}
           aria-live="off"
           tabIndex={0}
-          style={viewportMaskStyle}
+          style={VIEWPORT_MASK_STYLE}
           className="peer scroll-mask-t min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden [scrollbar-gutter:stable_both-edges]"
         >
           <div
             ref={contentRef}
             className={cn(
-              columnClassName,
+              COLUMN_CLASS_NAME,
               'flex min-h-full flex-col gap-space-6 py-space-5 pb-space-9'
             )}
           >
@@ -167,7 +163,7 @@ export function ChatConversation({
         )}
       </div>
       {footer != null && (
-        <div className={cn(columnClassName, 'shrink-0 py-space-3')}>
+        <div className={cn(COLUMN_CLASS_NAME, 'shrink-0 py-space-3')}>
           {footer}
         </div>
       )}

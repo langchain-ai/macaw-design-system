@@ -113,7 +113,7 @@ const meta = {
       description: {
         component: [
           '- Bounded-height layout: fixed `header`/`footer`, scrolling `children`.',
-          '- Messages and footer share a centered column capped at 672px.',
+          '- Messages and footer share a centered column capped at 768px.',
           '- Follows new content while the reader is within 48px of the bottom; scrolling up pauses following and shows **Jump to latest**.',
           '- Remount with a conversation `key` when switching threads.',
           '- The message log does not announce changes; announce completed replies from a polite `role="status"` region in the host (see Streaming).',
