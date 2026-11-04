@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ImagePreviewDialog } from '.';
-import sampleImage from '../../stories/assets/attachment-preview.png';
+import sampleImage from '../../docs/assets/attachment-preview.png';
 import { Attachment } from '../Attachment';
 import { Button } from '../Button';
 
