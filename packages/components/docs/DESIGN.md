@@ -126,6 +126,22 @@ unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
 `onUpdate` when an integration also needs selection or programmatic updates.
 
+## Markdown display
+
+Import `MarkdownDisplay` from
+`@langchain/macaw-components/MarkdownDisplay` for untrusted CommonMark and
+GitHub Flavored Markdown. It is intentionally omitted from the root barrel so
+applications that do not display Markdown avoid loading the parser. The
+component uses Macaw typography, links, task checkboxes, and read-only code
+blocks; raw HTML is displayed as text rather than interpreted.
+
+Use `components` for feature-specific element overrides, `trailingContent` for
+content that belongs inside the rendered flow, and `afterContent` for adjacent
+feature-owned UI. Very large content automatically falls back to linkified
+plain text. Markdown tables remain semantic, horizontally scrollable tables;
+use a feature-owned data-grid integration when sorting, selection,
+virtualization, copy, or export behavior is required.
+
 ## Chat composer
 
 Import the parts from `@langchain/macaw-components/ChatComposer` and use them

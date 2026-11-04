@@ -204,6 +204,10 @@
       "types": "./dist/components/Logo/index.d.ts",
       "import": "./dist/components/Logo/index.js"
     },
+    "./MarkdownDisplay": {
+      "types": "./dist/components/MarkdownDisplay/index.d.ts",
+      "import": "./dist/components/MarkdownDisplay/index.js"
+    },
     "./MetricChart": {
       "types": "./dist/components/MetricChart/index.d.ts",
       "import": "./dist/components/MetricChart/index.js"
@@ -517,6 +521,10 @@
       "types": "./dist/components/Logo/index.d.ts",
       "import": "./dist/components/Logo/index.js"
     },
+    "./components/MarkdownDisplay": {
+      "types": "./dist/components/MarkdownDisplay/index.d.ts",
+      "import": "./dist/components/MarkdownDisplay/index.js"
+    },
     "./components/MetricChart": {
       "types": "./dist/components/MetricChart/index.d.ts",
       "import": "./dist/components/MetricChart/index.js"
@@ -690,7 +698,9 @@
     "d3-scale-chromatic": "^3.0.0",
     "linkify-it": "^5.0.2",
     "react-hotkeys-hook": "^4.5.0",
+    "react-markdown": "^10.1.0",
     "react-virtuoso": "^4.18.6",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
     "tiptap-markdown": "^0.9.0",
