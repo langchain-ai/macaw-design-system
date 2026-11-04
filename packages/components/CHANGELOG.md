@@ -1,3 +1,13 @@
+## 1.5.1 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** add ChatComposer [FEP-588] ([#79](https://github.com/langchain-ai/macaw-design-system/pull/79))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.5.0 (2026-11-03)
 
 ### 🚀 Features
