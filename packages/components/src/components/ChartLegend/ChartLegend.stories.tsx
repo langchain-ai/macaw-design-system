@@ -3,6 +3,8 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ChartLegend, type ChartLegendItem } from '.';
+import { BarChart, type BarChartSeries } from '../BarChart';
+import { DonutChart, type DonutChartSegment } from '../DonutChart';
 import { Text } from '../Text';
 
 const legendItems: readonly ChartLegendItem[] = [
@@ -71,6 +73,19 @@ const legendItems: readonly ChartLegendItem[] = [
 ];
 
 /** Stands in for the chart the legend belongs to. */
+const exampleDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+/** Dummy request count derived from the item's displayed value. */
+const getExampleTotal = (item: ChartLegendItem) =>
+  Math.round(Number.parseFloat(String(item.value ?? '1')) * 100);
+
+const withoutId = (ids: ReadonlySet<string>, id: string) => {
+  if (!ids.has(id)) return ids;
+  const next = new Set(ids);
+  next.delete(id);
+  return next;
+};
+
 const ChartPreview = () => (
   <div className="flex h-40 items-center justify-center rounded-md bg-surface-level-2">
     <Text variant="xs" color="quaternary">
@@ -198,13 +213,14 @@ export const List: Story = {
 /**
  * Clicking an item keeps only the selected series; the prohibit action beside
  * it leaves a series out instead. Pair with a chart's `selectedIds` and
- * `excludedIds`.
+ * `excludedIds` — here a stacked bar chart (inline legend) and a donut chart
+ * (list legend) share one filter state.
  */
 export const Exclude: Story = {
   args: {
     items: legendItems.slice(0, 6),
   },
-  render: ({ items: sourceItems, layout }) => {
+  render: ({ items: sourceItems }) => {
     const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
       () => new Set()
     );
@@ -212,47 +228,63 @@ export const Exclude: Story = {
       () => new Set(sourceItems[2] == null ? [] : [sourceItems[2].id])
     );
 
+    const series: BarChartSeries[] = sourceItems.map((item, seriesIndex) => ({
+      id: item.id,
+      label: item.label,
+      color: item.markerColor,
+      data: exampleDays.map((day, dayIndex) => ({
+        id: `${item.id}-${day}`,
+        category: day,
+        value: Math.round(
+          getExampleTotal(item) *
+            (0.6 + ((dayIndex * 7 + seriesIndex * 3) % 9) / 10)
+        ),
+      })),
+    }));
+    const segments: DonutChartSegment[] = sourceItems.map((item) => ({
+      id: item.id,
+      label: item.label,
+      value: getExampleTotal(item),
+      color: item.markerColor ?? 'var(--viz-brand-200)',
+    }));
+
+    const select = (id: string) => {
+      setSelectedIds((current) => toggleId(current, id));
+      setExcludedIds((current) => withoutId(current, id));
+    };
+    const exclude = (id: string) => {
+      setExcludedIds((current) => toggleId(current, id));
+      setSelectedIds((current) => withoutId(current, id));
+    };
+    const legendProps = {
+      onItemClick: (item: ChartLegendItem) => select(item.id),
+      onItemExcludeClick: (item: ChartLegendItem) => exclude(item.id),
+    };
+
     return (
-      <div className="flex w-[48rem] max-w-[90vw] flex-col gap-space-4">
-        <ChartPreview />
-        <ChartLegend
-          items={sourceItems.map((item) => ({
-            ...item,
-            selected: selectedIds.has(item.id),
-            excluded: excludedIds.has(item.id),
-          }))}
-          layout={layout}
-          onItemClick={(item) => {
-            setSelectedIds((current) => toggleId(current, item.id));
-            setExcludedIds((current) => {
-              const next = new Set(current);
-              next.delete(item.id);
-              return next;
-            });
-          }}
-          onItemExcludeClick={(item) => {
-            setExcludedIds((current) => toggleId(current, item.id));
-            setSelectedIds((current) => {
-              const next = new Set(current);
-              next.delete(item.id);
-              return next;
-            });
-          }}
-        />
-        <ChartLegend
-          aria-label="Chart legend list"
-          items={sourceItems.map((item) => ({
-            ...item,
-            selected: selectedIds.has(item.id),
-            excluded: excludedIds.has(item.id),
-          }))}
-          layout="list"
-          onItemClick={(item) =>
-            setSelectedIds((current) => toggleId(current, item.id))
-          }
-          onItemExcludeClick={(item) =>
-            setExcludedIds((current) => toggleId(current, item.id))
-          }
+      <div className="flex w-[48rem] max-w-[90vw] flex-col gap-space-6">
+        <div className="h-72">
+          <BarChart
+            aria-label="Requests per day by model"
+            series={series}
+            mode="stacked"
+            selectedIds={selectedIds}
+            excludedIds={excludedIds}
+            legendProps={legendProps}
+          />
+        </div>
+        <DonutChart
+          aria-label="Requests by model"
+          segments={segments}
+          selectedIds={selectedIds}
+          excludedIds={excludedIds}
+          legendProps={legendProps}
+          centerNumber={new Intl.NumberFormat('en-US').format(
+            segments
+              .filter((segment) => !excludedIds.has(segment.id))
+              .reduce((sum, segment) => sum + segment.value, 0)
+          )}
+          centerDescriptor="requests"
         />
       </div>
     );
