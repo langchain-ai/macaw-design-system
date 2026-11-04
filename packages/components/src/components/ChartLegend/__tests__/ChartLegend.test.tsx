@@ -158,6 +158,30 @@ describe('ChartLegend', () => {
     ).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('reveals the include and exclude affordances together', () => {
+    render(
+      <ChartLegend
+        items={items.slice(0, 1)}
+        onItemClick={vi.fn()}
+        onItemExcludeClick={vi.fn()}
+      />
+    );
+
+    const funnel = screen
+      .getByRole('button', { name: 'Alpha' })
+      .querySelector('svg')?.parentElement;
+    const exclude = screen.getByRole('button', { name: 'Exclude Alpha' });
+    const reveal = [
+      'opacity-0',
+      'group-hover/legend-item:opacity-100',
+      'group-has-[:focus-visible]/legend-item:opacity-100',
+    ];
+    expect(funnel).toHaveClass(...reveal);
+    expect(exclude).toHaveClass(...reveal);
+    // Mouse focus alone must not pin either affordance on screen.
+    expect(exclude.className).not.toMatch(/focus-within/);
+  });
+
   it('keeps an item active while focus moves to its exclude action', async () => {
     const onItemActiveChange = vi.fn();
     const { user } = render(

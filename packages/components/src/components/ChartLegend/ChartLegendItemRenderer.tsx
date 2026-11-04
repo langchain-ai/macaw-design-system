@@ -28,9 +28,15 @@ type ChartLegendItemRendererProps = {
   listColumns?: ChartLegendListColumns;
 };
 
-/** Reveals the exclude action while its item is hovered or focused. */
-const EXCLUDE_REVEAL =
-  'opacity-0 group-hover/legend-item:opacity-100 group-focus-within/legend-item:opacity-100 [@media(hover:none)]:opacity-100';
+/**
+ * Reveals an item's filter affordances — the include funnel and the exclude
+ * action — together: while the item is hovered or holds keyboard focus, and
+ * always on touch devices. Keyed to `:focus-visible` rather than
+ * `focus-within`, so a mouse click doesn't leave one affordance showing after
+ * the pointer moves away.
+ */
+const ACTION_REVEAL =
+  'opacity-0 group-hover/legend-item:opacity-100 group-has-[:focus-visible]/legend-item:opacity-100 [@media(hover:none)]:opacity-100';
 
 export const ChartLegendItemRenderer = ({
   item,
@@ -89,7 +95,9 @@ export const ChartLegendItemRenderer = ({
           'size-3 shrink-0 text-icon-tertiary transition-opacity duration-fast',
           selected
             ? 'opacity-100'
-            : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
+            : hasExclude
+              ? ACTION_REVEAL
+              : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
         )}
       />
     ) : null;
@@ -245,7 +253,7 @@ export const ChartLegendItemRenderer = ({
         tabIndex={tabIndex}
         className={cn(
           'shrink-0 text-icon-tertiary transition-opacity duration-fast',
-          !excluded && EXCLUDE_REVEAL
+          !excluded && ACTION_REVEAL
         )}
         onClick={onExcludeClick}
       />
