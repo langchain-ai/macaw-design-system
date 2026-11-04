@@ -43,10 +43,13 @@ export type RadarChartProps = Omit<
 
 const numberFormatter = new Intl.NumberFormat('en-US');
 const formatNumber = (value: number) => numberFormatter.format(value);
-const CENTER_X = 220;
-const CENTER_Y = 170;
+// SVG coordinates scale together with the viewBox, including label space.
+const VIEWBOX_WIDTH = 440;
+const VIEWBOX_HEIGHT = 340;
+const CENTER_X = VIEWBOX_WIDTH / 2;
+const CENTER_Y = VIEWBOX_HEIGHT / 2;
 const RADIUS = 96;
-const LABEL_RADIUS = 116;
+const LABEL_RADIUS = RADIUS + 20;
 const LABEL_WIDTH = 100;
 const LABEL_HEIGHT = 40;
 const GRID_LEVELS = [0.25, 0.5, 0.75, 1];
@@ -110,7 +113,7 @@ export const RadarChart = ({
       ) : (
         <TooltipPrimitive.Provider delayDuration={150}>
           <svg
-            viewBox="0 0 440 340"
+            viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
             className="block w-full min-w-80"
             role={renderTooltip ? 'group' : 'img'}
             aria-label={ariaLabel}
