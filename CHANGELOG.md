@@ -1,3 +1,13 @@
+## 1.6.0 (2026-11-04)
+
+### 🚀 Features
+
+- add radar chart and chart loading skeletons ([#34](https://github.com/langchain-ai/macaw-design-system/pull/34))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.5.2 (2026-11-04)
 
 ### 🚀 Features
