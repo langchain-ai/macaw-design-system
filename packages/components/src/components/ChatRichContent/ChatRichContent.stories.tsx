@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 
-import { expect, waitFor } from 'storybook/test';
+import { expect, userEvent, waitFor } from 'storybook/test';
 
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 
@@ -1119,7 +1119,8 @@ export const CollapsedDrawer: Story = {
       },
     },
   },
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas }) => {
+    const user = userEvent.setup({ delay: 20 });
     // The rich editor loads lazily; a cold CI browser can take longer than
     // Testing Library's default one-second query timeout.
     const editor = await canvas.findByRole(
@@ -1127,27 +1128,26 @@ export const CollapsedDrawer: Story = {
       { name: 'How would you like to review changes?' },
       { timeout: 10_000 }
     );
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Expand question' })
-    );
+    await user.click(canvas.getByRole('button', { name: 'Expand question' }));
     await expect(
       canvas.getByRole('button', { name: 'Collapse question' })
     ).toHaveAttribute('aria-expanded', 'true');
-    await userEvent.click(
-      canvas.getByRole('radio', { name: 'Something else…' })
-    );
+    await user.click(canvas.getByRole('radio', { name: 'Something else…' }));
     await expect(editor).toHaveFocus();
-    await userEvent.type(editor, 'Only security changes');
-    await userEvent.keyboard('{Enter}');
+    // Synthetic typing must yield for ProseMirror's DOM observer and the
+    // controlled value to settle between keystrokes on slower CI browsers.
+    await user.type(editor, 'Only security changes');
+    await expect(editor).toHaveTextContent('Only security changes');
+    await user.keyboard('{Enter}');
     const nextEditor = await canvas.findByRole('textbox', {
       name: 'What should the plan prioritize?',
     });
-    await userEvent.type(nextEditor, 'Preserve existing behavior');
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Submit answer' })
-    );
+    await user.type(nextEditor, 'Preserve existing behavior');
+    await expect(nextEditor).toHaveTextContent('Preserve existing behavior');
+    await user.click(canvas.getByRole('button', { name: 'Submit answer' }));
     await expect(await canvas.findByText('Answers submitted')).toBeVisible();
     await expect(canvas.getByText('Only security changes')).toBeVisible();
+    await expect(canvas.getByText('Preserve existing behavior')).toBeVisible();
     await expect(
       await canvas.findByRole('form', { name: 'Message composer' })
     ).toBeVisible();
@@ -1497,17 +1497,12 @@ export const DrawerValidation: Story = {
       ]}
     />
   ),
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Expand question' })
-    );
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Next question' })
-    );
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Collapse question' })
-    );
-    await userEvent.type(
+  play: async ({ canvas }) => {
+    const user = userEvent.setup({ delay: 20 });
+    await user.click(canvas.getByRole('button', { name: 'Expand question' }));
+    await user.click(canvas.getByRole('button', { name: 'Next question' }));
+    await user.click(canvas.getByRole('button', { name: 'Collapse question' }));
+    await user.type(
       await canvas.findByRole(
         'textbox',
         { name: 'What should the plan prioritize?' },
@@ -1515,9 +1510,7 @@ export const DrawerValidation: Story = {
       ),
       'Preserve existing behavior'
     );
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Submit answer' })
-    );
+    await user.click(canvas.getByRole('button', { name: 'Submit answer' }));
     await expect(await canvas.findByRole('alert')).toHaveTextContent(
       'Answer this question before submitting.'
     );
