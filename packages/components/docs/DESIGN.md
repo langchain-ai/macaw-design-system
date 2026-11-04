@@ -53,6 +53,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `Button` for actions and `Link` for navigation.
 - Use `IconButton` for an icon-only action and provide its `label`.
 - Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
+- Use `ChatComposer` for a chat message input; see [Chat composer](#chat-composer).
 - Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
@@ -116,6 +117,42 @@ Use `language="plaintext"` to skip syntax highlighting.
 unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
 `onUpdate` when an integration also needs selection or programmatic updates.
+
+## Chat composer
+
+Import the parts from `@langchain/macaw-components/ChatComposer` and use them
+only inside `ChatComposer`: `ChatComposerInput`, optional
+`ChatComposerAttachments`, and a `ChatComposerToolbar` with
+`ChatComposerAttachmentMenu`, `ChatComposerModelSelect`, and the default
+`ChatComposerAction` send button.
+
+Control the draft with `value`/`onChange` on `ChatComposerInput` and send from
+`onSubmit`. Set `submitDisabled` when there is no text and no attachments, and
+`disabled` to lock the whole composer. Set `action="sending"` while a send is
+pending and `action="stop"` with `onStop` during generation. Both block sending
+and keep the input and attachments usable. Skip any state your app does not
+have.
+
+Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
+sends from any block. Without `onSubmit`, Enter only adds paragraphs. Three
+backticks start a code block. The input grows from `minHeight` (40px) to
+`maxHeight` (240px), and its ref exposes `focus()`. If the rich editor fails to
+load, the input switches to a plain textarea and reports the error to
+`ErrorReporterContext` from
+`@langchain/macaw-components/contexts/ErrorReporterContext`.
+
+Validate files in `onFilesSelected`, which receives picked, dropped, and pasted
+files. `accept` and `multiple` only configure the picker. Render accepted files
+with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
+`status="uploading"` while they upload.
+
+`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
+model moves focus to the message input.
+
+Use `drawer` for content above the editor, such as questions to answer before
+sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
+severity in the drawer's text or an icon too. Validate drawer fields yourself;
+only fields outside the drawer get native validation.
 
 ## Tokens
 
