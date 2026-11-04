@@ -157,6 +157,13 @@ void [
     data: [{ id: 'axis', label: 'Axis', value: 1, color: 'currentColor' }],
     renderTooltip: (datum) => datum.label,
   } satisfies RadarChartProps,
+  {
+    axes: [{ id: 'axis', label: 'Axis' }],
+    series: [{ id: 'series', label: 'Series', values: { axis: 1 } }],
+    renderAxisTooltip: (axis) => axis.values.map(({ label }) => label).join(),
+    selectedIds: new Set(['series']),
+    activeLegendItemId: 'series',
+  } satisfies RadarChartProps,
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   useDebouncedCommit,

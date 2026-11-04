@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
 import { act, render, screen, waitFor } from '../../../test-utils';
-import { getCategoricalFillChartColor } from '../../../utils/chartColors';
+import {
+  getCategoricalFillChartColor,
+  getCategoricalLineChartColor,
+} from '../../../utils/chartColors';
+import { CHART_DIMMED_OPACITY } from '../../../utils/chartConstants';
 import { ChartTooltipHeader, ChartTooltipRow } from '../../ChartTooltip';
-import { RadarChart, type RadarChartProps } from '../RadarChart';
+import {
+  RadarChart,
+  type RadarChartMultiSeriesProps,
+  type RadarChartSingleSeriesProps,
+} from '../RadarChart';
 
 const data = [
   { id: 'top', label: 'Code Review', value: 29 },
@@ -12,7 +20,31 @@ const data = [
   { id: 'left', label: 'Commits', value: 38 },
 ];
 
-const renderTooltip: RadarChartProps['renderTooltip'] = (datum) => (
+const axes = data.map(({ id, label }) => ({ id, label }));
+const series = [
+  {
+    id: 'a',
+    label: 'Baseline',
+    values: { top: 4, right: 2, bottom: 3, left: 1 },
+  },
+  { id: 'b', label: 'Candidate', values: { top: 2, right: 4, bottom: NaN } },
+  {
+    id: 'c',
+    label: 'Rerank',
+    values: { top: 1, right: 1, bottom: 1, left: 1 },
+  },
+];
+const renderAxisTooltip: RadarChartMultiSeriesProps['renderAxisTooltip'] = (
+  axis
+) => (
+  <span>
+    {`${axis.label}: ${axis.values
+      .map(({ label, value, color }) => `${label} ${value} ${color}`)
+      .join(', ')}`}
+  </span>
+);
+
+const renderTooltip: RadarChartSingleSeriesProps['renderTooltip'] = (datum) => (
   <>
     <ChartTooltipHeader title={datum.label} />
     <ChartTooltipRow
@@ -205,5 +237,62 @@ describe('RadarChart', () => {
         new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
     );
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('summarizes every series per axis, labels axes by name, and needs three axes', () => {
+    const { rerender } = render(
+      <RadarChart axes={axes} series={series.slice(0, 2)} aria-label="Scores" />
+    );
+    expect(
+      screen.getByRole('img', { name: 'Scores' })
+    ).toHaveAccessibleDescription(
+      'Baseline: Code Review 4, Issues 2, Pull Requests 3, Commits 1; ' +
+        'Candidate: Code Review 2, Issues 4, Pull Requests 0, Commits 0'
+    );
+    expect(screen.getByText('Commits')).toBeVisible();
+    expect(screen.queryByText('4')).not.toBeInTheDocument();
+    rerender(<RadarChart axes={axes.slice(0, 2)} series={series} />);
+    expect(screen.getByRole('status')).toHaveTextContent('At least three axes');
+  });
+
+  it('opens one tooltip per axis with every visible series, keeping hues when series are hidden', async () => {
+    const { user } = render(
+      <RadarChart
+        axes={axes}
+        series={series}
+        selectedIds={new Set(['b', 'c'])}
+        renderAxisTooltip={renderAxisTooltip}
+      />
+    );
+    await user.tab();
+    expect(
+      screen.getByRole('img', { name: 'Code Review: Candidate 2, Rerank 1' })
+    ).toHaveFocus();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Code Review: Candidate 2 ${getCategoricalLineChartColor(1)}, ` +
+        `Rerank 1 ${getCategoricalLineChartColor(2)}`
+    );
+    await user.keyboard('{Escape}');
+    await user.hover(screen.getByText('Commits'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Commits: Candidate 0'
+    );
+  });
+
+  it('draws the active legend series above the others and dims the rest', () => {
+    const { container } = render(
+      <RadarChart axes={axes} series={series} activeLegendItemId="a" />
+    );
+    const areas = [...container.querySelectorAll('svg > polygon')];
+    expect(areas.map((area) => area.getAttribute('stroke'))).toEqual([
+      getCategoricalLineChartColor(1),
+      getCategoricalLineChartColor(2),
+      getCategoricalLineChartColor(0),
+    ]);
+    expect(areas.map((area) => Number(area.getAttribute('opacity')))).toEqual([
+      CHART_DIMMED_OPACITY,
+      CHART_DIMMED_OPACITY,
+      1,
+    ]);
   });
 });

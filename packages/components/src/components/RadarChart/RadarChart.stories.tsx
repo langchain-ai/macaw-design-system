@@ -1,9 +1,19 @@
+import { useState } from 'react';
+
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { RadarChart, type RadarChartProps } from '.';
-import { getCategoricalFillChartColor } from '../../utils/chartColors';
+import {
+  RadarChart,
+  type RadarChartMultiSeriesProps,
+  type RadarChartSeries,
+  type RadarChartSingleSeriesProps,
+} from '.';
+import {
+  getCategoricalFillChartColor,
+  getCategoricalLineChartColor,
+} from '../../utils/chartColors';
 import { ChartCard } from '../ChartCard';
 import { ChartLegend } from '../ChartLegend';
 import {
@@ -26,8 +36,58 @@ const tokenUsage = [
   { id: 'commits', label: 'Commits', value: 38 },
 ];
 
+const evaluators = [
+  { id: 'correctness', label: 'Correctness' },
+  { id: 'helpfulness', label: 'Helpfulness' },
+  { id: 'groundedness', label: 'Groundedness' },
+  { id: 'conciseness', label: 'Conciseness' },
+  { id: 'tool-use', label: 'Tool Use' },
+  { id: 'safety', label: 'Safety' },
+];
+
+const experiments: RadarChartSeries[] = [
+  {
+    id: 'baseline',
+    label: 'Baseline',
+    values: {
+      correctness: 72,
+      helpfulness: 78,
+      groundedness: 64,
+      conciseness: 86,
+      'tool-use': 58,
+      safety: 92,
+    },
+  },
+  {
+    id: 'prompt-v2',
+    label: 'Prompt v2',
+    values: {
+      correctness: 81,
+      helpfulness: 88,
+      groundedness: 71,
+      conciseness: 70,
+      'tool-use': 67,
+      safety: 94,
+    },
+  },
+  {
+    id: 'rerank-v3',
+    label: 'Rerank v3',
+    values: {
+      correctness: 87,
+      helpfulness: 80,
+      groundedness: 91,
+      conciseness: 74,
+      'tool-use': 76,
+      safety: 89,
+    },
+  },
+];
+
 const formatPercent = (value: number) => `${value}%`;
-const renderShareTooltip: RadarChartProps['renderTooltip'] = (datum) => (
+const renderShareTooltip: RadarChartSingleSeriesProps['renderTooltip'] = (
+  datum
+) => (
   <>
     <ChartTooltipHeader title={datum.label} />
     <ChartTooltipRow
@@ -38,7 +98,7 @@ const renderShareTooltip: RadarChartProps['renderTooltip'] = (datum) => (
   </>
 );
 
-const RadarExample = ({ className, ...args }: RadarChartProps) => (
+const RadarExample = ({ className, ...args }: RadarChartSingleSeriesProps) => (
   <div className={className}>
     <RadarChart {...args} />
     {args.data.length >= 3 && (
@@ -53,6 +113,65 @@ const RadarExample = ({ className, ...args }: RadarChartProps) => (
     )}
   </div>
 );
+
+const toggleId = (current: ReadonlySet<string>, id: string) => {
+  const next = new Set(current);
+  if (next.has(id)) next.delete(id);
+  else next.add(id);
+  return next;
+};
+
+/** Hovering a legend item emphasizes its area; clicking isolates series. */
+const SeriesExample = ({
+  className,
+  series,
+  ...args
+}: Omit<RadarChartMultiSeriesProps, 'renderAxisTooltip'>) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
+    () => new Set()
+  );
+
+  return (
+    <div className={className}>
+      <RadarChart
+        {...args}
+        series={series}
+        selectedIds={selectedIds}
+        activeLegendItemId={activeId}
+        renderAxisTooltip={(axis) => (
+          <>
+            <ChartTooltipHeader title={axis.label} />
+            <ChartTooltipBody>
+              {axis.values.map((item) => (
+                <ChartTooltipRow
+                  key={item.id}
+                  label={item.label}
+                  value={formatPercent(item.value)}
+                  markerColor={item.color}
+                  highlighted={item.id === activeId}
+                />
+              ))}
+            </ChartTooltipBody>
+          </>
+        )}
+      />
+      <ChartLegend
+        layout="inline"
+        items={series.map((item, index) => ({
+          id: item.id,
+          label: item.label,
+          markerColor: item.color ?? getCategoricalLineChartColor(index),
+          selected: selectedIds.has(item.id),
+        }))}
+        onItemActiveChange={(item) => setActiveId(item?.id ?? null)}
+        onItemClick={(item) =>
+          setSelectedIds((current) => toggleId(current, item.id))
+        }
+      />
+    </div>
+  );
+};
 
 const meta = {
   title: 'Components/Charts/RadarChart',
@@ -73,7 +192,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A single-series radial comparison with a shared scale and categorical point colors. Compose with ChartLegend and supply ChartTooltipHeader / ChartTooltipRow through renderTooltip. Hover a point or axis label, or Tab through the axes, to inspect its value. Use a shared maxValue when comparing charts.',
+          'A radial comparison with a shared scale. Pass `data` for one series with categorical point colors, or `axes` and `series` for up to about four overlapping areas, such as experiments scored by the same evaluators. Compose with ChartLegend and supply ChartTooltipHeader / ChartTooltipRow through renderTooltip or renderAxisTooltip. Hover a point, axis, or label, or Tab through the axes, to inspect values. Use a shared maxValue when comparing charts.',
       },
     },
   },
@@ -86,7 +205,7 @@ const meta = {
     className: 'w-full max-w-lg',
   },
   render: (args) => <RadarExample {...args} />,
-} satisfies Meta<typeof RadarChart>;
+} satisfies Meta<RadarChartSingleSeriesProps>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -155,6 +274,65 @@ export const MultipleAxes: Story = {
         />
       </>
     ),
+  },
+};
+
+export const MultipleSeries: Story = {
+  render: () => (
+    <SeriesExample
+      axes={evaluators}
+      series={experiments.slice(0, 2)}
+      maxValue={100}
+      formatValue={formatPercent}
+      aria-label="Evaluator scores for Baseline and Prompt v2"
+      className="w-full max-w-lg"
+    />
+  ),
+};
+
+export const ExperimentComparison: Story = {
+  render: () => (
+    <ChartCard
+      title="Experiment Comparison"
+      description="Mean evaluator score across 240 examples"
+      className="max-w-lg"
+    >
+      <SeriesExample
+        axes={evaluators}
+        series={experiments}
+        maxValue={100}
+        formatValue={formatPercent}
+        aria-label="Evaluator scores by experiment"
+      />
+    </ChartCard>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole('img', {
+        name: 'Correctness: Baseline 72%, Prompt v2 81%, Rerank v3 87%',
+      })
+    ).toHaveFocus();
+    await waitFor(() =>
+      expect(page.getByRole('tooltip')).toHaveTextContent(
+        'CorrectnessBaseline72%Prompt v281%Rerank v387%'
+      )
+    );
+    await userEvent.keyboard('{Escape}');
+    const legendItem = canvas.getByRole('button', { name: 'Rerank v3' });
+    await userEvent.click(legendItem);
+    await expect(
+      canvas.getByRole('img', { name: 'Correctness: Rerank v3 87%' })
+    ).toBeInTheDocument();
+    // Restore every series so the story opens on the full comparison.
+    await userEvent.click(legendItem);
+    await expect(
+      canvas.getByRole('img', { name: /^Correctness: Baseline/ })
+    ).toBeInTheDocument();
+    await userEvent.unhover(legendItem);
+    legendItem.blur();
   },
 };
 
