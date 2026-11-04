@@ -1,0 +1,248 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+
+import { Badge } from '../components/Badge';
+import { Logo } from '../components/Logo';
+import { Text } from '../components/Text';
+
+<Meta title="Welcome to Macaw Design System" />
+
+export const designPrinciples = [
+  {
+    number: '01',
+    title: 'Every step opens the next step.',
+    description:
+      'We design loops, not isolated features. Find, fix, verify, and guard should feel like one connected workflow.',
+  },
+  {
+    number: '02',
+    title: 'The answer before the click.',
+    description:
+      'Working surfaces should tell you what matters at a glance. The drill-down confirms the answer, it does not hide it.',
+  },
+  {
+    number: '03',
+    title: 'Never misrepresent the system.',
+    description:
+      'What LangSmith shows should be what the system did. If we cannot show something faithfully, we say so.',
+  },
+  {
+    number: '04',
+    title: 'Every number can face leadership.',
+    description:
+      'Results should move from a run to a launch decision without a cleanup pass in Excel or a custom dashboard.',
+  },
+  {
+    number: '05',
+    title: 'Design for the least technical person in the loop.',
+    description:
+      'Leadership, PMs, reviewers, and engineers each need a clear path in their own vocabulary, at their own depth.',
+  },
+];
+
+export const designSystemPrinciples = [
+  {
+    title: 'Built for agents',
+    description:
+      'Agents are first-class contributors. Components, props, tokens, and docs should be easy to discover, understand, and use without vibe-coded workarounds.',
+  },
+  {
+    title: 'Built for delightful experiences',
+    description:
+      'The system should make thoughtful, intuitive UX the default and preserve the shared UI DNA across LangSmith, Fleet, and everything after.',
+  },
+  {
+    title: 'Built for maintainability',
+    description:
+      'A decision made once should change everywhere. Shared styling, accessibility, responsiveness, and behavior belong in the system.',
+  },
+  {
+    title: 'Built to accelerate, not just constrain',
+    description:
+      'The fences let humans and agents move fast without producing drift. Most of what a new feature needs should already exist and already feel right.',
+  },
+  {
+    title: 'Built as the final arbiter',
+    description:
+      'The system is the bedrock for frontend code, not a suggestion. Custom components inherit from the primitives, and the design system wins ties.',
+  },
+];
+
+export const componentTiers = [
+  {
+    tier: 'Tier 1',
+    path: 'design-system/components/',
+    description:
+      'Purely visual, domain-free primitives. Props in, events out. Think Button, Badge, Accordion, or Tooltip.',
+  },
+  {
+    tier: 'Tier 2',
+    path: 'components/',
+    description:
+      'Generic shared composites that can touch app context such as the router, clipboard, or providers. Think Layout or Breadcrumbs.',
+  },
+  {
+    tier: 'Tier 3',
+    path: 'Pages/*/components/',
+    description:
+      'Feature and domain UI that knows about runs, datasets, experiments, or billing. It can fetch data and own business logic.',
+  },
+];
+
+<Unstyled>
+  <main className="min-h-screen bg-surface-level-1 text-primary">
+    <div className="mx-auto flex max-w-7xl flex-col gap-space-6 px-space-5 py-space-6 sm:px-space-7">
+      <header className="relative overflow-hidden rounded-xl bg-brand-subtle-gradient px-space-6 py-space-6 sm:px-space-8">
+        <div className="flex max-w-3xl flex-col items-start gap-space-4">
+          <Logo
+            brand="langchain"
+            variant="full"
+            size="xl"
+            className="text-primary"
+          />
+          <div className="flex flex-col items-start gap-space-2">
+            <Text as="h1" variant="h1">
+              {
+                'Macaw Design System powers the LangChain Suite (LangSmith, Fleet, etc)'
+              }
+            </Text>
+            <Text color="secondary" className="max-w-2xl">
+              {
+                'Our DS helps humans and agents build products that feel familiar, interconnected, and intuitive, and do it easily and efficiently. These principles are our North Star for how and why we build it.'
+              }
+            </Text>
+          </div>
+        </div>
+      </header>
+
+      <section
+        className="flex flex-col gap-space-4"
+        aria-labelledby="design-principles"
+      >
+        <div className="flex max-w-3xl flex-col gap-space-2">
+          <Text
+            as="h2"
+            id="design-principles"
+            variant="h2"
+            weight="semibold"
+          >
+            {'LangSmith Design Principles'}
+          </Text>
+          <Text color="secondary">
+            {
+              'These guide the product experience. Each one takes a position on a real tension and should be concrete enough to settle a design review.'
+            }
+          </Text>
+        </div>
+
+        <ol className="grid grid-cols-1 gap-space-3 md:grid-cols-3 xl:grid-cols-5">
+          {designPrinciples.map((principle) => (
+            <li
+              key={principle.number}
+              className="flex min-w-0 flex-col gap-space-3 rounded-lg bg-surface-level-2 p-space-4"
+            >
+              <Text variant="xs" weight="semibold" color="tertiary">
+                {principle.number}
+              </Text>
+              <div className="flex flex-col gap-space-2">
+                <Text as="h3" variant="h3">
+                  {principle.title}
+                </Text>
+                <Text variant="sm" color="secondary">
+                  {principle.description}
+                </Text>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section
+        className="grid grid-cols-1 gap-space-5 rounded-xl bg-surface-level-2 p-space-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:p-space-6"
+        aria-labelledby="design-system-principles"
+      >
+        <div className="flex max-w-xl flex-col gap-space-2">
+          <Text
+            as="h2"
+            id="design-system-principles"
+            variant="h2"
+            weight="semibold"
+          >
+            {'Design System Principles'}
+          </Text>
+          <Text color="secondary">
+            {
+              'These guide the system itself. Every component, prop, token, and piece of guidance should trace back to one of them.'
+            }
+          </Text>
+        </div>
+
+        <ol className="grid grid-cols-1 gap-x-space-5 gap-y-space-4 sm:grid-cols-2">
+          {designSystemPrinciples.map((principle, index) => (
+            <li
+              key={principle.title}
+              className="grid grid-cols-[auto_minmax(0,1fr)] gap-space-3"
+            >
+              <Text variant="xs" color="tertiary">
+                {String(index + 1).padStart(2, '0')}
+              </Text>
+              <div className="flex flex-col gap-space-1">
+                <Text as="h3" variant="h3">
+                  {principle.title}
+                </Text>
+                <Text variant="sm" color="secondary">
+                  {principle.description}
+                </Text>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section
+        className="flex flex-col gap-space-4"
+        aria-labelledby="component-library"
+      >
+        <div className="flex max-w-3xl flex-col gap-space-2">
+          <Text
+            as="h2"
+            id="component-library"
+            variant="h2"
+            weight="semibold"
+          >
+            {'What belongs in the component library'}
+          </Text>
+          <Text color="secondary">
+            {
+              'The one-line test for Tier 1 is simple: it has no idea what app it is in. No domain types, data, routes, or app context. It is styled from semantic tokens, has an intent-based API, and maps cleanly to a Figma variant set.'
+            }
+          </Text>
+        </div>
+
+        <div className="grid grid-cols-1 gap-space-3 md:grid-cols-3">
+          {componentTiers.map((item) => (
+            <article
+              key={item.tier}
+              className="flex flex-col gap-space-3 rounded-lg bg-surface-level-2 p-space-4"
+            >
+              <div className="flex flex-wrap items-center gap-space-2">
+                <Badge color={item.tier === 'Tier 1' ? 'primary' : 'secondary'}>
+                  {item.tier}
+                </Badge>
+                <Text
+                  as="span"
+                  variant="xs"
+                  color="tertiary"
+                  className="font-mono"
+                >
+                  {item.path}
+                </Text>
+              </div>
+              <Text color="secondary">{item.description}</Text>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+
+  </main>
+</Unstyled>
