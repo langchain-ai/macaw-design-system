@@ -1,4 +1,10 @@
-import { useId, useState, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  useId,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
@@ -55,6 +61,12 @@ const LABEL_RADIUS = RADIUS + 20;
 // Reserve 100 units for truncated names and 40 for the name/value pair.
 const LABEL_WIDTH = 100;
 const LABEL_HEIGHT = 40;
+// Labels left of center end at their axis; labels right of it start there.
+const LABEL_SIDES = {
+  left: { offset: LABEL_WIDTH, align: 'text-right' },
+  center: { offset: LABEL_WIDTH / 2, align: 'text-center' },
+  right: { offset: 0, align: 'text-left' },
+} as const;
 // Absorb trig rounding at alignment boundaries so mirrored labels line up.
 const ALIGNMENT_EPSILON = 1e-6;
 // Four equally spaced rings represent fractions of the shared axis maximum.
@@ -74,6 +86,7 @@ export const RadarChart = ({
 }: RadarChartProps) => {
   const summaryId = useId();
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const isPointerDownRef = useRef(false);
   const tooltipZIndex = useZIndex(zIndices.tooltip);
   const values = data.map(({ value }) =>
     Number.isFinite(value) ? Math.max(0, value) : 0
@@ -86,24 +99,26 @@ export const RadarChart = ({
     const angle = (index * Math.PI * 2) / data.length - Math.PI / 2;
     const x = Math.cos(angle);
     const y = Math.sin(angle);
-    const ratio = Math.min(1, values[index] / maximum);
+    const value = values[index];
+    const ratio = Math.min(1, value / maximum);
+    const formattedValue = formatValue(value);
+    // Center labels within ~6 degrees of vertical (|cos| <= 0.1).
+    const side = LABEL_SIDES[x < -0.1 ? 'left' : x > 0.1 ? 'right' : 'center'];
     return {
       datum: {
         ...datum,
-        value: values[index],
+        value,
         color: datum.color ?? getCategoricalFillChartColor(index),
       },
+      formattedValue,
+      summary: `${datum.label}: ${formattedValue}`,
       x: CENTER_X + x * RADIUS,
       y: CENTER_Y + y * RADIUS,
       pointX: CENTER_X + x * RADIUS * ratio,
       pointY: CENTER_Y + y * RADIUS * ratio,
-      // Center labels within ~6 degrees of vertical (|cos| <= 0.1).
+      labelX: CENTER_X + x * LABEL_RADIUS - side.offset,
       // At 30 degrees or more above/below horizontal (|sin| >= 0.5), place
       // the whole label box outside the axis instead of straddling it.
-      labelX:
-        CENTER_X +
-        x * LABEL_RADIUS -
-        (x < -0.1 ? LABEL_WIDTH : x > 0.1 ? 0 : LABEL_WIDTH / 2),
       labelY:
         CENTER_Y +
         y * LABEL_RADIUS -
@@ -112,7 +127,7 @@ export const RadarChart = ({
           : y >= 0.5 - ALIGNMENT_EPSILON
             ? 0
             : LABEL_HEIGHT / 2),
-      align: x < -0.1 ? 'text-right' : x > 0.1 ? 'text-left' : 'text-center',
+      align: side.align,
     };
   });
 
@@ -142,11 +157,7 @@ export const RadarChart = ({
               .join(' ')}
           >
             <desc id={summaryId}>
-              {axes
-                .map(
-                  ({ datum }) => `${datum.label}: ${formatValue(datum.value)}`
-                )
-                .join('; ')}
+              {axes.map(({ summary }) => summary).join('; ')}
             </desc>
             <g aria-hidden="true" fill="none" stroke="var(--border-subtle)">
               {GRID_LEVELS.map((level) => (
@@ -185,19 +196,29 @@ export const RadarChart = ({
               strokeWidth={1.25}
               strokeLinejoin="round"
             />
-            {axes.map(({ datum, pointX, pointY, labelX, labelY, align }) => {
-              const label = `${datum.label}: ${formatValue(datum.value)}`;
+            {axes.map((axis) => {
+              const {
+                datum,
+                formattedValue,
+                summary,
+                pointX,
+                pointY,
+                labelX,
+                labelY,
+                align,
+              } = axis;
               const mark = (
                 <g
                   key={datum.id}
-                  className="group outline-none"
+                  className="group outline-hidden"
                   role={renderTooltip ? 'img' : undefined}
-                  aria-label={renderTooltip ? label : undefined}
+                  aria-label={renderTooltip ? summary : undefined}
                   aria-hidden={renderTooltip ? undefined : true}
                   tabIndex={renderTooltip ? 0 : undefined}
                 >
                   {/* A 24-unit hit target surrounds the 8-unit point; the
-                      16-unit ring shows hover/focus without changing layout. */}
+                      16-unit ring shows hover in the axis color and keyboard
+                      focus in the shared focus color without changing layout. */}
                   <circle cx={pointX} cy={pointY} r={12} fill="transparent" />
                   <circle
                     cx={pointX}
@@ -206,7 +227,7 @@ export const RadarChart = ({
                     fill="none"
                     stroke={datum.color}
                     strokeWidth={1.5}
-                    className="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+                    className="opacity-0 group-hover:opacity-100 group-focus-visible:stroke-focus group-focus-visible:opacity-100"
                   />
                   <circle
                     cx={pointX}
@@ -228,7 +249,7 @@ export const RadarChart = ({
                         'flex h-full flex-col justify-center',
                         align
                       )}
-                      title={renderTooltip ? undefined : label}
+                      title={renderTooltip ? undefined : summary}
                     >
                       <Text variant="xs" className="truncate">
                         {datum.label}
@@ -238,7 +259,7 @@ export const RadarChart = ({
                         color="secondary"
                         className="truncate tabular-nums"
                       >
-                        {formatValue(datum.value)}
+                        {formattedValue}
                       </Text>
                     </div>
                   </foreignObject>
@@ -258,10 +279,22 @@ export const RadarChart = ({
                 >
                   <TooltipPrimitive.Trigger
                     asChild
+                    onPointerDown={(event) => {
+                      isPointerDownRef.current = true;
+                      event.currentTarget.ownerDocument.addEventListener(
+                        'pointerup',
+                        () => {
+                          isPointerDownRef.current = false;
+                        },
+                        { once: true }
+                      );
+                    }}
                     onFocus={(event) => {
                       // Wait for keyboard focus to scroll an offscreen axis into
                       // view; otherwise Radix closes the tooltip on that scroll.
+                      // Like Radix, focus from a pointer press stays closed.
                       event.preventDefault();
+                      if (isPointerDownRef.current) return;
                       const target = event.currentTarget;
                       requestAnimationFrame(() => {
                         if (target === target.ownerDocument.activeElement) {

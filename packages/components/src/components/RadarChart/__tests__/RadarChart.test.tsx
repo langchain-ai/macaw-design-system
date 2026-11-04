@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { render, screen, waitFor } from '../../../test-utils';
+import { act, render, screen, waitFor } from '../../../test-utils';
 import { getCategoricalFillChartColor } from '../../../utils/chartColors';
 import { ChartTooltipHeader, ChartTooltipRow } from '../../ChartTooltip';
 import { RadarChart, type RadarChartProps } from '../RadarChart';
@@ -172,7 +172,7 @@ describe('RadarChart', () => {
     );
   });
 
-  it('opens tooltips from labels, uses normalized data and color, and closes on pointer exit', async () => {
+  it('opens tooltips from labels, uses normalized data and color, and closes on pointer exit or click', async () => {
     const customColor = getCategoricalFillChartColor(5);
     const { user } = render(
       <RadarChart
@@ -198,5 +198,12 @@ describe('RadarChart', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
       `Issues: 0; ${getCategoricalFillChartColor(1)}`
     );
+    // Clicking focuses the axis; the tooltip must not reopen a frame later.
+    await user.click(screen.getByText('Issues'));
+    await act(
+      () =>
+        new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    );
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 });
