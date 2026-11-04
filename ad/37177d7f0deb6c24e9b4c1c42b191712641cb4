@@ -1,0 +1,29 @@
+packages/components/src/docs/Changelog.mdx
+  s_a1ec01629f9eac::t_1ee9120517f608 3,9
+packages/components/src/components/Attachment/Attachment.stories.tsx
+  s_a1ec01629f9eac::t_b8de9e7a7d3433 11
+packages/components/src/components/ChatComposer/ChatComposer.stories.tsx
+  s_a1ec01629f9eac::t_b8de9e7a7d3433 26
+packages/components/src/components/ImagePreviewBlock/ImagePreviewBlock.stories.tsx
+  s_a1ec01629f9eac::t_b8de9e7a7d3433 5
+packages/components/.storybook/main.ts
+  s_a1ec01629f9eac::t_1ee9120517f608 6
+packages/components/src/components/ImagePreviewDialog/ImagePreviewDialog.stories.tsx
+  s_a1ec01629f9eac::t_b8de9e7a7d3433 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ad37177d7f0deb6c24e9b4c1c42b191712641cb4",
+  "prompts": {},
+  "sessions": {
+    "s_a1ec01629f9eac": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a809-8d69-76b1-8065-28ed97d4ccef",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
