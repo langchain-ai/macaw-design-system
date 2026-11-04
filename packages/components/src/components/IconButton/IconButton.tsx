@@ -77,6 +77,8 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       {
         'shadow-[0px_1px_2px_0px_var(--shadow-color-subtle)]':
           (variant === 'normal' || variant === 'outlined') && !disabled,
+        'active:scale-[0.97] active:brightness-95 motion-reduce:active:scale-100':
+          !disabled,
         // Apply rounded-full if round prop is true, otherwise use rounded-md
         'rounded-full': round,
         'rounded-xs': !round && (size === 'xxs' || size === 'xs'),
