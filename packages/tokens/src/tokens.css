@@ -147,6 +147,12 @@
   --bg-elevated-selected: var(--neutral-100);
   --bg-overlay: rgba(0, 0, 0, 0.5); /* backdrop / modal scrim */
 
+  --bg-canvas-dotted: radial-gradient(
+    var(--border-subtle) 1px,
+    transparent 1px
+  );
+  --bg-canvas-dotted-size: 20px 20px;
+
   /* BRAND */
   --bg-brand: var(--brand-400);
   --bg-brand-hover: var(--brand-500);
@@ -761,6 +767,11 @@ html.dark,
   --bg-elevated-hover: var(--neutral-200);
   --bg-elevated-selected: var(--neutral-300);
   --bg-overlay: rgba(0, 0, 0, 0.7);
+
+  --bg-canvas-dotted: radial-gradient(
+    var(--border-subtle) 1px,
+    transparent 1px
+  );
 
   /* BRAND */
   --bg-brand: var(--brand-500);

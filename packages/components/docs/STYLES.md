@@ -160,6 +160,22 @@ rename classes.
 
 ---
 
+## Canvas Backgrounds
+
+Use `bg-canvas-dotted` for graph editors, node-based builders, and creation
+canvases, not ordinary content panels or chart plot grids. It applies a repeating
+radial gradient with 1px-radius dots on a 20px grid, using the theme-aware
+`--border-subtle` color. No SVG asset is required.
+
+```tsx
+<div className="min-h-96 bg-canvas-dotted bg-surface-level-1" />
+```
+
+The utility sets the image, tile size, and repeat only. Pair it with a semantic
+surface color and let the application own sizing, scrolling, panning, and zoom.
+`--bg-canvas-dotted` and `--bg-canvas-dotted-size` are also available to CSS-only
+consumers; see the token package's documentation.
+
 ## Banners
 
 Use `Banner` from `@langchain/macaw-components/Banner` for page-level notices,
