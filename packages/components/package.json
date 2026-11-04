@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -95,6 +95,10 @@
     "./ChatMessage": {
       "types": "./dist/components/ChatMessage/index.d.ts",
       "import": "./dist/components/ChatMessage/index.js"
+    },
+    "./ChatRichContent": {
+      "types": "./dist/components/ChatRichContent/index.d.ts",
+      "import": "./dist/components/ChatRichContent/index.js"
     },
     "./ChatState": {
       "types": "./dist/components/ChatState/index.d.ts",

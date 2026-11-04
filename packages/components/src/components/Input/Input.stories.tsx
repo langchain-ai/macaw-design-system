@@ -10,7 +10,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   ControlSizeMatrix,
   ControlVariantGrid,
-} from '../../stories/ControlSizeMatrix';
+} from '../../docs/ControlSizeMatrix';
 import { Text } from '../Text/Text';
 import { Input } from './Input';
 
@@ -93,7 +93,7 @@ const meta: Meta<typeof Input> = {
     disabled: false,
     isError: false,
     required: false,
-    onChange: () => {},
+    onChange: () => { },
     debounceMs: 300,
   },
   render: (args) => (

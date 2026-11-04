@@ -2,6 +2,7 @@ import {
   Attachment,
   Button,
   Card,
+  ChatRichContent as RootChatRichContent,
   StatusBadge,
   Text,
 } from '@langchain/macaw-components';
@@ -59,6 +60,21 @@ import {
   ChatMessageActions,
 } from '@langchain/macaw-components/ChatMessage';
 import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import {
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+} from '@langchain/macaw-components/ChatRichContent';
+import type {
+  ChatRichContentChoicesProps,
+  ChatRichContentChoicesValue,
+  ChatRichContentFallbackProps,
+  ChatRichContentNavigation,
+  ChatRichContentProps,
+  ChatRichContentRenderer,
+  ChatRichContentRendererContext,
+  ChatRichContentState,
+} from '@langchain/macaw-components/ChatRichContent';
 import { ChatState } from '@langchain/macaw-components/ChatState';
 import type {
   ChatStateProps,
@@ -178,6 +194,30 @@ void [
   } satisfies ChatConversationProps,
   ChatMessage,
   ChatMessageActions,
+  RootChatRichContent,
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+  { title: 'Review', variant: 'approval' } satisfies ChatRichContentProps,
+  {
+    title: 'Review',
+    variant: 'approval',
+    // @ts-expect-error onSkip belongs to the form variant.
+    onSkip() {},
+  } satisfies ChatRichContentProps,
+  'validation-error' satisfies ChatRichContentState,
+  { current: 1, total: 2, onChange() {} } satisfies ChatRichContentNavigation,
+  ((context: ChatRichContentRendererContext) =>
+    context.errorId) satisfies ChatRichContentRenderer,
+  { selected: [] } satisfies ChatRichContentChoicesValue,
+  {
+    mode: 'single',
+    options: [],
+    value: { selected: [] },
+    onChange() {},
+    'aria-label': 'Tasks',
+  } satisfies ChatRichContentChoicesProps,
+  {} satisfies ChatRichContentFallbackProps,
   ChatState,
   { status: 'streaming', showElapsed: true } satisfies ChatStateProps,
   'input-required' satisfies ChatStateStatus,

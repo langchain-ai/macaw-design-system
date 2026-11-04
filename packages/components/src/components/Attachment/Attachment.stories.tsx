@@ -8,7 +8,7 @@ import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Attachment, AttachmentList, type AttachmentProps } from '.';
-import sampleImage from '../../stories/assets/attachment-preview.png';
+import sampleImage from '../../docs/assets/attachment-preview.png';
 import { Button } from '../Button';
 import { Dialog, DialogContent } from '../Dialog';
 import { IconButton } from '../IconButton';

@@ -1,3 +1,13 @@
+## 1.6.1 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** add ChatRichContent [FEP-589] ([#93](https://github.com/langchain-ai/macaw-design-system/pull/93))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.6.0 (2026-11-04)
 
 ### 🚀 Features
