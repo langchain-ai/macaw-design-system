@@ -1081,3 +1081,32 @@ type Story = StoryObj<typeof meta>;
 export const Overview: Story = {
   render: () => <TokenDocumentation />,
 };
+
+export const CanvasBackground: Story = {
+  render: () => (
+    <div className="min-h-screen bg-surface-level-1 p-space-6 text-primary">
+      <div className="mx-auto flex max-w-4xl flex-col gap-space-4">
+        <h1 className="text-2xl font-semibold">Canvas Background</h1>
+        <p className="text-sm text-secondary">
+          Use bg-canvas-dotted for graph editors and creation canvases. Pair it
+          with a surface color; the pattern does not set the fill or layout.
+        </p>
+        <div className="bg-canvas-dotted flex min-h-96 items-center justify-center rounded-lg border border-subtle bg-surface-level-1 p-space-6">
+          <div className="flex flex-wrap items-center justify-center gap-space-8">
+            {['Input', 'Agent', 'Output'].map((label) => (
+              <div
+                key={label}
+                className="rounded-md border border-default bg-elevated px-space-6 py-space-4 text-sm font-medium"
+              >
+                {label}
+              </div>
+            ))}
+          </div>
+        </div>
+        <code className="font-mono text-xs text-secondary">
+          bg-canvas-dotted bg-surface-level-1
+        </code>
+      </div>
+    </div>
+  ),
+};
