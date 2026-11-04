@@ -97,6 +97,10 @@ import type {
   InputIconAction,
   InputProps,
 } from '@langchain/macaw-components/Input';
+import {
+  RadarChart,
+  type RadarChartProps,
+} from '@langchain/macaw-components/RadarChart';
 import { SankeyChart } from '@langchain/macaw-components/SankeyChart';
 import type { SankeyChartProps } from '@langchain/macaw-components/SankeyChart';
 import tailwindPreset from '@langchain/macaw-components/tailwind-preset';
@@ -194,6 +198,18 @@ void [
     size: 'sm',
     color: 'blue',
   } satisfies HeatmapChartProps,
+  RadarChart,
+  {
+    data: [{ id: 'axis', label: 'Axis', value: 1, color: 'currentColor' }],
+    renderTooltip: (datum) => datum.label,
+  } satisfies RadarChartProps,
+  {
+    axes: [{ id: 'axis', label: 'Axis' }],
+    series: [{ id: 'series', label: 'Series', values: { axis: 1 } }],
+    renderAxisTooltip: (axis) => axis.values.map(({ label }) => label).join(),
+    selectedIds: new Set(['series']),
+    activeLegendItemId: 'series',
+  } satisfies RadarChartProps,
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   useDebouncedCommit,
@@ -214,6 +230,8 @@ void [
     onClick: () => {},
   } satisfies InputIconAction,
   'line' satisfies ChartCardSkeletonVariant,
+  'radar' satisfies ChartCardSkeletonVariant,
+  'heatmap' satisfies ChartCardSkeletonVariant,
   ChartCardSkeleton,
   AppThemeProvider,
   BarChart,

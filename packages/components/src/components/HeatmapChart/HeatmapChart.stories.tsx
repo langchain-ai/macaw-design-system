@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { HeatmapBlock, HeatmapChart } from '.';
+import { ChartCard } from '../ChartCard';
 
 const data = Array.from({ length: 7 }, (_, row) =>
   Array.from({ length: 52 }, (_, column) => (row * 37 + column * 19) % 101)
@@ -75,4 +76,19 @@ export const CustomLabels: Story = {
 
 export const StandaloneBlock: Story = {
   render: () => <HeatmapBlock opacity={75} color="blue" size="lg" />,
+};
+
+export const LoadingInChartCard: Story = {
+  name: 'Heatmap skeleton in ChartCard',
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
+  render: () => (
+    <ChartCard
+      title="Activity"
+      description="Daily activity over time"
+      state="loading"
+      skeletonVariant="heatmap"
+      className="h-72 max-w-2xl"
+    />
+  ),
 };

@@ -10,6 +10,8 @@ export type ChartCardSkeletonVariant =
   | 'donut'
   | 'metric'
   | 'sparkline'
+  | 'radar'
+  | 'heatmap'
   | 'sankey';
 
 const HORIZONTAL_BAR_WIDTHS = ['35%', '62%', '48%', '78%', '55%'] as const;
@@ -120,12 +122,57 @@ export const ChartCardSkeleton = ({
         </svg>
       </div>
     )}
+    {variant === 'radar' && (
+      <div aria-hidden="true" className="relative min-h-0 flex-1">
+        <svg
+          // Match the radar chart's plot and outside-label space.
+          viewBox="0 0 440 340"
+          focusable="false"
+          fill="var(--bg-surface-level-3)"
+          className="absolute inset-0 size-full animate-pulse motion-reduce:animate-none"
+        >
+          <g fill="none" stroke="var(--border-muted)">
+            {/* Concentric diamonds suggest axes without implying loaded data. */}
+            <path d="M220 74 316 170 220 266 124 170Z" />
+            <path d="M220 122 268 170 220 218 172 170Z" />
+            <path d="M220 74V266M124 170H316" />
+          </g>
+          <path d="M220 90 294 170 220 242 178 170Z" opacity={0.6} />
+          {/* Paired bars stand in for the four axis names and values. */}
+          {[
+            [196, 34],
+            [340, 156],
+            [196, 294],
+            [52, 156],
+          ].map(([x, y]) => (
+            <g key={`${x}-${y}`} transform={`translate(${x} ${y})`}>
+              <rect width={48} height={8} rx={4} />
+              <rect x={12} y={14} width={24} height={6} rx={3} />
+            </g>
+          ))}
+        </svg>
+      </div>
+    )}
+    {variant === 'heatmap' && (
+      <div
+        aria-hidden="true"
+        className="grid min-h-0 flex-1 grid-cols-15 grid-rows-6 gap-space-1"
+      >
+        {/* A 6-by-15 grid balances a recognizable matrix with visual breathing room. */}
+        {Array.from({ length: 6 * 15 }, (_, index) => (
+          <Skeleton
+            key={index}
+            className="h-full min-h-0 rounded-xs motion-reduce:animate-none"
+          />
+        ))}
+      </div>
+    )}
     {variant === 'metric' && (
       <div className="flex min-h-0 flex-1 flex-col justify-center gap-space-2">
         <Skeleton className="h-9 w-1/2 motion-reduce:animate-none" />
         <Skeleton className="h-4 w-2/3 motion-reduce:animate-none" />
       </div>
     )}
-    {variant !== 'metric' && <LegendSkeleton />}
+    {variant !== 'metric' && variant !== 'heatmap' && <LegendSkeleton />}
   </div>
 );
