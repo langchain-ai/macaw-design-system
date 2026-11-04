@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { render, screen, waitFor } from '../../../test-utils';
-import { getCategoricalLineChartColor } from '../../../utils/chartColors';
+import { getCategoricalFillChartColor } from '../../../utils/chartColors';
 import { ChartTooltipHeader, ChartTooltipRow } from '../../ChartTooltip';
 import { RadarChart, type RadarChartProps } from '../RadarChart';
 
@@ -173,7 +173,7 @@ describe('RadarChart', () => {
   });
 
   it('opens tooltips from labels, uses normalized data and color, and closes on pointer exit', async () => {
-    const customColor = getCategoricalLineChartColor(5);
+    const customColor = getCategoricalFillChartColor(5);
     const { user } = render(
       <RadarChart
         data={data.map((datum, index) =>
@@ -196,7 +196,7 @@ describe('RadarChart', () => {
     );
     await user.hover(screen.getByText('Issues'));
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      `Issues: 0; ${getCategoricalLineChartColor(1)}`
+      `Issues: 0; ${getCategoricalFillChartColor(1)}`
     );
   });
 });

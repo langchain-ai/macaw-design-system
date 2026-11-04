@@ -4,7 +4,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import {
   CHART_SINGLE_FILL_COLOR,
-  CHART_INTERACTION_CONTRAST_COLOR,
+  getCategoricalFillChartColor,
   getCategoricalLineChartColor,
 } from '../../utils/chartColors';
 import { cn } from '../../utils/cn';
@@ -19,7 +19,7 @@ export type RadarChartDatum = {
   id: string;
   label: string;
   value: number;
-  /** Semantic chart color; defaults to the categorical palette in axis order. */
+  /** Semantic chart color; defaults to the categorical fill palette in axis order. */
   color?: string;
 };
 
@@ -91,7 +91,7 @@ export const RadarChart = ({
       datum: {
         ...datum,
         value: values[index],
-        color: datum.color ?? getCategoricalLineChartColor(index),
+        color: datum.color ?? getCategoricalFillChartColor(index),
       },
       x: CENTER_X + x * RADIUS,
       y: CENTER_Y + y * RADIUS,
@@ -176,11 +176,13 @@ export const RadarChart = ({
                 .map(({ pointX, pointY }) => `${pointX},${pointY}`)
                 .join(' ')}
               fill={CHART_SINGLE_FILL_COLOR}
-              // Keep grid rings visible through the filled data polygon.
-              fillOpacity={0.35}
+              // A light wash and subdued outline keep the category points prominent.
+              // Dark surfaces need slightly more opacity to preserve the shape.
+              className="dark:[fill-opacity:0.24] dark:[stroke-opacity:0.8]"
+              fillOpacity={0.16}
               stroke={getCategoricalLineChartColor(0)}
-              // Thin SVG strokes distinguish the polygon and point outlines.
-              strokeWidth={1.5}
+              strokeOpacity={0.55}
+              strokeWidth={1.25}
               strokeLinejoin="round"
             />
             {axes.map(({ datum, pointX, pointY, labelX, labelY, align }) => {
@@ -194,7 +196,7 @@ export const RadarChart = ({
                   aria-hidden={renderTooltip ? undefined : true}
                   tabIndex={renderTooltip ? 0 : undefined}
                 >
-                  {/* A 24-unit hit target surrounds the 9-unit point; the
+                  {/* A 24-unit hit target surrounds the 8-unit point; the
                       16-unit ring shows hover/focus without changing layout. */}
                   <circle cx={pointX} cy={pointY} r={12} fill="transparent" />
                   <circle
@@ -209,10 +211,11 @@ export const RadarChart = ({
                   <circle
                     cx={pointX}
                     cy={pointY}
-                    r={4.5}
+                    r={4}
                     fill={datum.color}
-                    stroke={CHART_INTERACTION_CONTRAST_COLOR}
-                    strokeWidth={1.5}
+                    // A thin surface-colored separator avoids heavy dark borders.
+                    className="stroke-surface-level-1"
+                    strokeWidth={1}
                   />
                   <foreignObject
                     x={labelX}

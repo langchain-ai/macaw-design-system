@@ -3,7 +3,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { RadarChart, type RadarChartProps } from '.';
-import { getCategoricalLineChartColor } from '../../utils/chartColors';
+import { getCategoricalFillChartColor } from '../../utils/chartColors';
 import { ChartCard } from '../ChartCard';
 import { ChartLegend } from '../ChartLegend';
 import {
@@ -47,7 +47,7 @@ const RadarExample = ({ className, ...args }: RadarChartProps) => (
         items={args.data.map((datum, index) => ({
           id: datum.id,
           label: datum.label,
-          markerColor: datum.color ?? getCategoricalLineChartColor(index),
+          markerColor: datum.color ?? getCategoricalFillChartColor(index),
         }))}
       />
     )}
@@ -162,7 +162,7 @@ export const CustomColors: Story = {
   args: {
     data: workTypes.map((datum, index) => ({
       ...datum,
-      color: getCategoricalLineChartColor(index + 4),
+      color: getCategoricalFillChartColor(index + 4),
     })),
   },
 };
