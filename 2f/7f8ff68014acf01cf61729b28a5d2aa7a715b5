@@ -1,0 +1,32 @@
+packages/components/src/components/ChatToolCall/ChatToolCallReasoning.tsx
+  s_d30d8664e66442::t_0d7f93d02ec4eb 14-15,28,63
+packages/components/src/components/ChatToolCall/__tests__/ChatToolCall.test.tsx
+  s_d30d8664e66442::t_0d7f93d02ec4eb 241,271,275,281-300,520,525
+  s_d30d8664e66442::t_62ecf37a515b4a 593,605
+packages/components/src/components/ChatToolCall/ChatToolCall.tsx
+  s_d30d8664e66442::t_0d7f93d02ec4eb 32-33,65,106
+packages/components/src/components/ChatToolCall/ChatToolCallStatusRow.tsx
+  s_d30d8664e66442::t_0d7f93d02ec4eb 12,21,43,49
+packages/components/src/components/ChatToolCall/ChatToolCall.stories.tsx
+  s_d30d8664e66442::t_0d7f93d02ec4eb 120
+packages/components/src/components/ChatToolCall/ChatToolCallAccordion.tsx
+  s_d30d8664e66442::t_62ecf37a515b4a 68
+packages/components/docs/CHAT.md
+  s_d30d8664e66442::t_62ecf37a515b4a 24-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2f7f8ff68014acf01cf61729b28a5d2aa7a715b5",
+  "prompts": {},
+  "sessions": {
+    "s_d30d8664e66442": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a590-c4b2-7321-8687-1db93c99de42",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
