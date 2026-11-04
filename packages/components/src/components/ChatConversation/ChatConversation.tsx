@@ -1,5 +1,6 @@
 import {
   useLayoutEffect,
+  type CSSProperties,
   useMemo,
   useRef,
   useState,
@@ -15,6 +16,10 @@ import { Button } from '../Button';
 
 /** Distance from the bottom, in px, that still counts as reading the latest output. */
 const FOLLOW_THRESHOLD = 48;
+
+const viewportMaskStyle = {
+  '--scroll-mask-fade-from-t': 'calc(100% - 2rem)',
+} as CSSProperties;
 
 export interface ChatConversationProps {
   /** Messages, or a host-provided empty or loading state. */
@@ -122,16 +127,15 @@ export function ChatConversation({
       )}
     >
       {header != null && <div className="min-w-0 shrink-0">{header}</div>}
-      {/* The focus ring lives here so the viewport's scroll mask can't fade it. */}
-      <div className="relative flex min-h-0 flex-1 flex-col has-[>[role=log]:focus-visible]:ring-2 has-[>[role=log]:focus-visible]:ring-inset has-[>[role=log]:focus-visible]:ring-focus">
+      <div className="relative flex min-h-0 flex-1 flex-col">
         <div
           ref={mergedViewportRef}
           role="log"
           aria-label={`${label} messages`}
           aria-live="off"
           tabIndex={0}
-          // Cap the fade at 32px; the shared 20% default hides several lines in tall viewports.
-          className="scroll-mask-t [--scroll-mask-fade-from-t:calc(100%_-_2rem)] min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden [scrollbar-gutter:stable_both-edges]"
+          style={viewportMaskStyle}
+          className="peer scroll-mask-t min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain outline-hidden [scrollbar-gutter:stable_both-edges]"
         >
           <div
             ref={contentRef}
@@ -143,6 +147,11 @@ export function ChatConversation({
             {children}
           </div>
         </div>
+        {/* The focus ring sits on an overlay so the viewport's scroll mask can't fade it. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 ring-inset ring-focus peer-focus-visible:ring-2"
+        />
         {!isNearBottom && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-space-3">
             <Button
