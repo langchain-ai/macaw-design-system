@@ -6,6 +6,11 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ChatConversation } from '.';
 import { Button } from '../Button';
+import {
+  ChatComposer,
+  ChatComposerInput,
+  ChatComposerToolbar,
+} from '../ChatComposer';
 import { ChatMessage, type ChatMessageModel } from '../ChatMessage';
 import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
@@ -95,11 +100,21 @@ function historyMessages(prefix = 'history'): ChatMessageModel[] {
   ]);
 }
 
-function PlaceholderComposer() {
+function DemoComposer() {
+  const [draft, setDraft] = useState('');
   return (
-    <div className="rounded-xl border border-primary bg-surface-level-1 px-space-3 py-space-3">
-      <Text color="tertiary">The host provides the composer.</Text>
-    </div>
+    <ChatComposer
+      aria-label="Chat composer"
+      submitDisabled={!draft.trim()}
+      onSubmit={() => setDraft('')}
+    >
+      <ChatComposerInput
+        value={draft}
+        onChange={setDraft}
+        placeholder="Ask a follow-up…"
+      />
+      <ChatComposerToolbar />
+    </ChatComposer>
   );
 }
 
@@ -153,7 +168,7 @@ export const WithHeaderAndFooter: Story = {
         <Text variant="h3">Coastal weekend</Text>
       </div>
     ),
-    footer: <PlaceholderComposer />,
+    footer: <DemoComposer />,
   },
 };
 
@@ -166,7 +181,6 @@ export const Empty: Story = {
         <Text color="secondary">The host provides this empty state.</Text>
       </div>
     ),
-    footer: <PlaceholderComposer />,
   },
 };
 
@@ -261,7 +275,7 @@ function StreamingExample() {
   return (
     <ChatConversation
       footer={
-        <div className="flex items-center justify-between gap-space-3 rounded-xl border border-primary px-space-3 py-space-2">
+        <div className="flex items-center justify-between gap-space-3">
           <Text color="tertiary">
             {isStreaming ? 'Responding…' : 'Send, then scroll up mid-reply.'}
           </Text>
@@ -353,12 +367,11 @@ export const CustomBackground: Story = {
       },
     },
   },
-  args: { className: 'bg-brand-subtle', footer: <PlaceholderComposer /> },
+  args: { className: 'bg-brand-subtle' },
 };
 
 export const Narrow: Story = {
   tags: ['a11y-test'],
-  args: { footer: <PlaceholderComposer /> },
   decorators: [
     (Story) => (
       <div className="h-full w-[360px] border-x border-primary">
