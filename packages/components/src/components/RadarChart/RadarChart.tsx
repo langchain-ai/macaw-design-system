@@ -1,4 +1,4 @@
-import { useId, type HTMLAttributes, type ReactNode } from 'react';
+import { useId, useState, type HTMLAttributes, type ReactNode } from 'react';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
@@ -43,15 +43,21 @@ export type RadarChartProps = Omit<
 
 const numberFormatter = new Intl.NumberFormat('en-US');
 const formatNumber = (value: number) => numberFormatter.format(value);
-// SVG coordinates scale together with the viewBox, including label space.
+// Layout uses SVG units, which scale together with the viewBox. This canvas
+// fits the plot plus outside labels, with extra width for horizontal text.
 const VIEWBOX_WIDTH = 440;
 const VIEWBOX_HEIGHT = 340;
 const CENTER_X = VIEWBOX_WIDTH / 2;
 const CENTER_Y = VIEWBOX_HEIGHT / 2;
+// A 96-unit plot leaves room for a 20-unit gap and the two-line label boxes.
 const RADIUS = 96;
 const LABEL_RADIUS = RADIUS + 20;
+// Reserve 100 units for truncated names and 40 for the name/value pair.
 const LABEL_WIDTH = 100;
 const LABEL_HEIGHT = 40;
+// Absorb trig rounding at alignment boundaries so mirrored labels line up.
+const ALIGNMENT_EPSILON = 1e-6;
+// Four equally spaced rings represent fractions of the shared axis maximum.
 const GRID_LEVELS = [0.25, 0.5, 0.75, 1];
 
 /** A single-series radar with a shared scale and clockwise, outside axis labels. */
@@ -67,6 +73,7 @@ export const RadarChart = ({
   ...props
 }: RadarChartProps) => {
   const summaryId = useId();
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const tooltipZIndex = useZIndex(zIndices.tooltip);
   const values = data.map(({ value }) =>
     Number.isFinite(value) ? Math.max(0, value) : 0
@@ -90,6 +97,9 @@ export const RadarChart = ({
       y: CENTER_Y + y * RADIUS,
       pointX: CENTER_X + x * RADIUS * ratio,
       pointY: CENTER_Y + y * RADIUS * ratio,
+      // Center labels within ~6 degrees of vertical (|cos| <= 0.1).
+      // At 30 degrees or more above/below horizontal (|sin| >= 0.5), place
+      // the whole label box outside the axis instead of straddling it.
       labelX:
         CENTER_X +
         x * LABEL_RADIUS -
@@ -97,7 +107,11 @@ export const RadarChart = ({
       labelY:
         CENTER_Y +
         y * LABEL_RADIUS -
-        (y < -0.5 ? LABEL_HEIGHT : y > 0.5 ? 0 : LABEL_HEIGHT / 2),
+        (y <= -0.5 + ALIGNMENT_EPSILON
+          ? LABEL_HEIGHT
+          : y >= 0.5 - ALIGNMENT_EPSILON
+            ? 0
+            : LABEL_HEIGHT / 2),
       align: x < -0.1 ? 'text-right' : x > 0.1 ? 'text-left' : 'text-center',
     };
   });
@@ -111,10 +125,15 @@ export const RadarChart = ({
           </Text>
         </div>
       ) : (
-        <TooltipPrimitive.Provider delayDuration={150}>
+        <TooltipPrimitive.Provider
+          // Brief hover delay avoids flashes when crossing between axes.
+          delayDuration={150}
+        >
           <svg
             viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
-            className="block w-full min-w-80"
+            className="block w-full"
+            // Preserve the labels' base font size; narrow containers scroll.
+            style={{ minWidth: VIEWBOX_WIDTH }}
             role={renderTooltip ? 'group' : 'img'}
             aria-label={ariaLabel}
             aria-labelledby={ariaLabelledBy}
@@ -157,8 +176,10 @@ export const RadarChart = ({
                 .map(({ pointX, pointY }) => `${pointX},${pointY}`)
                 .join(' ')}
               fill={CHART_SINGLE_FILL_COLOR}
+              // Keep grid rings visible through the filled data polygon.
               fillOpacity={0.35}
               stroke={getCategoricalLineChartColor(0)}
+              // Thin SVG strokes distinguish the polygon and point outlines.
               strokeWidth={1.5}
               strokeLinejoin="round"
             />
@@ -173,6 +194,8 @@ export const RadarChart = ({
                   aria-hidden={renderTooltip ? undefined : true}
                   tabIndex={renderTooltip ? 0 : undefined}
                 >
+                  {/* A 24-unit hit target surrounds the 9-unit point; the
+                      16-unit ring shows hover/focus without changing layout. */}
                   <circle cx={pointX} cy={pointY} r={12} fill="transparent" />
                   <circle
                     cx={pointX}
@@ -221,13 +244,35 @@ export const RadarChart = ({
               if (!renderTooltip) return mark;
 
               return (
-                <TooltipPrimitive.Root key={datum.id}>
-                  <TooltipPrimitive.Trigger asChild>
+                <TooltipPrimitive.Root
+                  key={datum.id}
+                  open={activeTooltip === datum.id}
+                  onOpenChange={(open) =>
+                    setActiveTooltip((active) =>
+                      open ? datum.id : active === datum.id ? null : active
+                    )
+                  }
+                >
+                  <TooltipPrimitive.Trigger
+                    asChild
+                    onFocus={(event) => {
+                      // Wait for keyboard focus to scroll an offscreen axis into
+                      // view; otherwise Radix closes the tooltip on that scroll.
+                      event.preventDefault();
+                      const target = event.currentTarget;
+                      requestAnimationFrame(() => {
+                        if (target === target.ownerDocument.activeElement) {
+                          setActiveTooltip(datum.id);
+                        }
+                      });
+                    }}
+                  >
                     {mark}
                   </TooltipPrimitive.Trigger>
                   <TooltipPrimitive.Portal>
                     <TooltipPrimitive.Content
                       asChild
+                      // Leave an 8px gap from the trigger and viewport edges.
                       sideOffset={8}
                       collisionPadding={8}
                     >

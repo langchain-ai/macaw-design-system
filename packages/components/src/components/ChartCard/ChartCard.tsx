@@ -51,7 +51,7 @@ const ChartCardLoadingState = () => (
       <Skeleton className="size-full rounded-md" />
       <Text
         variant="sm"
-        color="secondary"
+        color="placeholder"
         className="absolute inset-0 flex items-center justify-center"
       >
         Loading...

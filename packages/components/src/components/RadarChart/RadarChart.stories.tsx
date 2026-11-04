@@ -1,10 +1,16 @@
+import { expect, userEvent, waitFor, within } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { RadarChart, type RadarChartProps } from '.';
 import { getCategoricalLineChartColor } from '../../utils/chartColors';
 import { ChartCard } from '../ChartCard';
 import { ChartLegend } from '../ChartLegend';
-import { ChartTooltipHeader, ChartTooltipRow } from '../ChartTooltip';
+import {
+  ChartTooltipBody,
+  ChartTooltipHeader,
+  ChartTooltipRow,
+} from '../ChartTooltip';
 
 const workTypes = [
   { id: 'feature', label: 'Feature', value: 38, threads: 23, cost: 6 },
@@ -91,16 +97,23 @@ export const WorkType: Story = {
       const details = workTypes.find(({ id }) => id === datum.id);
       return (
         <>
-          {renderShareTooltip(datum)}
-          {details && (
-            <>
-              <ChartTooltipRow label="Threads" value={details.threads} />
-              <ChartTooltipRow
-                label="Cost"
-                value={`$${details.cost.toFixed(2)}`}
-              />
-            </>
-          )}
+          <ChartTooltipHeader title={datum.label} />
+          <ChartTooltipBody>
+            <ChartTooltipRow
+              label="Share"
+              value={formatPercent(datum.value)}
+              markerColor={datum.color}
+            />
+            {details && (
+              <>
+                <ChartTooltipRow label="Threads" value={details.threads} />
+                <ChartTooltipRow
+                  label="Cost"
+                  value={`$${details.cost.toFixed(2)}`}
+                />
+              </>
+            )}
+          </ChartTooltipBody>
         </>
       );
     },
@@ -166,6 +179,26 @@ export const Narrow: Story = {
       <RadarExample {...args} />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    const firstAxis = canvas.getByRole('img', { name: 'Feature: 38%' });
+    firstAxis.focus();
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole('img', { name: 'Bugfix: 28%' })
+    ).toHaveFocus();
+    await waitFor(() => {
+      expect(page.getByRole('tooltip')).toHaveTextContent('Bugfix');
+      expect(
+        firstAxis.closest('svg')?.parentElement?.scrollLeft
+      ).toBeGreaterThan(0);
+    });
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(page.queryByRole('tooltip')).not.toBeInTheDocument()
+    );
+  },
 };
 
 export const LongLabels: Story = {
@@ -185,17 +218,5 @@ export const InCard: Story = {
     <ChartCard title="Token Usage" className="max-w-lg">
       <RadarExample {...args} />
     </ChartCard>
-  ),
-};
-
-export const Loading: Story = {
-  render: () => (
-    <ChartCard title="Work Type" state="loading" className="h-96 max-w-lg" />
-  ),
-};
-
-export const Error: Story = {
-  render: () => (
-    <ChartCard title="Work Type" state="error" className="h-96 max-w-lg" />
   ),
 };

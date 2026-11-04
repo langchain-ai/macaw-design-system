@@ -105,6 +105,25 @@ describe('RadarChart', () => {
     ).toBe(true);
   });
 
+  it('aligns mirrored labels at the 30-degree boundary', () => {
+    const { container } = render(
+      <RadarChart
+        data={Array.from({ length: 6 }, (_, index) => ({
+          id: String(index),
+          label: `Axis ${index}`,
+          value: index + 1,
+        }))}
+      />
+    );
+    const labels = container.querySelectorAll('foreignObject');
+    expect(Number(labels[1].getAttribute('y'))).toBeCloseTo(
+      Number(labels[5].getAttribute('y'))
+    );
+    expect(Number(labels[2].getAttribute('y'))).toBeCloseTo(
+      Number(labels[4].getAttribute('y'))
+    );
+  });
+
   it.each([0, 1, 2])('shows an empty state for %i axes', (count) => {
     render(<RadarChart data={data.slice(0, count)} />);
     expect(screen.getByRole('status')).toHaveTextContent('At least three axes');
