@@ -149,47 +149,26 @@ void [
   ChatRichContent,
   ChatRichContentChoices,
   ChatRichContentFallback,
+  { title: 'Review', variant: 'approval' } satisfies ChatRichContentProps,
   {
-    title: 'Review changes',
+    title: 'Review',
     variant: 'approval',
-    onApprove: () => {},
-  } satisfies ChatRichContentProps,
-  {
-    title: 'Choose a task',
-    presentation: 'drawer',
-    defaultOpen: true,
+    // @ts-expect-error onSkip belongs to the form variant.
+    onSkip() {},
   } satisfies ChatRichContentProps,
   'validation-error' satisfies ChatRichContentState,
+  { current: 1, total: 2, onChange() {} } satisfies ChatRichContentNavigation,
+  ((context: ChatRichContentRendererContext) =>
+    context.errorId) satisfies ChatRichContentRenderer,
+  { selected: [] } satisfies ChatRichContentChoicesValue,
   {
-    current: 1,
-    total: 2,
-    onChange: () => {},
-  } satisfies ChatRichContentNavigation,
-  {
-    disabled: false,
-    isError: true,
-    errorId: 'answer-error',
-  } satisfies ChatRichContentRendererContext,
-  (({ disabled }) =>
-    disabled
-      ? 'Unavailable'
-      : 'Choose an answer') satisfies ChatRichContentRenderer,
-  {
-    selected: [],
-    custom: { selected: true, text: 'Draft' },
-  } satisfies ChatRichContentChoicesValue,
-  {
-    mode: 'multiple',
-    options: [{ value: 'summary', label: 'Summary' }],
+    mode: 'single',
+    options: [],
     value: { selected: [] },
-    onChange: () => {},
+    onChange() {},
     'aria-label': 'Tasks',
-    'aria-describedby': 'answer-error',
-    allowCustom: true,
-    customInput: 'external',
-    onCustomSelect: () => {},
   } satisfies ChatRichContentChoicesProps,
-  { actions: null } satisfies ChatRichContentFallbackProps,
+  {} satisfies ChatRichContentFallbackProps,
   {
     id: 'message',
     role: 'assistant',

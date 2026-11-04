@@ -65,16 +65,9 @@ const meta = {
     docs: {
       description: {
         component: [
-          'Interactive forms and approvals for chat. Import from @langchain/macaw-components/ChatRichContent.',
-          '- The host supplies controls, values, validation, and submission.',
-          '- Compose ChatRichContentChoices for optional custom answers.',
-          '- Use presentation="drawer" in ChatComposer’s drawer slot. The composer owns submission; synchronize its disabled/action props with the rich content state.',
-          '- Use customInput="external" on choices and bind the composer to value.custom.text. onCustomSelect can focus the composer input ref.',
-          '- Use variant="approval" with onApprove, onReject, and optional onUndo.',
-          '- Compose a code or diff preview as children. Set approved/rejected only after saving the decision.',
-          '- Decisions stay pending until state changes to a new outcome or error. Throw from the callback if a retry fails with the same error state.',
-          '- Set unanswered after confirmation to reopen; key by request ID for a new request.',
-          '- Opt into a controlled rejectionReason field when needed.',
+          'Forms and approvals in chat. The host supplies controls, values, validation, and persistence.',
+          '- Use presentation="drawer" in ChatComposer’s drawer slot; the composer owns submission.',
+          '- Set an outcome state only after saving. Throw from the callback when a retry fails with the same error state.',
         ].join('\n'),
       },
     },
@@ -792,15 +785,11 @@ export const Retry: Story = {
   },
 };
 
-function ConfirmationExample({
-  title = 'Ready to continue?',
-}: {
-  title?: string;
-}) {
+function ConfirmationExample() {
   const [submitted, setSubmitted] = useState(false);
   return (
     <ChatRichContent
-      title={title}
+      title="Ready to continue?"
       submitLabel="Confirm"
       state={submitted ? 'submitted' : 'unanswered'}
       onSubmit={() => {
@@ -887,7 +876,7 @@ export const UnknownAndInvalid: Story = {
       <div className="flex flex-col gap-space-4">
         <ChatRichContentFallback />
         {recovered ? (
-          <ConfirmationExample title="Ready to continue?" />
+          <ConfirmationExample />
         ) : skipped ? (
           <ChatRichContent
             title="Optional Question"
@@ -926,7 +915,7 @@ export const UnknownAndInvalid: Story = {
     docs: {
       description: {
         story:
-          'The host validates payloads and renders the fallback for unknown or invalid content. Supply recovery actions only when the application supports them. These controls simulate recovery locally.',
+          '- Render for unknown or invalid payloads. Supply recovery actions only when the host supports them.',
       },
     },
   },
@@ -1092,8 +1081,7 @@ function ConversationExample() {
   );
 }
 
-export const InConversationDrawer: Story = {
-  name: 'Composer Drawer',
+export const ComposerDrawer: Story = {
   render: () => <ConversationExample />,
   parameters: {
     docs: {
@@ -1486,11 +1474,6 @@ export const NarrowDrawer: Story = {
       />
     </div>
   ),
-};
-
-export const DarkDrawer: Story = {
-  ...NarrowDrawer,
-  globals: { backgrounds: { value: 'dark' } },
 };
 
 export const DrawerValidation: Story = {

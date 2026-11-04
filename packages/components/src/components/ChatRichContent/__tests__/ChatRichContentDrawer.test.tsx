@@ -169,6 +169,33 @@ describe('ChatRichContent drawer', () => {
     );
   });
 
+  it('keeps a collapsed drawer open after its validation error clears', () => {
+    const onOpenChange = vi.fn();
+    const drawer = (state: ChatRichContentState) => (
+      <ChatRichContent
+        presentation="drawer"
+        defaultOpen={false}
+        onOpenChange={onOpenChange}
+        title="Pick a region"
+        state={state}
+        message="Choose a region."
+      />
+    );
+    const { rerender } = render(drawer('unanswered'));
+    expect(
+      screen.getByRole('button', { name: 'Expand question' })
+    ).toHaveAttribute('aria-expanded', 'false');
+    rerender(drawer('validation-error'));
+    expect(
+      screen.queryByRole('button', { name: /question$/ })
+    ).not.toBeInTheDocument();
+    rerender(drawer('unanswered'));
+    expect(
+      screen.getByRole('button', { name: 'Collapse question' })
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+  });
+
   it.each([
     'validation-error',
     'submission-failed',

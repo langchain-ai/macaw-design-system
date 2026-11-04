@@ -16,10 +16,11 @@ export interface ChatRichContentRendererContext {
   disabled: boolean;
   /** The host focuses the invalid field after a failed submit. */
   isError: boolean;
+  /** The status message's id while invalid; pass to the field's `aria-describedby`. */
   errorId?: string;
 }
 
-/** Hosts compose existing controls or adapt one product card at a time. */
+/** Render-prop children that connect custom controls to the card state. */
 export type ChatRichContentRenderer = (
   context: ChatRichContentRendererContext
 ) => ReactNode;

@@ -73,16 +73,12 @@ export function ChatRichContent(props: ChatRichContentProps) {
     current: currentQuestion,
     direction: 0,
   });
-  useLayoutEffect(() => {
-    setQuestionTransition((previous) =>
-      previous.current === currentQuestion
-        ? previous
-        : {
-            current: currentQuestion,
-            direction: currentQuestion > previous.current ? 1 : -1,
-          }
-    );
-  }, [currentQuestion]);
+  if (questionTransition.current !== currentQuestion) {
+    setQuestionTransition({
+      current: currentQuestion,
+      direction: currentQuestion > questionTransition.current ? 1 : -1,
+    });
+  }
   const questionAnimation =
     navigation &&
     navigation.total > 1 &&
@@ -209,7 +205,7 @@ export function ChatRichContent(props: ChatRichContentProps) {
   function renderSecondaryActions(size: 'xs' | 'sm') {
     return (
       <>
-        {!readOnly && onSkip && (
+        {onSkip && (
           <Button
             type="button"
             size={size}
@@ -224,7 +220,7 @@ export function ChatRichContent(props: ChatRichContentProps) {
             {skipLabel}
           </Button>
         )}
-        {!readOnly && onReject && (
+        {onReject && (
           <Button
             type="button"
             size={size}
@@ -257,7 +253,7 @@ export function ChatRichContent(props: ChatRichContentProps) {
       noValidate={isDrawer ? undefined : true}
       aria-labelledby={`${id}-title`}
       aria-describedby={statusMessage ? `${id}-status` : undefined}
-      aria-busy={pending || displayState === 'submitting'}
+      aria-busy={pending || state === 'submitting'}
       data-state={displayState}
       className={cn(
         containerClassName,

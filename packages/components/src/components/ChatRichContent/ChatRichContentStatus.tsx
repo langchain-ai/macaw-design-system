@@ -24,7 +24,8 @@ export function ChatRichContentStatus({
   isError: boolean;
   children: ReactNode;
 }) {
-  const iconSize = compact ? 'sm' : 'md';
+  const succeeded = state === 'submitted' || state === 'approved';
+  const icon = succeeded ? CheckIcon : state === 'rejected' ? XIcon : undefined;
   return (
     <Text
       id={live ? id : undefined}
@@ -39,22 +40,13 @@ export function ChatRichContentStatus({
         isError && 'text-error-primary'
       )}
     >
-      {(state === 'submitted' || state === 'approved') && (
+      {icon && (
         <Icon
-          icon={CheckIcon}
+          icon={icon}
           aria-hidden
-          size={iconSize}
+          size={compact ? 'sm' : 'md'}
           weight="regular"
-          className="shrink-0 text-success-primary"
-        />
-      )}
-      {state === 'rejected' && (
-        <Icon
-          icon={XIcon}
-          aria-hidden
-          size={iconSize}
-          weight="regular"
-          className="shrink-0"
+          className={cn('shrink-0', succeeded && 'text-success-primary')}
         />
       )}
       <span className={cn('min-w-0', compact && 'truncate')}>{children}</span>

@@ -141,46 +141,26 @@ only fields outside the drawer get native validation.
 
 ## Chat rich content
 
-Import `ChatRichContent`, `ChatRichContentChoices`, and
-`ChatRichContentFallback` from `@langchain/macaw-components/ChatRichContent`.
-The host owns payload validation, answers, persistence, and request identity.
-Compose existing inputs or a code/diff preview as children; no product payload
-schema or network operation is built into the component.
+Import the parts from `@langchain/macaw-components/ChatRichContent`. The host
+owns the controls, answers, validation, and persistence. Pass a render function
+as children to get `disabled`, `isError`, and `errorId` for custom controls,
+and focus the invalid field after validation fails. With
+`ChatRichContentChoices`, exclude deselected custom text from the response.
 
-The default `presentation="block"` renders a labelled form with its own
-actions. Use the child render function's `disabled`, `isError`, and `errorId`
-to connect custom controls to the card state. Focus the invalid field after
-validation fails. `ChatRichContentChoices` supports single or multiple
-selection and an optional custom answer. Preserve deselected custom text as a
-draft, and exclude it from the submitted response.
+For questions above a message input, put `presentation="drawer"` in
+`ChatComposer`'s `drawer` slot instead of nesting a block form. The composer
+owns submission, so keep its `disabled`, `submitDisabled`, `action`, and
+`drawerIntent` in sync with `state`. Set `customInput="external"` on choices to
+take custom text from the composer input, and focus it from `onCustomSelect`.
 
-For questions attached to a message input, put `presentation="drawer"` in
-`ChatComposer`'s `drawer` slot. The drawer renders a region, and the composer
-owns submission. Synchronize `ChatRichContent`'s `state` with the composer's
-`disabled`, `submitDisabled`, and `action` props. Use `drawerIntent="error"`
-with an explanatory message for a failed response. Do not nest a block form
-inside the composer form.
+Use `variant="approval"` for decisions. Set `submitted`, `approved`, or
+`rejected` only after saving. An action stays pending until `state` changes from
+where it started (ignoring `submitting`), so throw from the callback when a
+retry fails with the same error state. Key the card by request ID for a new
+request.
 
-Set `customInput="external"` on choices to use `ChatComposerInput` for custom
-text. Bind it to `value.custom.text`, set custom selection when the user types,
-and use `onCustomSelect` to focus the composer input ref. Drawer `open` or
-`defaultOpen` controls collapse; errors always expand the drawer. Keep answer
-drafts in host state when changing questions, and use `navigation` with
-one-based positions.
-
-Use `variant="approval"` with `onApprove`, `onReject`, and optional `onUndo`
-for a decision. Set `approved`, `rejected`, or `submitted` only after the host
-has saved the response. Decisions stay pending until `state` changes from the
-attempt's starting state to a new outcome, excluding `submitting`. Throw from
-the callback when a retry fails with the same error state so the user can try
-again. Set `unanswered` after a successful undo; key the card by request ID
-for a new request.
-
-Render `ChatRichContentFallback` when a host adapter cannot render a payload.
-It has no action by default; supply recovery controls only when the host
-supports them. See the Storybook examples for block/drawer comparisons,
-validation and retry, approvals, and the composer returning to messaging
-after the answers are accepted.
+Render `ChatRichContentFallback` for a payload the host can't render; pass
+`actions` only for recovery the host supports.
 
 ## Tokens
 

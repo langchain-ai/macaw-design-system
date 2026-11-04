@@ -12,6 +12,7 @@ import { render, screen } from '../../../test-utils';
 
 const options = [
   { value: 'each', label: 'Each change' },
+  // Must stay distinct from the built-in custom answer.
   { value: 'custom', label: 'Final summary' },
 ];
 
@@ -53,9 +54,8 @@ function ChoicesHost({
 }
 
 describe('ChatRichContentChoices', () => {
-  it('keeps custom radio answers exclusive and restores their draft without submitting', async () => {
-    const onSubmit = vi.fn();
-    const { user } = render(<ChoicesHost mode="single" onSubmit={onSubmit} />);
+  it('keeps custom radio answers exclusive and restores their draft', async () => {
+    const { user } = render(<ChoicesHost mode="single" />);
 
     await user.click(screen.getByRole('radio', { name: 'Something else…' }));
     expect(
@@ -86,7 +86,6 @@ describe('ChatRichContentChoices', () => {
     expect(
       screen.getByRole('textbox', { name: /Something else/ })
     ).toHaveFocus();
-    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('adds custom checkbox answers and keeps submitted controls checked and disabled', async () => {

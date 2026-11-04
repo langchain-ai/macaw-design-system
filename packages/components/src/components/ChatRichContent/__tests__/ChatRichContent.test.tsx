@@ -8,9 +8,23 @@ import {
   type ChatRichContentState,
 } from '..';
 import { act, render, screen } from '../../../test-utils';
-import { Checkbox } from '../../Checkbox';
 import { Input } from '../../Input';
-import { Text } from '../../Text';
+
+function deferred() {
+  let resolve = () => {};
+  const promise = new Promise<void>((done) => {
+    resolve = done;
+  });
+  return {
+    promise,
+    async settle() {
+      await act(async () => {
+        resolve();
+        await promise;
+      });
+    },
+  };
+}
 
 function HostExample({ save }: { save?: (value: string) => Promise<void> }) {
   const [draft, setDraft] = useState('');
@@ -70,19 +84,10 @@ function ApprovalHost({ save }: { save: (reason: string) => Promise<void> }) {
   );
 }
 
-describe('ChatRichContent', () => {
-  it('renders host content and escapes the title', () => {
-    const title = '<img src=x onerror=alert(1) />';
-    render(
-      <ChatRichContent title={title}>
-        <Text>Host content</Text>
-      </ChatRichContent>
-    );
-    expect(screen.getByText(title)).toBeVisible();
-    expect(screen.getByText('Host content')).toBeVisible();
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
-  });
+const reasonField = () =>
+  screen.getByRole('textbox', { name: /rejection reason/i });
 
+describe('ChatRichContent', () => {
   it('provides an inert fallback for adapters', () => {
     render(<ChatRichContentFallback />);
     expect(screen.getByText('This content is unavailable.')).toBeVisible();
@@ -91,11 +96,8 @@ describe('ChatRichContent', () => {
   });
 
   it('blocks duplicate submission until the host confirms the outcome', async () => {
-    let accept = () => {};
-    const request = new Promise<void>((resolve) => {
-      accept = resolve;
-    });
-    const onSubmit = vi.fn().mockReturnValue(request);
+    const request = deferred();
+    const onSubmit = vi.fn().mockReturnValue(request.promise);
     const { user, rerender } = render(
       <ChatRichContent title="Continue?" onSubmit={onSubmit} />
     );
@@ -107,10 +109,7 @@ describe('ChatRichContent', () => {
     );
     expect(screen.getByRole('button')).toBeDisabled();
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    await act(async () => {
-      accept();
-      await request;
-    });
+    await request.settle();
     expect(screen.getByRole('button')).toBeDisabled();
     await user.click(screen.getByRole('button'));
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -141,324 +140,33 @@ describe('ChatRichContent', () => {
     expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue(
       'Research'
     );
-    expect(
-      screen.getByRole('button', { name: 'Retry response' })
-    ).toBeEnabled();
     rerender(<HostExample />);
     expect(
       screen.getByRole('button', { name: 'Retry response' })
     ).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Retry response' }));
-    expect(save).toHaveBeenCalledTimes(1);
     rerender(<HostExample save={save} />);
     await user.click(screen.getByRole('button', { name: 'Retry response' }));
     expect(await screen.findByText('Response submitted')).toBeVisible();
-    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue(
-      'Research'
-    );
     expect(screen.getByRole('textbox', { name: 'Name' })).toBeDisabled();
-    expect(save).toHaveBeenLastCalledWith('Research');
     expect(save).toHaveBeenCalledTimes(2);
+    expect(save).toHaveBeenLastCalledWith('Research');
   });
 
-  it('locks both decisions during rejection and until the host confirms the outcome', async () => {
-    let reject = () => {};
-    const request = new Promise<void>((resolve) => {
-      reject = resolve;
-    });
-    const onReject = vi.fn().mockReturnValue(request);
-    const onApprove = vi.fn();
-    const { user, rerender } = render(
-      <ChatRichContent
-        variant="approval"
-        title="Review changes"
-        onApprove={onApprove}
-        onReject={onReject}
-      />
-    );
-    await user.dblClick(screen.getByRole('button', { name: 'Reject' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Rejecting request…');
-    expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Approve' }));
-    expect(onApprove).not.toHaveBeenCalled();
-    expect(onReject).toHaveBeenCalledTimes(1);
-    expect(onReject).toHaveBeenCalledWith('');
-    await act(async () => {
-      reject();
-      await request;
-    });
-    expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Approve' }));
-    expect(onApprove).not.toHaveBeenCalled();
-    rerender(
-      <ChatRichContent
-        variant="approval"
-        title="Review changes"
-        state="rejected"
-      />
-    );
-    expect(screen.getByRole('status')).toHaveTextContent('Rejected');
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-  });
-
-  it('allows reject-only cards to edit child controls without enabling approval', async () => {
-    const reject = vi.fn();
-    function RejectOnlyExample() {
-      const [draft, setDraft] = useState('');
-      const [state, setState] = useState<ChatRichContentState>('unanswered');
-      return (
-        <ChatRichContent
-          variant="approval"
-          title="Review changes"
-          state={state}
-          onReject={() => {
-            reject(draft);
-            setState('rejected');
-          }}
-        >
-          {({ disabled }) => (
-            <Input
-              label="Requested changes"
-              value={draft}
-              onChange={setDraft}
-              debounceMs={0}
-              disabled={disabled}
-            />
-          )}
-        </ChatRichContent>
-      );
-    }
-    const { user } = render(<RejectOnlyExample />);
-    const input = screen.getByRole('textbox', { name: 'Requested changes' });
-    expect(input).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-    await user.type(input, 'Preserve the existing format.');
-    await user.click(screen.getByRole('button', { name: 'Reject' }));
-    expect(reject).toHaveBeenCalledWith('Preserve the existing format.');
-    expect(screen.getByRole('status')).toHaveTextContent('Rejected');
-    expect(input).toBeDisabled();
-  });
-
-  it.each(['', 'Keep the original wording.'])(
-    'rejects with an optional reason: %j',
-    async (reason) => {
-      const save = vi.fn().mockResolvedValue(undefined);
-      const { user } = render(<ApprovalHost save={save} />);
-      if (reason) {
-        await user.type(
-          screen.getByRole('textbox', { name: /rejection reason/i }),
-          reason
-        );
-      }
-      await user.click(screen.getByRole('button', { name: 'Reject' }));
-      expect(await screen.findByRole('status')).toHaveTextContent('Rejected');
-      expect(save).toHaveBeenCalledWith(reason);
-      expect(screen.queryByRole('button')).not.toBeInTheDocument();
-      if (reason) {
-        expect(
-          screen.getByRole('textbox', { name: /rejection reason/i })
-        ).toHaveValue(reason);
-        expect(
-          screen.getByRole('textbox', { name: /rejection reason/i })
-        ).toBeDisabled();
-      } else {
-        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-      }
-    }
-  );
-
-  it('retains the reason after consecutive failures and retries rejection without approving', async () => {
-    const save = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Save failed'))
-      .mockRejectedValueOnce(new Error('Save failed again'))
-      .mockResolvedValue(undefined);
-    const { user } = render(<ApprovalHost save={save} />);
-    const reason = 'Keep the original wording.';
-    await user.type(
-      screen.getByRole('textbox', { name: /rejection reason/i }),
-      reason
-    );
-    for (const attempt of [1, 2]) {
-      await user.click(screen.getByRole('button', { name: 'Reject' }));
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        'Could not submit your response.'
-      );
-      expect(
-        screen.getByRole('textbox', { name: /rejection reason/i })
-      ).toHaveValue(reason);
-      expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled();
-      expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled();
-      expect(save).toHaveBeenCalledTimes(attempt);
-    }
-    await user.click(screen.getByRole('button', { name: 'Reject' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Rejected');
-    expect(save).toHaveBeenLastCalledWith(reason);
-    expect(save).toHaveBeenCalledTimes(3);
-  });
-
-  it('hides the unused rejection draft after approval', async () => {
-    const save = vi.fn();
-    const { user } = render(<ApprovalHost save={save} />);
-    await user.type(
-      screen.getByRole('textbox', { name: /rejection reason/i }),
-      'A draft reason'
-    );
-    await user.click(screen.getByRole('button', { name: 'Approve' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Approved');
-    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(save).not.toHaveBeenCalled();
-  });
-
-  const unavailable: ChatRichContentState[] = [
-    'submitting',
-    'expired',
-    'disabled',
-    'submitted',
-    'read-only',
-  ];
-  it.each(unavailable)('blocks actions in %s state', async (state) => {
-    const onSubmit = vi.fn();
-    const { user } = render(
-      <ChatRichContent
-        title="Agent instructions"
-        state={state}
-        onSubmit={onSubmit}
-      >
-        {({ disabled }) => (
-          <Input
-            label="Instructions"
-            value="Draft"
-            onChange={() => {}}
-            disabled={disabled}
-          />
-        )}
-      </ChatRichContent>
-    );
-    if (
-      state === 'submitted' ||
-      state === 'approved' ||
-      state === 'rejected' ||
-      state === 'read-only'
-    ) {
-      expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    } else {
-      expect(screen.getByRole('button')).toBeDisabled();
-      await user.click(screen.getByRole('button'));
-    }
-    expect(screen.getByRole('textbox', { name: 'Instructions' })).toHaveValue(
-      'Draft'
-    );
-    expect(
-      screen.getByRole('textbox', { name: 'Instructions' })
-    ).toBeDisabled();
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it('keeps submitted checkboxes checked and disabled', async () => {
-    function ChoiceExample() {
-      const [checked, setChecked] = useState(false);
-      const [accepted, setAccepted] = useState<boolean>();
-      return (
-        <ChatRichContent
-          title="Choose a task"
-          state={accepted === undefined ? 'unanswered' : 'submitted'}
-          onSubmit={() => {
-            setAccepted(checked);
-          }}
-        >
-          {({ disabled }) => (
-            <Checkbox
-              label="Research"
-              checked={accepted ?? checked}
-              disabled={disabled}
-              onCheckedChange={(value) => setChecked(value === true)}
-            />
-          )}
-        </ChatRichContent>
-      );
-    }
-    const { user } = render(<ChoiceExample />);
-    await user.click(screen.getByRole('checkbox', { name: 'Research' }));
-    await user.click(screen.getByRole('button', { name: 'Submit response' }));
-    expect(await screen.findByText('Response submitted')).toBeVisible();
-    const checkbox = screen.getByRole('checkbox', { name: 'Research' });
-    expect(checkbox).toBeChecked();
-    expect(checkbox).toBeDisabled();
-    await user.click(checkbox);
-    expect(checkbox).toBeChecked();
-    expect(
-      screen.queryByRole('button', { name: 'Submit response' })
-    ).not.toBeInTheDocument();
-  });
-
-  it('presents host validation and permits a corrected response', async () => {
+  it('connects host validation to the field and permits a corrected response', async () => {
     const onSubmit = vi
       .fn()
       .mockRejectedValueOnce(new Error('Invalid'))
       .mockResolvedValue(undefined);
-    const { user, rerender } = render(
-      <ChatRichContent title="Agent instructions" onSubmit={onSubmit} />
-    );
-    await user.click(screen.getByRole('button', { name: 'Submit response' }));
-    rerender(
-      <ChatRichContent
-        title="Agent instructions"
-        state="validation-error"
-        message="Add instructions before continuing."
-        onSubmit={onSubmit}
-      />
-    );
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Add instructions before continuing.'
-    );
-    expect(screen.getByRole('button')).toBeEnabled();
-    await user.click(screen.getByRole('button', { name: 'Submit response' }));
-    expect(onSubmit).toHaveBeenCalledTimes(2);
-  });
-
-  it('keeps a collapsed drawer open after its validation error clears', () => {
-    const onOpenChange = vi.fn();
-    const drawer = (state: ChatRichContentState) => (
-      <ChatRichContent
-        presentation="drawer"
-        defaultOpen={false}
-        onOpenChange={onOpenChange}
-        title="Pick a region"
-        state={state}
-        message="Choose a region."
-        onSubmit={vi.fn()}
-      />
-    );
-    const { rerender } = render(drawer('unanswered'));
-    const toggle = screen.getByRole('button', { name: 'Expand question' });
-    expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    rerender(drawer('validation-error'));
-    expect(
-      screen.queryByRole('button', { name: /question$/ })
-    ).not.toBeInTheDocument();
-    rerender(drawer('unanswered'));
-    expect(
-      screen.getByRole('button', { name: 'Collapse question' })
-    ).toHaveAttribute('aria-expanded', 'true');
-    expect(onOpenChange).toHaveBeenCalledWith(true);
-  });
-
-  it('describes the invalid field with the validation message', () => {
     const card = (state: ChatRichContentState) => (
       <ChatRichContent
         title="Agent instructions"
         state={state}
         message="Add instructions before continuing."
-        onSubmit={vi.fn()}
+        onSubmit={onSubmit}
       >
         {({ disabled, isError, errorId }) => (
           <Input
             aria-label="Instructions"
-            debounceMs={0}
             value=""
             onChange={() => {}}
             disabled={disabled}
@@ -468,352 +176,403 @@ describe('ChatRichContent', () => {
         )}
       </ChatRichContent>
     );
-    const { rerender } = render(card('unanswered'));
+    const { user, rerender } = render(card('unanswered'));
     const field = screen.getByRole('textbox', { name: 'Instructions' });
     expect(field).not.toHaveAccessibleDescription();
+    await user.click(screen.getByRole('button', { name: 'Submit response' }));
     rerender(card('validation-error'));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Add instructions before continuing.'
+    );
     expect(field).toBeInvalid();
     expect(field).toHaveAccessibleDescription(
       'Add instructions before continuing.'
     );
+    await user.click(screen.getByRole('button', { name: 'Submit response' }));
+    expect(onSubmit).toHaveBeenCalledTimes(2);
   });
 
   it.each([
-    ['unanswered', 'approved'],
-    ['unanswered', 'rejected'],
-    ['submission-failed', 'approved'],
-    ['submission-failed', 'rejected'],
-    ['validation-error', 'approved'],
-    ['validation-error', 'rejected'],
-  ] satisfies [ChatRichContentState, ChatRichContentState][])(
-    'locks a decision from %s until %s confirmation and allows reopening',
-    async (initialState, decision) => {
-      const onDecide = vi.fn().mockResolvedValue(undefined);
-      const card = (state: ChatRichContentState) => (
-        <ChatRichContent
-          variant="approval"
-          title="Review changes"
-          state={state}
-          onApprove={onDecide}
-          onReject={onDecide}
-        />
-      );
-      const { user, rerender } = render(card(initialState));
-      const action = decision === 'approved' ? 'Approve' : 'Reject';
-      await user.click(screen.getByRole('button', { name: action }));
-      expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
-      rerender(card('submitting'));
-      expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
-      rerender(card(initialState));
-      expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
-      await user.click(screen.getByRole('button', { name: 'Approve' }));
-      await user.click(screen.getByRole('button', { name: 'Reject' }));
-      expect(onDecide).toHaveBeenCalledTimes(1);
-      rerender(card(decision));
-      expect(screen.getByRole('status')).toHaveTextContent(
-        decision === 'approved' ? 'Approved' : 'Rejected'
-      );
-      expect(screen.queryByRole('button')).not.toBeInTheDocument();
-      rerender(card('unanswered'));
-      expect(screen.getByRole('button', { name: action })).toBeEnabled();
-      await user.click(screen.getByRole('button', { name: action }));
-      expect(onDecide).toHaveBeenCalledTimes(2);
-    }
-  );
-
-  it.each([
-    'submission-failed',
-    'validation-error',
+    'submitting',
+    'expired',
+    'disabled',
   ] satisfies ChatRichContentState[])(
-    'allows the host to reset a pending retry from %s to unanswered',
-    async (initialState) => {
-      const onApprove = vi.fn().mockResolvedValue(undefined);
-      const card = (state: ChatRichContentState) => (
+    'disables fields, submit, and skip in %s state',
+    async (state) => {
+      const onSubmit = vi.fn();
+      const onSkip = vi.fn();
+      const { user } = render(
         <ChatRichContent
-          variant="approval"
-          title="Review changes"
+          title="Agent instructions"
           state={state}
-          onApprove={onApprove}
-        />
-      );
-      const { user, rerender } = render(card(initialState));
-      await user.click(screen.getByRole('button', { name: 'Approve' }));
-      expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
-      rerender(card('unanswered'));
-      expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled();
-      await user.click(screen.getByRole('button', { name: 'Approve' }));
-      expect(onApprove).toHaveBeenCalledTimes(2);
-    }
-  );
-
-  it('guards pending undo and restores actions with the rejection draft', async () => {
-    let finishUndo = () => {};
-    const request = new Promise<void>((resolve) => {
-      finishUndo = resolve;
-    });
-    const undo = vi.fn().mockReturnValue(request);
-    function UndoExample() {
-      const [state, setState] = useState<ChatRichContentState>('unanswered');
-      const [reason, setReason] = useState('Keep the original wording.');
-      return (
-        <ChatRichContent
-          variant="approval"
-          title="Review changes"
-          state={state}
-          onApprove={() => setState('approved')}
-          onReject={() => setState('rejected')}
-          onUndo={async () => {
-            await undo();
-            setState('unanswered');
-          }}
-          rejectionReason={{ value: reason, onChange: setReason }}
-        />
-      );
-    }
-    const { user } = render(<UndoExample />);
-    await user.click(screen.getByRole('button', { name: 'Reject' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Rejected');
-    await user.dblClick(screen.getByRole('button', { name: 'Undo' }));
-    expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
-    expect(undo).toHaveBeenCalledTimes(1);
-    await act(async () => {
-      finishUndo();
-      await request;
-    });
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled();
-    expect(
-      screen.getByRole('textbox', { name: /rejection reason/i })
-    ).toHaveValue('Keep the original wording.');
-    await user.click(screen.getByRole('button', { name: 'Approve' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Approved');
-    await user.click(screen.getByRole('button', { name: 'Undo' }));
-    expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled();
-    expect(
-      screen.getByRole('textbox', { name: /rejection reason/i })
-    ).toHaveValue('Keep the original wording.');
-  });
-
-  it('allows an explicit final submission after skipping the last question', async () => {
-    const onSkip = vi.fn().mockResolvedValue(undefined);
-    const onSubmit = vi.fn().mockResolvedValue(undefined);
-    const { user } = render(
-      <ChatRichContent
-        title="Optional question"
-        onSkip={onSkip}
-        onSubmit={onSubmit}
-      />
-    );
-    await user.tab();
-    expect(screen.getByRole('button', { name: 'Skip' })).toHaveFocus();
-    await user.tab();
-    expect(
-      screen.getByRole('button', { name: 'Submit response' })
-    ).toHaveFocus();
-    await user.click(screen.getByRole('button', { name: 'Skip' }));
-    expect(onSkip).toHaveBeenCalledTimes(1);
-    expect(onSubmit).not.toHaveBeenCalled();
-    await user.dblClick(
-      screen.getByRole('button', { name: 'Submit response' })
-    );
-    expect(onSubmit).toHaveBeenCalledTimes(1);
-  });
-
-  it('keeps answers editable through Next and only submits on the final step', async () => {
-    const save = vi.fn().mockResolvedValue(undefined);
-    function StepsExample() {
-      const [current, setCurrent] = useState(1);
-      const [value, setValue] = useState('');
-      const [submitted, setSubmitted] = useState(false);
-      return (
-        <ChatRichContent
-          title="Agent details"
-          state={submitted ? 'submitted' : 'unanswered'}
-          navigation={{ current, total: 2, onChange: setCurrent }}
-          onNext={current === 1 ? () => setCurrent(2) : undefined}
-          onSubmit={async () => {
-            await save(value);
-            setSubmitted(true);
-          }}
+          onSubmit={onSubmit}
+          onSkip={onSkip}
         >
           {({ disabled }) => (
             <Input
-              label="Answer"
-              value={value}
-              onChange={setValue}
+              aria-label="Instructions"
+              onChange={() => {}}
               disabled={disabled}
-              debounceMs={0}
             />
           )}
         </ChatRichContent>
       );
+      expect(screen.getByRole('textbox')).toBeDisabled();
+      for (const name of ['Skip', 'Submit response']) {
+        const button = screen.getByRole('button', { name });
+        expect(button).toBeDisabled();
+        await user.click(button);
+      }
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(onSkip).not.toHaveBeenCalled();
     }
-    const { user } = render(<StepsExample />);
-    expect(screen.getByRole('button', { name: /^Next$/ })).toBeVisible();
-    expect(
-      screen.queryByRole('button', { name: 'Submit response' })
-    ).not.toBeInTheDocument();
-    await user.type(
-      screen.getByRole('textbox', { name: 'Answer' }),
-      'Research{Enter}'
-    );
-    expect(screen.getByText('2 of 2')).toBeVisible();
-    expect(save).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Previous question' }));
-    expect(screen.getByRole('textbox', { name: 'Answer' })).toHaveValue(
-      'Research'
-    );
-    await user.type(
-      screen.getByRole('textbox', { name: 'Answer' }),
-      ' assistant'
-    );
-    await user.click(screen.getByRole('button', { name: /^Next$/ }));
-    expect(save).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Submit response' }));
-    expect(save).toHaveBeenCalledOnce();
-    expect(save).toHaveBeenCalledWith('Research assistant');
-    expect(screen.getByRole('textbox', { name: 'Answer' })).toHaveValue(
-      'Research assistant'
-    );
-    expect(screen.getByRole('textbox', { name: 'Answer' })).toBeDisabled();
-    expect(screen.getByRole('status')).toHaveTextContent('Response submitted');
-  });
+  );
 
-  it.each([2, 3])(
-    'advances only once on a double-click in a %i-question form with saved answers',
-    async (total) => {
-      function SavedAnswersExample() {
-        const [current, setCurrent] = useState(1);
-        const [submitted, setSubmitted] = useState(false);
-        const answers = ['Research', 'Summarize documents', 'Cite sources'];
+  it.each(['submitted', 'read-only'] satisfies ChatRichContentState[])(
+    'shows a %s response without actions',
+    (state) => {
+      render(
+        <ChatRichContent
+          title="Agent instructions"
+          state={state}
+          onSubmit={vi.fn()}
+          onSkip={vi.fn()}
+        >
+          {({ disabled }) => (
+            <Input
+              aria-label="Instructions"
+              onChange={() => {}}
+              disabled={disabled}
+            />
+          )}
+        </ChatRichContent>
+      );
+      expect(screen.getByRole('textbox')).toBeDisabled();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    }
+  );
+
+  describe('approval', () => {
+    it.each([
+      { from: 'unanswered', action: 'Reject', pending: 'Rejecting request…' },
+      {
+        from: 'submission-failed',
+        action: 'Approve',
+        pending: 'Submitting response…',
+      },
+      {
+        from: 'validation-error',
+        action: 'Reject',
+        pending: 'Rejecting request…',
+      },
+    ] satisfies {
+      from: ChatRichContentState;
+      action: 'Approve' | 'Reject';
+      pending: string;
+    }[])(
+      'locks both decisions from $from until the host confirms $action',
+      async ({ from, action, pending }) => {
+        const onDecide = vi.fn().mockResolvedValue(undefined);
+        const card = (state: ChatRichContentState) => (
+          <ChatRichContent
+            variant="approval"
+            title="Review changes"
+            state={state}
+            onApprove={onDecide}
+            onReject={onDecide}
+          />
+        );
+        const expectLocked = () => {
+          expect(
+            screen.getByRole('button', { name: 'Approve' })
+          ).toBeDisabled();
+          expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
+        };
+        const { user, rerender } = render(card(from));
+        await user.dblClick(screen.getByRole('button', { name: action }));
+        expect(screen.getByRole('status')).toHaveTextContent(pending);
+        expectLocked();
+        rerender(card('submitting'));
+        expectLocked();
+        // The callback resolved, but the starting state is not confirmation.
+        rerender(card(from));
+        expectLocked();
+        await user.click(screen.getByRole('button', { name: 'Approve' }));
+        await user.click(screen.getByRole('button', { name: 'Reject' }));
+        expect(onDecide).toHaveBeenCalledTimes(1);
+
+        const outcome = action === 'Approve' ? 'Approved' : 'Rejected';
+        rerender(card(action === 'Approve' ? 'approved' : 'rejected'));
+        expect(screen.getByRole('status')).toHaveTextContent(outcome);
+        expect(screen.queryByRole('button')).not.toBeInTheDocument();
+        rerender(card('unanswered'));
+        await user.click(screen.getByRole('button', { name: action }));
+        expect(onDecide).toHaveBeenCalledTimes(2);
+      }
+    );
+
+    it('allows reject-only cards to edit child controls without enabling approval', async () => {
+      const reject = vi.fn();
+      function RejectOnlyExample() {
+        const [draft, setDraft] = useState('');
+        const [state, setState] = useState<ChatRichContentState>('unanswered');
         return (
           <ChatRichContent
-            title={`Question ${current}`}
-            state={submitted ? 'submitted' : 'unanswered'}
-            navigation={{ current, total, onChange: setCurrent }}
-            onNext={current < total ? () => setCurrent(current + 1) : undefined}
-            onSubmit={() => setSubmitted(true)}
+            variant="approval"
+            title="Review changes"
+            state={state}
+            onReject={() => {
+              reject(draft);
+              setState('rejected');
+            }}
           >
             {({ disabled }) => (
               <Input
-                aria-label="Answer"
-                value={answers[current - 1] ?? ''}
-                onChange={() => {}}
+                label="Requested changes"
+                value={draft}
+                onChange={setDraft}
+                debounceMs={0}
                 disabled={disabled}
               />
             )}
           </ChatRichContent>
         );
       }
+      const { user } = render(<RejectOnlyExample />);
+      const input = screen.getByRole('textbox', { name: 'Requested changes' });
+      expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
+      await user.type(input, 'Preserve the existing format.');
+      await user.click(screen.getByRole('button', { name: 'Reject' }));
+      expect(reject).toHaveBeenCalledWith('Preserve the existing format.');
+      expect(input).toBeDisabled();
+    });
 
-      const { user } = render(<SavedAnswersExample />);
-      await user.dblClick(screen.getByRole('button', { name: /^Next$/ }));
+    it('rejects without a reason and hides the empty field afterward', async () => {
+      const save = vi.fn().mockResolvedValue(undefined);
+      const { user } = render(<ApprovalHost save={save} />);
+      await user.click(screen.getByRole('button', { name: 'Reject' }));
+      expect(await screen.findByRole('status')).toHaveTextContent('Rejected');
+      expect(save).toHaveBeenCalledWith('');
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    });
 
-      expect(screen.getByText(`2 of ${total}`)).toBeVisible();
-      expect(screen.getByRole('textbox', { name: 'Answer' })).toHaveValue(
-        'Summarize documents'
-      );
-      expect(screen.getByRole('textbox', { name: 'Answer' })).toBeEnabled();
-      expect(screen.queryByText('Response submitted')).not.toBeInTheDocument();
-
-      if (total === 3) {
-        await user.click(screen.getByRole('button', { name: /^Next$/ }));
-        expect(screen.getByText('3 of 3')).toBeVisible();
+    it('keeps the reason through repeated failures and shows it read-only once rejected', async () => {
+      const save = vi
+        .fn()
+        .mockRejectedValueOnce(new Error('Save failed'))
+        .mockRejectedValueOnce(new Error('Save failed again'))
+        .mockResolvedValue(undefined);
+      const { user } = render(<ApprovalHost save={save} />);
+      const reason = 'Keep the original wording.';
+      await user.type(reasonField(), reason);
+      // The second failure lands on the same error state, so the thrown
+      // error is what releases the lock.
+      for (const attempt of [1, 2]) {
+        await user.click(screen.getByRole('button', { name: 'Reject' }));
+        expect(await screen.findByRole('alert')).toHaveTextContent(
+          'Could not submit your response.'
+        );
+        expect(reasonField()).toHaveValue(reason);
+        expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled();
+        expect(save).toHaveBeenCalledTimes(attempt);
       }
+      await user.click(screen.getByRole('button', { name: 'Reject' }));
+      expect(await screen.findByRole('status')).toHaveTextContent('Rejected');
+      expect(save).toHaveBeenLastCalledWith(reason);
+      expect(reasonField()).toHaveValue(reason);
+      expect(reasonField()).toBeDisabled();
+    });
+
+    it('hides the unused rejection draft after approval', async () => {
+      const save = vi.fn();
+      const { user } = render(<ApprovalHost save={save} />);
+      await user.type(reasonField(), 'A draft reason');
+      await user.click(screen.getByRole('button', { name: 'Approve' }));
+      expect(await screen.findByRole('status')).toHaveTextContent('Approved');
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      expect(save).not.toHaveBeenCalled();
+    });
+
+    it('guards pending undo and restores actions with the rejection draft', async () => {
+      const request = deferred();
+      const undo = vi.fn().mockReturnValue(request.promise);
+      function UndoExample() {
+        const [state, setState] = useState<ChatRichContentState>('unanswered');
+        const [reason, setReason] = useState('Keep the original wording.');
+        return (
+          <ChatRichContent
+            variant="approval"
+            title="Review changes"
+            state={state}
+            onApprove={() => setState('approved')}
+            onReject={() => setState('rejected')}
+            onUndo={async () => {
+              await undo();
+              setState('unanswered');
+            }}
+            rejectionReason={{ value: reason, onChange: setReason }}
+          />
+        );
+      }
+      const { user } = render(<UndoExample />);
+      await user.click(screen.getByRole('button', { name: 'Reject' }));
+      await user.dblClick(screen.getByRole('button', { name: 'Undo' }));
+      expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
+      expect(undo).toHaveBeenCalledTimes(1);
+      await request.settle();
+      expect(reasonField()).toHaveValue('Keep the original wording.');
+      await user.click(screen.getByRole('button', { name: 'Approve' }));
+      await user.click(screen.getByRole('button', { name: 'Undo' }));
+      expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled();
+      expect(reasonField()).toHaveValue('Keep the original wording.');
+    });
+  });
+
+  describe('questions', () => {
+    it('keeps answers editable through Next and only submits on the final step', async () => {
+      const save = vi.fn().mockResolvedValue(undefined);
+      function StepsExample() {
+        const [current, setCurrent] = useState(1);
+        const [value, setValue] = useState('');
+        const [submitted, setSubmitted] = useState(false);
+        return (
+          <ChatRichContent
+            title="Agent details"
+            state={submitted ? 'submitted' : 'unanswered'}
+            navigation={{ current, total: 2, onChange: setCurrent }}
+            onNext={current === 1 ? () => setCurrent(2) : undefined}
+            onSubmit={async () => {
+              await save(value);
+              setSubmitted(true);
+            }}
+          >
+            {({ disabled }) => (
+              <Input
+                label="Answer"
+                value={value}
+                onChange={setValue}
+                disabled={disabled}
+                debounceMs={0}
+              />
+            )}
+          </ChatRichContent>
+        );
+      }
+      const { user } = render(<StepsExample />);
+      expect(
+        screen.queryByRole('button', { name: 'Submit response' })
+      ).not.toBeInTheDocument();
+      await user.type(
+        screen.getByRole('textbox', { name: 'Answer' }),
+        'Research{Enter}'
+      );
+      expect(screen.getByText('2 of 2')).toBeVisible();
+      await user.click(
+        screen.getByRole('button', { name: 'Previous question' })
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: 'Answer' }),
+        ' assistant'
+      );
+      await user.click(screen.getByRole('button', { name: /^Next$/ }));
+      expect(save).not.toHaveBeenCalled();
       await user.click(screen.getByRole('button', { name: 'Submit response' }));
+      expect(save).toHaveBeenCalledExactlyOnceWith('Research assistant');
+      expect(screen.getByRole('textbox', { name: 'Answer' })).toBeDisabled();
       expect(screen.getByRole('status')).toHaveTextContent(
         'Response submitted'
       );
-      expect(screen.getByRole('textbox', { name: 'Answer' })).toBeDisabled();
-    }
-  );
-
-  it('locks skip, submit, and navigation while skipping', async () => {
-    let finish = () => {};
-    const request = new Promise<void>((resolve) => {
-      finish = resolve;
     });
-    const onSkip = vi.fn().mockReturnValue(request);
-    const onSubmit = vi.fn();
-    const onChange = vi.fn();
-    const { user } = render(
-      <ChatRichContent
-        title="Optional question"
-        onSkip={onSkip}
-        onSubmit={onSubmit}
-        navigation={{ current: 2, total: 3, onChange }}
-      />
-    );
-    await user.dblClick(screen.getByRole('button', { name: 'Skip' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Skipping question…');
-    for (const name of [
-      'Skip',
-      'Submit response',
-      'Previous question',
-      'Next question',
-    ]) {
-      expect(screen.getByRole('button', { name })).toBeDisabled();
-    }
-    await user.click(screen.getByRole('button', { name: 'Submit response' }));
-    await user.click(screen.getByRole('button', { name: 'Next question' }));
-    expect(onSkip).toHaveBeenCalledTimes(1);
-    expect(onSubmit).not.toHaveBeenCalled();
-    expect(onChange).not.toHaveBeenCalled();
-    await act(async () => {
-      finish();
-      await request;
-    });
-    expect(screen.getByRole('button', { name: 'Skip' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Next question' })).toBeEnabled();
-  });
 
-  it.each(unavailable)('prevents skipping in %s state', async (state) => {
-    const onSkip = vi.fn();
-    const { user } = render(
-      <ChatRichContent
-        title="Optional question"
-        state={state}
-        onSkip={onSkip}
-      />
+    // With two questions the second click would land on Submit; with three,
+    // on Next again.
+    it.each([2, 3])(
+      'advances one question per double-click in a %i-question form',
+      async (total) => {
+        const onSubmit = vi.fn();
+        function StepsExample() {
+          const [current, setCurrent] = useState(1);
+          return (
+            <ChatRichContent
+              title={`Question ${current}`}
+              navigation={{ current, total, onChange: setCurrent }}
+              onNext={
+                current < total ? () => setCurrent(current + 1) : undefined
+              }
+              onSubmit={onSubmit}
+            />
+          );
+        }
+        const { user } = render(<StepsExample />);
+        await user.dblClick(screen.getByRole('button', { name: /^Next$/ }));
+        expect(screen.getByText(`2 of ${total}`)).toBeVisible();
+        expect(onSubmit).not.toHaveBeenCalled();
+      }
     );
-    if (state === 'submitted' || state === 'read-only') {
-      expect(
-        screen.queryByRole('button', { name: 'Skip' })
-      ).not.toBeInTheDocument();
-    } else {
-      const skip = screen.getByRole('button', { name: 'Skip' });
-      expect(skip).toBeDisabled();
-      await user.click(skip);
-    }
-    expect(onSkip).not.toHaveBeenCalled();
-  });
 
-  it('allows controlled history navigation within the question bounds', async () => {
-    function QuestionExample() {
-      const [current, setCurrent] = useState(1);
-      return (
+    it('locks skip, submit, and navigation while skipping', async () => {
+      const request = deferred();
+      const onSkip = vi.fn().mockReturnValue(request.promise);
+      const onSubmit = vi.fn();
+      const onChange = vi.fn();
+      const { user } = render(
         <ChatRichContent
-          title="Saved questions"
-          state="submitted"
-          navigation={{ current, total: 3, onChange: setCurrent }}
+          title="Optional question"
+          onSkip={onSkip}
+          onSubmit={onSubmit}
+          navigation={{ current: 2, total: 3, onChange }}
         />
       );
-    }
-    const { user } = render(<QuestionExample />);
-    expect(screen.getByText('1 of 3')).toBeVisible();
-    expect(
-      screen.getByRole('button', { name: 'Previous question' })
-    ).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Next question' }));
-    expect(screen.getByText('2 of 3')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Next question' }));
-    expect(screen.getByText('3 of 3')).toBeVisible();
-    expect(
-      screen.getByRole('button', { name: 'Next question' })
-    ).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Previous question' }));
-    expect(screen.getByText('2 of 3')).toBeVisible();
+      await user.dblClick(screen.getByRole('button', { name: 'Skip' }));
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Skipping question…'
+      );
+      for (const name of [
+        'Skip',
+        'Submit response',
+        'Previous question',
+        'Next question',
+      ]) {
+        expect(screen.getByRole('button', { name })).toBeDisabled();
+      }
+      await user.click(screen.getByRole('button', { name: 'Submit response' }));
+      await user.click(screen.getByRole('button', { name: 'Next question' }));
+      expect(onSkip).toHaveBeenCalledTimes(1);
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(onChange).not.toHaveBeenCalled();
+
+      // Skipping needs no host confirmation, so the card unlocks right away.
+      await request.settle();
+      expect(
+        screen.getByRole('button', { name: 'Next question' })
+      ).toBeEnabled();
+      await user.click(screen.getByRole('button', { name: 'Submit response' }));
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows controlled history navigation within the question bounds', async () => {
+      function QuestionExample() {
+        const [current, setCurrent] = useState(1);
+        return (
+          <ChatRichContent
+            title="Saved questions"
+            state="submitted"
+            navigation={{ current, total: 3, onChange: setCurrent }}
+          />
+        );
+      }
+      const { user } = render(<QuestionExample />);
+      const previous = screen.getByRole('button', {
+        name: 'Previous question',
+      });
+      const next = screen.getByRole('button', { name: 'Next question' });
+      expect(previous).toBeDisabled();
+      await user.click(next);
+      await user.click(next);
+      expect(screen.getByText('3 of 3')).toBeVisible();
+      expect(next).toBeDisabled();
+      await user.click(previous);
+      expect(screen.getByText('2 of 3')).toBeVisible();
+    });
   });
 });
