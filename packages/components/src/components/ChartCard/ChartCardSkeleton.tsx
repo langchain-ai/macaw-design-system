@@ -156,10 +156,10 @@ export const ChartCardSkeleton = ({
     {variant === 'heatmap' && (
       <div
         aria-hidden="true"
-        className="grid min-h-0 flex-1 grid-cols-[repeat(20,minmax(0,1fr))] grid-rows-7 gap-space-1"
+        className="grid min-h-0 flex-1 grid-cols-10 grid-rows-5 gap-space-1"
       >
-        {/* Seven rows suggest a weekly matrix; cells stretch with the card. */}
-        {Array.from({ length: 7 * 20 }, (_, index) => (
+        {/* A sparse 5-by-10 grid suggests a matrix without visual clutter. */}
+        {Array.from({ length: 5 * 10 }, (_, index) => (
           <Skeleton
             key={index}
             className="h-full min-h-0 rounded-xs motion-reduce:animate-none"
