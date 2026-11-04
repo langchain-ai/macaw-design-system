@@ -20,9 +20,28 @@ import type {
 import { AttachmentList } from '@langchain/macaw-components/Attachment';
 import type { AttachmentProps } from '@langchain/macaw-components/Attachment';
 import { BarChart } from '@langchain/macaw-components/BarChart';
+import {
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbPage,
+} from '@langchain/macaw-components/Breadcrumb';
+import type {
+  BreadcrumbProps,
+  BreadcrumbLinkProps,
+  BreadcrumbPageProps,
+} from '@langchain/macaw-components/Breadcrumb';
 import type { ButtonProps } from '@langchain/macaw-components/Button';
 import { ChartCardSkeleton } from '@langchain/macaw-components/ChartCard';
 import type { ChartCardSkeletonVariant } from '@langchain/macaw-components/ChartCard';
+import {
+  ChatComposer,
+  ChatComposerContext,
+  ChatComposerInput,
+} from '@langchain/macaw-components/ChatComposer';
+import type {
+  ChatComposerInputProps,
+  ChatComposerProps,
+} from '@langchain/macaw-components/ChatComposer';
 import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
 import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
@@ -40,6 +59,21 @@ import {
   ChatMessageActions,
 } from '@langchain/macaw-components/ChatMessage';
 import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import { ChatState } from '@langchain/macaw-components/ChatState';
+import type {
+  ChatStateProps,
+  ChatStateStatus,
+  ChatStateTimerPrecision,
+} from '@langchain/macaw-components/ChatState';
+import {
+  ChatToolCall,
+  ChatToolCallGroup,
+  ChatToolCallReasoning,
+} from '@langchain/macaw-components/ChatToolCall';
+import type {
+  ChatToolCallModel,
+  ChatToolCallProps,
+} from '@langchain/macaw-components/ChatToolCall';
 import {
   Code,
   CodeLanguageSelect,
@@ -65,6 +99,10 @@ import type {
   InputIconAction,
   InputProps,
 } from '@langchain/macaw-components/Input';
+import {
+  RadarChart,
+  type RadarChartProps,
+} from '@langchain/macaw-components/RadarChart';
 import { SankeyChart } from '@langchain/macaw-components/SankeyChart';
 import type { SankeyChartProps } from '@langchain/macaw-components/SankeyChart';
 import tailwindPreset from '@langchain/macaw-components/tailwind-preset';
@@ -82,6 +120,18 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  { 'aria-label': 'Breadcrumb' } satisfies BreadcrumbProps,
+  {
+    'aria-label': 'Project breadcrumb',
+    condensed: true,
+  } satisfies BreadcrumbProps,
+  { condensed: false } satisfies BreadcrumbProps,
+  { href: '/files', children: 'Files' } satisfies BreadcrumbLinkProps,
+  { children: 'Notes', title: 'Current note' } satisfies BreadcrumbPageProps,
+  { children: 'Notes', tabIndex: -1 } satisfies BreadcrumbPageProps,
   Accordion,
   AccordionItem,
   { title: 'Notifications', contents: 'Email' } satisfies AccordionItemProps,
@@ -113,6 +163,13 @@ void [
     status: 'uploading',
     disabled: true,
   } satisfies AttachmentProps,
+  ChatComposer,
+  ChatComposerContext,
+  ChatComposerInput,
+  { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  { action: 'sending' } satisfies ChatComposerProps,
+  // @ts-expect-error onStop belongs to action="stop".
+  { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
   ChatConversation,
   {
     children: null,
@@ -121,6 +178,21 @@ void [
   } satisfies ChatConversationProps,
   ChatMessage,
   ChatMessageActions,
+  ChatState,
+  { status: 'streaming', showElapsed: true } satisfies ChatStateProps,
+  'input-required' satisfies ChatStateStatus,
+  'tenths' satisfies ChatStateTimerPrecision,
+  ChatToolCall,
+  ChatToolCallGroup,
+  ChatToolCallReasoning,
+  {
+    toolCall: { id: 'search-1', name: 'search', status: 'running' },
+  } satisfies ChatToolCallProps,
+  {
+    id: 'search-1',
+    name: 'search',
+    status: 'succeeded',
+  } satisfies ChatToolCallModel,
   {
     id: 'message',
     role: 'assistant',
@@ -134,6 +206,18 @@ void [
     size: 'sm',
     color: 'blue',
   } satisfies HeatmapChartProps,
+  RadarChart,
+  {
+    data: [{ id: 'axis', label: 'Axis', value: 1, color: 'currentColor' }],
+    renderTooltip: (datum) => datum.label,
+  } satisfies RadarChartProps,
+  {
+    axes: [{ id: 'axis', label: 'Axis' }],
+    series: [{ id: 'series', label: 'Series', values: { axis: 1 } }],
+    renderAxisTooltip: (axis) => axis.values.map(({ label }) => label).join(),
+    selectedIds: new Set(['series']),
+    activeLegendItemId: 'series',
+  } satisfies RadarChartProps,
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   useDebouncedCommit,
@@ -154,6 +238,8 @@ void [
     onClick: () => {},
   } satisfies InputIconAction,
   'line' satisfies ChartCardSkeletonVariant,
+  'radar' satisfies ChartCardSkeletonVariant,
+  'heatmap' satisfies ChartCardSkeletonVariant,
   ChartCardSkeleton,
   AppThemeProvider,
   BarChart,

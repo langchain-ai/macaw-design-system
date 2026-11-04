@@ -126,37 +126,37 @@ Use this table for new or meaningfully touched UI. Existing code still contains
 deprecated aliases during migration; do not churn unrelated call sites just to
 rename classes.
 
-| Situation                                                       | Class                                                                                 |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Page / app shell background                                     | `bg-surface-level-1`                                                                  |
-| Card, panel                                                     | `bg-surface-level-2`                                                                  |
-| App navigation sidebar                                          | `bg-sidebar`                                                                          |
-| Raised card, pane                                               | `bg-elevated`                                                                         |
-| Input, textarea, select/typeahead control, filled popup trigger | `bg-input`                                                                            |
-| Tooltip, popover, select/typeahead menu, dropdown, context/command menu | `bg-popover`                                                                     |
-| Modal scrim / backdrop                                          | `bg-overlay` for new overlays; some current overlays still use opacity classes        |
-| Non-Button brand fill                                           | `bg-brand`; use `<Button />` for CTAs                                                 |
-| Tinted brand surface                                            | `bg-brand-subtle`                                                                     |
-| Tinted brand gradient surface                                   | `bg-brand-subtle-gradient`                                                            |
-| Branded illustration backdrop                                   | `bg-brand-illustration`                                                               |
-| Purple accent surface                                           | `bg-purple`                                                                           |
-| Success / Error / Warning tint                                  | `bg-success` / `bg-error` / `bg-warning`                                              |
-| Filled success / error / warning                                | `bg-success-strong` / `bg-error-strong` / `bg-warning-strong`                         |
-| Control on-state                                                | `bg-control-active` for new control internals                                         |
-| Selected list item                                              | `bg-selected` for new selection states                                                |
-| Body text                                                       | `text-primary`                                                                        |
-| Secondary / label text                                          | `text-secondary`                                                                      |
-| Placeholder text                                                | `text-placeholder`                                                                    |
-| Disabled text                                                   | `text-disabled`                                                                       |
-| Standalone default icon                                         | `text-icon-primary`; icons may inherit text color when paired with labels             |
-| Default structural/control border                               | `border-default`; older controls often still use `border-secondary`                   |
-| Focus border token                                              | `border-focus`; many current controls still use `border-brand` / `ring-brand`         |
-| Error state border                                              | `border-error`                                                                        |
-| Disabled border                                                 | `border-disabled`                                                                     |
-| Run/system status text                                          | `text-status-green` / `text-status-orange` / `text-status-yellow` / `text-status-red` |
-| Low elevation for floating controls or interaction states       | `shadow-sm`                                                                           |
-| Dropdown / popover shadow                                       | `shadow-md`                                                                           |
-| Modal / dialog shadow                                           | `shadow-lg`                                                                           |
+| Situation                                                               | Class                                                                                 |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Page / app shell background                                             | `bg-surface-level-1`                                                                  |
+| Card, panel                                                             | `bg-surface-level-2`                                                                  |
+| App navigation sidebar                                                  | `bg-sidebar`                                                                          |
+| Raised card, pane                                                       | `bg-elevated`                                                                         |
+| Input, textarea, select/typeahead control, filled popup trigger         | `bg-input`                                                                            |
+| Tooltip, popover, select/typeahead menu, dropdown, context/command menu | `bg-popover`                                                                          |
+| Modal scrim / backdrop                                                  | `bg-overlay` for new overlays; some current overlays still use opacity classes        |
+| Non-Button brand fill                                                   | `bg-brand`; use `<Button />` for CTAs                                                 |
+| Tinted brand surface                                                    | `bg-brand-subtle`                                                                     |
+| Tinted brand gradient surface                                           | `bg-brand-subtle-gradient`                                                            |
+| Branded illustration backdrop                                           | `bg-brand-illustration`                                                               |
+| Purple accent surface                                                   | `bg-purple`                                                                           |
+| Success / Error / Warning tint                                          | `bg-success` / `bg-error` / `bg-warning`                                              |
+| Filled success / error / warning                                        | `bg-success-strong` / `bg-error-strong` / `bg-warning-strong`                         |
+| Control on-state                                                        | `bg-control-active` for new control internals                                         |
+| Selected list item                                                      | `bg-selected` for new selection states                                                |
+| Body text                                                               | `text-primary`                                                                        |
+| Secondary / label text                                                  | `text-secondary`                                                                      |
+| Placeholder text                                                        | `text-placeholder`                                                                    |
+| Disabled text                                                           | `text-disabled`                                                                       |
+| Standalone default icon                                                 | `text-icon-primary`; icons may inherit text color when paired with labels             |
+| Default structural/control border                                       | `border-default`; older controls often still use `border-secondary`                   |
+| Focus border token                                                      | `border-focus`; many current controls still use `border-brand` / `ring-brand`         |
+| Error state border                                                      | `border-error`                                                                        |
+| Disabled border                                                         | `border-disabled`                                                                     |
+| Run/system status text                                                  | `text-status-green` / `text-status-orange` / `text-status-yellow` / `text-status-red` |
+| Low elevation for floating controls or interaction states               | `shadow-sm`                                                                           |
+| Dropdown / popover shadow                                               | `shadow-md`                                                                           |
+| Modal / dialog shadow                                                   | `shadow-lg`                                                                           |
 
 ---
 
@@ -187,7 +187,7 @@ dashboard visualization shells.
 - Consumers own charts, legends, data interactions, and empty states. Use the
   `state` prop for standard loading and known data-fetching error states; it
   does not catch chart-rendering exceptions.
-- Set `skeletonVariant` to `bar`, `horizontal-bar`, `line`, `donut`, `metric`, `sparkline`, or `sankey` to match the chart
+- Set `skeletonVariant` to `bar`, `horizontal-bar`, `line`, `donut`, `metric`, `sparkline`, `sankey`, `radar`, or `heatmap` to match the chart
   shape while loading. Use `ChartCardSkeleton` directly for a chart placeholder
   outside a card.
 - Loading and error states have a baseline minimum height. Set an explicit card
@@ -285,14 +285,14 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-surface-level-3`       | Nested table headers or grouped inner containers                  |
 | `bg-surface-level-4`       | Deepest neutral fill for additional separation                    |
 | `bg-disabled`              | Disabled input or control fill                                    |
-| `bg-elevated`              | Raised cards and panes                                           |
+| `bg-elevated`              | Raised cards and panes                                            |
 | `bg-input`                 | Input and textarea fields, picker controls, filled popup triggers |
-| `bg-input-hover`           | Hover fill for Select controls                                     |
+| `bg-input-hover`           | Hover fill for Select controls                                    |
 | `bg-input-plain`           | Fill for borderless (`variant="plain"`) Input and CommandInput    |
 | `bg-input-disabled`        | Disabled field fill, independent of general disabled controls     |
-| `bg-elevated-hover`        | Hover state inside a raised or floating surface                    |
-| `bg-elevated-selected`     | Selected item inside a raised or floating surface                  |
-| `bg-popover`               | Floating tooltips, popovers, and menu surfaces                     |
+| `bg-elevated-hover`        | Hover state inside a raised or floating surface                   |
+| `bg-elevated-selected`     | Selected item inside a raised or floating surface                 |
+| `bg-popover`               | Floating tooltips, popovers, and menu surfaces                    |
 | `bg-sidebar`               | App navigation sidebar surface                                    |
 | `bg-overlay`               | Modal backdrop / scrim                                            |
 
@@ -376,8 +376,8 @@ Used internally by Checkbox, RadioButton, Switch, and Slider. Prefer those compo
 
 | Class                 | When to use                              |
 | --------------------- | ---------------------------------------- |
-| `border-input`       | Enabled field border; adapts per theme     |
-| `border-input-hover` | Enabled field hover border                 |
+| `border-input`        | Enabled field border; adapts per theme   |
+| `border-input-hover`  | Enabled field hover border               |
 | `border-default`      | Default input, card, or container border |
 | `border-subtle`       | Subtle divider                           |
 | `border-muted`        | Very subtle divider                      |

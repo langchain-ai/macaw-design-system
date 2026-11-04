@@ -197,7 +197,7 @@ test('handles missing sources and discovers components without keyword entries',
       throw new Error('Story source must never execute during discovery.');
       const documentation = {
         component: NewControl,
-        tags: ['autodocs', 'dev', 'test', 'manifest', 'play-fn', 'test-fn', 'obsolete', '!obsolete', 'calendar', 'date picker', 'calendar'],
+        tags: ['autodocs', 'a11y-test', 'dev', 'test', 'manifest', 'play-fn', 'test-fn', 'obsolete', '!obsolete', 'calendar', 'date picker', 'calendar'],
         parameters: { tags: ['unrelated'] },
       } satisfies Meta<typeof NewControl>;
       export default documentation;

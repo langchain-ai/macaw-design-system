@@ -53,6 +53,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `Button` for actions and `Link` for navigation.
 - Use `IconButton` for an icon-only action and provide its `label`.
 - Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
+- Use `ChatComposer` for a chat message input; see [Chat composer](#chat-composer).
 - Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
 - Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
 - Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
@@ -66,6 +67,29 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `Skeleton` for known content shapes, `LinearProgress` for regional loading, and `ProgressBar` for measurable completion.
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
+
+## Chat
+
+Import the tool-call presentation family from
+`@langchain/macaw-components/ChatToolCall` and shared lifecycle presentation
+from `@langchain/macaw-components/ChatState`. They are intentionally omitted
+from the root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
+
+## Breadcrumbs
+
+Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
+`@langchain/macaw-components/Breadcrumb`. Compose links and the noninteractive
+current page directly inside `Breadcrumb`; it supplies navigation/list semantics
+and slash separators. Use `href` for native links,
+`as={<RouterLink to="/projects" />}` for router links, and `separator` to customize
+the divider. `leftDecorator` adds an icon.
+
+Trails stay on one line and scroll horizontally when space runs out, with
+keyboard scrolling for overflowing trails. Labels cap at
+200px, or 148px with `condensed`. Clipped labels show the shared tooltip on hover
+or focus; clipped current-page text becomes focusable. Consumers choose when to
+condense and own routing, saved URLs, page titles, loading/error states, and
+switchers. Compose `Skeleton` for loading and static text for unavailable ancestors.
 
 ## Nested modals
 
@@ -101,6 +125,42 @@ unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
 `onUpdate` when an integration also needs selection or programmatic updates.
 
+## Chat composer
+
+Import the parts from `@langchain/macaw-components/ChatComposer` and use them
+only inside `ChatComposer`: `ChatComposerInput`, optional
+`ChatComposerAttachments`, and a `ChatComposerToolbar` with
+`ChatComposerAttachmentMenu`, `ChatComposerModelSelect`, and the default
+`ChatComposerAction` send button.
+
+Control the draft with `value`/`onChange` on `ChatComposerInput` and send from
+`onSubmit`. Set `submitDisabled` when there is no text and no attachments, and
+`disabled` to lock the whole composer. Set `action="sending"` while a send is
+pending and `action="stop"` with `onStop` during generation. Both block sending
+and keep the input and attachments usable. Skip any state your app does not
+have.
+
+Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
+sends from any block. Without `onSubmit`, Enter only adds paragraphs. Three
+backticks start a code block. The input grows from `minHeight` (40px) to
+`maxHeight` (240px), and its ref exposes `focus()`. If the rich editor fails to
+load, the input switches to a plain textarea and reports the error to
+`ErrorReporterContext` from
+`@langchain/macaw-components/contexts/ErrorReporterContext`.
+
+Validate files in `onFilesSelected`, which receives picked, dropped, and pasted
+files. `accept` and `multiple` only configure the picker. Render accepted files
+with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
+`status="uploading"` while they upload.
+
+`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
+model moves focus to the message input.
+
+Use `drawer` for content above the editor, such as questions to answer before
+sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
+severity in the drawer's text or an icon too. Validate drawer fields yourself;
+only fields outside the drawer get native validation.
+
 ## Tokens
 
 Tokens flow in one direction:
@@ -132,6 +192,8 @@ Choose color by meaning:
 - Pair state color with text, shape, or an icon.
 
 Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
+
+Import `RadarChart` from `@langchain/macaw-components/RadarChart` to compare values across three or more axes. Use a shared `maxValue` when comparing charts. Compose with `ChartCard` and `ChartLegend`, and supply `renderTooltip` with chart tooltip content. To overlay series that share axes, such as experiments scored by the same evaluators, pass `axes` and `series` instead of `data`, keep to about four series, and supply `renderAxisTooltip` with one `ChartTooltipRow` per series. Build the legend from the series, and wire its hover to `activeLegendItemId` and its selection to `selectedIds`.
 
 Import `LineChart` from `@langchain/macaw-components/LineChart` for series over time. Keep the default `line` variant to compare how individual series change. Use `variant="stacked-area"` to show a total and each series' contribution, and only for same-unit values that add up, such as counts; never stack averages, rates, latency, or percentiles. See **Line Charts** in [`STYLES.md`](./STYLES.md).
 

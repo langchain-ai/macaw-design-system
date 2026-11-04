@@ -1,3 +1,63 @@
+## 1.6.0 (2026-11-04)
+
+### 🚀 Features
+
+- add radar chart and chart loading skeletons ([#34](https://github.com/langchain-ai/macaw-design-system/pull/34))
+
+### ❤️ Thank You
+
+- Nick
+
+## 1.5.2 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** Migration of ChatToolCalls ([#90](https://github.com/langchain-ai/macaw-design-system/pull/90))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+
+## 1.5.1 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** add ChatComposer [FEP-588] ([#79](https://github.com/langchain-ai/macaw-design-system/pull/79))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.5.0 (2026-11-03)
+
+### 🚀 Features
+
+- refine breadcrumb tooltips and single-row navigation ([#89](https://github.com/langchain-ai/macaw-design-system/pull/89))
+
+### ❤️ Thank You
+
+- Nick
+
+## 1.4.0 (2026-11-03)
+
+### 🚀 Features
+
+- add breadcrumbs and refresh the component overview ([#54](https://github.com/langchain-ai/macaw-design-system/pull/54))
+
+### ❤️ Thank You
+
+- Nick @nick-kim-langchain
+
+## 1.3.5 (2026-11-02)
+
+### 🚀 Features
+
+- **storybook:** [FEP-578] brandUrl should not redirect to langchain's site ([#69](https://github.com/langchain-ai/macaw-design-system/pull/69))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+
 ## 1.3.4 (2026-10-31)
 
 ### 🚀 Features

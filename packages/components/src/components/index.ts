@@ -1,3 +1,10 @@
+export { Breadcrumb, BreadcrumbLink, BreadcrumbPage } from './Breadcrumb';
+export type {
+  BreadcrumbProps,
+  BreadcrumbLinkProps,
+  BreadcrumbPageProps,
+} from './Breadcrumb';
+
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 
@@ -51,6 +58,31 @@ export type {
 
 export { Banner } from './Banner/Banner';
 export type { BannerProps } from './Banner/Banner';
+
+export {
+  ChatComposer,
+  ChatComposerAction,
+  ChatComposerAttachment,
+  ChatComposerAttachmentMenu,
+  ChatComposerAttachments,
+  ChatComposerContext,
+  ChatComposerInput,
+  ChatComposerModelSelect,
+  ChatComposerToolbar,
+} from './ChatComposer';
+export type {
+  ChatComposerActionProps,
+  ChatComposerAttachmentMenuProps,
+  ChatComposerAttachmentProps,
+  ChatComposerAttachmentsProps,
+  ChatComposerContextValue,
+  ChatComposerDrawerIntent,
+  ChatComposerInputHandle,
+  ChatComposerInputProps,
+  ChatComposerModelSelectProps,
+  ChatComposerProps,
+  ChatComposerToolbarProps,
+} from './ChatComposer';
 
 export { ChatConversation } from './ChatConversation';
 export type { ChatConversationProps } from './ChatConversation';
@@ -205,6 +237,12 @@ export type { SwitchProps } from './Switch';
 // NOTE: ChatConversationList is excluded for the same reason: its row and group
 // menus depend on @radix-ui/react-dropdown-menu. Import it directly:
 //   import { ChatConversationList, ... } from '@langchain/macaw-components/ChatConversationList'
+//
+// NOTE: ChatToolCall and ChatState are exposed together through explicit
+// subpaths. ChatToolCall's generic details depend on CodeLite, so importing it
+// from the root would add the code-preview graph to unrelated bundles:
+//   import { ChatState } from '@langchain/macaw-components/ChatState'
+//   import { ChatToolCall, ... } from '@langchain/macaw-components/ChatToolCall'
 //
 // NOTE: Dialog and Pane are likewise excluded — both wrap @radix-ui/react-dialog.
 // Import directly:
