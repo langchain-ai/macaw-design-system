@@ -11,10 +11,8 @@ import { Button } from '../components/Button/Button';
 import { ButtonGroup } from '../components/ButtonGroup';
 import { Checkbox } from '../components/Checkbox';
 import { Command, CommandItem, CommandList } from '../components/Command';
-import { CopyIconButton } from '../components/CopyButton';
 import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
 import { Icon } from '../components/Icon';
-import { IconButton } from '../components/IconButton';
 import { Input } from '../components/Input/Input';
 import { Kbd, KbdGroup } from '../components/Kbd';
 import { RadioButton } from '../components/RadioButton';
@@ -507,7 +505,7 @@ const ControlMatrix = () => (
     <FamilyHeading
       title="Controls"
       description="The ruler marks exact outer height. Multiline Textarea and multi-value Typeahead use these as first-row or minimum-height metrics."
-      components="Button, IconButton, ButtonGroup, CopyButton, Input, Select, Typeahead, GroupedTabs"
+      components="Input, Select, Typeahead, GroupedTabs"
     />
     <div className="overflow-x-auto rounded-lg border border-subtle bg-surface-level-2 p-space-4">
       <div className="flex min-w-max flex-col gap-space-3">
@@ -516,33 +514,6 @@ const ControlMatrix = () => (
           return (
             <div key={name} className="flex items-center gap-space-3">
               <SizeHeading name={name} rem={contract.rem} />
-              {name !== 'lg' && (
-                <GuidedSpecimen label="Button" rem={contract.rem}>
-                  <Button size={name}>Continue</Button>
-                </GuidedSpecimen>
-              )}
-              {name !== 'lg' && (
-                <GuidedSpecimen label="IconButton" rem={contract.rem}>
-                  <IconButton
-                    size={name}
-                    icon={MagnifyingGlassIcon}
-                    label="Search"
-                  />
-                </GuidedSpecimen>
-              )}
-              {name !== 'lg' && (
-                <GuidedSpecimen label="ButtonGroup" rem={contract.rem}>
-                  <ButtonGroup size={name} color="secondary" variant="outlined">
-                    <Button>First</Button>
-                    <Button>Second</Button>
-                  </ButtonGroup>
-                </GuidedSpecimen>
-              )}
-              {name !== 'lg' && (
-                <GuidedSpecimen label="CopyButton" rem={contract.rem}>
-                  <CopyIconButton copy="size contract" size={name} />
-                </GuidedSpecimen>
-              )}
               <GuidedSpecimen label="Input" rem={contract.rem}>
                 <div className="w-36">
                   <Input

@@ -47,6 +47,23 @@ const buttonTextColorClasses = [
   'button-error-disabled-foreground',
 ];
 
+const TYPOGRAPHY_SCALE_STEPS = [
+  'xs',
+  'sm',
+  'md',
+  'lg',
+  'lg-plus',
+  'xl',
+  '2xl',
+  '3xl',
+] as const;
+const typographyTextClasses = TYPOGRAPHY_SCALE_STEPS.map(
+  (step) => `text-type-${step}`
+);
+const typographyLineHeightClasses = TYPOGRAPHY_SCALE_STEPS.map(
+  (step) => `leading-type-${step}`
+);
+
 // Lets `space-*` tokens dedupe against built-in spacing (keep in sync with tailwind.config.js).
 const SPACE_SCALE_STEPS = [
   'space-1',
@@ -82,7 +99,9 @@ const customTwMerge = extendTailwindMerge({
         'text-base',
         'text-lg',
         'text-xl',
+        ...typographyTextClasses,
       ],
+      leading: typographyLineHeightClasses,
       // Extend bg-color to include custom background colors
       'bg-color': [
         'bg-primary',

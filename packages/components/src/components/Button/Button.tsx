@@ -7,17 +7,16 @@ import {
 } from 'react';
 
 import { cn } from '../../utils/cn';
-import { CONTROL_SIZES, type ControlSize } from '../../utils/componentSizes';
 import type { IconComponent } from '../../utils/icon-types';
 import { Badge } from '../Badge';
 import { Spinner } from '../Spinner';
 import { Text } from '../Text';
 import { buttonStyleMap } from './constants';
 
-type ButtonSize = Exclude<ControlSize, 'lg'>;
+type ButtonSize = 'xs' | 'sm' | 'md';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** Exact outer height: xs=20px, sm=24px, md=32px. */
+  /** Typography tier used to derive the button's intrinsic height. */
   size?: ButtonSize;
   /** Button color scheme */
   color?: 'primary' | 'secondary' | 'error';
@@ -64,13 +63,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles = cn(
-      'lc-button relative box-border inline-flex flex-none items-center justify-center gap-1.5 truncate transition-all duration-200',
-      CONTROL_SIZES[size].heightClassName,
-      '[&_*]:[text-box-trim:trim-both]',
+      "lc-button relative box-border inline-flex flex-none items-center justify-center gap-1.5 truncate py-0.5 transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:content-['']",
       {
-        'text-xxs leading-[1.15] tracking-normal': size === 'xs',
-        'text-xs leading-tight tracking-snug': size === 'sm',
-        'text-sm leading-[1.15] tracking-tighter': size === 'md',
+        'text-xxs leading-type-xs tracking-normal': size === 'xs',
+        'text-xs leading-type-sm tracking-snug': size === 'sm',
+        'text-sm leading-type-md tracking-tighter': size === 'md',
       },
       {
         'px-space-2': variant !== 'underlined',

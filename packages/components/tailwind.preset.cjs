@@ -40,6 +40,40 @@ module.exports = {
   theme: {
     extend: {
       fontSize: {
+        // Incremental typography scale. The `type-` prefix prevents these
+        // tokens from changing legacy text-xs/text-sm utilities globally.
+        'type-xs': [
+          'var(--font-size-xs)',
+          { lineHeight: 'var(--line-height-xs)' },
+        ],
+        'type-sm': [
+          'var(--font-size-sm)',
+          { lineHeight: 'var(--line-height-sm)' },
+        ],
+        'type-md': [
+          'var(--font-size-md)',
+          { lineHeight: 'var(--line-height-md)' },
+        ],
+        'type-lg': [
+          'var(--font-size-lg)',
+          { lineHeight: 'var(--line-height-lg)' },
+        ],
+        'type-lg-plus': [
+          'var(--font-size-lg-plus)',
+          { lineHeight: 'var(--line-height-lg-plus)' },
+        ],
+        'type-xl': [
+          'var(--font-size-xl)',
+          { lineHeight: 'var(--line-height-xl)' },
+        ],
+        'type-2xl': [
+          'var(--font-size-2xl)',
+          { lineHeight: 'var(--line-height-2xl)' },
+        ],
+        'type-3xl': [
+          'var(--font-size-3xl)',
+          { lineHeight: 'var(--line-height-3xl)' },
+        ],
         xxs: [
           '0.75rem', // 12px
           {
@@ -102,6 +136,14 @@ module.exports = {
       },
       lineHeight: {
         tight: '1.20',
+        'type-xs': 'var(--line-height-xs)',
+        'type-sm': 'var(--line-height-sm)',
+        'type-md': 'var(--line-height-md)',
+        'type-lg': 'var(--line-height-lg)',
+        'type-lg-plus': 'var(--line-height-lg-plus)',
+        'type-xl': 'var(--line-height-xl)',
+        'type-2xl': 'var(--line-height-2xl)',
+        'type-3xl': 'var(--line-height-3xl)',
       },
       backgroundImage: {
         'brand-subtle-gradient': 'var(--bg-brand-subtle-gradient)',

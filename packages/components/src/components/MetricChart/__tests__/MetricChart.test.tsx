@@ -18,7 +18,7 @@ describe('MetricChart', () => {
     expect(metric).toBe(ref.current);
     expect(metric).toHaveClass('custom-class', 'gap-space-1');
     expect(value).toHaveClass(
-      'text-lg',
+      'text-type-lg-plus',
       'font-semibold',
       'text-primary',
       'tabular-nums',
@@ -62,13 +62,13 @@ describe('MetricChart', () => {
     const value = screen.getByText('1,234');
     const metric = value.parentElement;
     expect(metric).toHaveClass('items-center', 'justify-center', 'text-center');
-    expect(value).toHaveClass('text-lg', 'text-center');
+    expect(value).toHaveClass('text-type-lg-plus', 'text-center');
   });
 
   it.each<[Exclude<MetricChartSize, 'xl'>, string]>([
-    ['sm', 'text-base'],
-    ['md', 'text-lg'],
-    ['lg', 'text-2xl'],
+    ['sm', 'text-type-lg'],
+    ['md', 'text-type-lg-plus'],
+    ['lg', 'text-type-2xl'],
   ])(
     'renders the fixed %s size without changing alignment',
     (size, textClass) => {
