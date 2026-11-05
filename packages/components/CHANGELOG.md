@@ -1,3 +1,13 @@
+## 1.7.1 (2026-11-05)
+
+### 🚀 Features
+
+- **components:** exclude series from chart legends ([#94](https://github.com/langchain-ai/macaw-design-system/pull/94))
+
+### ❤️ Thank You
+
+- Jacob Lee
+
 ## 1.7.0 (2026-11-05)
 
 ### 🚀 Features
