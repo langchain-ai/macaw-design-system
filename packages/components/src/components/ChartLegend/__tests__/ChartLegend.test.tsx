@@ -3,7 +3,6 @@ import type { ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
-import { PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { render, screen, waitFor, within } from '../../../test-utils';
@@ -159,7 +158,7 @@ describe('ChartLegend', () => {
     expect(within(bravo).getByText('Bravo')).toHaveClass('line-through');
   });
 
-  it('previews the click with a funnel, an x, or a plus', () => {
+  it('previews the click with a funnel or an x', () => {
     const iconPath = (element: HTMLElement) =>
       element.querySelector('svg path')?.getAttribute('d');
     const glyph = (icon: ReactElement) => {
@@ -170,7 +169,6 @@ describe('ChartLegend', () => {
     };
     const funnel = glyph(<FunnelIcon />);
     const x = glyph(<XIcon />);
-    const plus = glyph(<PlusIcon />);
     const excludable: readonly ChartLegendItem[] = [
       { id: 'alpha', label: 'Alpha' },
       { id: 'bravo', label: 'Bravo', excluded: true },
@@ -192,7 +190,10 @@ describe('ChartLegend', () => {
       />
     );
     expect(iconPath(screen.getByRole('button', { name: 'Alpha' }))).toBe(x);
-    expect(iconPath(screen.getByRole('button', { name: 'Bravo' }))).toBe(plus);
+    // An excluded item's struck-through label is affordance enough.
+    expect(
+      screen.getByRole('button', { name: 'Bravo' }).querySelector('svg')
+    ).toBeNull();
   });
 
   it('keeps selected overflow items in their input position', async () => {

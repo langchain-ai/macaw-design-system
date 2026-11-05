@@ -206,7 +206,7 @@ export const List: Story = {
 /**
  * With `itemClickAction="exclude"`, every series shows by default and clicking
  * an item leaves it out — suited to many series, where isolating one at a time
- * is tedious. Hover shows an x; on an excluded item, a plus to bring it back.
+ * is tedious. Hover shows an x; clicking an excluded item brings it back.
  * Pair `onItemClick` with a chart's `excludedIds` — here a stacked bar chart
  * (inline legend) and a donut chart (list legend) share one state.
  */

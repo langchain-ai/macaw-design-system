@@ -1,7 +1,6 @@
 import { useEffect, useEffectEvent, useId } from 'react';
 
 import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
-import { PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
@@ -74,13 +73,13 @@ export const ChartLegendItemRenderer = ({
       />
     ) : null);
   // The affordance previews what a click does: a funnel to isolate the item,
-  // an x to leave it out, or a plus to bring an excluded item back.
-  const actionIcon = excludes ? (excluded ? PlusIcon : XIcon) : FunnelIcon;
+  // or an x to leave it out. An excluded item needs none — its struck-through
+  // label already reads as a toggle.
   const action =
-    onClick != null || selected ? (
+    (onClick != null || selected) && !(excludes && excluded) ? (
       <Icon
         aria-hidden="true"
-        icon={actionIcon}
+        icon={excludes ? XIcon : FunnelIcon}
         weight={selected ? 'fill' : undefined}
         size="xs"
         className={cn(
