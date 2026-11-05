@@ -32,10 +32,8 @@ describe('MarkdownDisplay', () => {
       'target',
       '_blank'
     );
-    expect(screen.getByRole('checkbox', { name: 'Completed' })).toBeDisabled();
-    expect(
-      screen.getByRole('checkbox', { name: 'Not completed' })
-    ).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Complete' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Open' })).toBeDisabled();
     expect(within(screen.getByRole('table')).getByText('Ready')).toBeVisible();
   });
 

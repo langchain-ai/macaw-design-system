@@ -1,8 +1,10 @@
 import {
   createContext,
   isValidElement,
+  type ComponentProps,
   type ReactNode,
   useContext,
+  useId,
   useMemo,
 } from 'react';
 
@@ -10,6 +12,7 @@ import type { Components, ExtraProps } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+import { ImageIcon } from '@phosphor-icons/react/dist/ssr/Image';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 
 import { cn } from '../../utils/cn';
@@ -22,260 +25,374 @@ import { Link } from '../Link';
 import { Text, type TextProps } from '../Text';
 import { TextWithLinks } from '../TextWithLinks';
 import { MarkdownCodeBlock } from './MarkdownCodeBlock';
+import {
+  TRAILING_SLOT_ATTRIBUTE,
+  rehypeMarkdownDisplay,
+  remarkDisableRawHtml,
+} from './markdownPlugins';
 
 type TextColor = NonNullable<TextProps['color']>;
 type ListType = 'ordered' | 'unordered';
-type ListItemProps = React.LiHTMLAttributes<HTMLLIElement> & ExtraProps;
-type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & ExtraProps;
+type HeadingVariant = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+type HeadingProps = ComponentProps<HeadingVariant> & ExtraProps;
+type ListItemProps = ComponentProps<'li'> & ExtraProps;
+type InputProps = ComponentProps<'input'> & ExtraProps;
+type ImageProps = ComponentProps<'img'> & ExtraProps;
+type SpanProps = ComponentProps<'span'> & ExtraProps;
+
+interface MarkdownDisplayContextValue {
+  loadImages: boolean;
+  trailingContent: ReactNode;
+}
 
 const COMPONENT_NAME = makeComponentName('MarkdownDisplay');
 const PLAIN_TEXT_FALLBACK_MESSAGE =
   'Shown as plain text because this block is too large for Markdown.';
-const REMARK_PLUGINS = [remarkGfm];
+const REMARK_PLUGINS = [remarkGfm, remarkDisableRawHtml];
+const REHYPE_PLUGINS = [rehypeMarkdownDisplay];
 const ListTypeContext = createContext<ListType>('unordered');
-const TextColorContext = createContext<TextColor>('primary');
+/** The id of the enclosing task list item, which names its checkbox. */
+const TaskItemContext = createContext<string | undefined>(undefined);
+const MarkdownDisplayContext = createContext<MarkdownDisplayContextValue>({
+  loadImages: false,
+  trailingContent: null,
+});
 
 const blockSpacing =
   'mt-space-4 first:mt-0 [:is(h1,h2,h3,h4,h5,h6)+&]:mt-space-2';
+/** Inline links keep the size and rhythm of the text they sit in. */
+const inlineLinkClassName =
+  'inline text-[length:inherit] leading-[inherit] tracking-[inherit]';
 
-function omitNode<T extends { node?: unknown }>(props: T): Omit<T, 'node'> {
-  const elementProps = { ...props };
-  delete elementProps.node;
-  return elementProps;
-}
-
-function MarkdownListItem({ children, className, ...props }: ListItemProps) {
+function MarkdownListItem({
+  children,
+  className,
+  id,
+  node: _node,
+  ...props
+}: ListItemProps) {
   const listType = useContext(ListTypeContext);
-  const isTask = className?.split(' ').includes('task-list-item');
+  const generatedId = useId();
+  const isTask = className?.split(' ').includes('task-list-item') ?? false;
+  const hasBullet = listType === 'unordered' && !isTask;
+  const itemId = id ?? (isTask ? generatedId : undefined);
 
   return (
-    <li
-      {...omitNode(props)}
-      className={cn(
-        'text-sm leading-normal tracking-normal text-primary',
-        listType === 'unordered' && !isTask && 'flex items-start gap-space-2',
-        isTask &&
-          'flex items-start gap-space-2 has-[[data-state=checked]]:text-quaternary has-[[data-state=checked]]:line-through',
-        className
-      )}
-    >
-      {listType === 'unordered' && !isTask && (
-        <span
-          aria-hidden
-          className="mt-[0.65em] size-1 shrink-0 rounded-full bg-current"
-        />
-      )}
-      {children}
-    </li>
+    <TaskItemContext.Provider value={isTask ? itemId : undefined}>
+      <li
+        {...props}
+        id={itemId}
+        className={cn(
+          'text-sm leading-normal tracking-normal',
+          hasBullet && 'relative pl-space-3',
+          isTask &&
+            'relative list-none pl-space-5 has-[[data-state=checked]]:text-quaternary has-[[data-state=checked]]:line-through',
+          className
+        )}
+      >
+        {children}
+        {/* Last so the item's first block keeps its first-child spacing. */}
+        {hasBullet && (
+          <span
+            aria-hidden
+            className="absolute left-0 top-[0.65em] size-1 rounded-full bg-current"
+          />
+        )}
+      </li>
+    </TaskItemContext.Provider>
   );
 }
 
-function getMarkdownComponents(textColor: TextColor): Components {
-  const heading = (
-    variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-    className: string,
-    weight: TextProps['weight'] = 'semibold'
-  ) =>
-    function MarkdownHeading({ children, ...props }: HeadingProps) {
-      return (
-        <Text
-          {...omitNode(props)}
-          as={variant}
-          variant={variant}
-          color={textColor}
-          weight={weight}
-          className={cn(blockSpacing, className)}
-        >
-          {children}
-        </Text>
-      );
-    };
+function MarkdownTaskCheckbox({ checked, type }: InputProps) {
+  const taskItemId = useContext(TaskItemContext);
+  if (type !== 'checkbox') return null;
 
-  return {
-    pre: ({ children }) => {
-      const child = isValidElement<{
-        children?: ReactNode;
-        className?: string;
-      }>(children)
-        ? children
-        : undefined;
-      const language = child?.props.className?.match(/language-([^\s]+)/)?.[1];
-      const code =
-        typeof child?.props.children === 'string'
-          ? child.props.children
-          : String(child?.props.children ?? '');
+  const checkboxProps = {
+    checked: checked ?? false,
+    disabled: true,
+    size: 'sm',
+    className: 'pointer-events-none',
+    containerClassName: 'absolute left-0 top-[calc(0.75em_-_0.5rem)]',
+  } as const;
 
-      return (
-        <div className={cn('w-full min-w-0', blockSpacing)}>
-          <MarkdownCodeBlock code={code} language={language} />
-        </div>
-      );
-    },
-    code: ({ children, ...props }) => (
-      <code
-        {...omitNode(props)}
+  return taskItemId ? (
+    <Checkbox {...checkboxProps} aria-labelledby={taskItemId} />
+  ) : (
+    <Checkbox
+      {...checkboxProps}
+      aria-label={checked ? 'Completed task' : 'Open task'}
+    />
+  );
+}
+
+function MarkdownImage({
+  alt = '',
+  src,
+  className,
+  node: _node,
+  ...props
+}: ImageProps) {
+  const { loadImages } = useContext(MarkdownDisplayContext);
+
+  if (typeof src !== 'string' || !src) {
+    return <span className="text-tertiary">{alt}</span>;
+  }
+
+  if (!loadImages) {
+    return (
+      <Link
+        href={src}
+        variant="body"
+        target="_blank"
+        rel="noopener noreferrer"
+        leftDecorator={ImageIcon}
+        // Preflight makes SVGs block-level; keep the icon on the text line.
         className={cn(
-          'rounded-xs bg-surface-level-3 px-space-1 py-px font-mono text-xs leading-normal tracking-normal text-tertiary',
-          omitNode(props).className
+          inlineLinkClassName,
+          '[&>svg]:mr-[2px] [&>svg]:inline [&>svg]:align-[-0.125em]'
         )}
       >
-        {children}
-      </code>
-    ),
-    a: ({ children, href, ...props }) =>
-      href ? (
-        <Link
-          {...omitNode(props)}
-          href={href}
-          variant="body"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline"
-        >
-          {children}
-        </Link>
-      ) : (
-        <span>{children}</span>
-      ),
-    h1: heading('h1', 'text-xl leading-tight'),
-    h2: heading('h2', 'text-lg leading-tight'),
-    h3: heading('h3', 'text-base leading-tight'),
-    h4: heading('h4', 'text-sm leading-tight'),
-    h5: heading('h5', 'text-sm leading-tight'),
-    h6: heading('h6', 'text-sm leading-tight', 'medium'),
-    p: ({ children, ...props }) => (
+        {alt || src}
+      </Link>
+    );
+  }
+
+  return (
+    <img
+      {...props}
+      src={src}
+      alt={alt}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      className={cn(
+        blockSpacing,
+        'h-auto max-w-full rounded-md border border-subtle',
+        className
+      )}
+    />
+  );
+}
+
+function MarkdownSpan({ node: _node, ...props }: SpanProps) {
+  const { trailingContent } = useContext(MarkdownDisplayContext);
+  if (TRAILING_SLOT_ATTRIBUTE in props) return <>{trailingContent}</>;
+  return <span {...props} />;
+}
+
+const createHeading = (
+  variant: HeadingVariant,
+  headingClassName: string,
+  weight: TextProps['weight'] = 'semibold'
+) =>
+  function MarkdownHeading({
+    children,
+    className,
+    color: _color,
+    node: _node,
+    ...props
+  }: HeadingProps) {
+    return (
       <Text
-        {...omitNode(props)}
-        as="p"
-        variant="body"
-        color={textColor}
-        className="mt-space-3 first:mt-0"
+        {...props}
+        as={variant}
+        variant={variant}
+        weight={weight}
+        className={cn(blockSpacing, headingClassName, className)}
       >
         {children}
       </Text>
-    ),
-    blockquote: (props) => (
-      <blockquote
-        {...omitNode(props)}
+    );
+  };
+
+const MARKDOWN_COMPONENTS: Components = {
+  pre: ({ children }) => {
+    const child = isValidElement<{
+      children?: ReactNode;
+      className?: string;
+    }>(children)
+      ? children
+      : undefined;
+    const language = child?.props.className?.match(/language-([^\s]+)/)?.[1];
+    const code =
+      typeof child?.props.children === 'string'
+        ? child.props.children
+        : String(child?.props.children ?? '');
+
+    return (
+      <div className={cn('w-full min-w-0', blockSpacing)}>
+        <MarkdownCodeBlock code={code} language={language} />
+      </div>
+    );
+  },
+  code: ({ children, className, node: _node, ...props }) => (
+    <code
+      {...props}
+      className={cn(
+        'rounded-xs bg-surface-level-3 px-space-1 py-px font-mono text-xs leading-normal tracking-normal text-tertiary',
+        className
+      )}
+    >
+      {children}
+    </code>
+  ),
+  a: ({ children, href, className, node: _node, ...props }) => {
+    if (!href) return <span>{children}</span>;
+    // Fragment links (footnote references and back-references) stay in page.
+    const opensNewTab = !href.startsWith('#');
+
+    return (
+      <Link
+        {...props}
+        href={href}
+        variant="body"
+        target={opensNewTab ? '_blank' : undefined}
+        rel={opensNewTab ? 'noopener noreferrer' : undefined}
+        className={cn(inlineLinkClassName, className)}
+      >
+        {children}
+      </Link>
+    );
+  },
+  h1: createHeading('h1', 'text-xl leading-tight'),
+  h2: createHeading('h2', 'text-lg leading-tight'),
+  h3: createHeading('h3', 'text-base leading-tight'),
+  h4: createHeading('h4', 'text-sm leading-tight'),
+  h5: createHeading('h5', 'text-sm leading-tight'),
+  h6: createHeading('h6', 'text-sm leading-tight', 'medium'),
+  p: ({ children, className, color: _color, node: _node, ...props }) => (
+    <Text
+      {...props}
+      as="p"
+      variant="body"
+      className={cn('mt-space-3 first:mt-0', className)}
+    >
+      {children}
+    </Text>
+  ),
+  blockquote: ({ node: _node, ...props }) => (
+    <blockquote
+      {...props}
+      className={cn(
+        blockSpacing,
+        'border-l-4 border-default bg-surface-level-2 py-space-2 pl-space-4 pr-space-3 italic [overflow-wrap:anywhere]'
+      )}
+    />
+  ),
+  ul: ({ className, node: _node, ...props }) => (
+    <ListTypeContext.Provider value="unordered">
+      <ul
+        {...props}
         className={cn(
           blockSpacing,
-          'border-l-4 border-default bg-surface-level-2 py-space-2 pl-space-4 pr-space-3 italic [overflow-wrap:anywhere]'
+          'ml-space-3 flex flex-col gap-space-1 [li>&]:mt-space-1',
+          className
         )}
       />
-    ),
-    ul: (props) => (
-      <ListTypeContext.Provider value="unordered">
-        <ul
-          {...omitNode(props)}
-          className={cn(
-            blockSpacing,
-            'ml-space-3 flex flex-col gap-space-1 whitespace-normal'
-          )}
-        />
-      </ListTypeContext.Provider>
-    ),
-    ol: (props) => (
+    </ListTypeContext.Provider>
+  ),
+  ol: ({ className, start, style, node, ...props }) => {
+    const itemCount =
+      node?.children.filter(
+        (child) => child.type === 'element' && child.tagName === 'li'
+      ).length ?? 0;
+    const firstNumber = start ?? 1;
+    const lastNumber = firstNumber + Math.max(itemCount - 1, 0);
+    const markerDigits = Math.max(
+      String(firstNumber).length,
+      String(lastNumber).length
+    );
+
+    return (
       <ListTypeContext.Provider value="ordered">
         <ol
-          {...omitNode(props)}
+          {...props}
+          start={start}
+          // Outside markers sit in this padding, so it widens with the
+          // longest number instead of letting markers overflow and clip.
+          style={{ ...style, paddingInlineStart: `${markerDigits + 1.5}ch` }}
           className={cn(
             blockSpacing,
-            'ml-space-5 flex list-outside list-decimal flex-col gap-space-1 whitespace-normal'
+            'flex list-outside list-decimal flex-col gap-space-1 [li>&]:mt-space-1',
+            className
           )}
         />
       </ListTypeContext.Provider>
-    ),
-    li: MarkdownListItem,
-    input: ({ checked, type }) =>
-      type === 'checkbox' ? (
-        <Checkbox
-          aria-label={checked ? 'Completed' : 'Not completed'}
-          checked={checked ?? false}
-          disabled
-          size="sm"
-          className="pointer-events-none"
-        />
-      ) : null,
-    table: (props) => (
-      <div className={cn(blockSpacing, 'w-full overflow-x-auto')}>
-        <table
-          {...omitNode(props)}
-          className="w-full min-w-max border-collapse text-left text-xs"
-        />
-      </div>
-    ),
-    th: (props) => (
-      <th
-        {...omitNode(props)}
-        className="border border-default bg-surface-level-2 px-space-2 py-space-1 font-semibold text-primary"
+    );
+  },
+  li: MarkdownListItem,
+  input: MarkdownTaskCheckbox,
+  table: ({ node: _node, ...props }) => (
+    <div className={cn(blockSpacing, 'w-full overflow-x-auto')}>
+      <table
+        {...props}
+        className="w-full min-w-max border-collapse text-left text-xs"
       />
-    ),
-    td: (props) => (
-      <td
-        {...omitNode(props)}
-        className="border border-default px-space-2 py-space-1 align-top text-primary"
-      />
-    ),
-    hr: (props) => (
-      <hr {...omitNode(props)} className={cn(blockSpacing, 'border-default')} />
-    ),
-    strong: ({ children, ...props }) => (
-      <Text
-        {...omitNode(props)}
-        as="span"
-        variant="body"
-        color={textColor}
-        weight="semibold"
-      >
-        {children}
-      </Text>
-    ),
-    em: ({ children, ...props }) => (
-      <Text
-        {...omitNode(props)}
-        as="span"
-        variant="body"
-        color={textColor}
-        className="italic"
-      >
-        {children}
-      </Text>
-    ),
-    del: (props) => <del {...omitNode(props)} className="text-tertiary" />,
-    img: ({ alt = '', src, ...props }) =>
-      src ? (
-        <img
-          {...omitNode(props)}
-          src={src}
-          alt={alt}
-          loading="lazy"
-          className={cn(
-            blockSpacing,
-            'h-auto max-w-full rounded-md border border-subtle',
-            omitNode(props).className
-          )}
-        />
-      ) : (
-        <span className="text-tertiary">{alt}</span>
-      ),
-  };
-}
+    </div>
+  ),
+  th: ({ node: _node, ...props }) => (
+    <th
+      {...props}
+      className="border border-default bg-surface-level-2 px-space-2 py-space-1 font-semibold"
+    />
+  ),
+  td: ({ node: _node, ...props }) => (
+    <td
+      {...props}
+      className="border border-default px-space-2 py-space-1 align-top"
+    />
+  ),
+  hr: ({ node: _node, ...props }) => (
+    <hr {...props} className={cn(blockSpacing, 'border-default')} />
+  ),
+  strong: ({ className, node: _node, ...props }) => (
+    <strong {...props} className={cn('font-semibold', className)} />
+  ),
+  em: ({ className, node: _node, ...props }) => (
+    <em {...props} className={cn('italic', className)} />
+  ),
+  del: ({ node: _node, ...props }) => (
+    <del {...props} className="text-tertiary" />
+  ),
+  img: MarkdownImage,
+  span: MarkdownSpan,
+};
 
 export interface MarkdownDisplayProps {
   /** Markdown source to render. */
   content: string;
   className?: string;
-  /** Disable truncation in the plain-text fallback. */
+  /**
+   * Render oversized content in full as linkified, non-virtualized plain text
+   * instead of truncating it behind a Show more toggle. Ignores
+   * `containerHeight`.
+   */
   fullLength?: boolean;
-  /** Height used by the virtualized plain-text fallback. */
+  /**
+   * Viewport height for truncated oversized content. When set, that content
+   * renders in a virtualized plain-text viewport whose URLs are not
+   * linkified.
+   */
   containerHeight?: string;
   /** Preserve single newlines visually without changing Markdown parsing. */
   preserveNewlines?: boolean;
   /** Color applied to text-bearing Markdown elements. */
   textColor?: TextColor;
-  /** Override or extend the default react-markdown component mapping. */
+  /**
+   * Load images referenced by the Markdown. Off by default: loading a remote
+   * image from untrusted content sends a request, and anything encoded in its
+   * URL, without user action. Images otherwise render as links.
+   */
+  loadImages?: boolean;
+  /**
+   * Override or extend the default react-markdown component mapping. Keep
+   * override components stable across renders; a new component function
+   * remounts every element it renders.
+   */
   components?: Components;
-  /** Content appended inside the Markdown or plain-text content flow. */
+  /**
+   * Content that continues the rendered flow: inline after the final
+   * paragraph's text, or after the last block when content ends otherwise.
+   */
   trailingContent?: ReactNode;
   /** Content rendered after the Markdown content container. */
   afterContent?: ReactNode;
@@ -284,8 +401,9 @@ export interface MarkdownDisplayProps {
 /**
  * Renders untrusted Markdown with GFM support and Macaw presentation.
  *
- * Raw HTML is intentionally not interpreted. Content above the shared text
- * length limit falls back to linkified plain text to keep rendering bounded.
+ * Raw HTML is never parsed or interpreted; it displays as text. Content above
+ * the shared text length limit skips Markdown and renders as plain text,
+ * truncated behind a Show more toggle unless `fullLength` is set.
  */
 export function MarkdownDisplay({
   content,
@@ -294,23 +412,34 @@ export function MarkdownDisplay({
   containerHeight,
   preserveNewlines = false,
   textColor = 'primary',
+  loadImages = false,
   components,
   trailingContent,
   afterContent,
 }: MarkdownDisplayProps) {
   const markdownComponents = useMemo(
-    () => ({ ...getMarkdownComponents(textColor), ...components }),
-    [components, textColor]
+    () =>
+      components
+        ? { ...MARKDOWN_COMPONENTS, ...components }
+        : MARKDOWN_COMPONENTS,
+    [components]
+  );
+  const contextValue = useMemo(
+    () => ({ loadImages, trailingContent }),
+    [loadImages, trailingContent]
   );
   const isPlainText = content.length > MAX_TEXT_LENGTH;
 
-  const fallback = (
-    <TextWithLinks
-      text={content}
-      fullLength={fullLength}
-      containerHeight={containerHeight}
-      useRawSpan
-    />
+  const plainText = (
+    <>
+      <TextWithLinks
+        text={content}
+        fullLength={fullLength}
+        containerHeight={containerHeight}
+        useRawSpan
+      />
+      {trailingContent}
+    </>
   );
 
   return (
@@ -318,7 +447,10 @@ export function MarkdownDisplay({
       data-component={COMPONENT_NAME}
       className={cn('min-w-0 text-sm', className)}
     >
-      <div
+      <Text
+        as="div"
+        variant="body"
+        color={textColor}
         data-search-kind="container"
         className={cn(
           'min-w-0 break-words',
@@ -326,7 +458,7 @@ export function MarkdownDisplay({
         )}
       >
         {isPlainText ? (
-          <div className="relative pr-space-5 leading-normal">
+          <div className="relative pr-space-5">
             <Icon
               icon={WarningCircleIcon}
               color="warning"
@@ -337,22 +469,22 @@ export function MarkdownDisplay({
               aria-label={PLAIN_TEXT_FALLBACK_MESSAGE}
               className="absolute right-0 top-0"
             />
-            {fallback}
+            {plainText}
           </div>
         ) : (
-          <ErrorBoundary resetKey={content} fallback={() => fallback}>
-            <TextColorContext.Provider value={textColor}>
+          <ErrorBoundary resetKey={content} fallback={() => plainText}>
+            <MarkdownDisplayContext.Provider value={contextValue}>
               <ReactMarkdown
                 remarkPlugins={REMARK_PLUGINS}
+                rehypePlugins={REHYPE_PLUGINS}
                 components={markdownComponents}
               >
                 {content}
               </ReactMarkdown>
-            </TextColorContext.Provider>
+            </MarkdownDisplayContext.Provider>
           </ErrorBoundary>
         )}
-        {trailingContent}
-      </div>
+      </Text>
       {afterContent}
     </div>
   );

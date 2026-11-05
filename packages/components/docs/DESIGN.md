@@ -133,14 +133,19 @@ Import `MarkdownDisplay` from
 GitHub Flavored Markdown. It is intentionally omitted from the root barrel so
 applications that do not display Markdown avoid loading the parser. The
 component uses Macaw typography, links, task checkboxes, and read-only code
-blocks; raw HTML is displayed as text rather than interpreted.
+blocks. Raw HTML is never parsed, so tags display as text and the Markdown
+around them still renders. Images render as links unless `loadImages` is set,
+because loading a remote image from untrusted content sends a request without
+user action.
 
 Use `components` for feature-specific element overrides, `trailingContent` for
-content that belongs inside the rendered flow, and `afterContent` for adjacent
-feature-owned UI. Very large content automatically falls back to linkified
-plain text. Markdown tables remain semantic, horizontally scrollable tables;
-use a feature-owned data-grid integration when sorting, selection,
-virtualization, copy, or export behavior is required.
+content that continues the final paragraph, and `afterContent` for adjacent
+feature-owned UI. Content over 20,000 characters skips Markdown and renders as
+plain text: linkified and truncated behind Show more by default, in a
+virtualized viewport without linkification when `containerHeight` is set, or in
+full with `fullLength`. Markdown tables remain semantic, horizontally
+scrollable tables; use a feature-owned data-grid integration when sorting,
+selection, virtualization, copy, or export behavior is required.
 
 ## Chat composer
 
