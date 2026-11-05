@@ -249,6 +249,33 @@ describe('LineChart', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('leaves excluded series out, whatever the selection', () => {
+    render(
+      <LineChart
+        aria-label="Excluded request health"
+        series={series}
+        selectedIds={new Set(['requests', 'latency'])}
+        excludedIds={new Set(['latency'])}
+        legendProps={{
+          layout: 'list',
+          itemClickAction: 'exclude',
+          onItemClick: vi.fn(),
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole('group', { name: 'requests series' })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('group', { name: 'latency series' })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Latency/ })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+  });
+
   it('renders multiple labeled and formatted y axes with label tooltips', async () => {
     const { user } = render(
       <LineChart

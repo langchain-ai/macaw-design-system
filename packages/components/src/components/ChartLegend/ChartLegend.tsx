@@ -43,7 +43,19 @@ export type ChartLegendItem = {
   markerColor?: string;
   marker?: ReactNode;
   selected?: boolean;
+  /**
+   * Left out of the chart: the label is struck through and the color marker
+   * becomes an outline. Takes precedence over `selected`.
+   */
+  excluded?: boolean;
 };
+
+/**
+ * What clicking a legend item does. `select` isolates the item, marking it
+ * with a funnel; `exclude` leaves the item out, marking it with an x — suited
+ * to charts where every series shows by default.
+ */
+export type ChartLegendItemClickAction = 'select' | 'exclude';
 
 export type ChartLegendProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -52,6 +64,12 @@ export type ChartLegendProps = Omit<
   items: readonly ChartLegendItem[];
   layout?: 'inline' | 'list';
   onItemClick?: (item: ChartLegendItem) => void;
+  /**
+   * What `onItemClick` toggles, which sets the item's affordance and pressed
+   * state. With `exclude`, pair `onItemClick` with a chart's `excludedIds`.
+   * Defaults to `select`.
+   */
+  itemClickAction?: ChartLegendItemClickAction;
   /** Reports the legend item under the pointer or keyboard focus. */
   onItemActiveChange?: (item: ChartLegendItem | null) => void;
 };
@@ -66,6 +84,7 @@ type ChartLegendBaseProps = Omit<
 const ChartLegendList = ({
   items,
   onItemClick,
+  itemClickAction,
   onItemActiveChange,
   className,
   role = 'group',
@@ -91,6 +110,7 @@ const ChartLegendList = ({
           layout="list"
           listColumns={listColumns}
           onActiveChange={onItemActiveChange}
+          clickAction={itemClickAction}
           onClick={
             onItemClick == null
               ? undefined
@@ -107,6 +127,7 @@ const ChartLegendList = ({
 const ChartLegendInline = ({
   items,
   onItemClick,
+  itemClickAction,
   onItemActiveChange,
   className,
   role = 'group',
@@ -242,6 +263,7 @@ const ChartLegendInline = ({
       key={item.id}
       item={item}
       onActiveChange={onItemActiveChange}
+      clickAction={itemClickAction}
       onClick={
         onItemClick == null
           ? undefined
@@ -300,6 +322,7 @@ const ChartLegendInline = ({
               >
                 <ChartLegendItemRenderer
                   item={item}
+                  clickAction={itemClickAction}
                   onClick={onItemClick == null ? undefined : () => undefined}
                   tabIndex={-1}
                 />

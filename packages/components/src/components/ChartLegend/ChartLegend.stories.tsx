@@ -3,6 +3,8 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ChartLegend, type ChartLegendItem } from '.';
+import { BarChart, type BarChartSeries } from '../BarChart';
+import { DonutChart, type DonutChartSegment } from '../DonutChart';
 import { Text } from '../Text';
 
 const legendItems: readonly ChartLegendItem[] = [
@@ -71,6 +73,12 @@ const legendItems: readonly ChartLegendItem[] = [
 ];
 
 /** Stands in for the chart the legend belongs to. */
+const exampleDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+/** Dummy request count derived from the item's displayed value. */
+const getExampleTotal = (item: ChartLegendItem) =>
+  Math.round(Number.parseFloat(String(item.value ?? '1')) * 100);
+
 const ChartPreview = () => (
   <div className="flex h-40 items-center justify-center rounded-md bg-surface-level-2">
     <Text variant="xs" color="quaternary">
@@ -97,7 +105,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A chart legend with inline and list layouts. Items can act as selected chart filters. The default inline layout collapses overflow into a +N badge and popover, while the list layout displays every item with optional value columns.',
+          'A chart legend with inline and list layouts. Items can act as chart filters: clicking isolates an item by default, or with `itemClickAction="exclude"` leaves it out of the chart. The default inline layout collapses overflow into a +N badge and popover, while the list layout displays every item with optional value columns.',
       },
     },
   },
@@ -189,6 +197,76 @@ export const List: Story = {
           onItemClick={(item) =>
             setSelectedIds((current) => toggleId(current, item.id))
           }
+        />
+      </div>
+    );
+  },
+};
+
+/**
+ * With `itemClickAction="exclude"`, every series shows by default and clicking
+ * an item leaves it out — suited to many series, where isolating one at a time
+ * is tedious. Hover shows an x; clicking an excluded item brings it back.
+ * Pair `onItemClick` with a chart's `excludedIds` — here a stacked bar chart
+ * (inline legend) and a donut chart (list legend) share one state.
+ */
+export const Exclude: Story = {
+  args: {
+    items: legendItems.slice(0, 6),
+  },
+  render: ({ items: sourceItems }) => {
+    const [excludedIds, setExcludedIds] = useState<ReadonlySet<string>>(
+      () => new Set(sourceItems[2] == null ? [] : [sourceItems[2].id])
+    );
+
+    const series: BarChartSeries[] = sourceItems.map((item, seriesIndex) => ({
+      id: item.id,
+      label: item.label,
+      color: item.markerColor,
+      data: exampleDays.map((day, dayIndex) => ({
+        id: `${item.id}-${day}`,
+        category: day,
+        value: Math.round(
+          getExampleTotal(item) *
+            (0.6 + ((dayIndex * 7 + seriesIndex * 3) % 9) / 10)
+        ),
+      })),
+    }));
+    const segments: DonutChartSegment[] = sourceItems.map((item) => ({
+      id: item.id,
+      label: item.label,
+      value: getExampleTotal(item),
+      color: item.markerColor ?? 'var(--viz-brand-200)',
+    }));
+
+    const legendProps = {
+      itemClickAction: 'exclude',
+      onItemClick: (item: ChartLegendItem) =>
+        setExcludedIds((current) => toggleId(current, item.id)),
+    } as const;
+
+    return (
+      <div className="flex w-[48rem] max-w-[90vw] flex-col gap-space-6">
+        <div className="h-72">
+          <BarChart
+            aria-label="Requests per day by model"
+            series={series}
+            mode="stacked"
+            excludedIds={excludedIds}
+            legendProps={legendProps}
+          />
+        </div>
+        <DonutChart
+          aria-label="Requests by model"
+          segments={segments}
+          excludedIds={excludedIds}
+          legendProps={legendProps}
+          centerNumber={new Intl.NumberFormat('en-US').format(
+            segments
+              .filter((segment) => !excludedIds.has(segment.id))
+              .reduce((sum, segment) => sum + segment.value, 0)
+          )}
+          centerDescriptor="requests"
         />
       </div>
     );

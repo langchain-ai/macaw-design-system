@@ -1,4 +1,9 @@
+import type { ReactElement } from 'react';
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { render, screen, waitFor, within } from '../../../test-utils';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
@@ -122,6 +127,73 @@ describe('ChartLegend', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(onItemActiveChange).toHaveBeenLastCalledWith(null);
     expect(trigger).toHaveFocus();
+  });
+
+  it('excludes an item on click when itemClickAction is exclude', async () => {
+    const onItemClick = vi.fn();
+    const excludable: readonly ChartLegendItem[] = [
+      { id: 'alpha', label: 'Alpha', markerColor: 'red' },
+      // Exclusion takes precedence over selection.
+      { id: 'bravo', label: 'Bravo', selected: true, excluded: true },
+    ];
+    const { user } = render(
+      <ChartLegend
+        items={excludable}
+        layout="list"
+        itemClickAction="exclude"
+        onItemClick={onItemClick}
+      />
+    );
+
+    // One target per item: the item itself, with no separate action.
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+    const alpha = screen.getByRole('button', { name: 'Alpha' });
+    // Pressed reads as "shown".
+    expect(alpha).toHaveAttribute('aria-pressed', 'true');
+    await user.click(alpha);
+    expect(onItemClick).toHaveBeenCalledWith(excludable[0]);
+
+    const bravo = screen.getByRole('button', { name: 'Bravo' });
+    expect(bravo).toHaveAttribute('aria-pressed', 'false');
+    expect(within(bravo).getByText('Bravo')).toHaveClass('line-through');
+  });
+
+  it('previews the click with a funnel or an x', () => {
+    const iconPath = (element: HTMLElement) =>
+      element.querySelector('svg path')?.getAttribute('d');
+    const glyph = (icon: ReactElement) => {
+      const { container, unmount } = render(icon);
+      const d = iconPath(container);
+      unmount();
+      return d;
+    };
+    const funnel = glyph(<FunnelIcon />);
+    const x = glyph(<XIcon />);
+    const excludable: readonly ChartLegendItem[] = [
+      { id: 'alpha', label: 'Alpha' },
+      { id: 'bravo', label: 'Bravo', excluded: true },
+    ];
+
+    const { rerender } = render(
+      <ChartLegend items={excludable} layout="list" onItemClick={vi.fn()} />
+    );
+    expect(iconPath(screen.getByRole('button', { name: 'Alpha' }))).toBe(
+      funnel
+    );
+
+    rerender(
+      <ChartLegend
+        items={excludable}
+        layout="list"
+        itemClickAction="exclude"
+        onItemClick={vi.fn()}
+      />
+    );
+    expect(iconPath(screen.getByRole('button', { name: 'Alpha' }))).toBe(x);
+    // An excluded item's struck-through label is affordance enough.
+    expect(
+      screen.getByRole('button', { name: 'Bravo' }).querySelector('svg')
+    ).toBeNull();
   });
 
   it('keeps selected overflow items in their input position', async () => {

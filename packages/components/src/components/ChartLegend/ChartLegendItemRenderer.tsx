@@ -1,18 +1,24 @@
 import { useEffect, useEffectEvent, useId } from 'react';
 
 import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
-import type { ChartLegendItem } from './ChartLegend';
+import type {
+  ChartLegendItem,
+  ChartLegendItemClickAction,
+} from './ChartLegend';
 import type { ChartLegendItemActiveChangeHandler } from './useChartLegendActiveItem';
 import { getChartLegendAriaLabel, type ChartLegendListColumns } from './utils';
 
 type ChartLegendItemRendererProps = {
   item: ChartLegendItem;
   onClick?: () => void;
+  /** What `onClick` toggles. Defaults to `select`. */
+  clickAction?: ChartLegendItemClickAction;
   onActiveChange?: ChartLegendItemActiveChangeHandler<ChartLegendItem>;
   className?: string;
   tabIndex?: number;
@@ -23,6 +29,7 @@ type ChartLegendItemRendererProps = {
 export const ChartLegendItemRenderer = ({
   item,
   onClick,
+  clickAction = 'select',
   onActiveChange,
   className,
   tabIndex,
@@ -38,6 +45,10 @@ export const ChartLegendItemRenderer = ({
   useEffect(() => () => clearActivity(), []);
 
   const isList = layout === 'list';
+  const excluded = item.excluded ?? false;
+  // Exclusion takes precedence, so an item is never shown as both.
+  const selected = (item.selected ?? false) && !excluded;
+  const excludes = clickAction === 'exclude';
   const defaultAriaLabel = getChartLegendAriaLabel(
     item.label,
     isList ? item.value : undefined,
@@ -49,20 +60,31 @@ export const ChartLegendItemRenderer = ({
     (item.markerColor != null ? (
       <div
         aria-hidden
-        className="size-2 shrink-0 rounded-full"
-        style={{ backgroundColor: item.markerColor }}
+        className={cn(
+          'size-2 shrink-0 rounded-full',
+          // An excluded series keeps its color as an outline.
+          excluded && 'border border-solid'
+        )}
+        style={
+          excluded
+            ? { borderColor: item.markerColor }
+            : { backgroundColor: item.markerColor }
+        }
       />
     ) : null);
+  // The affordance previews what a click does: a funnel to isolate the item,
+  // or an x to leave it out. An excluded item needs none — its struck-through
+  // label already reads as a toggle.
   const action =
-    onClick != null || item.selected ? (
+    (onClick != null || selected) && !(excludes && excluded) ? (
       <Icon
         aria-hidden="true"
-        icon={FunnelIcon}
-        weight={item.selected ? 'fill' : undefined}
+        icon={excludes ? XIcon : FunnelIcon}
+        weight={selected ? 'fill' : undefined}
         size="xs"
         className={cn(
           'size-3 shrink-0 text-icon-tertiary transition-opacity duration-fast',
-          item.selected
+          selected
             ? 'opacity-100'
             : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
         )}
@@ -75,9 +97,11 @@ export const ChartLegendItemRenderer = ({
         id={labelId}
         as="span"
         variant="xs"
+        color={excluded ? 'tertiary' : undefined}
         className={cn(
           'min-w-0 flex-1 text-left',
-          isList ? 'whitespace-normal break-words' : 'truncate'
+          isList ? 'whitespace-normal break-words' : 'truncate',
+          excluded && 'line-through'
         )}
       >
         {item.label}
@@ -118,7 +142,7 @@ export const ChartLegendItemRenderer = ({
     isList
       ? 'col-span-full grid w-full grid-cols-subgrid gap-space-2 px-space-2'
       : 'flex max-w-full shrink-0 gap-space-1 px-space-1',
-    item.selected
+    selected
       ? 'bg-surface-level-3 hover:bg-surface-level-3'
       : (onClick != null || onActiveChange != null) &&
           'hover:bg-surface-level-1-hover focus-visible:bg-surface-level-1-hover',
@@ -159,11 +183,12 @@ export const ChartLegendItemRenderer = ({
         styles,
         'focus-visible:ring-focus border-transparent shadow-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset',
         isList && 'h-auto justify-start',
-        !item.selected && 'bg-transparent'
+        !selected && 'bg-transparent'
       )}
       aria-label={ariaLabel}
       aria-labelledby={ariaLabel == null ? labelId : undefined}
-      aria-pressed={item.selected ?? false}
+      // Pressed reads as "shown" when clicks exclude, and "isolated" otherwise.
+      aria-pressed={excludes ? !excluded : selected}
       tabIndex={tabIndex}
       onPointerEnter={() => onActiveChange?.(item, 'pointer', true)}
       onPointerLeave={() => onActiveChange?.(item, 'pointer', false)}

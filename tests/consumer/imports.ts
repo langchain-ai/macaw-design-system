@@ -256,6 +256,7 @@ void [
     series: [{ id: 'series', label: 'Series', values: { axis: 1 } }],
     renderAxisTooltip: (axis) => axis.values.map(({ label }) => label).join(),
     selectedIds: new Set(['series']),
+    excludedIds: new Set(['other-series']),
     activeLegendItemId: 'series',
   } satisfies RadarChartProps,
   SankeyChart,
