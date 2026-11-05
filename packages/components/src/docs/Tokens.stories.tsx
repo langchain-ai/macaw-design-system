@@ -98,6 +98,11 @@ const surfaceTokens: TokenSwatch[] = [
     usage: 'App navigation sidebar surface',
   },
   {
+    name: 'bg-sidebar-hover',
+    className: 'bg-sidebar-hover',
+    usage: 'Hover state for items on the app navigation sidebar',
+  },
+  {
     name: 'bg-elevated-hover',
     className: 'bg-elevated-hover',
     usage: 'Hover on raised or floating surfaces',

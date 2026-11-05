@@ -169,6 +169,7 @@ module.exports = {
         'elevated-hover': 'var(--bg-elevated-hover)',
         'elevated-selected': 'var(--bg-elevated-selected)',
         sidebar: 'var(--bg-sidebar)',
+        'sidebar-hover': 'var(--bg-sidebar-hover)',
         'popover-urgent': 'var(--bg-popover-urgent)',
 
         disabled: 'var(--bg-disabled)',
