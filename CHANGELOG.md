@@ -1,3 +1,13 @@
+## 1.7.0 (2026-11-05)
+
+### 🚀 Features
+
+- add ChatConversation [FEP-586] ([#77](https://github.com/langchain-ai/macaw-design-system/pull/77))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.6.2 (2026-11-04)
 
 ### 🚀 Features
