@@ -43,6 +43,8 @@ import type {
   ChatComposerInputProps,
   ChatComposerProps,
 } from '@langchain/macaw-components/ChatComposer';
+import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
+import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
   ChatConversationList,
   ChatConversationListGroup,
@@ -184,6 +186,12 @@ void [
   { action: 'sending' } satisfies ChatComposerProps,
   // @ts-expect-error onStop belongs to action="stop".
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
+  ChatConversation,
+  {
+    children: null,
+    label: 'Support chat',
+    viewportRef: { current: null },
+  } satisfies ChatConversationProps,
   ChatMessage,
   ChatMessageActions,
   RootChatRichContent,

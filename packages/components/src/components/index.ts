@@ -84,6 +84,9 @@ export type {
   ChatComposerToolbarProps,
 } from './ChatComposer';
 
+export { ChatConversation } from './ChatConversation';
+export type { ChatConversationProps } from './ChatConversation';
+
 export {
   ChatRichContent,
   ChatRichContentChoices,

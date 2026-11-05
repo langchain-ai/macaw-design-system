@@ -1,0 +1,422 @@
+import { useEffect, useState } from 'react';
+
+import { expect, waitFor } from 'storybook/test';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
+import { ChatConversation } from '.';
+import { Button } from '../Button';
+import {
+  ChatComposer,
+  ChatComposerInput,
+  ChatComposerToolbar,
+} from '../ChatComposer';
+import { ChatMessage, type ChatMessageModel } from '../ChatMessage';
+import { Skeleton } from '../Skeleton';
+import { Text } from '../Text';
+
+function ConversationMessages({
+  messages,
+}: {
+  messages: readonly ChatMessageModel[];
+}) {
+  return messages.map((message) => (
+    <ChatMessage key={message.id} message={message} animateParagraphs />
+  ));
+}
+
+function paragraphBlocks(id: string, paragraphs: readonly string[]) {
+  return paragraphs.map((text, index) => ({
+    id: `${id}-${index}`,
+    type: 'text' as const,
+    text,
+  }));
+}
+
+const exchanges = [
+  {
+    question: 'Help me plan a relaxed weekend by the coast.',
+    answer: [
+      'Start with one home base and leave room to wander. A small town with a walkable waterfront gives you beaches, cafés, and dinner options without spending the weekend driving.',
+    ],
+  },
+  {
+    question:
+      'We arrive Friday evening and head home Sunday afternoon. What should we do first?',
+    answer: [
+      'Keep Friday simple: check in, take a short waterfront walk, and find dinner nearby. Save the longer outings for Saturday so a late arrival does not throw off the plan.',
+    ],
+  },
+  {
+    question: 'Can you sketch out Saturday?',
+    answer: [
+      'Morning: have a slow breakfast, then walk a coastal trail.',
+      'Afternoon: pick up lunch and spend a few hours at the beach. Leave a break at your accommodation before dinner.',
+      'Evening: choose a restaurant within walking distance and catch the sunset if the weather cooperates.',
+    ],
+  },
+  {
+    question:
+      'That sounds good, but the forecast might be rainy. I would like a backup that still feels like a break, rather than a packed day of activities.',
+    answer: [
+      'Swap the trail for a local museum or bookshop, then settle into a café with a view. Keep the afternoon open. A short walk between showers can be enough; you do not need to replace every outdoor activity.',
+    ],
+  },
+  {
+    question: 'What should we pack?',
+    answer: [
+      'Bring comfortable walking shoes, a light rain jacket, a warm layer for the evening, and a reusable water bottle. Add beach gear if the forecast improves. One small bag each should be plenty for two nights.',
+    ],
+  },
+  {
+    question: 'And a low-key Sunday before we leave?',
+    answer: [
+      'Have breakfast, take one last walk, and pick up lunch for the journey home. Aim to finish your plans an hour before departure so there is time to pack and check out without rushing.',
+    ],
+  },
+];
+
+function historyMessages(prefix = 'history'): ChatMessageModel[] {
+  return exchanges.flatMap((exchange, index) => [
+    {
+      id: `${prefix}-${index}-user`,
+      role: 'user',
+      status: 'completed',
+      content: [
+        {
+          id: `${prefix}-${index}-question`,
+          type: 'text',
+          appearance: 'bubble',
+          text: exchange.question,
+        },
+      ],
+    },
+    {
+      id: `${prefix}-${index}-assistant`,
+      role: 'assistant',
+      status: 'completed',
+      content: paragraphBlocks(`${prefix}-${index}-answer`, exchange.answer),
+    },
+  ]);
+}
+
+function DemoComposer() {
+  const [draft, setDraft] = useState('');
+  return (
+    <ChatComposer
+      aria-label="Chat composer"
+      submitDisabled={!draft.trim()}
+      onSubmit={() => setDraft('')}
+    >
+      <ChatComposerInput
+        value={draft}
+        onChange={setDraft}
+        placeholder="Ask a follow-up…"
+      />
+      <ChatComposerToolbar />
+    </ChatComposer>
+  );
+}
+
+const meta = {
+  title: 'Components/Chat/ChatConversation',
+  component: ChatConversation,
+  tags: ['autodocs', 'chat', 'conversation', 'scroll', 'layout'],
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component: [
+          '- Bounded-height layout: fixed `header`/`footer`, scrolling `children`.',
+          '- Messages and footer share a centered column capped at 768px.',
+          '- Follows new content while the reader is within 48px of the bottom; scrolling up pauses following and shows **Jump to latest**.',
+          '- Remount with a conversation `key` when switching threads.',
+          '- The message log does not announce changes; announce completed replies from a polite `role="status"` region in the host (see Streaming).',
+          '- Not included: history fetching, pagination, virtualization, or anchoring when older messages are inserted above the viewport. Hosts that load history upward can adjust `scrollTop` through `viewportRef`.',
+        ].join('\n'),
+      },
+    },
+  },
+  decorators: [
+    (Story) => (
+      <div className="mx-auto h-[min(640px,100dvh)] w-full max-w-5xl">
+        <Story />
+      </div>
+    ),
+  ],
+  argTypes: {
+    children: { control: false },
+    header: { control: false },
+    footer: { control: false },
+    viewportRef: { control: false },
+  },
+  args: {
+    children: <ConversationMessages messages={historyMessages()} />,
+  },
+} satisfies Meta<typeof ChatConversation>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const LongHistory: Story = { tags: ['a11y-test'] };
+
+export const WithHeaderAndFooter: Story = {
+  tags: ['a11y-test'],
+  args: {
+    header: (
+      <div className="border-b border-primary px-space-4 py-space-3">
+        <Text variant="h3">Coastal weekend</Text>
+      </div>
+    ),
+    footer: <DemoComposer />,
+  },
+};
+
+export const Empty: Story = {
+  tags: ['a11y-test'],
+  args: {
+    children: (
+      <div className="flex flex-1 flex-col items-center justify-center gap-space-3 text-center">
+        <Text variant="h2">Start a conversation</Text>
+        <Text color="secondary">The host provides this empty state.</Text>
+      </div>
+    ),
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    children: (
+      <div role="status">
+        <Text className="sr-only">Loading conversation…</Text>
+        <div aria-hidden="true" className="flex flex-col gap-space-6">
+          <Skeleton className="h-10 w-3/5 self-end rounded-xl motion-reduce:animate-none" />
+          <div className="flex flex-col gap-space-2">
+            <Skeleton className="h-4 w-full motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-11/12 motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-2/3 motion-reduce:animate-none" />
+          </div>
+          <Skeleton className="h-10 w-2/5 self-end rounded-xl motion-reduce:animate-none" />
+          <div className="flex flex-col gap-space-2">
+            <Skeleton className="h-4 w-full motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-5/6 motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-1/2 motion-reduce:animate-none" />
+          </div>
+        </div>
+      </div>
+    ),
+  },
+};
+
+const streamedParagraphs = [
+  'Here is a slower-paced version of the plan.',
+  'Friday: arrive, unpack, and walk to the waterfront for an early dinner. Skip anything that needs a reservation.',
+  'Saturday: sleep in, then pick one outing (the coastal trail if it is dry, the museum if it is not) and leave the rest of the day open.',
+  'Sunday: breakfast somewhere with a view, one last walk, and an unhurried checkout.',
+  'If you want, I can turn this into a checklist you can share with your travel companion.',
+];
+
+function StreamingExample() {
+  const [messages, setMessages] = useState(historyMessages);
+  const [reply, setReply] = useState<{ id: string; streamed: number }>();
+  const isStreaming =
+    reply !== undefined && reply.streamed < streamedParagraphs.length;
+
+  useEffect(() => {
+    if (!reply || reply.streamed >= streamedParagraphs.length) return;
+    const timer = window.setTimeout(
+      () => setReply({ ...reply, streamed: reply.streamed + 1 }),
+      900
+    );
+    return () => window.clearTimeout(timer);
+  }, [reply]);
+
+  function send() {
+    const id = `stream-${messages.length}`;
+    setMessages((current) => [
+      ...current,
+      {
+        id: `${id}-user`,
+        role: 'user',
+        status: 'completed',
+        content: [
+          {
+            id: `${id}-question`,
+            type: 'text',
+            appearance: 'bubble',
+            text: 'Can you make it even more relaxed?',
+          },
+        ],
+      },
+      {
+        id: `${id}-assistant`,
+        role: 'assistant',
+        status: 'streaming',
+        content: [],
+      },
+    ]);
+    setReply({ id: `${id}-assistant`, streamed: 0 });
+  }
+
+  const shownMessages = messages.map(
+    (message): ChatMessageModel =>
+      message.id === reply?.id
+        ? {
+            ...message,
+            status: isStreaming ? 'streaming' : 'completed',
+            content: paragraphBlocks(
+              reply.id,
+              streamedParagraphs.slice(0, reply.streamed)
+            ),
+          }
+        : message
+  );
+
+  return (
+    <ChatConversation
+      footer={
+        <div className="flex items-center justify-between gap-space-3">
+          <Text color="tertiary">
+            {isStreaming ? 'Responding…' : 'Send, then scroll up mid-reply.'}
+          </Text>
+          <Button size="sm" disabled={isStreaming} onClick={send}>
+            Send
+          </Button>
+          <div role="status" className="sr-only">
+            {reply && !isStreaming ? 'Reply complete.' : ''}
+          </div>
+        </div>
+      }
+    >
+      <ConversationMessages messages={shownMessages} />
+    </ChatConversation>
+  );
+}
+
+export const Streaming: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story: [
+          '- Send a message to stream a reply one paragraph at a time.',
+          '- Stay at the bottom and the view follows each paragraph.',
+          '- Scroll up mid-reply and the view holds still; **Jump to latest** resumes following and keeps focus in the message log.',
+        ].join('\n'),
+      },
+    },
+  },
+  render: () => <StreamingExample />,
+};
+
+const threads = [
+  { id: 'coast', title: 'Coastal weekend', messages: historyMessages('coast') },
+  {
+    id: 'rain',
+    title: 'Rainy-day alternatives',
+    messages: historyMessages('rain').slice(6),
+  },
+];
+
+function SwitchingExample() {
+  const [thread, setThread] = useState(threads[0]);
+
+  return (
+    <ChatConversation
+      key={thread.id}
+      header={
+        <div className="flex gap-space-2 border-b border-primary px-space-4 py-space-3">
+          {threads.map((item) => (
+            <Button
+              key={item.id}
+              size="sm"
+              color={item.id === thread.id ? 'primary' : 'secondary'}
+              aria-pressed={item.id === thread.id}
+              onClick={() => setThread(item)}
+            >
+              {item.title}
+            </Button>
+          ))}
+        </div>
+      }
+    >
+      <ConversationMessages messages={thread.messages} />
+    </ChatConversation>
+  );
+}
+
+export const SwitchingConversations: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Keyed by conversation ID, so each thread opens at its latest message with following restored, even after scrolling up in the previous one.',
+      },
+    },
+  },
+  render: () => <SwitchingExample />,
+};
+
+export const CustomBackground: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The top 32px fades into whatever background the host sets, once the reader scrolls away from the top.',
+      },
+    },
+  },
+  args: { className: 'bg-brand-subtle' },
+};
+
+export const Narrow: Story = {
+  tags: ['a11y-test'],
+  decorators: [
+    (Story) => (
+      <div className="h-full w-[360px] border-x border-primary">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+function appendBlock(content: Element) {
+  const block = document.createElement('div');
+  block.style.height = '200px';
+  block.style.flexShrink = '0';
+  content.append(block);
+}
+
+const nextFrame = () =>
+  new Promise((resolve) => requestAnimationFrame(resolve));
+
+export const FollowsBackToBackGrowth: Story = {
+  tags: ['!dev', '!autodocs', 'a11y-test'],
+  play: async ({ canvas }) => {
+    const log = canvas.getByRole('log');
+    const content = log.firstElementChild!;
+    const gap = () => log.scrollHeight - log.clientHeight - log.scrollTop;
+    await waitFor(() => expect(gap()).toBeLessThanOrEqual(1));
+
+    // Grow again right after the log pins itself, before the browser fires
+    // the scroll event from that pin, so the event sees the taller content.
+    await new Promise<void>((resolve) => {
+      const observer = new ResizeObserver(() => {
+        observer.disconnect();
+        setTimeout(() => {
+          appendBlock(content);
+          resolve();
+        });
+      });
+      appendBlock(content);
+      observer.observe(content);
+    });
+    for (let frame = 0; frame < 3; frame++) await nextFrame();
+
+    expect(gap()).toBeLessThanOrEqual(1);
+    expect(
+      canvas.queryByRole('button', { name: 'Jump to latest' })
+    ).not.toBeInTheDocument();
+  },
+};
