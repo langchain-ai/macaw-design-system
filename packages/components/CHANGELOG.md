@@ -1,3 +1,13 @@
+## 1.7.2 (2026-11-05)
+
+### 🩹 Fixes
+
+- **components:** apply CodeLite highlighting under StrictMode ([#101](https://github.com/langchain-ai/macaw-design-system/pull/101))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.7.1 (2026-11-05)
 
 ### 🚀 Features
