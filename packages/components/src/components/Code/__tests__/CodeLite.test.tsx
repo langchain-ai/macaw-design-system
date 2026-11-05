@@ -15,6 +15,20 @@ describe('CodeLite', () => {
     expect(screen.getByText('b')).toBeInTheDocument();
   });
 
+  it('applies syntax highlighting under StrictMode', async () => {
+    // StrictMode must wrap the root; React skips the mount-time effect replay
+    // for a StrictMode subtree nested under the non-strict test providers.
+    render(
+      <CodeLite value={'def greet():\n    return "hi"'} language="python" />,
+      { reactStrictMode: true }
+    );
+
+    // Unparsed lines render as a single unstyled token, so `def` only gets
+    // its own span once the parse result is applied.
+    const keyword = await screen.findByText('def');
+    expect(keyword).not.toHaveClass('text-tertiary');
+  });
+
   it('hides gutter when showGutter is false', async () => {
     render(<CodeLite value={'hello'} language="python" showGutter={false} />);
     expect(await screen.findByText('hello')).toBeVisible();
