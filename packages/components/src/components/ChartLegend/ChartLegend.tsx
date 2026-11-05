@@ -44,12 +44,18 @@ export type ChartLegendItem = {
   marker?: ReactNode;
   selected?: boolean;
   /**
-   * Left out of the chart: the label is struck through, the color marker is
-   * an outline, and the exclude action stays shown. Takes precedence over
-   * `selected`.
+   * Left out of the chart: the label is struck through and the color marker
+   * becomes an outline. Takes precedence over `selected`.
    */
   excluded?: boolean;
 };
+
+/**
+ * What clicking a legend item does. `select` isolates the item, marking it
+ * with a funnel; `exclude` leaves the item out, marking it with an x — suited
+ * to charts where every series shows by default.
+ */
+export type ChartLegendItemClickAction = 'select' | 'exclude';
 
 export type ChartLegendProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -59,11 +65,11 @@ export type ChartLegendProps = Omit<
   layout?: 'inline' | 'list';
   onItemClick?: (item: ChartLegendItem) => void;
   /**
-   * Adds an exclude action beside each item, shown on hover and focus and
-   * kept shown on excluded items. Called with the item to toggle whether it is
-   * excluded; pair with a chart's `excludedIds`.
+   * What `onItemClick` toggles, which sets the item's affordance and pressed
+   * state. With `exclude`, pair `onItemClick` with a chart's `excludedIds`.
+   * Defaults to `select`.
    */
-  onItemExcludeClick?: (item: ChartLegendItem) => void;
+  itemClickAction?: ChartLegendItemClickAction;
   /** Reports the legend item under the pointer or keyboard focus. */
   onItemActiveChange?: (item: ChartLegendItem | null) => void;
 };
@@ -78,7 +84,7 @@ type ChartLegendBaseProps = Omit<
 const ChartLegendList = ({
   items,
   onItemClick,
-  onItemExcludeClick,
+  itemClickAction,
   onItemActiveChange,
   className,
   role = 'group',
@@ -86,11 +92,7 @@ const ChartLegendList = ({
   style,
   ...props
 }: ChartLegendBaseProps) => {
-  const listColumns = getChartLegendListColumns(
-    items,
-    onItemClick != null,
-    onItemExcludeClick != null
-  );
+  const listColumns = getChartLegendListColumns(items, onItemClick != null);
   const gridTemplateColumns = getChartLegendListGridTemplate(listColumns);
 
   return (
@@ -108,18 +110,12 @@ const ChartLegendList = ({
           layout="list"
           listColumns={listColumns}
           onActiveChange={onItemActiveChange}
+          clickAction={itemClickAction}
           onClick={
             onItemClick == null
               ? undefined
               : () => {
                   onItemClick(item);
-                }
-          }
-          onExcludeClick={
-            onItemExcludeClick == null
-              ? undefined
-              : () => {
-                  onItemExcludeClick(item);
                 }
           }
         />
@@ -131,7 +127,7 @@ const ChartLegendList = ({
 const ChartLegendInline = ({
   items,
   onItemClick,
-  onItemExcludeClick,
+  itemClickAction,
   onItemActiveChange,
   className,
   role = 'group',
@@ -147,10 +143,7 @@ const ChartLegendInline = ({
   const measurementBadgeRefs = useRef<Record<string, HTMLDivElement | null>>(
     {}
   );
-  const isInteractive =
-    onItemClick != null ||
-    onItemExcludeClick != null ||
-    onItemActiveChange != null;
+  const isInteractive = onItemClick != null || onItemActiveChange != null;
 
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
 
@@ -270,18 +263,12 @@ const ChartLegendInline = ({
       key={item.id}
       item={item}
       onActiveChange={onItemActiveChange}
+      clickAction={itemClickAction}
       onClick={
         onItemClick == null
           ? undefined
           : () => {
               onItemClick(item);
-            }
-      }
-      onExcludeClick={
-        onItemExcludeClick == null
-          ? undefined
-          : () => {
-              onItemExcludeClick(item);
             }
       }
     />
@@ -335,10 +322,8 @@ const ChartLegendInline = ({
               >
                 <ChartLegendItemRenderer
                   item={item}
+                  clickAction={itemClickAction}
                   onClick={onItemClick == null ? undefined : () => undefined}
-                  onExcludeClick={
-                    onItemExcludeClick == null ? undefined : () => undefined
-                  }
                   tabIndex={-1}
                 />
               </div>

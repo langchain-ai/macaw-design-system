@@ -956,7 +956,7 @@ describe('BarChart', () => {
   });
 
   it('leaves excluded series out, whatever the selection, keeping their legend items', async () => {
-    const onItemExcludeClick = vi.fn();
+    const onItemClick = vi.fn();
     const { user } = render(
       <BarChart
         aria-label="Excluded"
@@ -965,8 +965,8 @@ describe('BarChart', () => {
         excludedIds={new Set(['errors'])}
         legendProps={{
           layout: 'list',
-          onItemClick: vi.fn(),
-          onItemExcludeClick,
+          itemClickAction: 'exclude',
+          onItemClick,
         }}
       />
     );
@@ -977,12 +977,15 @@ describe('BarChart', () => {
     expect(
       screen.queryByRole('group', { name: 'Errors series' })
     ).not.toBeInTheDocument();
-    const excludeErrors = screen.getByRole('button', {
-      name: 'Exclude Errors',
-    });
-    expect(excludeErrors).toHaveAttribute('aria-pressed', 'true');
-    await user.click(excludeErrors);
-    expect(onItemExcludeClick).toHaveBeenCalledWith(
+    // Pressed reads as "shown" when legend clicks exclude.
+    const errors = screen.getByRole('button', { name: /^Errors/ });
+    expect(errors).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /^Requests/ })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    await user.click(errors);
+    expect(onItemClick).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'errors', excluded: true })
     );
   });

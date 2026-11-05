@@ -1,26 +1,25 @@
-import { type FocusEvent, useEffect, useEffectEvent, useId } from 'react';
+import { useEffect, useEffectEvent, useId } from 'react';
 
 import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
-import { ProhibitIcon } from '@phosphor-icons/react/dist/ssr/Prohibit';
+import { PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
-import { IconButton } from '../IconButton';
 import { Text } from '../Text';
-import type { ChartLegendItem } from './ChartLegend';
+import type {
+  ChartLegendItem,
+  ChartLegendItemClickAction,
+} from './ChartLegend';
 import type { ChartLegendItemActiveChangeHandler } from './useChartLegendActiveItem';
-import {
-  getAccessibleText,
-  getChartLegendAriaLabel,
-  type ChartLegendListColumns,
-} from './utils';
+import { getChartLegendAriaLabel, type ChartLegendListColumns } from './utils';
 
 type ChartLegendItemRendererProps = {
   item: ChartLegendItem;
   onClick?: () => void;
-  /** Adds the exclude action beside the item. */
-  onExcludeClick?: () => void;
+  /** What `onClick` toggles. Defaults to `select`. */
+  clickAction?: ChartLegendItemClickAction;
   onActiveChange?: ChartLegendItemActiveChangeHandler<ChartLegendItem>;
   className?: string;
   tabIndex?: number;
@@ -28,20 +27,10 @@ type ChartLegendItemRendererProps = {
   listColumns?: ChartLegendListColumns;
 };
 
-/**
- * Reveals an item's filter affordances — the include funnel and the exclude
- * action — together: while the item is hovered or holds keyboard focus, and
- * always on touch devices. Keyed to `:focus-visible` rather than
- * `focus-within`, so a mouse click doesn't leave one affordance showing after
- * the pointer moves away.
- */
-const ACTION_REVEAL =
-  'opacity-0 group-hover/legend-item:opacity-100 group-has-[:focus-visible]/legend-item:opacity-100 [@media(hover:none)]:opacity-100';
-
 export const ChartLegendItemRenderer = ({
   item,
   onClick,
-  onExcludeClick,
+  clickAction = 'select',
   onActiveChange,
   className,
   tabIndex,
@@ -60,7 +49,7 @@ export const ChartLegendItemRenderer = ({
   const excluded = item.excluded ?? false;
   // Exclusion takes precedence, so an item is never shown as both.
   const selected = (item.selected ?? false) && !excluded;
-  const hasExclude = onExcludeClick != null;
+  const excludes = clickAction === 'exclude';
   const defaultAriaLabel = getChartLegendAriaLabel(
     item.label,
     isList ? item.value : undefined,
@@ -84,20 +73,21 @@ export const ChartLegendItemRenderer = ({
         }
       />
     ) : null);
+  // The affordance previews what a click does: a funnel to isolate the item,
+  // an x to leave it out, or a plus to bring an excluded item back.
+  const actionIcon = excludes ? (excluded ? PlusIcon : XIcon) : FunnelIcon;
   const action =
     onClick != null || selected ? (
       <Icon
         aria-hidden="true"
-        icon={FunnelIcon}
+        icon={actionIcon}
         weight={selected ? 'fill' : undefined}
         size="xs"
         className={cn(
           'size-3 shrink-0 text-icon-tertiary transition-opacity duration-fast',
           selected
             ? 'opacity-100'
-            : hasExclude
-              ? ACTION_REVEAL
-              : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
+            : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
         )}
       />
     ) : null;
@@ -151,44 +141,17 @@ export const ChartLegendItemRenderer = ({
   const styles = cn(
     'group relative min-w-0 items-center rounded-xs py-space-1 text-primary transition-colors duration-fast',
     isList
-      ? cn(
-          // The exclude action takes the last column, beside the item.
-          hasExclude ? 'col-[1/-2]' : 'col-span-full',
-          'grid w-full grid-cols-subgrid gap-space-2 px-space-2'
-        )
-      : cn(
-          'flex gap-space-1 px-space-1',
-          hasExclude ? 'shrink' : 'max-w-full shrink-0'
-        ),
+      ? 'col-span-full grid w-full grid-cols-subgrid gap-space-2 px-space-2'
+      : 'flex max-w-full shrink-0 gap-space-1 px-space-1',
     selected
       ? 'bg-surface-level-3 hover:bg-surface-level-3'
       : (onClick != null || onActiveChange != null) &&
           'hover:bg-surface-level-1-hover focus-visible:bg-surface-level-1-hover',
-    !hasExclude && className
+    className
   );
 
-  // With an exclude action, the item and its action report activity as one,
-  // so moving between them keeps the item active.
-  const leavesWrapper = (event: FocusEvent<HTMLElement>) =>
-    !hasExclude ||
-    !(
-      event.relatedTarget instanceof Node &&
-      event.currentTarget.contains(event.relatedTarget)
-    );
-  const activityHandlers = {
-    onPointerEnter: () => onActiveChange?.(item, 'pointer', true),
-    onPointerLeave: () => onActiveChange?.(item, 'pointer', false),
-    onFocus: (event: FocusEvent<HTMLElement>) => {
-      if (leavesWrapper(event)) onActiveChange?.(item, 'focus', true);
-    },
-    onBlur: (event: FocusEvent<HTMLElement>) => {
-      if (leavesWrapper(event)) onActiveChange?.(item, 'focus', false);
-    },
-  };
-  const itemActivityHandlers = hasExclude ? {} : activityHandlers;
-
-  const element =
-    onClick == null ? (
+  if (onClick == null) {
+    return (
       <div
         className={cn(
           styles,
@@ -201,62 +164,40 @@ export const ChartLegendItemRenderer = ({
           onActiveChange != null && ariaLabel == null ? labelId : undefined
         }
         tabIndex={onActiveChange == null ? tabIndex : (tabIndex ?? 0)}
-        {...itemActivityHandlers}
+        onPointerEnter={() => onActiveChange?.(item, 'pointer', true)}
+        onPointerLeave={() => onActiveChange?.(item, 'pointer', false)}
+        onFocus={() => onActiveChange?.(item, 'focus', true)}
+        onBlur={() => onActiveChange?.(item, 'focus', false)}
       >
         {content}
       </div>
-    ) : (
-      <Button
-        type="button"
-        size="xs"
-        color="secondary"
-        variant="plain"
-        className={cn(
-          styles,
-          'focus-visible:ring-focus border-transparent shadow-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset',
-          isList && 'h-auto justify-start',
-          !selected && 'bg-transparent'
-        )}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabel == null ? labelId : undefined}
-        aria-pressed={selected}
-        tabIndex={tabIndex}
-        {...itemActivityHandlers}
-        onClick={onClick}
-      >
-        {content}
-      </Button>
     );
+  }
 
-  if (!hasExclude) return element;
-
-  const name =
-    getAccessibleText(item.label) ?? item['aria-label'] ?? String(item.id);
   return (
-    <div
+    <Button
+      type="button"
+      size="xs"
+      color="secondary"
+      variant="plain"
       className={cn(
-        'group/legend-item relative flex min-w-0 items-center',
-        isList ? 'col-span-full grid grid-cols-subgrid' : 'max-w-full shrink-0',
-        className
+        styles,
+        'focus-visible:ring-focus border-transparent shadow-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset',
+        isList && 'h-auto justify-start',
+        !selected && 'bg-transparent'
       )}
-      {...activityHandlers}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabel == null ? labelId : undefined}
+      // Pressed reads as "shown" when clicks exclude, and "isolated" otherwise.
+      aria-pressed={excludes ? !excluded : selected}
+      tabIndex={tabIndex}
+      onPointerEnter={() => onActiveChange?.(item, 'pointer', true)}
+      onPointerLeave={() => onActiveChange?.(item, 'pointer', false)}
+      onFocus={() => onActiveChange?.(item, 'focus', true)}
+      onBlur={() => onActiveChange?.(item, 'focus', false)}
+      onClick={onClick}
     >
-      {element}
-      <IconButton
-        icon={ProhibitIcon}
-        iconWeight={excluded ? 'fill' : undefined}
-        label={`Exclude ${name}`}
-        aria-pressed={excluded}
-        size="xxs"
-        color="secondary"
-        variant="plain"
-        tabIndex={tabIndex}
-        className={cn(
-          'shrink-0 text-icon-tertiary transition-opacity duration-fast',
-          !excluded && ACTION_REVEAL
-        )}
-        onClick={onExcludeClick}
-      />
-    </div>
+      {content}
+    </Button>
   );
 };

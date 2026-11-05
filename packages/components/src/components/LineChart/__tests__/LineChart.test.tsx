@@ -258,8 +258,8 @@ describe('LineChart', () => {
         excludedIds={new Set(['latency'])}
         legendProps={{
           layout: 'list',
+          itemClickAction: 'exclude',
           onItemClick: vi.fn(),
-          onItemExcludeClick: vi.fn(),
         }}
       />
     );
@@ -270,9 +270,10 @@ describe('LineChart', () => {
     expect(
       screen.queryByRole('group', { name: 'latency series' })
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Exclude Latency' })
-    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^Latency/ })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
   });
 
   it('renders multiple labeled and formatted y axes with label tooltips', async () => {

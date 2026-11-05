@@ -1,4 +1,10 @@
+import type { ReactElement } from 'react';
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
+import { PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { render, screen, waitFor, within } from '../../../test-utils';
 import { ChartLegend, type ChartLegendItem } from '../ChartLegend';
@@ -124,9 +130,8 @@ describe('ChartLegend', () => {
     expect(trigger).toHaveFocus();
   });
 
-  it('toggles exclusion from an action beside each item', async () => {
+  it('excludes an item on click when itemClickAction is exclude', async () => {
     const onItemClick = vi.fn();
-    const onItemExcludeClick = vi.fn();
     const excludable: readonly ChartLegendItem[] = [
       { id: 'alpha', label: 'Alpha', markerColor: 'red' },
       // Exclusion takes precedence over selection.
@@ -136,73 +141,58 @@ describe('ChartLegend', () => {
       <ChartLegend
         items={excludable}
         layout="list"
+        itemClickAction="exclude"
         onItemClick={onItemClick}
-        onItemExcludeClick={onItemExcludeClick}
       />
     );
 
+    // One target per item: the item itself, with no separate action.
+    expect(screen.getAllByRole('button')).toHaveLength(2);
     const alpha = screen.getByRole('button', { name: 'Alpha' });
-    const excludeAlpha = screen.getByRole('button', { name: 'Exclude Alpha' });
-    // The action sits beside the item, never inside its button.
-    expect(within(alpha).queryByRole('button')).not.toBeInTheDocument();
-    expect(excludeAlpha).toHaveAttribute('aria-pressed', 'false');
-    await user.click(excludeAlpha);
-    expect(onItemExcludeClick).toHaveBeenCalledWith(excludable[0]);
-    expect(onItemClick).not.toHaveBeenCalled();
+    // Pressed reads as "shown".
+    expect(alpha).toHaveAttribute('aria-pressed', 'true');
+    await user.click(alpha);
+    expect(onItemClick).toHaveBeenCalledWith(excludable[0]);
 
     const bravo = screen.getByRole('button', { name: 'Bravo' });
     expect(bravo).toHaveAttribute('aria-pressed', 'false');
     expect(within(bravo).getByText('Bravo')).toHaveClass('line-through');
-    expect(
-      screen.getByRole('button', { name: 'Exclude Bravo' })
-    ).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('reveals the include and exclude affordances together', () => {
-    render(
-      <ChartLegend
-        items={items.slice(0, 1)}
-        onItemClick={vi.fn()}
-        onItemExcludeClick={vi.fn()}
-      />
-    );
-
-    const funnel = screen
-      .getByRole('button', { name: 'Alpha' })
-      .querySelector('svg')?.parentElement;
-    const exclude = screen.getByRole('button', { name: 'Exclude Alpha' });
-    const reveal = [
-      'opacity-0',
-      'group-hover/legend-item:opacity-100',
-      'group-has-[:focus-visible]/legend-item:opacity-100',
+  it('previews the click with a funnel, an x, or a plus', () => {
+    const iconPath = (element: HTMLElement) =>
+      element.querySelector('svg path')?.getAttribute('d');
+    const glyph = (icon: ReactElement) => {
+      const { container, unmount } = render(icon);
+      const d = iconPath(container);
+      unmount();
+      return d;
+    };
+    const funnel = glyph(<FunnelIcon />);
+    const x = glyph(<XIcon />);
+    const plus = glyph(<PlusIcon />);
+    const excludable: readonly ChartLegendItem[] = [
+      { id: 'alpha', label: 'Alpha' },
+      { id: 'bravo', label: 'Bravo', excluded: true },
     ];
-    expect(funnel).toHaveClass(...reveal);
-    expect(exclude).toHaveClass(...reveal);
-    // Mouse focus alone must not pin either affordance on screen.
-    expect(exclude.className).not.toMatch(/focus-within/);
-  });
 
-  it('keeps an item active while focus moves to its exclude action', async () => {
-    const onItemActiveChange = vi.fn();
-    const { user } = render(
-      <ChartLegend
-        items={items.slice(0, 1)}
-        layout="list"
-        onItemClick={vi.fn()}
-        onItemExcludeClick={vi.fn()}
-        onItemActiveChange={onItemActiveChange}
-      />
+    const { rerender } = render(
+      <ChartLegend items={excludable} layout="list" onItemClick={vi.fn()} />
+    );
+    expect(iconPath(screen.getByRole('button', { name: 'Alpha' }))).toBe(
+      funnel
     );
 
-    await user.tab();
-    expect(screen.getByRole('button', { name: 'Alpha' })).toHaveFocus();
-    expect(onItemActiveChange).toHaveBeenLastCalledWith(items[0]);
-    onItemActiveChange.mockClear();
-    await user.tab();
-    expect(screen.getByRole('button', { name: 'Exclude Alpha' })).toHaveFocus();
-    expect(onItemActiveChange).not.toHaveBeenCalledWith(null);
-    await user.tab();
-    expect(onItemActiveChange).toHaveBeenLastCalledWith(null);
+    rerender(
+      <ChartLegend
+        items={excludable}
+        layout="list"
+        itemClickAction="exclude"
+        onItemClick={vi.fn()}
+      />
+    );
+    expect(iconPath(screen.getByRole('button', { name: 'Alpha' }))).toBe(x);
+    expect(iconPath(screen.getByRole('button', { name: 'Bravo' }))).toBe(plus);
   });
 
   it('keeps selected overflow items in their input position', async () => {

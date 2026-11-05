@@ -112,9 +112,9 @@ export type DonutChartProps = Omit<
     selectedIds?: ReadonlySet<string>;
     /**
      * Segments left out of the donut, whatever `selectedIds` holds. They stay
-     * in the legend, marked excluded with a 0% share; wire them to
-     * `legendProps.onItemExcludeClick`. IDs address the collated list, as
-     * `selectedIds` does.
+     * in the legend, marked excluded with a 0% share; to toggle them from the
+     * legend, set `legendProps.itemClickAction` to `exclude` and wire
+     * `onItemClick`. IDs address the collated list, as `selectedIds` does.
      */
     excludedIds?: ReadonlySet<string>;
     /**

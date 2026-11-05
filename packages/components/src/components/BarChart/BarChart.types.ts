@@ -279,7 +279,8 @@ export type BarChartProps = Omit<
     selectedIds?: ReadonlySet<string>;
     /**
      * Series left out, whatever `selectedIds` holds. Their legend items stay,
-     * marked excluded; wire them to `legendProps.onItemExcludeClick`.
+     * marked excluded; to toggle them from the legend, set
+     * `legendProps.itemClickAction` to `exclude` and wire `onItemClick`.
      */
     excludedIds?: ReadonlySet<string>;
     grid?: BarChartGrid;

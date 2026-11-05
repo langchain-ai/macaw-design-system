@@ -13,8 +13,6 @@ export type ChartLegendListColumns = {
   value: boolean;
   secondaryValue: boolean;
   action: boolean;
-  /** The exclude action, beside the item rather than inside it. */
-  exclude: boolean;
 };
 
 export const getAccessibleText = (value: ReactNode) =>
@@ -43,14 +41,12 @@ export const getChartLegendAriaLabel = (
 
 export const getChartLegendListColumns = (
   items: readonly ChartLegendListItem[],
-  hasItemClick: boolean,
-  hasItemExcludeClick = false
+  hasItemClick: boolean
 ): ChartLegendListColumns => ({
   marker: items.some((item) => item.marker != null || item.markerColor != null),
   value: items.some((item) => item.value != null),
   secondaryValue: items.some((item) => item.secondaryValue != null),
   action: hasItemClick || items.some((item) => item.selected),
-  exclude: hasItemExcludeClick,
 });
 
 export const getChartLegendListGridTemplate = (
@@ -62,7 +58,6 @@ export const getChartLegendListGridTemplate = (
     ...(columns.value ? ['auto'] : []),
     ...(columns.secondaryValue ? ['auto'] : []),
     ...(columns.action ? ['auto'] : []),
-    ...(columns.exclude ? ['auto'] : []),
   ].join(' ');
 
 export const widthsMatch = (
