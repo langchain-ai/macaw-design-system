@@ -404,6 +404,14 @@ export interface MarkdownDisplayProps {
    * linkified.
    */
   containerHeight?: string;
+  /**
+   * Longest content, in characters, rendered as Markdown; longer content
+   * renders as plain text. Defaults to the shared text length limit. Raise it,
+   * or pass `Infinity`, only for content of bounded size such as chat answers:
+   * parsing cost grows with length, and the default keeps views of large
+   * untrusted content responsive.
+   */
+  maxMarkdownLength?: number;
   /** Preserve single newlines visually without changing Markdown parsing. */
   preserveNewlines?: boolean;
   /** Wrap long fenced code lines by default, or scroll them horizontally. */
@@ -436,8 +444,9 @@ export interface MarkdownDisplayProps {
  *
  * Raw HTML is never interpreted. Tags display as text by default; opt in to
  * XML sections turn custom wrappers into labels and nested blockquotes.
- * Content above the shared text length limit renders as plain text,
- * truncated behind a Show more toggle unless `fullLength` is set.
+ * Content above `maxMarkdownLength` (by default the shared text length limit)
+ * renders as plain text, truncated behind a Show more toggle unless
+ * `fullLength` is set.
  */
 export function MarkdownDisplay({
   content,
@@ -446,6 +455,7 @@ export function MarkdownDisplay({
   className,
   fullLength = false,
   containerHeight,
+  maxMarkdownLength = MAX_TEXT_LENGTH,
   preserveNewlines = false,
   codeOverflow = 'wrap',
   textColor = 'primary',
@@ -465,7 +475,7 @@ export function MarkdownDisplay({
     () => ({ loadImages, trailingContent, codeOverflow }),
     [loadImages, trailingContent, codeOverflow]
   );
-  const isPlainText = content.length > MAX_TEXT_LENGTH;
+  const isPlainText = content.length > maxMarkdownLength;
   const markdown = useMemo(() => {
     if (isPlainText) return content;
     const prepared =

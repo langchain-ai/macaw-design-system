@@ -1,5 +1,7 @@
 import {
+  createContext,
   Fragment,
+  useContext,
   useState,
   type ComponentPropsWithRef,
   type ReactNode,
@@ -25,6 +27,12 @@ import type {
   ChatMessageRole,
   ChatMessageStatus,
 } from './ChatMessage.types';
+
+/**
+ * The message's alignment, so a host-supplied `ChatMessageBody` lines up its
+ * blocks the same way the default body does.
+ */
+const ChatMessageAlignmentContext = createContext<'start' | 'end'>('start');
 
 const roleLabels: Record<ChatMessageRole, string> = {
   user: 'User',
@@ -118,20 +126,21 @@ export function ChatMessage({
           contentClassName
         )}
       >
-        {children ?? (
-          <>
-            <ChatMessageHeader
-              avatar={avatar}
-              name={name}
-              status={message.status}
-            />
-            <ChatMessageBody
-              blocks={message.content}
-              animateParagraphs={animateParagraphs && !isHistory}
-              className={alignment === 'end' ? 'items-end' : undefined}
-            />
-          </>
-        )}
+        <ChatMessageAlignmentContext.Provider value={alignment}>
+          {children ?? (
+            <>
+              <ChatMessageHeader
+                avatar={avatar}
+                name={name}
+                status={message.status}
+              />
+              <ChatMessageBody
+                blocks={message.content}
+                animateParagraphs={animateParagraphs && !isHistory}
+              />
+            </>
+          )}
+        </ChatMessageAlignmentContext.Provider>
         {footer != null && (
           <div
             // Reserve the footer's space while streaming so it doesn't pop in.
@@ -246,12 +255,14 @@ export function ChatMessageBody({
   className,
   ...props
 }: ChatMessageBodyProps) {
+  const alignment = useContext(ChatMessageAlignmentContext);
   if (blocks.length === 0) return null;
 
   return (
     <div
       className={cn(
         'flex w-full min-w-0 max-w-full flex-col gap-space-3 [overflow-wrap:anywhere]',
+        alignment === 'end' && 'items-end',
         // Keep wide host content from stretching the message.
         '[&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto',
         className
@@ -280,7 +291,7 @@ export function ChatMessageBody({
         return block.appearance === 'bubble' ? (
           <div
             key={block.id}
-            className="w-fit min-w-0 max-w-full rounded-xl bg-surface-level-2 px-space-3 py-space-2"
+            className="w-fit min-w-0 max-w-full rounded-lg bg-surface-level-2 px-space-3 py-space-2"
           >
             {content}
           </div>

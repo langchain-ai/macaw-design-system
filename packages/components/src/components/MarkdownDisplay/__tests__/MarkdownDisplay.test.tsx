@@ -391,6 +391,22 @@ describe('MarkdownDisplay', () => {
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 
+  test('renders Markdown past the default limit when maxMarkdownLength allows it', () => {
+    render(
+      <MarkdownDisplay
+        content={`# Long answer\n\n${'a'.repeat(20_000)}`}
+        maxMarkdownLength={Infinity}
+      />
+    );
+
+    expect(screen.getByRole('heading', { name: 'Long answer' })).toBeVisible();
+    expect(
+      screen.queryByRole('img', {
+        name: 'Shown as plain text because this block is too large for Markdown.',
+      })
+    ).not.toBeInTheDocument();
+  });
+
   test('keeps oversized streaming content unchanged in the plain-text fallback', () => {
     const content = `**${'a'.repeat(20_000)}`;
     const { container } = render(
