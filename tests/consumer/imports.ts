@@ -113,7 +113,10 @@ import type {
   InputIconAction,
   InputProps,
 } from '@langchain/macaw-components/Input';
-import { MarkdownDisplay } from '@langchain/macaw-components/MarkdownDisplay';
+import {
+  MarkdownDisplay,
+  prepareMarkdownXml,
+} from '@langchain/macaw-components/MarkdownDisplay';
 import type { MarkdownDisplayProps } from '@langchain/macaw-components/MarkdownDisplay';
 import {
   RadarChart,
@@ -255,10 +258,12 @@ void [
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   MarkdownDisplay,
+  prepareMarkdownXml,
   {
     content: '# Markdown',
     isStreaming: true,
     codeOverflow: 'wrap',
+    xmlTags: 'sections',
   } satisfies MarkdownDisplayProps,
   useDebouncedCommit,
   ThinkingState,

@@ -63,6 +63,33 @@ function removeStructuralWhitespace(parent: HastParent) {
   });
 }
 
+/** Keep generated footnote spacing out of consumer text-search offsets. */
+function markFootnoteSpacing(parent: HastParent) {
+  parent.children = parent.children.flatMap((child, index, siblings) => {
+    const next = siblings[index + 1];
+    if (
+      child.type === 'text' &&
+      child.value.endsWith(' ') &&
+      next?.type === 'element' &&
+      'dataFootnoteBackref' in next.properties
+    ) {
+      // remark appends this separator with the back-reference control.
+      child.value = child.value.slice(0, -1);
+      return [
+        child,
+        {
+          type: 'element',
+          tagName: 'span',
+          properties: { 'data-search-ignore': '' },
+          children: [{ type: 'text', value: ' ' }],
+        } satisfies HastElement,
+      ];
+    }
+    if (child.type === 'element') markFootnoteSpacing(child);
+    return [child];
+  });
+}
+
 /**
  * Appends a slot for `trailingContent` to the final paragraph so the content
  * continues that paragraph's text, or after the last block otherwise.
@@ -81,6 +108,7 @@ function appendTrailingSlot(root: HastParent) {
 export function rehypeMarkdownDisplay() {
   return (tree: HastParent) => {
     removeStructuralWhitespace(tree);
+    markFootnoteSpacing(tree);
     appendTrailingSlot(tree);
   };
 }
@@ -89,8 +117,8 @@ export function rehypeMarkdownDisplay() {
  * Turns off CommonMark's raw HTML constructs. Raw HTML is never interpreted,
  * and parsing it would let a non-standard tag such as `<reasoning>` swallow
  * the Markdown that follows it up to the next blank line.
- * Application XML adapters may first convert those tags to Markdown labels
- * and blockquotes; disabling HTML does not change that prepared output.
+ * XML section mode or application adapters first convert those tags to
+ * Markdown labels and blockquotes; disabling HTML does not change that output.
  */
 export function remarkDisableRawHtml(this: unknown) {
   const data = (this as { data(): { micromarkExtensions?: unknown[] } }).data();

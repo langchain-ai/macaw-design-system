@@ -32,6 +32,7 @@ import {
   rehypeMarkdownDisplay,
   remarkDisableRawHtml,
 } from './markdownPlugins';
+import { prepareMarkdownXml } from './prepareMarkdownXml';
 
 type TextColor = NonNullable<TextProps['color']>;
 type ListType = 'ordered' | 'unordered';
@@ -228,7 +229,11 @@ const MARKDOWN_COMPONENTS: Components = {
         : String(child?.props.children ?? '');
 
     return (
-      <div className={cn('w-full min-w-0', blockSpacing)}>
+      <div
+        data-search-block=""
+        data-search-code=""
+        className={cn('w-full min-w-0', blockSpacing)}
+      >
         <MarkdownCodeBlock
           code={code}
           language={language}
@@ -336,6 +341,7 @@ const MARKDOWN_COMPONENTS: Components = {
   input: MarkdownTaskCheckbox,
   table: ({ node: _node, ...props }) => (
     <div
+      data-search-block=""
       role="region"
       aria-label="Table"
       tabIndex={0}
@@ -381,6 +387,8 @@ const MARKDOWN_COMPONENTS: Components = {
 export interface MarkdownDisplayProps {
   /** Markdown source to render. */
   content: string;
+  /** Render custom XML wrappers as labeled sections, or keep tags literal (default). */
+  xmlTags?: 'literal' | 'sections';
   /** Repair unfinished Markdown while content streams; use the original Markdown when false. */
   isStreaming?: boolean;
   className?: string;
@@ -426,13 +434,15 @@ export interface MarkdownDisplayProps {
 /**
  * Renders untrusted Markdown with GFM support and Macaw presentation.
  *
- * Raw HTML is never parsed or interpreted; it displays as text. Content above
- * the shared text length limit skips Markdown and renders as plain text,
+ * Raw HTML is never interpreted. Tags display as text by default; opt in to
+ * XML sections turn custom wrappers into labels and nested blockquotes.
+ * Content above the shared text length limit renders as plain text,
  * truncated behind a Show more toggle unless `fullLength` is set.
  */
 export function MarkdownDisplay({
   content,
   isStreaming = false,
+  xmlTags = 'literal',
   className,
   fullLength = false,
   containerHeight,
@@ -456,19 +466,20 @@ export function MarkdownDisplay({
     [loadImages, trailingContent, codeOverflow]
   );
   const isPlainText = content.length > MAX_TEXT_LENGTH;
-  const markdown = useMemo(
-    () =>
-      isStreaming && !isPlainText
-        ? remend(content, {
-            // Partial destinations must never become clickable links.
-            linkMode: 'text-only',
-            // HTML is literal text here, and math rendering is unsupported.
-            htmlTags: false,
-            katex: false,
-          })
-        : content,
-    [content, isPlainText, isStreaming]
-  );
+  const markdown = useMemo(() => {
+    if (isPlainText) return content;
+    const prepared =
+      xmlTags === 'sections' ? prepareMarkdownXml(content) : content;
+    return isStreaming
+      ? remend(prepared, {
+          // Partial destinations must never become clickable links.
+          linkMode: 'text-only',
+          // HTML is literal text here, and math rendering is unsupported.
+          htmlTags: false,
+          katex: false,
+        })
+      : prepared;
+  }, [content, isPlainText, isStreaming, xmlTags]);
 
   const plainText = (
     <>
@@ -501,6 +512,7 @@ export function MarkdownDisplay({
         {isPlainText ? (
           <div className="relative pr-space-5">
             <Icon
+              data-search-ignore=""
               icon={WarningCircleIcon}
               color="warning"
               size="xs"

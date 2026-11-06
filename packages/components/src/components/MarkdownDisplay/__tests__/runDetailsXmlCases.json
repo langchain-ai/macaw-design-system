@@ -1,0 +1,122 @@
+[
+  {
+    "name": "nested wrappers and fenced code",
+    "source": "<reasoning>\n# Plan\n- **Inspect** the [docs](https://docs.langchain.com)\n<input>\n<example>Nested content</example>\n</input>\n```xml\n<reasoning>Keep code literal</reasoning>\n```\n</reasoning>\n# Answer",
+    "prepared": "> **[reasoning]**\n> # Plan\n> - **Inspect** the [docs](https://docs.langchain.com)\n>\n> > **[input]**\n> > **[example]** Nested content\n>\n> ```xml\n> <reasoning>Keep code literal</reasoning>\n> ```\n\n# Answer",
+    "searchable": "[reasoning]\nPlan\nInspect the docs\n[input]\n[example] Nested content\n<reasoning>Keep code literal</reasoning>\nAnswer"
+  },
+  {
+    "name": "CDATA tags, entities, inline and fenced code, split terminator",
+    "source": "<input><![CDATA[\n# Payload\nLiteral <reasoning>do not relabel</reasoning> & &lt;tag&gt;.\nInline `<tool> & value` stays literal.\nSplit terminator: ]]]]><![CDATA[>.\n```xml\n<tool>fenced & literal</tool>\n```\n]]></input>\n<reasoning>\nAfter the payload.\n</reasoning>",
+    "prepared": "> **[input]**\n> # Payload\n> Literal &lt;reasoning&gt;do not relabel&lt;/reasoning&gt; &amp; &amp;lt;tag&amp;gt;.\n> Inline `<tool> & value` stays literal.\n> Split terminator: ]]&gt;.\n> ```xml\n> <tool>fenced & literal</tool>\n> ```\n\n> **[reasoning]**\n> After the payload.\n",
+    "searchable": "[input]\nPayload\nLiteral <reasoning>do not relabel</reasoning> & &lt;tag&gt;.\nInline <tool> & value stays literal.\nSplit terminator: ]]>.\n<tool>fenced & literal</tool>\n[reasoning]\nAfter the payload."
+  },
+  {
+    "name": "inline labels",
+    "source": "<example>\nSome <foo>inline</foo> content\n</example>",
+    "prepared": "> **[example]**\n> Some **[foo]** inline content\n",
+    "searchable": "[example]\nSome [foo] inline content"
+  },
+  {
+    "name": "nested HTML wrappers",
+    "source": "<example>\n<section>\nsome text\n</section>\n</example>",
+    "prepared": "> **[example]**\n>\n> > **[section]**\n> > some text\n>\n",
+    "searchable": "[example]\n[section]\nsome text"
+  },
+  {
+    "name": "three levels",
+    "source": "<outer>\n<middle>\n<inner>\ndeep\n</inner>\n</middle>\n</outer>",
+    "prepared": "> **[outer]**\n>\n> > **[middle]**\n> >\n> > > **[inner]**\n> > > deep\n> >\n>\n",
+    "searchable": "[outer]\n[middle]\n[inner]\ndeep"
+  },
+  {
+    "name": "self closing",
+    "source": "<reasoning>\nStep 1\n<separator />\n<separator/>\nStep 2\n</reasoning>",
+    "prepared": "> **[reasoning]**\n> Step 1\n> **[separator]**\n> **[separator]**\n> Step 2\n",
+    "searchable": "[reasoning]\nStep 1\n[separator]\n[separator]\nStep 2"
+  },
+  {
+    "name": "mixed case",
+    "source": "<Thinking>\nsome reasoning\n</thinking>\nafter",
+    "prepared": "> **[Thinking]**\n> some reasoning\n\nafter",
+    "searchable": "[Thinking]\nsome reasoning\nafter"
+  },
+  {
+    "name": "void element",
+    "source": "<reasoning>\nStep 1\n<br>\nStep 2\n</reasoning>",
+    "prepared": "> **[reasoning]**\n> Step 1\n> **[br]**\n> Step 2\n",
+    "searchable": "[reasoning]\nStep 1\n[br]\nStep 2"
+  },
+  {
+    "name": "void name used as wrapper",
+    "source": "<Rubric>\nBe concise\n</Rubric>\n<input>\nhello\n</input>",
+    "prepared": "> **[Rubric]**\n> Be concise\n\n> **[input]**\n> hello\n",
+    "searchable": "[Rubric]\nBe concise\n[input]\nhello"
+  },
+  {
+    "name": "escaped reconstructed HTML",
+    "source": "<example>\n<scr</script>ipt>alert(1)</script>\n</example>",
+    "prepared": "> **[example]**\n> &lt;script&gt;alert(1)\n",
+    "searchable": "[example]\n<script>alert(1)"
+  },
+  {
+    "name": "CDATA closes separately",
+    "source": "<reasoning><![CDATA[\n<tool>literal</tool>\n]]>\n</reasoning>\nAfter",
+    "prepared": "> **[reasoning]**\n> &lt;tool&gt;literal&lt;/tool&gt;\n\nAfter",
+    "searchable": "[reasoning]\n<tool>literal</tool>\nAfter"
+  },
+  {
+    "name": "CDATA closes an open fence",
+    "source": "<reasoning><![CDATA[\n```xml\n<tool>literal</tool>\n]]></reasoning>\n# After",
+    "prepared": "> **[reasoning]**\n> ```xml\n> <tool>literal</tool>\n\n# After",
+    "searchable": "[reasoning]\n<tool>literal</tool>\nAfter"
+  },
+  {
+    "name": "unfinished wrapper",
+    "source": "<reasoning>\nStreaming **formatted** text",
+    "prepared": "> **[reasoning]**\n> Streaming **formatted** text",
+    "searchable": "[reasoning]\nStreaming formatted text"
+  },
+  {
+    "name": "code-only XML",
+    "source": "Normal text\n```xml\n<thinking>\n</thinking>\n```\nMore text",
+    "prepared": "Normal text\n```xml\n<thinking>\n</thinking>\n```\nMore text",
+    "searchable": "Normal text\n<thinking>\n</thinking>\nMore text"
+  },
+  {
+    "name": "table and following paragraph",
+    "source": "| First | Second |\n| --- | --- |\n| foo | bar |\n\nAfter",
+    "prepared": "| First | Second |\n| --- | --- |\n| foo | bar |\n\nAfter",
+    "searchable": "First\tSecond\nfoo\tbar\nAfter"
+  },
+  {
+    "name": "two adjacent code blocks",
+    "source": "```python\nfoo = 1\n\nbar = 2\n```\n\n```text\nlast line\n```",
+    "prepared": "```python\nfoo = 1\n\nbar = 2\n```\n\n```text\nlast line\n```",
+    "searchable": "foo = 1\n\nbar = 2\nlast line"
+  },
+  {
+    "name": "nested lists",
+    "source": "- First\n- Second **item**\n  - Nested item\n\n> Quoted text",
+    "prepared": "- First\n- Second **item**\n  - Nested item\n\n> Quoted text",
+    "searchable": "First\nSecond item\nNested item\nQuoted text"
+  },
+  {
+    "name": "formatted repeated phrase",
+    "source": "A **foo** bar then foo *bar*.",
+    "prepared": "A **foo** bar then foo *bar*.",
+    "searchable": "A foo bar then foo bar."
+  },
+  {
+    "name": "tasks",
+    "source": "- [x] Finished\n- [ ] Still pending",
+    "prepared": "- [x] Finished\n- [ ] Still pending",
+    "searchable": "Finished\nStill pending"
+  },
+  {
+    "name": "footnotes",
+    "source": "Text[^1] with a note.\n\n[^1]: Note body",
+    "prepared": "Text[^1] with a note.\n\n[^1]: Note body",
+    "searchable": "Text with a note.\nNote body"
+  }
+]

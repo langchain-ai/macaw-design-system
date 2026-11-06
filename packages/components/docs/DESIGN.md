@@ -164,18 +164,38 @@ plain-text fallback.
 
 ### Run Details XML compatibility
 
-`MarkdownDisplay` renders literal XML-like tags as text while still parsing
-the Markdown between them. It does not turn `<reasoning>` into a labeled
-section by itself. Run Details must keep its `prepareMarkdownText` adapter:
-that application-owned step converts custom XML tags to bold labels and
-nested Markdown blockquotes, which this component renders without further
-transformation. Pass `prepared.content` when `prepared.mode === 'markdown'`
-and retain the application's plain-text branch otherwise. Keep feature-owned
-link/component overrides and content slots in the adapter as well.
+Use `xmlTags="sections"` with raw content to render custom XML wrappers such
+as `<reasoning>` as bold labels inside nested blockquotes. This preserves the
+Run Details XML conventions: mixed-case closing tags, `<input>` wrappers,
+self-closing/void tags, inline labels, and literal fenced code. CDATA payloads
+keep their tags and entities literal, join split CDATA terminators, and still
+render Markdown. Raw HTML is never executed. The default `xmlTags="literal"`
+continues to display tags as text.
 
-The `XmlCompatibility` story and regression fixture cover both raw tags and
-the prepared Run Details output, including nested `<input>` wrappers, inline
-labels, Markdown headings/lists/links, and literal tags inside fenced code.
+```tsx
+<MarkdownDisplay content={rawRunContent} xmlTags="sections" />
+```
+
+Consumers that already call Run Details’ `prepareMarkdownText` can continue to
+pass `prepared.content` in the default mode and retain their plain-text branch.
+Do not apply both XML adapters. `prepareMarkdownXml` is also exported from
+`@langchain/macaw-components/MarkdownDisplay` so an application can share the
+XML transformation with its search index. The renderer checks the size limit
+before XML expansion or streaming repair and leaves oversized input unchanged.
+
+For a Run Details renderer migration, keep the application’s `ListItem` export
+used by other views, pass `toolCallsComponents` as `afterContent`, and retain
+feature-owned component overrides, trailing content, and text options. Code
+and table wrappers expose search block boundaries; code contents remain
+searchable without including the toolbar or language label. The application
+still owns its search index, including using the same Markdown parsing rules
+as the renderer for literal tags.
+
+The XML regression cases use the behavior of `prepareMarkdownText` at
+LangChainPlus revision `dec09b917fddc52c73c7cba750869d432adaff64`.
+`XmlCompatibility`, `PreparedXml`, and `CdataSections` show raw, preprocessed,
+and CDATA inputs. `NarrowWrappingPane` and `NarrowScrollingPane` demonstrate the combined
+code/table/inline-code layout at 224px with both code overflow modes.
 
 ## Chat composer
 

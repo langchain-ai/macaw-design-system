@@ -2,7 +2,12 @@ import { describe, expect, test } from 'vitest';
 
 import { render, screen, within } from '../../../test-utils';
 import { MarkdownDisplay } from '../MarkdownDisplay';
-import { PREPARED_XML, XML_SOURCE } from './xmlCompatibilitySample';
+import { prepareMarkdownXml } from '../prepareMarkdownXml';
+import {
+  CDATA_SOURCE,
+  PREPARED_XML,
+  XML_SOURCE,
+} from './xmlCompatibilitySample';
 
 describe('MarkdownDisplay', () => {
   test('renders GFM content with safe links and task controls', () => {
@@ -206,6 +211,121 @@ describe('MarkdownDisplay', () => {
       '<reasoning>Keep code literal</reasoning>'
     );
     expect(container.querySelector('reasoning')).toBeNull();
+  });
+
+  test('renders raw Run Details XML as labeled sections when enabled', () => {
+    const { container } = render(
+      <MarkdownDisplay content={XML_SOURCE} xmlTags="sections" />
+    );
+    expect(prepareMarkdownXml(XML_SOURCE)).toBe(PREPARED_XML);
+    const reasoning = screen.getByText('[reasoning]').closest('blockquote');
+    const input = screen.getByText('[input]').closest('blockquote');
+    expect(reasoning).toContainElement(input);
+    expect(input).toHaveTextContent('[example] Nested content');
+    expect(reasoning).toContainElement(
+      screen.getByRole('heading', { name: 'Plan' })
+    );
+    expect(reasoning).not.toContainElement(
+      screen.getByRole('heading', { name: 'Answer' })
+    );
+    expect(screen.getByRole('region', { name: 'xml' })).toHaveTextContent(
+      '<reasoning>Keep code literal</reasoning>'
+    );
+    expect(container.querySelector('reasoning, input')).toBeNull();
+  });
+
+  test('keeps CDATA payload tags, entities, code, and split terminators literal', () => {
+    const { container } = render(
+      <MarkdownDisplay content={CDATA_SOURCE} xmlTags="sections" />
+    );
+    const input = screen.getByText('[input]').closest('blockquote');
+    expect(input).toContainElement(
+      screen.getByRole('heading', { name: 'Payload' })
+    );
+    expect(input).toHaveTextContent(
+      'Literal <reasoning>do not relabel</reasoning> & &lt;tag&gt;.'
+    );
+    expect(input).toHaveTextContent('Split terminator: ]]>.');
+    expect(screen.getByText('<tool> & value').closest('code')).toBeVisible();
+    expect(screen.getByRole('region', { name: 'xml' })).toHaveTextContent(
+      '<tool>fenced & literal</tool>'
+    );
+    expect(screen.getAllByText('[reasoning]')).toHaveLength(1);
+    expect(input).not.toContainElement(screen.getByText('[reasoning]'));
+    expect(container.querySelector('reasoning, tool, input')).toBeNull();
+  });
+
+  test('preserves section depth across void, self-closing, and mixed-case tags', () => {
+    render(
+      <MarkdownDisplay
+        xmlTags="sections"
+        content={
+          '<Thinking>\nStep 1\n<br>\n<separator/>\n<input>\nNested\n</input>\nStep 2\n</thinking>\nAfter'
+        }
+      />
+    );
+    const thinking = screen.getByText('[Thinking]').closest('blockquote');
+    const input = screen.getByText('[input]').closest('blockquote');
+    expect(thinking).toContainElement(input);
+    expect(input).toHaveTextContent('Nested');
+    expect(input).not.toHaveTextContent('Step 2');
+    expect(thinking).toHaveTextContent('Step 2');
+    expect(thinking).not.toHaveTextContent('After');
+  });
+
+  test('keeps HTML inert and does not activate sections for code-only XML', () => {
+    const { container, rerender } = render(
+      <MarkdownDisplay
+        xmlTags="sections"
+        content={'<example>\n<scr</script>ipt>alert(1)</script>\n</example>'}
+      />
+    );
+    expect(container.querySelector('script')).toBeNull();
+    expect(container).toHaveTextContent('<script>alert(1)');
+    rerender(
+      <MarkdownDisplay
+        xmlTags="sections"
+        content={'```xml\n<reasoning>\ncode only\n</reasoning>\n```'}
+      />
+    );
+    expect(screen.queryByText('[reasoning]')).toBeNull();
+    expect(screen.getByRole('region', { name: 'xml' })).toHaveTextContent(
+      '<reasoning>'
+    );
+    rerender(
+      <MarkdownDisplay
+        xmlTags="sections"
+        content={'<img src="x" onerror="alert(1)">'}
+      />
+    );
+    expect(container.querySelector('img')).toBeNull();
+    expect(container).toHaveTextContent('<img src="x" onerror="alert(1)">');
+  });
+
+  test('supports streaming XML sections without rewriting oversized input', () => {
+    const { container, rerender } = render(
+      <MarkdownDisplay
+        xmlTags="sections"
+        isStreaming
+        content={'<reasoning>\nA **partial response'}
+      />
+    );
+    expect(screen.getByText('[reasoning]')).toBeVisible();
+    expect(
+      screen.getByText('partial response').closest('strong')
+    ).toBeVisible();
+    const long = '<reasoning>\n' + 'a'.repeat(20_000) + '\n</reasoning>';
+    rerender(
+      <MarkdownDisplay
+        xmlTags="sections"
+        isStreaming
+        content={long}
+        fullLength
+      />
+    );
+    expect(prepareMarkdownXml(long)).toBe(long);
+    expect(container).toHaveTextContent('<reasoning>');
+    expect(screen.queryByText('[reasoning]')).toBeNull();
   });
 
   test('does not render unsafe link or image URLs', () => {

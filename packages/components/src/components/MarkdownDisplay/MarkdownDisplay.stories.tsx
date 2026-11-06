@@ -7,7 +7,11 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../Button';
 import { ChatMessage } from '../ChatMessage';
 import { Text } from '../Text';
-import { PREPARED_XML, XML_SOURCE } from './__tests__/xmlCompatibilitySample';
+import {
+  CDATA_SOURCE,
+  PREPARED_XML,
+  XML_SOURCE,
+} from './__tests__/xmlCompatibilitySample';
 import { MarkdownDisplay } from './MarkdownDisplay';
 
 const GFM_SAMPLE = `# Markdown display
@@ -64,6 +68,8 @@ const meta = {
     'tables',
     'streaming',
     'chat',
+    'xml',
+    'reasoning',
   ],
   args: {
     content: GFM_SAMPLE,
@@ -168,6 +174,54 @@ export const WideTable: Story = {
     await expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
     await expect(getComputedStyle(region).boxShadow).not.toBe('none');
   },
+};
+
+const NARROW_CONTENT = `### Structured output
+
+\`\`\`json
+{ "description": "This long line preserves code formatting while the code block stays inside its available space, including inside a narrow pane." }
+\`\`\`
+
+| Step | Input | Output | Status |
+| --- | --- | --- | --- |
+| Retrieval | Search query | Retrieved documents | Complete |
+| Generation | Retrieved documents | Final response | Complete |
+
+\`a_very_long_identifier_without_spaces_that_should_wrap_in_prose_instead_of_widening_the_entire_surface\``;
+
+export const NarrowWrappingPane: Story = {
+  parameters: { a11y: { test: 'error' } },
+  args: { content: NARROW_CONTENT, codeOverflow: 'wrap' },
+  decorators: [
+    (Story) => (
+      <div className="w-56 min-w-0 max-w-full">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const code = canvas.getByRole('region', { name: 'json' });
+    const table = canvas.getByRole('region', { name: 'Table' });
+    await expect(canvasElement.scrollWidth).toBeLessThanOrEqual(
+      canvasElement.clientWidth + 1
+    );
+    await expect(table.scrollWidth).toBeGreaterThan(table.clientWidth);
+    if (args.codeOverflow === 'scroll') {
+      await expect(code.scrollWidth).toBeGreaterThan(code.clientWidth);
+    } else {
+      await expect(code.scrollWidth).toBeLessThanOrEqual(code.clientWidth + 1);
+    }
+    const inlineCode = canvas.getByText(
+      'a_very_long_identifier_without_spaces_that_should_wrap_in_prose_instead_of_widening_the_entire_surface'
+    );
+    await expect(inlineCode.getClientRects().length).toBeGreaterThan(1);
+  },
+};
+
+export const NarrowScrollingPane: Story = {
+  ...NarrowWrappingPane,
+  args: { content: NARROW_CONTENT, codeOverflow: 'scroll' },
 };
 
 export const InChatMessage: Story = {
@@ -305,14 +359,33 @@ export const StreamingInChat: Story = {
 };
 
 export const XmlCompatibility: Story = {
-  args: { content: PREPARED_XML },
+  args: { content: XML_SOURCE, xmlTags: 'sections' },
   parameters: {
     docs: {
       description: {
         story:
-          'Receives the Markdown emitted by Run Details’ prepareMarkdownText adapter. Keep that application preprocessing when adopting MarkdownDisplay to preserve XML labels and nested sections.',
+          'Renders raw Run Details XML with labeled, nested sections. Already-prepared Markdown remains supported with the default literal mode.',
       },
     },
+  },
+};
+
+export const PreparedXml: Story = {
+  args: { content: PREPARED_XML },
+};
+
+export const CdataSections: Story = {
+  args: { content: CDATA_SOURCE, xmlTags: 'sections' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('heading', { name: 'Payload' })
+    ).toBeVisible();
+    await expect(canvas.getAllByText('[reasoning]')).toHaveLength(1);
+    await expect(canvasElement).toHaveTextContent(
+      'Literal <reasoning>do not relabel</reasoning> & &lt;tag&gt;.'
+    );
+    await expect(canvasElement).toHaveTextContent('Split terminator: ]]>.');
   },
 };
 
