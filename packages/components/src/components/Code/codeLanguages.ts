@@ -7,10 +7,10 @@ export const CODE_LANGUAGES: {
 }[] = [
   { value: 'plaintext', label: 'Plain text', aliases: ['', 'text', 'txt'] },
   { value: 'python', label: 'Python', aliases: ['py'] },
-  { value: 'javascript', label: 'JavaScript', aliases: ['js'] },
-  { value: 'typescript', label: 'TypeScript', aliases: ['ts'] },
+  { value: 'javascript', label: 'JavaScript', aliases: ['js', 'jsx'] },
+  { value: 'typescript', label: 'TypeScript', aliases: ['ts', 'tsx'] },
   { value: 'json', label: 'JSON', aliases: [] },
-  { value: 'shell', label: 'Shell', aliases: ['bash', 'sh', 'zsh'] },
+  { value: 'shell', label: 'Shell', aliases: ['bash', 'sh', 'zsh', 'fish'] },
   { value: 'yaml', label: 'YAML', aliases: ['yml'] },
   { value: 'markdown', label: 'Markdown', aliases: ['md'] },
 ];

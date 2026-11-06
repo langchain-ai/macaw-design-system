@@ -126,6 +126,79 @@ unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
 `onUpdate` when an integration also needs selection or programmatic updates.
 
+## Markdown display
+
+Import `MarkdownDisplay` from
+`@langchain/macaw-components/MarkdownDisplay` for untrusted CommonMark and
+GitHub Flavored Markdown. It is intentionally omitted from the root barrel so
+applications that do not display Markdown avoid loading the parser. The
+component uses Macaw typography, links, task checkboxes, and read-only code
+blocks. Raw HTML is never parsed, so tags display as text and the Markdown
+around them still renders. Images render as links unless `loadImages` is set,
+because loading a remote image from untrusted content sends a request without
+user action.
+
+Use `components` for feature-specific element overrides, `trailingContent` for
+content that continues the final paragraph, and `afterContent` for adjacent
+feature-owned UI. Content over 20,000 characters skips Markdown and renders as
+plain text: linkified and truncated behind Show more by default, in a
+virtualized viewport without linkification when `containerHeight` is set, or in
+full with `fullLength`. Markdown tables remain semantic, horizontally
+scrollable tables; use a feature-owned data-grid integration when sorting,
+selection, virtualization, copy, or export behavior is required.
+
+Fenced code wraps by default to fit narrow chat panes. Set
+`codeOverflow="scroll"` to preserve long lines with horizontal scrolling.
+Tables and code regions support keyboard scrolling with a visible focus ring.
+Task checkboxes are read-only indicators, retain their enabled appearance, and
+stay out of the Tab order.
+
+Set `isStreaming` while appending response content. Incomplete emphasis and
+inline code render with their intended formatting, unfinished links stay
+non-interactive, and the container exposes `aria-busy`. Pass `false` when the
+response settles so the original Markdown is rendered without repair. The
+host owns fetching, timing, cancellation, and status announcements. Compose
+this with a `ChatMessage` custom content block; the `StreamingInChat` story
+demonstrates incremental updates. Oversized content still uses the unchanged
+plain-text fallback.
+
+### Run Details XML compatibility
+
+Use `xmlTags="sections"` with raw content to render custom XML wrappers such
+as `<reasoning>` as bold labels inside nested blockquotes. This preserves the
+Run Details XML conventions: mixed-case closing tags, `<input>` wrappers,
+self-closing/void tags, inline labels, and literal fenced code. Inline code and
+native Markdown blockquotes retain their syntax in section mode. CDATA payloads
+keep their tags and entities literal, join split CDATA terminators, and still
+render Markdown. Raw HTML is never executed. The default `xmlTags="literal"`
+continues to display tags as text.
+
+```tsx
+<MarkdownDisplay content={rawRunContent} xmlTags="sections" />
+```
+
+Consumers that already call Run Details’ `prepareMarkdownText` can continue to
+pass `prepared.content` in the default mode and retain their plain-text branch.
+Do not apply both XML adapters. `prepareMarkdownXml` is also exported from
+`@langchain/macaw-components/MarkdownDisplay` so an application can share the
+XML transformation with its search index. The renderer checks the size limit
+before XML expansion or streaming repair and leaves oversized input unchanged.
+
+For a Run Details renderer migration, keep the application’s `ListItem` export
+used by other views, pass `toolCallsComponents` as `afterContent`, and retain
+feature-owned component overrides, trailing content, and text options. Code
+and table wrappers expose search block boundaries; code contents remain
+searchable without including the toolbar or language label. The application
+still owns its search index, including using the same Markdown parsing rules
+as the renderer for literal tags.
+
+The XML regression cases use the behavior of `prepareMarkdownText` at
+LangChainPlus revision `dec09b917fddc52c73c7cba750869d432adaff64` as a baseline,
+with additional cases for inline code and native blockquotes in section mode.
+`XmlCompatibility` groups raw sections, preprocessed Markdown, literal tags,
+and CDATA inputs. `CodeOverflow` compares the combined code/table/inline-code
+layout at 224px with both code overflow modes.
+
 ## Chat composer
 
 Import the parts from `@langchain/macaw-components/ChatComposer` and use them
