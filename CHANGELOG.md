@@ -1,3 +1,13 @@
+## 1.7.5 (2026-11-06)
+
+### 🩹 Fixes
+
+- tighten chat radii, align custom message bodies, size the streaming indicator, and add a markdown length prop ([#104](https://github.com/langchain-ai/macaw-design-system/pull/104))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.7.4 (2026-11-06)
 
 ### 🚀 Features
