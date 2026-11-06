@@ -241,7 +241,7 @@ export const Code = ({
         'group relative text-xs',
         height && !hasToolbar && 'h-full',
         hasToolbar &&
-          'flex flex-col overflow-hidden rounded-lg border border-subtle dark:border-muted bg-surface-level-2'
+          'flex flex-col overflow-hidden rounded-lg border border-subtle bg-surface-level-2'
       )}
       style={hasToolbar ? { width, height } : undefined}
     >

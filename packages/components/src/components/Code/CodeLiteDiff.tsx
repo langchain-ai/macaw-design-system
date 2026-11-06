@@ -57,7 +57,7 @@ export const CodeLiteDiff = ({
   return (
     <div
       className={cn(
-        'border-subtle dark:border-muted bg-surface-level-1 w-full min-w-0 overflow-hidden rounded-lg border',
+        'border-subtle bg-surface-level-1 w-full min-w-0 overflow-hidden rounded-lg border',
         className
       )}
     >

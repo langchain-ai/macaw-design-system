@@ -232,7 +232,10 @@ const MARKDOWN_COMPONENTS: Components = {
       <div
         data-search-block=""
         data-search-code=""
-        className={cn('w-full min-w-0', blockSpacing)}
+        className={cn(
+          'w-full min-w-0 dark:[&>div]:border-muted dark:[&>div>div:first-child]:border-muted',
+          blockSpacing
+        )}
       >
         <MarkdownCodeBlock
           code={code}
@@ -359,13 +362,13 @@ const MARKDOWN_COMPONENTS: Components = {
   th: ({ node: _node, ...props }) => (
     <th
       {...props}
-      className="border border-default bg-surface-level-2 px-space-2 py-space-1 font-semibold"
+      className="border border-default dark:border-muted bg-surface-level-2 px-space-2 py-space-1 font-semibold"
     />
   ),
   td: ({ node: _node, ...props }) => (
     <td
       {...props}
-      className="border border-default px-space-2 py-space-1 align-top"
+      className="border border-default dark:border-muted px-space-2 py-space-1 align-top"
     />
   ),
   hr: ({ node: _node, ...props }) => (

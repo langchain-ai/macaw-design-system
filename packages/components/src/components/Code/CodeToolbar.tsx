@@ -17,7 +17,7 @@ export function CodeToolbar({
   return (
     <div
       className={cn(
-        'gap-space-1 border-subtle dark:border-muted px-space-3 py-space-1 flex min-w-0 items-center justify-between border-b',
+        'gap-space-1 border-subtle px-space-3 py-space-1 flex min-w-0 items-center justify-between border-b',
         className
       )}
     >
