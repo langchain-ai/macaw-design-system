@@ -255,7 +255,11 @@ void [
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
   MarkdownDisplay,
-  { content: '# Markdown' } satisfies MarkdownDisplayProps,
+  {
+    content: '# Markdown',
+    isStreaming: true,
+    codeOverflow: 'wrap',
+  } satisfies MarkdownDisplayProps,
   useDebouncedCommit,
   ThinkingState,
   LoadingIndicator,

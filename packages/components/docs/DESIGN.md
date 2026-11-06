@@ -153,6 +153,15 @@ Tables and code regions support keyboard scrolling with a visible focus ring.
 Task checkboxes are read-only indicators, retain their enabled appearance, and
 stay out of the Tab order.
 
+Set `isStreaming` while appending response content. Incomplete emphasis and
+inline code render with their intended formatting, unfinished links stay
+non-interactive, and the container exposes `aria-busy`. Pass `false` when the
+response settles so the original Markdown is rendered without repair. The
+host owns fetching, timing, cancellation, and status announcements. Compose
+this with a `ChatMessage` custom content block; the `StreamingInChat` story
+demonstrates incremental updates. Oversized content still uses the unchanged
+plain-text fallback.
+
 ### Run Details XML compatibility
 
 `MarkdownDisplay` renders literal XML-like tags as text while still parsing

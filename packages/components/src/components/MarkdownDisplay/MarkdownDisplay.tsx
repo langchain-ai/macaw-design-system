@@ -12,6 +12,7 @@ import {
 import type { Components, ExtraProps } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remend from 'remend';
 
 import { ImageIcon } from '@phosphor-icons/react/dist/ssr/Image';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
@@ -380,6 +381,8 @@ const MARKDOWN_COMPONENTS: Components = {
 export interface MarkdownDisplayProps {
   /** Markdown source to render. */
   content: string;
+  /** Repair unfinished Markdown while content streams; use the original Markdown when false. */
+  isStreaming?: boolean;
   className?: string;
   /**
    * Render oversized content in full as linkified, non-virtualized plain text
@@ -429,6 +432,7 @@ export interface MarkdownDisplayProps {
  */
 export function MarkdownDisplay({
   content,
+  isStreaming = false,
   className,
   fullLength = false,
   containerHeight,
@@ -452,6 +456,19 @@ export function MarkdownDisplay({
     [loadImages, trailingContent, codeOverflow]
   );
   const isPlainText = content.length > MAX_TEXT_LENGTH;
+  const markdown = useMemo(
+    () =>
+      isStreaming && !isPlainText
+        ? remend(content, {
+            // Partial destinations must never become clickable links.
+            linkMode: 'text-only',
+            // HTML is literal text here, and math rendering is unsupported.
+            htmlTags: false,
+            katex: false,
+          })
+        : content,
+    [content, isPlainText, isStreaming]
+  );
 
   const plainText = (
     <>
@@ -468,6 +485,7 @@ export function MarkdownDisplay({
   return (
     <div
       data-component={COMPONENT_NAME}
+      aria-busy={isStreaming || undefined}
       className={cn('min-w-0 text-sm', className)}
     >
       <Text
@@ -502,7 +520,7 @@ export function MarkdownDisplay({
                 rehypePlugins={REHYPE_PLUGINS}
                 components={markdownComponents}
               >
-                {content}
+                {markdown}
               </ReactMarkdown>
             </MarkdownDisplayContext.Provider>
           </ErrorBoundary>

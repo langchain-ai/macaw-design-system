@@ -1,7 +1,10 @@
-import { expect, userEvent, within } from 'storybook/test';
+import { useEffect, useState } from 'react';
+
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Button } from '../Button';
 import { ChatMessage } from '../ChatMessage';
 import { Text } from '../Text';
 import { PREPARED_XML, XML_SOURCE } from './__tests__/xmlCompatibilitySample';
@@ -59,6 +62,8 @@ const meta = {
     'code blocks',
     'task lists',
     'tables',
+    'streaming',
+    'chat',
   ],
   args: {
     content: GFM_SAMPLE,
@@ -199,6 +204,104 @@ export const InChatMessage: Story = {
       />
     </div>
   ),
+};
+
+const STREAMING_CHUNKS = [
+  '## Streaming response\n\nMarkdown stays **readable',
+  '## Streaming response\n\nMarkdown stays **readable** while it arrives.\n\nUse `invoke(',
+  '## Streaming response\n\nMarkdown stays **readable** while it arrives.\n\nUse `invoke()` and [read the docs](https://docs.lang',
+  '## Streaming response\n\nMarkdown stays **readable** while it arrives.\n\nUse `invoke()` and [read the docs](https://docs.langchain.com).\n\n```typescript\nconst message = "Hello";',
+  '## Streaming response\n\nMarkdown stays **readable** while it arrives.\n\nUse `invoke()` and [read the docs](https://docs.langchain.com).\n\n```typescript\nconst message = "Hello";\nconsole.log(message);\n```\n\n- [x] Delivered\n- [ ] Next task',
+];
+
+function StreamingChatExample() {
+  const [chunk, setChunk] = useState(0);
+  const [running, setRunning] = useState(false);
+  const isStreaming = chunk < STREAMING_CHUNKS.length - 1;
+
+  useEffect(() => {
+    if (!running || !isStreaming) return;
+    const timeout = window.setTimeout(() => setChunk(chunk + 1), 500);
+    return () => window.clearTimeout(timeout);
+  }, [chunk, running, isStreaming]);
+
+  return (
+    <div className="flex flex-col gap-space-4">
+      <div className="flex flex-wrap gap-space-2">
+        <Button disabled={!isStreaming} onClick={() => setRunning(!running)}>
+          {running && isStreaming ? 'Pause' : 'Stream response'}
+        </Button>
+        <Button
+          color="secondary"
+          disabled={!isStreaming || running}
+          onClick={() => setChunk(chunk + 1)}
+        >
+          Next chunk
+        </Button>
+        <Button
+          variant="plain"
+          color="secondary"
+          onClick={() => {
+            setRunning(false);
+            setChunk(0);
+          }}
+        >
+          Restart
+        </Button>
+      </div>
+      <ChatMessage
+        isLatest
+        message={{
+          id: 'streaming-answer',
+          role: 'assistant',
+          status: isStreaming ? 'streaming' : 'completed',
+          content: [
+            {
+              id: 'streaming-markdown',
+              type: 'custom',
+              content: (
+                <MarkdownDisplay
+                  content={STREAMING_CHUNKS[chunk]}
+                  isStreaming={isStreaming}
+                />
+              ),
+            },
+          ],
+        }}
+      />
+    </div>
+  );
+}
+
+export const StreamingInChat: Story = {
+  render: () => <StreamingChatExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const message = canvas.getByRole('article', { name: 'Assistant message' });
+    await expect(message).toHaveAttribute('aria-busy', 'true');
+    await expect(canvas.getByText('readable').tagName).toBe('STRONG');
+    await userEvent.click(canvas.getByRole('button', { name: 'Next chunk' }));
+    await expect(canvas.getByText('invoke(').tagName).toBe('CODE');
+    await userEvent.click(canvas.getByRole('button', { name: 'Next chunk' }));
+    await expect(
+      canvas.queryByRole('link', { name: 'read the docs' })
+    ).toBeNull();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Stream response' })
+    );
+    await waitFor(() => expect(message).toHaveAttribute('aria-busy', 'false'), {
+      timeout: 3_000,
+    });
+    await expect(
+      canvas.getByRole('link', { name: 'read the docs' })
+    ).toHaveAttribute('href', 'https://docs.langchain.com');
+    await expect(
+      canvas.getByRole('region', { name: 'typescript' })
+    ).toHaveTextContent('console.log(message);');
+    await expect(
+      canvas.getByRole('checkbox', { name: 'Delivered' })
+    ).toBeChecked();
+  },
 };
 
 export const XmlCompatibility: Story = {

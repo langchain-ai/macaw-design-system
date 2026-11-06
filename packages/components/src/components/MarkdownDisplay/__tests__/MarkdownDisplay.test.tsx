@@ -83,6 +83,92 @@ describe('MarkdownDisplay', () => {
     expect(screen.getByText('After')).toBeVisible();
   });
 
+  test('repairs partial formatting only while streaming', () => {
+    const { container, rerender } = render(
+      <MarkdownDisplay content="A **streaming response" isStreaming />
+    );
+    expect(container.firstChild).toHaveAttribute('aria-busy', 'true');
+    expect(
+      screen.getByText('streaming response').closest('strong')
+    ).toBeVisible();
+
+    rerender(
+      <MarkdownDisplay
+        content="A **streaming response** with `code"
+        isStreaming
+      />
+    );
+    expect(screen.getByText('code').closest('code')).toBeVisible();
+
+    rerender(<MarkdownDisplay content="A **streaming response** with `code" />);
+    expect(container.firstChild).not.toHaveAttribute('aria-busy');
+    expect(container.querySelector('code')).toBeNull();
+    expect(container).toHaveTextContent('with `code');
+  });
+
+  test('keeps partial link and image destinations inert until complete', () => {
+    const { container, rerender } = render(
+      <MarkdownDisplay
+        content="Read [the docs](https://docs.lang"
+        isStreaming
+      />
+    );
+    expect(container).toHaveTextContent('Read the docs');
+    expect(screen.queryByRole('link')).toBeNull();
+
+    rerender(
+      <MarkdownDisplay
+        content="Read [the docs](https://docs.langchain.com)"
+        isStreaming
+      />
+    );
+    expect(screen.getByRole('link', { name: 'the docs' })).toHaveAttribute(
+      'href',
+      'https://docs.langchain.com'
+    );
+
+    rerender(
+      <MarkdownDisplay
+        content="![A diagram](https://example.com/part"
+        isStreaming
+        loadImages
+      />
+    );
+    expect(container.querySelector('img')).toBeNull();
+    expect(screen.queryByRole('link')).toBeNull();
+
+    rerender(
+      <MarkdownDisplay content="[unsafe](javascript:alert(1))" isStreaming />
+    );
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  test('updates an open code fence without remounting the code region', () => {
+    const { rerender } = render(
+      <MarkdownDisplay
+        content={'```text\nconst value = "**literal'}
+        isStreaming
+      />
+    );
+    const region = screen.getByRole('region', { name: 'text' });
+    expect(region).toHaveTextContent('const value = "**literal');
+
+    rerender(
+      <MarkdownDisplay content={'```text\nconst value = "**literal**";\n```'} />
+    );
+    expect(screen.getByRole('region', { name: 'text' })).toBe(region);
+    expect(region).toHaveTextContent('const value = "**literal**";');
+  });
+
+  test('preserves literal XML and dollar signs while streaming', () => {
+    const content = 'Price $$5 and <reasoning';
+    const { container } = render(
+      <MarkdownDisplay content={content} isStreaming />
+    );
+    expect(container).toHaveTextContent(content);
+    expect(container.querySelector('reasoning')).toBeNull();
+  });
+
   test('does not interpret raw HTML', () => {
     const { container } = render(
       <MarkdownDisplay content={'<img src="x" onerror="alert(1)">'} />
@@ -155,6 +241,16 @@ describe('MarkdownDisplay', () => {
       screen.getByRole('link', { name: 'https://docs.langchain.com' })
     ).toBeVisible();
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+  });
+
+  test('keeps oversized streaming content unchanged in the plain-text fallback', () => {
+    const content = `**${'a'.repeat(20_000)}`;
+    const { container } = render(
+      <MarkdownDisplay content={content} isStreaming fullLength />
+    );
+    expect(container.firstChild).toHaveAttribute('aria-busy', 'true');
+    expect(container).toHaveTextContent(content);
+    expect(container.querySelector('strong')).toBeNull();
   });
 
   test('uses the common component name marker', () => {
