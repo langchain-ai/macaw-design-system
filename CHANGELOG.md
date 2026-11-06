@@ -1,3 +1,14 @@
+## 1.7.4 (2026-11-06)
+
+### 🚀 Features
+
+- **components:** [FEP-606] Add MarkdownDisplay Component ([#97](https://github.com/langchain-ai/macaw-design-system/pull/97))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+- nick-kim-langchain
+
 ## 1.7.3 (2026-11-06)
 
 ### 🚀 Features
