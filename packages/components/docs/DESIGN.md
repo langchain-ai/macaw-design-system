@@ -147,6 +147,27 @@ full with `fullLength`. Markdown tables remain semantic, horizontally
 scrollable tables; use a feature-owned data-grid integration when sorting,
 selection, virtualization, copy, or export behavior is required.
 
+Fenced code wraps by default to fit narrow chat panes. Set
+`codeOverflow="scroll"` to preserve long lines with horizontal scrolling.
+Tables and code regions support keyboard scrolling with a visible focus ring.
+Task checkboxes are read-only indicators, retain their enabled appearance, and
+stay out of the Tab order.
+
+### Run Details XML compatibility
+
+`MarkdownDisplay` renders literal XML-like tags as text while still parsing
+the Markdown between them. It does not turn `<reasoning>` into a labeled
+section by itself. Run Details must keep its `prepareMarkdownText` adapter:
+that application-owned step converts custom XML tags to bold labels and
+nested Markdown blockquotes, which this component renders without further
+transformation. Pass `prepared.content` when `prepared.mode === 'markdown'`
+and retain the application's plain-text branch otherwise. Keep feature-owned
+link/component overrides and content slots in the adapter as well.
+
+The `XmlCompatibility` story and regression fixture cover both raw tags and
+the prepared Run Details output, including nested `<input>` wrappers, inline
+labels, Markdown headings/lists/links, and literal tags inside fenced code.
+
 ## Chat composer
 
 Import the parts from `@langchain/macaw-components/ChatComposer` and use them

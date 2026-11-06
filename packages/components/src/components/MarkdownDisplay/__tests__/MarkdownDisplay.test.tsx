@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 
 import { render, screen, within } from '../../../test-utils';
 import { MarkdownDisplay } from '../MarkdownDisplay';
+import { PREPARED_XML, XML_SOURCE } from './xmlCompatibilitySample';
 
 describe('MarkdownDisplay', () => {
   test('renders GFM content with safe links and task controls', () => {
@@ -32,9 +33,21 @@ describe('MarkdownDisplay', () => {
       'target',
       '_blank'
     );
-    expect(screen.getByRole('checkbox', { name: 'Complete' })).toBeDisabled();
-    expect(screen.getByRole('checkbox', { name: 'Open' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Complete' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Open' })).not.toBeChecked();
+    for (const checkbox of screen.getAllByRole('checkbox')) {
+      expect(checkbox).toBeEnabled();
+      expect(checkbox).toHaveAttribute('aria-readonly', 'true');
+      expect(checkbox).toHaveAttribute('tabindex', '-1');
+      checkbox.click();
+    }
+    expect(screen.getByRole('checkbox', { name: 'Complete' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Open' })).not.toBeChecked();
     expect(within(screen.getByRole('table')).getByText('Ready')).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Table' })).toHaveAttribute(
+      'tabindex',
+      '0'
+    );
   });
 
   test('renders inline and fenced code with Macaw code presentation', () => {
@@ -77,6 +90,36 @@ describe('MarkdownDisplay', () => {
 
     expect(container.querySelector('img')).not.toBeInTheDocument();
     expect(container).toHaveTextContent('<img src="x" onerror="alert(1)">');
+  });
+
+  test('keeps Markdown inside raw XML tags visible without interpreting HTML', () => {
+    const { container } = render(<MarkdownDisplay content={XML_SOURCE} />);
+
+    expect(screen.getByRole('heading', { name: 'Plan' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Answer' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'docs' })).toBeVisible();
+    expect(container).toHaveTextContent('<reasoning>');
+    expect(container.querySelector('reasoning')).toBeNull();
+    expect(container.querySelector('input')).toBeNull();
+  });
+
+  test('preserves Run Details XML labels and nesting after application preprocessing', () => {
+    const { container } = render(<MarkdownDisplay content={PREPARED_XML} />);
+
+    const reasoning = screen.getByText('[reasoning]').closest('blockquote');
+    const input = screen.getByText('[input]').closest('blockquote');
+    expect(reasoning).toContainElement(input);
+    expect(input).toHaveTextContent('[example] Nested content');
+    expect(reasoning).toContainElement(
+      screen.getByRole('heading', { name: 'Plan' })
+    );
+    expect(reasoning).not.toContainElement(
+      screen.getByRole('heading', { name: 'Answer' })
+    );
+    expect(screen.getByRole('region', { name: 'xml' })).toHaveTextContent(
+      '<reasoning>Keep code literal</reasoning>'
+    );
+    expect(container.querySelector('reasoning')).toBeNull();
   });
 
   test('does not render unsafe link or image URLs', () => {

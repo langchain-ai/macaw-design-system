@@ -4,6 +4,7 @@ import { CodeLite } from '../Code/CodeLite';
 interface MarkdownCodeBlockProps {
   code: string;
   language?: string;
+  codeOverflow?: 'wrap' | 'scroll';
 }
 
 const getCodeLanguage = (language: string) => {
@@ -17,6 +18,7 @@ const getCodeLanguage = (language: string) => {
 export function MarkdownCodeBlock({
   code,
   language = 'text',
+  codeOverflow = 'wrap',
 }: MarkdownCodeBlockProps) {
   return (
     <CodeLite
@@ -25,7 +27,7 @@ export function MarkdownCodeBlock({
       variant="block"
       label={language || 'text'}
       showGutter={false}
-      wrapLines={false}
+      wrapLines={codeOverflow === 'wrap'}
     />
   );
 }

@@ -1,6 +1,10 @@
+import { expect, userEvent, within } from 'storybook/test';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { ChatMessage } from '../ChatMessage';
 import { Text } from '../Text';
+import { PREPARED_XML, XML_SOURCE } from './__tests__/xmlCompatibilitySample';
 import { MarkdownDisplay } from './MarkdownDisplay';
 
 const GFM_SAMPLE = `# Markdown display
@@ -47,6 +51,7 @@ const meta = {
   },
   tags: [
     'autodocs',
+    'a11y-test',
     'markdown',
     'gfm',
     'rich text',
@@ -71,6 +76,146 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const HeadingsAndInlineCode: Story = {
+  parameters: { a11y: { test: 'error' } },
+  args: {
+    content: [1, 2, 3, 4, 5, 6]
+      .map((level) => `${'#'.repeat(level)} Heading ${level} with \`code\``)
+      .join('\n\n'),
+  },
+  play: async ({ canvasElement }) => {
+    const headings = within(canvasElement).getAllByRole('heading');
+    for (const heading of headings) {
+      const code = heading.querySelector('code')!;
+      const headingSize = parseFloat(getComputedStyle(heading).fontSize);
+      await expect(parseFloat(getComputedStyle(code).fontSize)).toBeCloseTo(
+        headingSize * 0.9,
+        1
+      );
+    }
+    const styles = headings.slice(3).map((heading) => {
+      const style = getComputedStyle(heading);
+      return [
+        style.color,
+        style.fontWeight,
+        style.letterSpacing,
+        style.textTransform,
+      ].join(';');
+    });
+    await expect(new Set(styles).size).toBe(3);
+  },
+};
+
+const LONG_CODE = `\`\`\`text
+const response = await client.invoke({ message: "A long line of code that should stay inside a narrow chat pane without widening the surrounding message." });
+\`\`\``;
+
+export const CodeOverflow: Story = {
+  parameters: { a11y: { test: 'error' } },
+  args: { content: LONG_CODE },
+  decorators: [
+    (Story) => (
+      <div className="w-80 max-w-full">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement, args }) => {
+    const region = within(canvasElement).getByRole('region', {
+      name: 'text',
+    });
+    if (args.codeOverflow === 'scroll') {
+      await expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
+    } else {
+      await expect(region.scrollWidth).toBeLessThanOrEqual(
+        region.clientWidth + 1
+      );
+    }
+    await expect(canvasElement.scrollWidth).toBeLessThanOrEqual(
+      canvasElement.clientWidth + 1
+    );
+  },
+};
+
+export const ScrollingCode: Story = {
+  ...CodeOverflow,
+  args: { content: LONG_CODE, codeOverflow: 'scroll' },
+};
+
+export const WideTable: Story = {
+  parameters: { a11y: { test: 'error' } },
+  args: {
+    content:
+      '| First Column | Second Column | Third Column | Fourth Column |\n| --- | --- | --- | --- |\n| A deliberately wide value | Another wide value | Another wide value | Last wide value |',
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-80 max-w-full">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const region = within(canvasElement).getByRole('region', { name: 'Table' });
+    await userEvent.tab();
+    await expect(region).toHaveFocus();
+    await expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
+    await expect(getComputedStyle(region).boxShadow).not.toBe('none');
+  },
+};
+
+export const InChatMessage: Story = {
+  render: (args) => (
+    <div className="flex flex-col gap-space-6">
+      <ChatMessage
+        message={{
+          id: 'question',
+          role: 'user',
+          status: 'completed',
+          content: [
+            {
+              id: 'question-text',
+              type: 'text',
+              text: 'Show me the Markdown formatting options.',
+            },
+          ],
+        }}
+      />
+      <ChatMessage
+        isLatest
+        message={{
+          id: 'answer',
+          role: 'assistant',
+          status: 'completed',
+          content: [
+            {
+              id: 'answer-markdown',
+              type: 'custom',
+              content: <MarkdownDisplay {...args} />,
+            },
+          ],
+        }}
+      />
+    </div>
+  ),
+};
+
+export const XmlCompatibility: Story = {
+  args: { content: PREPARED_XML },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Receives the Markdown emitted by Run Details’ prepareMarkdownText adapter. Keep that application preprocessing when adopting MarkdownDisplay to preserve XML labels and nested sections.',
+      },
+    },
+  },
+};
+
+export const LiteralXmlTags: Story = {
+  args: { content: XML_SOURCE },
+};
 
 export const SecondaryText: Story = {
   args: {

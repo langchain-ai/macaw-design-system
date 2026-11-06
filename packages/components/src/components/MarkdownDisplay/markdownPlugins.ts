@@ -89,6 +89,8 @@ export function rehypeMarkdownDisplay() {
  * Turns off CommonMark's raw HTML constructs. Raw HTML is never interpreted,
  * and parsing it would let a non-standard tag such as `<reasoning>` swallow
  * the Markdown that follows it up to the next blank line.
+ * Application XML adapters may first convert those tags to Markdown labels
+ * and blockquotes; disabling HTML does not change that prepared output.
  */
 export function remarkDisableRawHtml(this: unknown) {
   const data = (this as { data(): { micromarkExtensions?: unknown[] } }).data();

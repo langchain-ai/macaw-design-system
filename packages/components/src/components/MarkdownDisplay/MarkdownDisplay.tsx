@@ -2,6 +2,7 @@ import {
   createContext,
   isValidElement,
   type ComponentProps,
+  type MouseEvent,
   type ReactNode,
   useContext,
   useId,
@@ -43,6 +44,7 @@ type SpanProps = ComponentProps<'span'> & ExtraProps;
 interface MarkdownDisplayContextValue {
   loadImages: boolean;
   trailingContent: ReactNode;
+  codeOverflow: 'wrap' | 'scroll';
 }
 
 const COMPONENT_NAME = makeComponentName('MarkdownDisplay');
@@ -56,6 +58,7 @@ const TaskItemContext = createContext<string | undefined>(undefined);
 const MarkdownDisplayContext = createContext<MarkdownDisplayContextValue>({
   loadImages: false,
   trailingContent: null,
+  codeOverflow: 'wrap',
 });
 
 const blockSpacing =
@@ -109,7 +112,9 @@ function MarkdownTaskCheckbox({ checked, type }: InputProps) {
 
   const checkboxProps = {
     checked: checked ?? false,
-    disabled: true,
+    'aria-readonly': true,
+    tabIndex: -1,
+    onClick: (event: MouseEvent<HTMLButtonElement>) => event.preventDefault(),
     size: 'sm',
     className: 'pointer-events-none',
     containerClassName: 'absolute left-0 top-[calc(0.75em_-_0.5rem)]',
@@ -182,7 +187,8 @@ function MarkdownSpan({ node: _node, ...props }: SpanProps) {
 const createHeading = (
   variant: HeadingVariant,
   headingClassName: string,
-  weight: TextProps['weight'] = 'semibold'
+  weight: TextProps['weight'] = 'semibold',
+  color?: TextColor
 ) =>
   function MarkdownHeading({
     children,
@@ -197,6 +203,7 @@ const createHeading = (
         as={variant}
         variant={variant}
         weight={weight}
+        color={color}
         className={cn(blockSpacing, headingClassName, className)}
       >
         {children}
@@ -205,7 +212,8 @@ const createHeading = (
   };
 
 const MARKDOWN_COMPONENTS: Components = {
-  pre: ({ children }) => {
+  pre: function MarkdownPre({ children }) {
+    const { codeOverflow } = useContext(MarkdownDisplayContext);
     const child = isValidElement<{
       children?: ReactNode;
       className?: string;
@@ -220,7 +228,11 @@ const MARKDOWN_COMPONENTS: Components = {
 
     return (
       <div className={cn('w-full min-w-0', blockSpacing)}>
-        <MarkdownCodeBlock code={code} language={language} />
+        <MarkdownCodeBlock
+          code={code}
+          language={language}
+          codeOverflow={codeOverflow}
+        />
       </div>
     );
   },
@@ -228,7 +240,7 @@ const MARKDOWN_COMPONENTS: Components = {
     <code
       {...props}
       className={cn(
-        'rounded-xs bg-surface-level-3 px-space-1 py-px font-mono text-xs leading-normal tracking-normal text-tertiary',
+        'rounded-xs bg-surface-level-3 px-space-1 py-px font-mono text-[length:0.9em] leading-[inherit] tracking-normal text-tertiary',
         className
       )}
     >
@@ -256,9 +268,9 @@ const MARKDOWN_COMPONENTS: Components = {
   h1: createHeading('h1', 'text-xl leading-tight'),
   h2: createHeading('h2', 'text-lg leading-tight'),
   h3: createHeading('h3', 'text-base leading-tight'),
-  h4: createHeading('h4', 'text-sm leading-tight'),
-  h5: createHeading('h5', 'text-sm leading-tight'),
-  h6: createHeading('h6', 'text-sm leading-tight', 'medium'),
+  h4: createHeading('h4', 'text-sm leading-tight', 'semibold', 'quaternary'),
+  h5: createHeading('h5', 'text-sm leading-tight', 'semibold', 'secondary'),
+  h6: createHeading('h6', 'text-sm leading-tight', 'medium', 'secondary'),
   p: ({ children, className, color: _color, node: _node, ...props }) => (
     <Text
       {...props}
@@ -322,7 +334,15 @@ const MARKDOWN_COMPONENTS: Components = {
   li: MarkdownListItem,
   input: MarkdownTaskCheckbox,
   table: ({ node: _node, ...props }) => (
-    <div className={cn(blockSpacing, 'w-full overflow-x-auto')}>
+    <div
+      role="region"
+      aria-label="Table"
+      tabIndex={0}
+      className={cn(
+        blockSpacing,
+        'w-full overflow-x-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus'
+      )}
+    >
       <table
         {...props}
         className="w-full min-w-max border-collapse text-left text-xs"
@@ -375,6 +395,8 @@ export interface MarkdownDisplayProps {
   containerHeight?: string;
   /** Preserve single newlines visually without changing Markdown parsing. */
   preserveNewlines?: boolean;
+  /** Wrap long fenced code lines by default, or scroll them horizontally. */
+  codeOverflow?: 'wrap' | 'scroll';
   /** Color applied to text-bearing Markdown elements. */
   textColor?: TextColor;
   /**
@@ -411,6 +433,7 @@ export function MarkdownDisplay({
   fullLength = false,
   containerHeight,
   preserveNewlines = false,
+  codeOverflow = 'wrap',
   textColor = 'primary',
   loadImages = false,
   components,
@@ -425,8 +448,8 @@ export function MarkdownDisplay({
     [components]
   );
   const contextValue = useMemo(
-    () => ({ loadImages, trailingContent }),
-    [loadImages, trailingContent]
+    () => ({ loadImages, trailingContent, codeOverflow }),
+    [loadImages, trailingContent, codeOverflow]
   );
   const isPlainText = content.length > MAX_TEXT_LENGTH;
 
