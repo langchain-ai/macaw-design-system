@@ -151,7 +151,7 @@ function componentList(components: Component[]) {
   });
   return [
     styleText('bold', `Design system · ${components.length} components`),
-    'Run pnpm design-system inspect <name> for imports and examples.',
+    'Run pnpm exec macaw inspect <name> for imports and examples.',
     '',
     styleText('bold', `${'COMPONENT'.padEnd(nameWidth)}  CAPABILITIES`),
     ...rows,
