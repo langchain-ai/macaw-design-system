@@ -232,10 +232,7 @@ const MARKDOWN_COMPONENTS: Components = {
       <div
         data-search-block=""
         data-search-code=""
-        className={cn(
-          'w-full min-w-0 dark:[&>div]:border-muted dark:[&>div>div:first-child]:border-muted',
-          blockSpacing
-        )}
+        className={cn('w-full min-w-0', blockSpacing)}
       >
         <MarkdownCodeBlock
           code={code}
