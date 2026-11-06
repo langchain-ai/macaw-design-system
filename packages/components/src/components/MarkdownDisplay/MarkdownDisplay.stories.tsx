@@ -458,3 +458,32 @@ export const PlainTextFallback: Story = {
     containerHeight: '16rem',
   },
 };
+
+const longAnswer = Array.from(
+  { length: 90 },
+  (_, index) => `## Step ${index + 1}
+
+Configure the agent, then check the result in **LangSmith**. Each step keeps its own heading, list, and code block, so long answers stay readable.
+
+- Inspect the trace
+- Compare the output
+
+\`\`\`python
+agent.invoke({"messages": [{"role": "user", "content": "Step ${index + 1}"}]})
+\`\`\``
+).join('\n\n');
+
+export const RaisedMarkdownLimit: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '- `maxMarkdownLength` keeps Markdown past the default limit for content of bounded size, such as a long chat answer.',
+      },
+    },
+  },
+  args: {
+    content: longAnswer,
+    maxMarkdownLength: Infinity,
+  },
+};

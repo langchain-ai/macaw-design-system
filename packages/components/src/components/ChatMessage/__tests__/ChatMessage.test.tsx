@@ -286,6 +286,24 @@ describe('ChatMessage', () => {
     expect(screen.queryByText('A')).not.toBeInTheDocument();
   });
 
+  it('end-aligns a host-supplied body in a user message', () => {
+    const blocks = [{ id: 'q', type: 'text' as const, text: 'Short question' }];
+    const { rerender } = render(
+      <ChatMessage message={{ ...message, role: 'user' }}>
+        <ChatMessageBody blocks={blocks} />
+      </ChatMessage>
+    );
+    const body = () => screen.getByText('Short question').parentElement;
+    expect(body()).toHaveClass('items-end');
+
+    rerender(
+      <ChatMessage message={message}>
+        <ChatMessageBody blocks={blocks} />
+      </ChatMessage>
+    );
+    expect(body()).not.toHaveClass('items-end');
+  });
+
   it('labels a message with a rich name by its role', () => {
     render(
       <ChatMessage

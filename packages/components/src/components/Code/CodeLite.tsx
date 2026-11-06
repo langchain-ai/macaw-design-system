@@ -284,7 +284,7 @@ function CodeLiteCode(props: CodeLiteCodeProps) {
   }
 
   return (
-    <div className="border-subtle bg-surface-level-1 w-full max-w-full min-w-0 overflow-hidden rounded-lg border">
+    <div className="border-subtle dark:border-muted bg-surface-level-1 w-full max-w-full min-w-0 overflow-hidden rounded-lg border">
       {props.toolbar === undefined ? (
         <CodeToolbar
           className="bg-surface-level-1 pl-space-4 pr-space-3 min-h-8"
