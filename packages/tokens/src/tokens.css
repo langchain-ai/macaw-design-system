@@ -23,6 +23,7 @@
   --neutral-25: #fafbfd;
   --neutral-35: #f8fafc;
   --neutral-50: #f5f8fb;
+  --neutral-75: #f0f4f8;
   --neutral-100: #edf2f7;
   --neutral-200: #e2e8f0;
   --neutral-300: #cbd5e1;
@@ -142,7 +143,8 @@
   --bg-input-plain: var(--neutral-50); /* borderless fields need a fill to read as fields */
   --bg-input-disabled: var(--bg-disabled);
   --bg-popover: var(--neutral-25);
-  --bg-sidebar: var(--neutral-50);
+  --bg-sidebar: var(--neutral-75); /* recedes behind content, distinct from surface levels */
+  --bg-sidebar-hover: var(--neutral-200);
   --bg-elevated-hover: var(--neutral-100);
   --bg-elevated-selected: var(--neutral-100);
   --bg-overlay: rgba(0, 0, 0, 0.5); /* backdrop / modal scrim */
@@ -641,6 +643,7 @@ html.dark,
   --neutral-25: #09090f;
   --neutral-35: #0d0f18;
   --neutral-50: #111521;
+  --neutral-75: #161a28;
   --neutral-100: #1b2030;
   --neutral-200: #282e42;
   --neutral-300: #393f55;
@@ -758,6 +761,7 @@ html.dark,
   --bg-input-disabled: var(--neutral-50);
   --bg-popover: var(--neutral-100);
   --bg-sidebar: var(--neutral-35);
+  --bg-sidebar-hover: var(--neutral-200);
   --bg-elevated-hover: var(--neutral-200);
   --bg-elevated-selected: var(--neutral-300);
   --bg-overlay: rgba(0, 0, 0, 0.7);

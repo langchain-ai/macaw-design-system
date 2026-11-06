@@ -294,10 +294,13 @@ Use the lowest level that creates enough separation. Avoid skipping levels unles
 | `bg-elevated-selected`     | Selected item inside a raised or floating surface                 |
 | `bg-popover`               | Floating tooltips, popovers, and menu surfaces                    |
 | `bg-sidebar`               | App navigation sidebar surface                                    |
+| `bg-sidebar-hover`         | Hover state for items on the app navigation sidebar               |
 | `bg-overlay`               | Modal backdrop / scrim                                            |
 
-`bg-sidebar` is reserved for app navigation: `neutral-50` in light mode and
-`neutral-35` in dark mode, independent of fields, popovers, and raised surfaces.
+`bg-sidebar` is reserved for app navigation: `neutral-75` in light mode and
+`neutral-35` in dark mode. In both themes it sits one step behind
+`bg-surface-level-1` and matches no surface level, so the app frame stays
+distinct from page content. Items on it hover with `bg-sidebar-hover`.
 
 `bg-input` is white in light mode; `bg-popover` uses `neutral-25`. Both use
 `neutral-100` in dark mode and remain independent semantic roles. Raised
