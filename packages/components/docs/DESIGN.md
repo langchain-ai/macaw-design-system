@@ -167,7 +167,8 @@ plain-text fallback.
 Use `xmlTags="sections"` with raw content to render custom XML wrappers such
 as `<reasoning>` as bold labels inside nested blockquotes. This preserves the
 Run Details XML conventions: mixed-case closing tags, `<input>` wrappers,
-self-closing/void tags, inline labels, and literal fenced code. CDATA payloads
+self-closing/void tags, inline labels, and literal fenced code. Inline code and
+native Markdown blockquotes retain their syntax in section mode. CDATA payloads
 keep their tags and entities literal, join split CDATA terminators, and still
 render Markdown. Raw HTML is never executed. The default `xmlTags="literal"`
 continues to display tags as text.
@@ -192,10 +193,11 @@ still owns its search index, including using the same Markdown parsing rules
 as the renderer for literal tags.
 
 The XML regression cases use the behavior of `prepareMarkdownText` at
-LangChainPlus revision `dec09b917fddc52c73c7cba750869d432adaff64`.
-`XmlCompatibility`, `PreparedXml`, and `CdataSections` show raw, preprocessed,
-and CDATA inputs. `NarrowWrappingPane` and `NarrowScrollingPane` demonstrate the combined
-code/table/inline-code layout at 224px with both code overflow modes.
+LangChainPlus revision `dec09b917fddc52c73c7cba750869d432adaff64` as a baseline,
+with additional cases for inline code and native blockquotes in section mode.
+`XmlCompatibility` groups raw sections, preprocessed Markdown, literal tags,
+and CDATA inputs. `CodeOverflow` compares the combined code/table/inline-code
+layout at 224px with both code overflow modes.
 
 ## Chat composer
 

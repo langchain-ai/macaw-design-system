@@ -273,6 +273,34 @@ describe('MarkdownDisplay', () => {
     expect(thinking).not.toHaveTextContent('After');
   });
 
+  test('preserves inline code and native blockquote structure in XML section mode', () => {
+    render(
+      <MarkdownDisplay
+        xmlTags="sections"
+        content={[
+          '<reasoning>',
+          'Use `x => x < 2` here.',
+          '',
+          '> Inside quote with ``a`<b>``.',
+          '</reasoning>',
+          'After the section.',
+          '',
+          '> Outside quote with `a<b>`.',
+        ].join('\n')}
+      />
+    );
+    const reasoning = screen.getByText('[reasoning]').closest('blockquote');
+    const inside = screen.getByText('a`<b>').closest('blockquote');
+    const outside = screen.getByText('a<b>').closest('blockquote');
+    for (const code of ['x => x < 2', 'a`<b>', 'a<b>']) {
+      expect(screen.getByText(code).tagName).toBe('CODE');
+    }
+    expect(inside).not.toBe(reasoning);
+    expect(reasoning).toContainElement(inside);
+    expect(outside).toBeVisible();
+    expect(reasoning).not.toContainElement(outside);
+  });
+
   test('keeps HTML inert and does not activate sections for code-only XML', () => {
     const { container, rerender } = render(
       <MarkdownDisplay

@@ -163,7 +163,45 @@ const STANDARD_HTML_ELEMENTS = new Set([
 
 const INLINE_TAG = /<\/?[a-zA-Z][a-zA-Z0-9_-]*(\s[^>]*)?>/g;
 
-function replaceInlineTags(line: string): string {
+// Code spans close with a backtick run of the same length. Shorter runs and
+// backslashes inside the span are literal; only an opening run can be escaped.
+function transformOutsideCode(
+  text: string,
+  transform: (prose: string) => string
+): string {
+  const delimiters = [...text.matchAll(/`+/g)];
+  let result = '';
+  let lastIndex = 0;
+  for (let index = 0; index < delimiters.length; index++) {
+    const open = delimiters[index];
+    let escapeStart = open.index;
+    while (escapeStart > 0 && text[escapeStart - 1] === '\\') escapeStart--;
+    const escaped = (open.index - escapeStart) % 2;
+    const start = open.index + escaped;
+    const length = open[0].length - escaped;
+    // A backslash escapes only the first tick, leaving the rest of the run
+    // available as a code delimiter.
+    if (length === 0) continue;
+
+    let closeIndex = index + 1;
+    while (
+      closeIndex < delimiters.length &&
+      delimiters[closeIndex][0].length !== length
+    ) {
+      closeIndex++;
+    }
+    // An unmatched delimiter is ordinary Markdown text.
+    if (closeIndex === delimiters.length) continue;
+    const close = delimiters[closeIndex];
+    const end = close.index + close[0].length;
+    result += transform(text.slice(lastIndex, start)) + text.slice(start, end);
+    lastIndex = end;
+    index = closeIndex;
+  }
+  return result + transform(text.slice(lastIndex));
+}
+
+function replaceProseTags(line: string): string {
   let result = '';
   let lastIndex = 0;
   for (const match of line.matchAll(INLINE_TAG)) {
@@ -184,21 +222,25 @@ function replaceInlineTags(line: string): string {
   );
 }
 
-const INLINE_CODE = /`[^`]*`/g;
+function replaceInlineTags(line: string): string {
+  // Preserve native (possibly nested) Markdown blockquotes before escaping
+  // prose. XML nesting adds its own markers around this unchanged prefix.
+  const quotePrefix = line.match(/^(?: {0,3}>[\t ]?)+/)?.[0] ?? '';
+  return (
+    quotePrefix +
+    transformOutsideCode(line.slice(quotePrefix.length), replaceProseTags)
+  );
+}
 
 // Markdown keeps a code span's characters as typed but decodes entities in
 // prose, so only the text between code spans is escaped.
 function escapeOutsideCode(text: string): string {
-  const escape = (s: string) =>
-    s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-  let result = '';
-  let lastIndex = 0;
-  for (const match of text.matchAll(INLINE_CODE)) {
-    const start = match.index ?? 0;
-    result += escape(text.slice(lastIndex, start)) + match[0];
-    lastIndex = start + match[0].length;
-  }
-  return result + escape(text.slice(lastIndex));
+  return transformOutsideCode(text, (prose) =>
+    prose
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+  );
 }
 
 // HTML void elements never have a closing tag, so they must not be pushed onto

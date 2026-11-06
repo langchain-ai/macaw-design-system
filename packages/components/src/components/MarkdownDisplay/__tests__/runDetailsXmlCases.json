@@ -1,5 +1,41 @@
 [
   {
+    "name": "inline code and native blockquotes",
+    "source": "<reasoning>\nUse `x => x < 2` here\n</reasoning>\n> quoted\nCall `a<b>` too",
+    "prepared": "> **[reasoning]**\n> Use `x => x < 2` here\n\n> quoted\nCall `a<b>` too",
+    "searchable": "[reasoning]\nUse x => x < 2 here\nquoted\nCall a<b> too"
+  },
+  {
+    "name": "multiple backticks and adjacent inline XML",
+    "source": "<reasoning>\nCompare ``x `<value>` > 2`` with <result>ok</result>.\nUse `x \\` and <result>done</result>.\n</reasoning>",
+    "prepared": "> **[reasoning]**\n> Compare ``x `<value>` > 2`` with **[result]** ok.\n> Use `x \\` and **[result]** done.\n",
+    "searchable": "[reasoning]\nCompare x `<value>` > 2 with [result] ok.\nUse x \\ and [result] done."
+  },
+  {
+    "name": "escaped and unmatched backticks remain prose",
+    "source": "<reasoning>\nLiteral \\`<item>outside</item>\\` and `a<b>`.\nUnclosed `tick <result>still a label</result>.\n</reasoning>",
+    "prepared": "> **[reasoning]**\n> Literal \\`**[item]** outside\\` and `a<b>`.\n> Unclosed `tick **[result]** still a label.\n",
+    "searchable": "[reasoning]\nLiteral `[item] outside` and a<b>.\nUnclosed `tick [result] still a label."
+  },
+  {
+    "name": "escaped first backtick leaves a code delimiter",
+    "source": "<reasoning>\nLiteral \\``a<b>` then <result>done</result>.\n</reasoning>",
+    "prepared": "> **[reasoning]**\n> Literal \\``a<b>` then **[result]** done.\n",
+    "searchable": "[reasoning]\nLiteral `a<b> then [result] done."
+  },
+  {
+    "name": "nested native blockquotes in XML sections",
+    "source": "<reasoning>\n> Outer quote\n>\n> > Nested `a<b>`\n</reasoning>\nAfter\n\n  > > Quoted outside",
+    "prepared": "> **[reasoning]**\n> > Outer quote\n> >\n> > > Nested `a<b>`\n\nAfter\n\n  > > Quoted outside",
+    "searchable": "[reasoning]\nOuter quote\nNested a<b>\nAfter\nQuoted outside"
+  },
+  {
+    "name": "CDATA code spans with multiple backticks",
+    "source": "<reasoning><![CDATA[\nUse ``x `<tool>` > 2 & value`` literally.\n]]></reasoning>",
+    "prepared": "> **[reasoning]**\n> Use ``x `<tool>` > 2 & value`` literally.\n",
+    "searchable": "[reasoning]\nUse x `<tool>` > 2 & value literally."
+  },
+  {
     "name": "nested wrappers and fenced code",
     "source": "<reasoning>\n# Plan\n- **Inspect** the [docs](https://docs.langchain.com)\n<input>\n<example>Nested content</example>\n</input>\n```xml\n<reasoning>Keep code literal</reasoning>\n```\n</reasoning>\n# Answer",
     "prepared": "> **[reasoning]**\n> # Plan\n> - **Inspect** the [docs](https://docs.langchain.com)\n>\n> > **[input]**\n> > **[example]** Nested content\n>\n> ```xml\n> <reasoning>Keep code literal</reasoning>\n> ```\n\n# Answer",

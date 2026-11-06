@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type ComponentProps, useEffect, useState } from 'react';
 
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
@@ -118,42 +118,6 @@ export const HeadingsAndInlineCode: Story = {
   },
 };
 
-const LONG_CODE = `\`\`\`text
-const response = await client.invoke({ message: "A long line of code that should stay inside a narrow chat pane without widening the surrounding message." });
-\`\`\``;
-
-export const CodeOverflow: Story = {
-  parameters: { a11y: { test: 'error' } },
-  args: { content: LONG_CODE },
-  decorators: [
-    (Story) => (
-      <div className="w-80 max-w-full">
-        <Story />
-      </div>
-    ),
-  ],
-  play: async ({ canvasElement, args }) => {
-    const region = within(canvasElement).getByRole('region', {
-      name: 'text',
-    });
-    if (args.codeOverflow === 'scroll') {
-      await expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
-    } else {
-      await expect(region.scrollWidth).toBeLessThanOrEqual(
-        region.clientWidth + 1
-      );
-    }
-    await expect(canvasElement.scrollWidth).toBeLessThanOrEqual(
-      canvasElement.clientWidth + 1
-    );
-  },
-};
-
-export const ScrollingCode: Story = {
-  ...CodeOverflow,
-  args: { content: LONG_CODE, codeOverflow: 'scroll' },
-};
-
 export const WideTable: Story = {
   parameters: { a11y: { test: 'error' } },
   args: {
@@ -189,39 +153,75 @@ const NARROW_CONTENT = `### Structured output
 
 \`a_very_long_identifier_without_spaces_that_should_wrap_in_prose_instead_of_widening_the_entire_surface\``;
 
-export const NarrowWrappingPane: Story = {
-  parameters: { a11y: { test: 'error' } },
-  args: { content: NARROW_CONTENT, codeOverflow: 'wrap' },
-  decorators: [
-    (Story) => (
-      <div className="w-56 min-w-0 max-w-full">
-        <Story />
+function CodeOverflowExample(args: ComponentProps<typeof MarkdownDisplay>) {
+  const [overflow, setOverflow] = useState(args.codeOverflow ?? 'wrap');
+
+  useEffect(() => {
+    setOverflow(args.codeOverflow ?? 'wrap');
+  }, [args.codeOverflow]);
+
+  return (
+    <div className="flex flex-col gap-space-4">
+      <div className="flex flex-wrap gap-space-2">
+        {(['wrap', 'scroll'] as const).map((mode) => (
+          <Button
+            key={mode}
+            color={overflow === mode ? 'primary' : 'secondary'}
+            aria-pressed={overflow === mode}
+            onClick={() => setOverflow(mode)}
+          >
+            {mode === 'wrap' ? 'Wrap code' : 'Scroll code'}
+          </Button>
+        ))}
       </div>
-    ),
-  ],
-  play: async ({ canvasElement, args }) => {
+      <section aria-label="Narrow pane" className="w-56 min-w-0 max-w-full">
+        <MarkdownDisplay {...args} codeOverflow={overflow} />
+      </section>
+    </div>
+  );
+}
+
+export const CodeOverflow: Story = {
+  parameters: {
+    a11y: { test: 'error' },
+    docs: {
+      description: {
+        story:
+          'Switch between wrapping and scrolling code in a narrow pane. Tables scroll independently, while long inline code wraps within the text.',
+      },
+    },
+  },
+  args: { content: NARROW_CONTENT, codeOverflow: 'wrap' },
+  render: (args) => <CodeOverflowExample {...args} />,
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const code = canvas.getByRole('region', { name: 'json' });
-    const table = canvas.getByRole('region', { name: 'Table' });
+    const pane = canvas.getByRole('region', { name: 'Narrow pane' });
+    for (const overflow of ['wrap', 'scroll']) {
+      const button = canvas.getByRole('button', {
+        name: overflow === 'wrap' ? 'Wrap code' : 'Scroll code',
+      });
+      await userEvent.click(button);
+      await expect(button).toHaveAttribute('aria-pressed', 'true');
+      const code = within(pane).getByRole('region', { name: 'json' });
+      const table = within(pane).getByRole('region', { name: 'Table' });
+      await expect(pane.scrollWidth).toBeLessThanOrEqual(pane.clientWidth + 1);
+      await expect(table.scrollWidth).toBeGreaterThan(table.clientWidth);
+      if (overflow === 'scroll') {
+        await expect(code.scrollWidth).toBeGreaterThan(code.clientWidth);
+      } else {
+        await expect(code.scrollWidth).toBeLessThanOrEqual(
+          code.clientWidth + 1
+        );
+      }
+      const inlineCode = within(pane).getByText(
+        'a_very_long_identifier_without_spaces_that_should_wrap_in_prose_instead_of_widening_the_entire_surface'
+      );
+      await expect(inlineCode.getClientRects().length).toBeGreaterThan(1);
+    }
     await expect(canvasElement.scrollWidth).toBeLessThanOrEqual(
       canvasElement.clientWidth + 1
     );
-    await expect(table.scrollWidth).toBeGreaterThan(table.clientWidth);
-    if (args.codeOverflow === 'scroll') {
-      await expect(code.scrollWidth).toBeGreaterThan(code.clientWidth);
-    } else {
-      await expect(code.scrollWidth).toBeLessThanOrEqual(code.clientWidth + 1);
-    }
-    const inlineCode = canvas.getByText(
-      'a_very_long_identifier_without_spaces_that_should_wrap_in_prose_instead_of_widening_the_entire_surface'
-    );
-    await expect(inlineCode.getClientRects().length).toBeGreaterThan(1);
   },
-};
-
-export const NarrowScrollingPane: Story = {
-  ...NarrowWrappingPane,
-  args: { content: NARROW_CONTENT, codeOverflow: 'scroll' },
 };
 
 export const InChatMessage: Story = {
@@ -358,39 +358,73 @@ export const StreamingInChat: Story = {
   },
 };
 
+const INLINE_XML_SOURCE = `<reasoning>
+Use \`x => x < 2\` here and call \`a<b>\` too.
+</reasoning>
+> Native blockquotes keep their formatting.`;
+
 export const XmlCompatibility: Story = {
   args: { content: XML_SOURCE, xmlTags: 'sections' },
   parameters: {
     docs: {
       description: {
         story:
-          'Renders raw Run Details XML with labeled, nested sections. Already-prepared Markdown remains supported with the default literal mode.',
+          'Compare XML section mode with the default literal mode and already-prepared Markdown. CDATA keeps payload tags literal, and inline code and native Markdown blockquotes keep their formatting in section mode.',
       },
     },
   },
-};
-
-export const PreparedXml: Story = {
-  args: { content: PREPARED_XML },
-};
-
-export const CdataSections: Story = {
-  args: { content: CDATA_SOURCE, xmlTags: 'sections' },
+  render: (args) => (
+    <div className="flex flex-col gap-space-6">
+      <section aria-label="XML sections" className="flex flex-col gap-space-4">
+        <Text as="h2" variant="h3">
+          XML Sections
+        </Text>
+        <MarkdownDisplay {...args} />
+        <MarkdownDisplay {...args} content={INLINE_XML_SOURCE} />
+      </section>
+      <section aria-label="Prepared XML" className="flex flex-col gap-space-4">
+        <Text as="h2" variant="h3">
+          Prepared Markdown
+        </Text>
+        <MarkdownDisplay {...args} content={PREPARED_XML} xmlTags="literal" />
+      </section>
+      <section aria-label="Literal XML" className="flex flex-col gap-space-4">
+        <Text as="h2" variant="h3">
+          Literal XML Tags
+        </Text>
+        <MarkdownDisplay {...args} xmlTags="literal" />
+      </section>
+      <section aria-label="CDATA payload" className="flex flex-col gap-space-4">
+        <Text as="h2" variant="h3">
+          CDATA Payload
+        </Text>
+        <MarkdownDisplay {...args} content={CDATA_SOURCE} />
+      </section>
+    </div>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const sections = canvas.getByRole('region', { name: 'XML sections' });
+    const sectionsCanvas = within(sections);
+    await expect(sectionsCanvas.getByText('x => x < 2').tagName).toBe('CODE');
+    await expect(sectionsCanvas.getByText('a<b>').tagName).toBe('CODE');
     await expect(
-      canvas.getByRole('heading', { name: 'Payload' })
+      sectionsCanvas
+        .getByText('Native blockquotes keep their formatting.')
+        .closest('blockquote')
+    ).not.toBeNull();
+
+    const cdata = canvas.getByRole('region', { name: 'CDATA payload' });
+    const cdataCanvas = within(cdata);
+    await expect(
+      cdataCanvas.getByRole('heading', { name: 'Payload' })
     ).toBeVisible();
-    await expect(canvas.getAllByText('[reasoning]')).toHaveLength(1);
-    await expect(canvasElement).toHaveTextContent(
+    await expect(cdataCanvas.getAllByText('[reasoning]')).toHaveLength(1);
+    await expect(cdata).toHaveTextContent(
       'Literal <reasoning>do not relabel</reasoning> & &lt;tag&gt;.'
     );
-    await expect(canvasElement).toHaveTextContent('Split terminator: ]]>.');
+    await expect(cdata).toHaveTextContent('Split terminator: ]]>.');
   },
-};
-
-export const LiteralXmlTags: Story = {
-  args: { content: XML_SOURCE },
 };
 
 export const SecondaryText: Story = {

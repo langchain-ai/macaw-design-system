@@ -6,8 +6,8 @@ import { prepareMarkdownXml } from '../prepareMarkdownXml';
 import { findDomRange, readSearchableDom } from './runDetailsSearchContract';
 import cases from './runDetailsXmlCases.json';
 
-// Expected preparation and search text were captured by running the actual
-// prepareMarkdownText/searchableText at the revision in runDetailsSearchContract.
+// Baseline preparation and search text were captured from the revision in
+// runDetailsSearchContract; regression cases also cover corrected Markdown syntax.
 describe('Run Details compatibility', () => {
   test.each(cases)('$name', ({ source, prepared, searchable }) => {
     expect(prepareMarkdownXml(source)).toBe(prepared);
