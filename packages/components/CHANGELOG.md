@@ -1,3 +1,13 @@
+## 1.7.3 (2026-11-06)
+
+### 🚀 Features
+
+- **tokens:** separate light sidebar fill from surface levels ([#102](https://github.com/langchain-ai/macaw-design-system/pull/102))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.7.2 (2026-11-05)
 
 ### 🩹 Fixes
