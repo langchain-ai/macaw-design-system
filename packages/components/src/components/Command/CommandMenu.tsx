@@ -170,8 +170,9 @@ export function CommandMenu({
           size={itemRowSize}
           className={cn(
             'gap-space-2',
+            // Forced colors suppress the active row's background highlight.
             hideSearch &&
-              'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] aria-selected:after:border-2 aria-selected:after:border-focus'
+              'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] forced-colors:aria-selected:after:border-2 aria-selected:after:border-focus'
           )}
         >
           {renderItem ? (
