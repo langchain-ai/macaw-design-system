@@ -7,6 +7,7 @@ import { GridColumns, GridRows } from '@visx/grid';
 import { Group } from '@visx/group';
 import type { scaleBand, scaleLinear } from '@visx/scale';
 import { Area, LinePath } from '@visx/shape';
+import { getStringWidth } from '@visx/text';
 
 import {
   getChartAxisLabelOffset,
@@ -334,11 +335,24 @@ export const LineChartPlot = ({
             hideAxisLine
             hideTicks
             tickFormat={(value) => formatXValue(value.valueOf())}
-            tickLabelProps={{
-              fill: 'var(--text-tertiary)',
-              fontSize: CHART_TICK_FONT_SIZE,
-              textAnchor: 'middle',
-              dy: '0.5em',
+            tickLabelProps={(value) => {
+              const x = chartMargin.left + getXPosition(value.valueOf());
+              const labelWidth = Math.ceil(
+                getStringWidth(formatXValue(value.valueOf()), {
+                  fontSize: `${CHART_TICK_FONT_SIZE}px`,
+                  fontFamily: 'Inter',
+                }) ?? 0
+              );
+              return {
+                fill: 'var(--text-tertiary)',
+                fontSize: CHART_TICK_FONT_SIZE,
+                textAnchor: 'middle',
+                dx: Math.max(
+                  labelWidth / 2 - x,
+                  Math.min(0, width - x - labelWidth / 2)
+                ),
+                dy: '0.5em',
+              };
             }}
           />
           {axes.map((axis, index) => {
