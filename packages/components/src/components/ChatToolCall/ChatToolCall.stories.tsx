@@ -125,7 +125,7 @@ const meta = {
         component: `- Default shows summaries and expandable details; Simple is a status-only row.
 - Hosts supply \`onInspect\` for Simple's clickable row, decide whether to open a pane or dialog, and can describe the action with \`inspectLabel\` (default: “View tool details”).
 - Every row leads with a 12px single-color icon. Hosts map product or provider icons through \`icon\`; without one the row uses a generic wrench, and \`null\` omits it.
-- Pass the combined \`status\` to \`ChatToolCallGroup\` to show it on the header; rows inside then skip their success check and show only seconds while running. Without it, every row shows its own status.
+- Succeeded rows show no status; every other state keeps its own icon, so a quiet row means done.
 - Hosts validate tool-specific payloads before passing presentation slots; unknown payloads use the generic fallback.
 - Preserve content order and stable IDs; \`ChatToolCallGroup\` provides the outer accordion for both variants.`,
       },
@@ -178,11 +178,7 @@ export const Default: Story = {
   render: () => (
     <ToolCallVariants>
       {(variant) => (
-        <ChatToolCallGroup
-          label="3 tool calls"
-          status="completed"
-          defaultExpanded
-        >
+        <ChatToolCallGroup label="3 tool calls" defaultExpanded>
           <ChatToolCall
             variant={variant}
             onInspect={inspectToolCall}
@@ -384,11 +380,7 @@ export const Icons: Story = {
   render: () => (
     <ToolCallVariants>
       {(variant) => (
-        <ChatToolCallGroup
-          label="5 tool calls"
-          status="streaming"
-          defaultExpanded
-        >
+        <ChatToolCallGroup label="5 tool calls" defaultExpanded>
           {iconCalls.map(({ toolCall, label, icon, summary }) => (
             <ChatToolCall
               key={toolCall.id}
@@ -411,28 +403,35 @@ export const NarrowWidth: Story = {
     docs: {
       description: {
         story:
-          'Long names and summaries truncate without forcing the conversation wider. Expand the default row to verify wrapped detail content.',
+          'Long names and summaries truncate without forcing the conversation wider. Each column is 16rem wide. Expand the default row to verify wrapped detail content.',
       },
     },
   },
   decorators: [
     (Story) => (
-      <div className="w-64 min-w-0">
+      <div className="mx-auto w-[33.5rem] min-w-0">
         <Story />
       </div>
     ),
   ],
   render: () => (
-    <ChatToolCall
-      toolCall={{
-        id: 'narrow-search',
-        name: 'search_documents_with_a_very_long_tool_name',
-        status: 'succeeded',
-        args: { query: 'A long deployment readiness query' },
-        result: 'A long response that wraps within the available detail width.',
-      }}
-      summary="A long summary that stays within a narrow conversation"
-      defaultExpanded
-    />
+    <ToolCallVariants>
+      {(variant) => (
+        <ChatToolCall
+          variant={variant}
+          onInspect={inspectToolCall}
+          toolCall={{
+            id: 'narrow-search',
+            name: 'search_documents_with_a_very_long_tool_name',
+            status: 'succeeded',
+            args: { query: 'A long deployment readiness query' },
+            result:
+              'A long response that wraps within the available detail width.',
+          }}
+          summary="A long summary that stays within a narrow conversation"
+          defaultExpanded
+        />
+      )}
+    </ToolCallVariants>
   ),
 };

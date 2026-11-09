@@ -2,11 +2,14 @@ import type { ReactNode } from 'react';
 
 import { LightbulbIcon } from '@phosphor-icons/react/dist/ssr/Lightbulb';
 
-import type { ChatStateStatus } from '../ChatState';
+import { ChatState, type ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
+import {
+  ChatToolCallGroupedTimer,
+  useReportToGroup,
+} from './ChatToolCallGroupStatus';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
-import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 export interface ChatToolCallReasoningProps {
@@ -37,6 +40,14 @@ export function ChatToolCallReasoning({
   defaultExpanded = false,
   onExpandedChange,
 }: ChatToolCallReasoningProps) {
+  const inGroup = useReportToGroup({
+    status:
+      status === 'completed'
+        ? 'succeeded'
+        : status === 'streaming'
+          ? 'running'
+          : 'other',
+  });
   const heading = (
     <span className="inline-flex min-w-0 items-center gap-space-2">
       <ChatToolCallIcon>
@@ -53,7 +64,17 @@ export function ChatToolCallReasoning({
       </Text>
     </span>
   );
-  const state = <ChatToolCallRowStatus status={status} elapsedMs={elapsedMs} />;
+  const state =
+    status === 'completed' ? null : status === 'streaming' && inGroup ? (
+      <ChatToolCallGroupedTimer elapsedMs={elapsedMs} />
+    ) : (
+      <ChatState
+        variant="simple"
+        status={status}
+        showElapsed={status === 'streaming'}
+        elapsedMs={elapsedMs}
+      />
+    );
 
   if (variant === 'simple') {
     return (

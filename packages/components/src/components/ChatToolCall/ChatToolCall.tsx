@@ -2,7 +2,7 @@ import { type ReactNode, useId } from 'react';
 
 import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 
-import type { ChatStateStatus } from '../ChatState';
+import { ChatState, type ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import type {
   ChatToolCallModel,
@@ -11,8 +11,11 @@ import type {
 import { formatChatToolCallValue } from './ChatToolCall.value';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import { ChatToolCallDetails } from './ChatToolCallDetails';
+import {
+  ChatToolCallGroupedTimer,
+  useReportToGroup,
+} from './ChatToolCallGroupStatus';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
-import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 const STATUS_PRESENTATIONS = {
@@ -52,13 +55,23 @@ export interface ChatToolCallProps {
   className?: string;
 }
 
-function ToolCallStatus({ toolCall }: Pick<ChatToolCallProps, 'toolCall'>) {
+// Success shows by omission: every other status has its own icon.
+function ToolCallStatus({
+  toolCall,
+  inGroup,
+}: Pick<ChatToolCallProps, 'toolCall'> & { inGroup: boolean }) {
+  if (toolCall.status === 'succeeded') return null;
+  if (toolCall.status === 'running' && inGroup) {
+    return <ChatToolCallGroupedTimer elapsedMs={toolCall.elapsedMs} />;
+  }
   const presentation = STATUS_PRESENTATIONS[toolCall.status];
 
   return (
-    <ChatToolCallRowStatus
+    <ChatState
+      variant="simple"
       label={presentation.label}
       status={presentation.status}
+      showElapsed={toolCall.status === 'running'}
       elapsedMs={toolCall.elapsedMs}
     />
   );
@@ -78,6 +91,13 @@ export function ChatToolCall({
   onExpandedChange,
   className,
 }: ChatToolCallProps) {
+  const inGroup = useReportToGroup({
+    status:
+      toolCall.status === 'succeeded' || toolCall.status === 'running'
+        ? toolCall.status
+        : 'other',
+    icon,
+  });
   const summaryId = useId();
   const name = label ?? (toolCall.name || 'Tool');
   const resolvedIcon =
@@ -104,7 +124,7 @@ export function ChatToolCall({
       <ChatToolCallStatusRow
         groupLabel={`${name} tool call`}
         heading={heading}
-        status={<ToolCallStatus toolCall={toolCall} />}
+        status={<ToolCallStatus toolCall={toolCall} inGroup={inGroup} />}
         onInspect={onInspect}
         inspectLabel={inspectLabel}
         className={className}
@@ -145,7 +165,7 @@ export function ChatToolCall({
           )}
         </>
       }
-      status={<ToolCallStatus toolCall={toolCall} />}
+      status={<ToolCallStatus toolCall={toolCall} inGroup={inGroup} />}
       expanded={expanded}
       defaultExpanded={defaultExpanded}
       onExpandedChange={onExpandedChange}

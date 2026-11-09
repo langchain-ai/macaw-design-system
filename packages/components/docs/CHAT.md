@@ -27,10 +27,14 @@ loading. Use `inspectLabel` to describe the host-owned action when the default
 “View tool details” label is not accurate. Reasoning content must be an
 intentionally disclosed summary, never raw hidden model reasoning.
 
+Rows show success by omission: pending, failed, canceled, and needs-input
+keep their own status, and a succeeded row shows none. Inside
+`ChatToolCallGroup`, the header shows the loading indicator while any row is
+running (those rows show only elapsed seconds) and a single check once every
+row has succeeded. It also stacks up to three distinct host-supplied row icons
+beside its label.
+
 The default variant provides local expandable details. Groups preserve nested
-expansion state while collapsed. Pass the combined lifecycle as
-`ChatToolCallGroup`'s `status` to show it on the header; rows inside then skip
-their success check and show only elapsed seconds while running. Hosts compute
-that status; without it, every row shows its own. Controlled `expanded` props allow a host to
+expansion state while collapsed. Controlled `expanded` props allow a host to
 coordinate disclosure without moving tool execution or event parsing into the
 component.

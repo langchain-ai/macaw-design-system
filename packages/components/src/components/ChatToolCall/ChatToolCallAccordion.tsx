@@ -54,7 +54,7 @@ export function ChatToolCallAccordion({
         className
       )}
     >
-      <div className="relative flex min-w-0 items-center gap-space-2 rounded-md px-space-1 transition-colors duration-fast hover:bg-surface-level-2 motion-reduce:transition-none">
+      <div className="group/row relative flex min-w-0 items-center gap-space-2 rounded-md px-space-1 transition-colors duration-fast hover:bg-surface-level-2 motion-reduce:transition-none">
         {hasDetails ? (
           <Button
             type="button"
@@ -79,7 +79,17 @@ export function ChatToolCallAccordion({
         <span className="pointer-events-none relative flex shrink-0 items-center">
           {status}
         </span>
-        {hasDetails && <ChatToolCallCaret open={isExpanded} />}
+        {hasDetails && (
+          <ChatToolCallCaret
+            open={isExpanded}
+            // Revealed on hover or keyboard focus; stays visible while open.
+            className={cn(
+              'transition-opacity duration-fast motion-reduce:transition-none',
+              !isExpanded &&
+                'opacity-0 group-hover/row:opacity-100 group-has-[:focus-visible]/row:opacity-100'
+            )}
+          />
+        )}
       </div>
       {hasDetails && (
         <ChatToolCallCollapse

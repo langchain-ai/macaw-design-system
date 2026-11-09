@@ -4,21 +4,19 @@ import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
-import { ChatState, type ChatStateStatus } from '../ChatState';
+import { ChatState } from '../ChatState';
 import { Text } from '../Text';
 import { ChatToolCallCaret } from './ChatToolCallCaret';
 import { ChatToolCallCollapse } from './ChatToolCallCollapse';
-import { ChatToolCallGroupStatusContext } from './ChatToolCallRowStatus';
+import {
+  ChatToolCallGroupStatusContext,
+  useGroupRows,
+} from './ChatToolCallGroupStatus';
+import { ChatToolCallIcon } from './ChatToolCallIcon';
 
 export interface ChatToolCallGroupProps {
   /** Hosts supply the count/summary and group only consecutive content. */
   label: string;
-  /**
-   * Combined status of the grouped content, shown on the header. When set,
-   * rows inside skip their success check and show only seconds while running;
-   * other statuses stay on the row.
-   */
-  status?: ChatStateStatus;
   children: ReactNode;
   expanded?: boolean;
   defaultExpanded?: boolean;
@@ -28,7 +26,6 @@ export interface ChatToolCallGroupProps {
 
 export function ChatToolCallGroup({
   label,
-  status,
   children,
   expanded,
   defaultExpanded = false,
@@ -41,10 +38,18 @@ export function ChatToolCallGroup({
     defaultProp: defaultExpanded,
     onChange: onExpandedChange,
   });
+  const { registry, anyRunning, allSucceeded, icons } = useGroupRows();
 
   return (
     <div className={cn('min-w-0 max-w-full font-sans text-xxs', className)}>
-      <div className="flex min-w-0 items-center gap-space-2 pr-space-1">
+      <div
+        className={cn(
+          'relative flex min-w-0 items-center gap-space-2 pr-space-1',
+          // The tile pads its glyph by 4px, so the stack starts flush to line its
+          // first glyph up with the row icons.
+          icons.length > 0 ? 'pl-0' : 'pl-space-1'
+        )}
+      >
         <Button
           type="button"
           variant="plain"
@@ -54,28 +59,48 @@ export function ChatToolCallGroup({
           aria-controls={contentId}
           aria-expanded={isExpanded}
           onClick={() => setExpanded(!isExpanded)}
-          className="h-auto min-w-0 max-w-full justify-start border-0 gap-space-1 bg-transparent px-space-1 py-space-1 text-left shadow-none hover:bg-transparent"
+          // Stretched over the header so the whole row toggles the group.
+          className="static h-auto min-w-0 flex-1 justify-start gap-space-2 border-0 bg-transparent px-0 py-space-1 text-left shadow-none outline-none after:absolute after:inset-0 after:rounded-md hover:bg-transparent focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-focus"
         >
-          <Text
-            as="span"
-            variant="xs"
-            color="tertiary"
-            className="min-w-0 truncate"
-          >
-            {label}
-          </Text>
-          <ChatToolCallCaret open={isExpanded} />
+          {icons.length > 0 && (
+            <span aria-hidden="true" className="flex shrink-0 items-center">
+              {icons.map((icon, index) => (
+                <span
+                  key={index}
+                  className={cn(
+                    'flex size-5 items-center justify-center rounded-[6px] bg-surface-level-2 ring-2 ring-[var(--bg-surface-level-1)]',
+                    index > 0 && '-ml-space-1'
+                  )}
+                >
+                  <ChatToolCallIcon>{icon}</ChatToolCallIcon>
+                </span>
+              ))}
+            </span>
+          )}
+          <span className="flex min-w-0 items-center gap-space-1">
+            <Text
+              as="span"
+              variant="xs"
+              color="tertiary"
+              className="min-w-0 truncate"
+            >
+              {label}
+            </Text>
+            <ChatToolCallCaret open={isExpanded} />
+          </span>
         </Button>
-        {status && (
-          <ChatState
-            variant="simple"
-            status={status}
-            showElapsed={false}
-            className="ml-auto shrink-0"
-          />
+        {/* Rows omit success and the running indicator; the header carries them. */}
+        {(anyRunning || allSucceeded) && (
+          <span className="pointer-events-none relative flex shrink-0 items-center">
+            <ChatState
+              variant="simple"
+              status={anyRunning ? 'streaming' : 'completed'}
+              showElapsed={false}
+            />
+          </span>
         )}
       </div>
-      <ChatToolCallGroupStatusContext.Provider value={status !== undefined}>
+      <ChatToolCallGroupStatusContext.Provider value={registry}>
         <ChatToolCallCollapse
           open={isExpanded}
           keepMounted

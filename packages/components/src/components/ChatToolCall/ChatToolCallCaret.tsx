@@ -3,11 +3,20 @@ import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 import { cn } from '../../utils/cn';
 
 /** The 16px slot centers the caret on the same line as a 16px status icon. */
-export function ChatToolCallCaret({ open }: { open: boolean }) {
+export function ChatToolCallCaret({
+  open,
+  className,
+}: {
+  open: boolean;
+  className?: string;
+}) {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none flex size-4 shrink-0 items-center justify-center"
+      className={cn(
+        'pointer-events-none flex size-4 shrink-0 items-center justify-center',
+        className
+      )}
     >
       <CaretRightIcon
         size={12}

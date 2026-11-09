@@ -3,6 +3,8 @@ import { type ReactNode, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { LightbulbIcon } from '@phosphor-icons/react/dist/ssr/Lightbulb';
+import { NotionLogoIcon } from '@phosphor-icons/react/dist/ssr/NotionLogo';
+import { SlackLogoIcon } from '@phosphor-icons/react/dist/ssr/SlackLogo';
 import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
@@ -176,7 +178,6 @@ describe('ChatToolCall', () => {
   const statuses: ChatToolCallStatus[] = [
     'pending',
     'running',
-    'succeeded',
     'failed',
     'canceled',
     'input-required',
@@ -201,6 +202,18 @@ describe('ChatToolCall', () => {
       }
     }
   );
+
+  it.each(variants)('omits the status of a succeeded call in %s', (variant) => {
+    render(
+      <ChatToolCall
+        variant={variant}
+        toolCall={{ ...call, status: 'succeeded', elapsedMs: 65_900 }}
+      />,
+      renderOptions
+    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+  });
 
   it.each(variants)('hides seconds when paused or settled in %s', (variant) => {
     const { rerender } = render(
@@ -743,86 +756,88 @@ describe('icon column layout', () => {
   });
 });
 
-describe('ChatToolCallGroup status', () => {
-  const groupedCalls: ChatToolCallModel[] = [
-    { id: 'done', name: 'search_documents', status: 'succeeded' },
-    { id: 'broken', name: 'run_tests', status: 'failed' },
-    { id: 'busy', name: 'send_message', status: 'running', elapsedMs: 3_400 },
-  ];
-
-  function renderGroup() {
-    return render(
-      <ChatToolCallGroup label="3 tool calls" defaultExpanded>
-        {groupedCalls.map((toolCall) => (
-          <ChatToolCall key={toolCall.id} toolCall={toolCall} />
-        ))}
-      </ChatToolCallGroup>,
+describe('ChatToolCallReasoning status', () => {
+  it.each(variants)('omits the status once completed in %s', (variant) => {
+    render(
+      <ChatToolCallReasoning variant={variant} status="completed">
+        Public reasoning summary
+      </ChatToolCallReasoning>,
       renderOptions
     );
-  }
-
-  const row = (name: string) =>
-    screen.getByRole('group', { name: `${name} tool call` });
-
-  it('keeps every row status when the group has no status', () => {
-    renderGroup();
-    expect(
-      within(row('search_documents')).getByRole('status')
-    ).toHaveTextContent('Succeeded');
-    expect(within(row('send_message')).getByRole('status')).toHaveTextContent(
-      'Running'
-    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
+});
 
-  it.each(variants)(
-    'moves success and the running indicator to the header in %s',
-    (variant) => {
-      render(
-        <ChatToolCallGroup
-          label="3 tool calls"
-          status="streaming"
-          defaultExpanded
-        >
-          {groupedCalls.map((toolCall) => (
-            <ChatToolCall
-              key={toolCall.id}
-              toolCall={toolCall}
-              variant={variant}
-              onInspect={() => undefined}
-            />
-          ))}
-        </ChatToolCallGroup>,
-        renderOptions
-      );
-      const statuses = screen.getAllByRole('status');
-      expect(statuses).toHaveLength(2);
-      expect(statuses[0]).toHaveTextContent('Streaming');
-      expect(
-        within(row('search_documents')).queryByRole('status')
-      ).not.toBeInTheDocument();
-      expect(within(row('run_tests')).getByRole('status')).toHaveTextContent(
-        'Failed'
-      );
-      const busy = row('send_message');
-      expect(within(busy).queryByRole('status')).not.toBeInTheDocument();
-      expect(within(busy).getByRole('timer')).toHaveTextContent('3s');
-    }
-  );
-
-  it('applies to reasoning rows too', () => {
-    render(
-      <ChatToolCallGroup label="1 step" status="completed" defaultExpanded>
+describe('ChatToolCallGroup success check', () => {
+  function Group({ lastStatus }: { lastStatus: ChatToolCallStatus }) {
+    return (
+      <ChatToolCallGroup label="2 tool calls" defaultExpanded>
+        <ChatToolCall
+          toolCall={{ id: 'a', name: 'search_documents', status: 'succeeded' }}
+        />
+        <ChatToolCall
+          toolCall={{ id: 'b', name: 'run_tests', status: lastStatus }}
+        />
         <ChatToolCallReasoning status="completed">
           Summary
         </ChatToolCallReasoning>
+      </ChatToolCallGroup>
+    );
+  }
+
+  it('shows one check on the header once every row succeeded', () => {
+    render(<Group lastStatus="succeeded" />, renderOptions);
+    const statuses = screen.getAllByRole('status');
+    expect(statuses).toHaveLength(1);
+    expect(statuses[0]).toHaveTextContent('Completed');
+    expect(
+      within(
+        screen.getByRole('group', { name: 'run_tests tool call' })
+      ).queryByRole('status')
+    ).not.toBeInTheDocument();
+  });
+
+  it('moves the running indicator to the header and keeps seconds on the row', () => {
+    const { rerender } = render(<Group lastStatus="running" />, renderOptions);
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+    expect(screen.getByRole('status')).toHaveTextContent('Streaming');
+    const running = screen.getByRole('group', { name: 'run_tests tool call' });
+    expect(within(running).queryByRole('status')).not.toBeInTheDocument();
+    expect(within(running).getByRole('timer')).toBeVisible();
+
+    rerender(<Group lastStatus="failed" />);
+    expect(screen.getByRole('status')).toHaveTextContent('Failed');
+
+    rerender(<Group lastStatus="succeeded" />);
+    expect(screen.getByRole('status')).toHaveTextContent('Completed');
+  });
+});
+
+describe('ChatToolCallGroup header icons', () => {
+  it('stacks each distinct host icon once and skips the wrench fallback', () => {
+    render(
+      <ChatToolCallGroup label="4 tool calls" defaultExpanded>
+        <ChatToolCall
+          toolCall={{ ...call, id: '1' }}
+          icon={<NotionLogoIcon />}
+        />
+        <ChatToolCall
+          toolCall={{ ...call, id: '2' }}
+          icon={<NotionLogoIcon />}
+        />
+        <ChatToolCall
+          toolCall={{ ...call, id: '3' }}
+          icon={<SlackLogoIcon />}
+        />
+        <ChatToolCall toolCall={{ ...call, id: '4' }} />
       </ChatToolCallGroup>,
       renderOptions
     );
-    expect(
-      within(
-        screen.getByRole('group', { name: 'Reasoning summary' })
-      ).queryByRole('status')
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Completed');
+    const trigger = screen.getByRole('button', { name: '4 tool calls' });
+    expect(containsIcon(trigger, <NotionLogoIcon />)).toBe(true);
+    expect(containsIcon(trigger, <SlackLogoIcon />)).toBe(true);
+    expect(containsIcon(trigger, <WrenchIcon weight="regular" />)).toBe(false);
+    // Two tiles plus the caret.
+    expect(trigger.querySelectorAll('svg')).toHaveLength(3);
   });
 });
