@@ -9,9 +9,9 @@ import { Text } from '../Text';
 import { ChatToolCallCaret } from './ChatToolCallCaret';
 import { ChatToolCallCollapse } from './ChatToolCallCollapse';
 import {
-  ChatToolCallGroupStatusContext,
+  ChatToolCallGroupContext,
   useGroupRows,
-} from './ChatToolCallGroupStatus';
+} from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 
 export interface ChatToolCallGroupProps {
@@ -45,8 +45,7 @@ export function ChatToolCallGroup({
       <div
         className={cn(
           'relative flex min-w-0 items-center gap-space-2 pr-space-1',
-          // The tile pads its glyph by 4px, so the stack starts flush to line its
-          // first glyph up with the row icons.
+          // Flush left so the first tile's padded glyph lines up with row icons.
           icons.length > 0 ? 'pl-0' : 'pl-space-1'
         )}
       >
@@ -100,7 +99,7 @@ export function ChatToolCallGroup({
           </span>
         )}
       </div>
-      <ChatToolCallGroupStatusContext.Provider value={registry}>
+      <ChatToolCallGroupContext.Provider value={registry}>
         <ChatToolCallCollapse
           open={isExpanded}
           keepMounted
@@ -109,7 +108,7 @@ export function ChatToolCallGroup({
         >
           {children}
         </ChatToolCallCollapse>
-      </ChatToolCallGroupStatusContext.Provider>
+      </ChatToolCallGroupContext.Provider>
     </div>
   );
 }

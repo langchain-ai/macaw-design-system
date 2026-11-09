@@ -14,7 +14,7 @@ import { ChatToolCallDetails } from './ChatToolCallDetails';
 import {
   ChatToolCallGroupedTimer,
   useReportToGroup,
-} from './ChatToolCallGroupStatus';
+} from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
@@ -92,10 +92,7 @@ export function ChatToolCall({
   className,
 }: ChatToolCallProps) {
   const inGroup = useReportToGroup({
-    status:
-      toolCall.status === 'succeeded' || toolCall.status === 'running'
-        ? toolCall.status
-        : 'other',
+    status: STATUS_PRESENTATIONS[toolCall.status].status,
     icon,
   });
   const summaryId = useId();

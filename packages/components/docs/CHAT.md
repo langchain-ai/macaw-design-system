@@ -27,8 +27,8 @@ loading. Use `inspectLabel` to describe the host-owned action when the default
 “View tool details” label is not accurate. Reasoning content must be an
 intentionally disclosed summary, never raw hidden model reasoning.
 
-Rows show success by omission: pending, failed, canceled, and needs-input
-keep their own status, and a succeeded row shows none. Inside
+Rows show success by omission: pending, running, failed, canceled, and
+needs-input keep their own status, and a succeeded row shows none. Inside
 `ChatToolCallGroup`, the header shows the loading indicator while any row is
 running (those rows show only elapsed seconds) and a single check once every
 row has succeeded. It also stacks up to three distinct host-supplied row icons

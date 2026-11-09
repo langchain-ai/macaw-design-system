@@ -1,5 +1,4 @@
 import {
-  type ElementType,
   type ReactElement,
   type ReactNode,
   createContext,
@@ -11,10 +10,11 @@ import {
   useState,
 } from 'react';
 
+import type { ChatStateStatus } from '../ChatState';
 import { ChatStateTimer } from '../ChatState/ChatStateTimer';
 
 interface RowReport {
-  status: 'succeeded' | 'running' | 'other';
+  status: ChatStateStatus;
   /** Host-supplied icon; defaults like the wrench are not reported. */
   icon?: ReactNode;
 }
@@ -24,18 +24,18 @@ interface GroupRegistry {
   remove: (id: string) => void;
 }
 
-export const ChatToolCallGroupStatusContext =
-  createContext<GroupRegistry | null>(null);
+export const ChatToolCallGroupContext = createContext<GroupRegistry | null>(
+  null
+);
 
-const iconType = (icon: ReactNode): ElementType | string | null =>
-  isValidElement(icon) ? (icon.type as ElementType | string) : null;
+const iconType = (icon: ReactNode) => isValidElement(icon) && icon.type;
 
 /**
  * Reports a row's status and icon to the enclosing group, which shows the
  * combined status on its header. Returns whether the row is inside a group.
  */
 export function useReportToGroup({ status, icon }: RowReport) {
-  const registry = useContext(ChatToolCallGroupStatusContext);
+  const registry = useContext(ChatToolCallGroupContext);
   const id = useId();
   useLayoutEffect(() => {
     registry?.update(id, { status, icon });
@@ -44,7 +44,6 @@ export function useReportToGroup({ status, icon }: RowReport) {
   return registry !== null;
 }
 
-/** Collects row reports for the group header. */
 export function useGroupRows() {
   const [rows, setRows] = useState<ReadonlyMap<string, RowReport>>(
     () => new Map()
@@ -74,16 +73,15 @@ export function useGroupRows() {
   );
 
   const reports = [...rows.values()];
-  const anyRunning = reports.some((report) => report.status === 'running');
+  const anyRunning = reports.some((report) => report.status === 'streaming');
   const allSucceeded =
     reports.length > 0 &&
-    reports.every((report) => report.status === 'succeeded');
+    reports.every((report) => report.status === 'completed');
   const icons: ReactElement[] = [];
-  const seen = new Set<ElementType | string>();
+  const seen = new Set<ReactElement['type']>();
   for (const { icon } of reports) {
-    const type = iconType(icon);
-    if (!type || seen.has(type) || !isValidElement(icon)) continue;
-    seen.add(type);
+    if (!isValidElement(icon) || seen.has(icon.type)) continue;
+    seen.add(icon.type);
     icons.push(icon);
     if (icons.length === 3) break;
   }

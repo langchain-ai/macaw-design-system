@@ -8,7 +8,7 @@ import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import {
   ChatToolCallGroupedTimer,
   useReportToGroup,
-} from './ChatToolCallGroupStatus';
+} from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
@@ -40,14 +40,7 @@ export function ChatToolCallReasoning({
   defaultExpanded = false,
   onExpandedChange,
 }: ChatToolCallReasoningProps) {
-  const inGroup = useReportToGroup({
-    status:
-      status === 'completed'
-        ? 'succeeded'
-        : status === 'streaming'
-          ? 'running'
-          : 'other',
-  });
+  const inGroup = useReportToGroup({ status });
   const heading = (
     <span className="inline-flex min-w-0 items-center gap-space-2">
       <ChatToolCallIcon>
