@@ -2,11 +2,7 @@ import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 
 import { cn } from '../../utils/cn';
 
-/**
- * Trailing disclosure caret. The 16px slot centers the 12px caret on the same
- * line as a 16px status icon, so default and simple rows share a right column.
- * Rotation uses the same timing as the region it controls.
- */
+/** The 16px slot centers the caret on the same line as a 16px status icon. */
 export function ChatToolCallCaret({ open }: { open: boolean }) {
   return (
     <span

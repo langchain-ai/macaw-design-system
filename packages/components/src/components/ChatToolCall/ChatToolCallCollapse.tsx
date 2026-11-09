@@ -22,11 +22,7 @@ interface ChatToolCallCollapseProps extends Pick<
   children: ReactNode;
 }
 
-/**
- * Animated disclosure region. Height runs on `grid-template-rows` so any
- * content height works; content fades and settles 4px. Opening takes 200ms,
- * closing 150ms. CSS transitions, so reversing mid-animation retargets.
- */
+/** Animates height through `grid-template-rows`, so any content height works. */
 export function ChatToolCallCollapse({
   open,
   keepMounted = false,
@@ -46,13 +42,14 @@ export function ChatToolCallCollapse({
   useEffect(() => {
     if (open || !present) return;
     const element = ref.current;
-    const style = element ? getComputedStyle(element) : null;
+    if (!element) return;
+    const style = getComputedStyle(element);
     // Reduced motion sets `transition-property: none` but keeps the duration.
     const seconds =
-      !style || style.transitionProperty === 'none'
+      style.transitionProperty === 'none'
         ? 0
         : Number.parseFloat(style.transitionDuration) || 0;
-    if (!element || seconds === 0) {
+    if (seconds === 0) {
       setPresent(false);
       return;
     }

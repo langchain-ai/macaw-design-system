@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-/** Leading 12px icon slot shared by tool calls and reasoning rows. */
 export function ChatToolCallIcon({ children }: { children: ReactNode }) {
   return (
     <span

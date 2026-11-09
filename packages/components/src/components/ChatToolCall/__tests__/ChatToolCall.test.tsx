@@ -624,7 +624,6 @@ describe('ChatToolCallReasoning', () => {
   });
 });
 
-/** Path data of a Phosphor icon, to find it in rendered markup. */
 function iconPaths(icon: ReactNode) {
   const root = document.createElement('div');
   root.innerHTML = renderToStaticMarkup(icon);

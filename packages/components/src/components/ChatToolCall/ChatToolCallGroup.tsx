@@ -56,7 +56,6 @@ export function ChatToolCallGroup({
         </Text>
         <ChatToolCallCaret open={isExpanded} />
       </Button>
-      {/* Rows stay mounted while collapsed so nested expansion survives. */}
       <ChatToolCallCollapse
         open={isExpanded}
         keepMounted
