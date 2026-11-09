@@ -76,20 +76,31 @@ export function ChatToolCallAccordion({
             {heading}
           </span>
         )}
-        <span className="pointer-events-none relative flex shrink-0 items-center">
-          {status}
-        </span>
-        {hasDetails && (
-          <ChatToolCallCaret
-            open={isExpanded}
-            // Revealed on hover or keyboard focus; stays visible while open.
+        {/* Status and caret share the trailing slot: status at rest, caret on
+            hover, keyboard focus, or while open. */}
+        <span className="pointer-events-none relative grid shrink-0 items-center justify-items-end *:col-start-1 *:row-start-1">
+          <span
             className={cn(
-              'transition-opacity duration-fast motion-reduce:transition-none',
-              !isExpanded &&
-                'opacity-0 group-hover/row:opacity-100 group-has-[:focus-visible]/row:opacity-100'
+              'flex items-center transition-[opacity,scale] duration-fast ease-out motion-reduce:transition-none',
+              hasDetails &&
+                (isExpanded
+                  ? 'scale-90 opacity-0'
+                  : 'group-hover/row:scale-90 group-hover/row:opacity-0 group-has-[:focus-visible]/row:scale-90 group-has-[:focus-visible]/row:opacity-0')
             )}
-          />
-        )}
+          >
+            {status}
+          </span>
+          {hasDetails && (
+            <ChatToolCallCaret
+              open={isExpanded}
+              className={cn(
+                'transition-[opacity,scale] duration-fast ease-out motion-reduce:transition-none',
+                !isExpanded &&
+                  'scale-90 opacity-0 group-hover/row:scale-100 group-hover/row:opacity-100 group-has-[:focus-visible]/row:scale-100 group-has-[:focus-visible]/row:opacity-100'
+              )}
+            />
+          )}
+        </span>
       </div>
       {hasDetails && (
         <ChatToolCallCollapse
