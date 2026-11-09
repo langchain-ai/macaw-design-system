@@ -7,6 +7,9 @@ import { Button } from '../Button';
 import { ChatToolCallCaret } from './ChatToolCallCaret';
 import { ChatToolCallCollapse } from './ChatToolCallCollapse';
 
+const SWAP_TRANSITION =
+  'transition-[opacity,scale] duration-fast ease-out motion-reduce:transition-none';
+
 interface ChatToolCallAccordionProps {
   heading: ReactNode;
   status: ReactNode;
@@ -81,7 +84,8 @@ export function ChatToolCallAccordion({
         <span className="pointer-events-none relative grid shrink-0 items-center justify-items-end *:col-start-1 *:row-start-1">
           <span
             className={cn(
-              'flex items-center transition-[opacity,scale] duration-fast ease-out motion-reduce:transition-none',
+              'flex items-center',
+              SWAP_TRANSITION,
               hasDetails &&
                 (isExpanded
                   ? 'scale-90 opacity-0'
@@ -94,7 +98,7 @@ export function ChatToolCallAccordion({
             <ChatToolCallCaret
               open={isExpanded}
               className={cn(
-                'transition-[opacity,scale] duration-fast ease-out motion-reduce:transition-none',
+                SWAP_TRANSITION,
                 !isExpanded &&
                   'scale-90 opacity-0 group-hover/row:scale-100 group-hover/row:opacity-100 group-has-[:focus-visible]/row:scale-100 group-has-[:focus-visible]/row:opacity-100'
               )}
