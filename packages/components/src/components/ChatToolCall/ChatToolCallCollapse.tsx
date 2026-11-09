@@ -36,13 +36,29 @@ export function ChatToolCallCollapse({
   // animates in after it has been closed once.
   const [animateEnter, setAnimateEnter] = useState(!open);
 
+  // Content is clipped only while moving or closed, so focus rings of rows
+  // inside an open region aren't cut off.
+  const [transitioning, setTransitioning] = useState(false);
+  const [previousOpen, setPreviousOpen] = useState(open);
+
   if (open && !present) setPresent(true);
   if (!open && !animateEnter) setAnimateEnter(true);
+  if (open !== previousOpen) {
+    setPreviousOpen(open);
+    setTransitioning(true);
+  }
 
   useEffect(() => {
-    if (open || !present) return;
+    if (!transitioning) return;
+    const finish = () => {
+      setTransitioning(false);
+      if (!open) setPresent(false);
+    };
     const element = ref.current;
-    if (!element) return;
+    if (!element) {
+      finish();
+      return;
+    }
     const style = getComputedStyle(element);
     // Reduced motion sets `transition-property: none` but keeps the duration.
     const seconds =
@@ -50,10 +66,9 @@ export function ChatToolCallCollapse({
         ? 0
         : Number.parseFloat(style.transitionDuration) || 0;
     if (seconds === 0) {
-      setPresent(false);
+      finish();
       return;
     }
-    const finish = () => setPresent(false);
     const onTransitionEnd = (event: TransitionEvent) => {
       if (
         event.target === element &&
@@ -68,7 +83,7 @@ export function ChatToolCallCollapse({
       element.removeEventListener('transitionend', onTransitionEnd);
       window.clearTimeout(timeout);
     };
-  }, [open, present]);
+  }, [open, transitioning]);
 
   if (!present && !keepMounted) return null;
 
@@ -88,7 +103,12 @@ export function ChatToolCallCollapse({
         open && animateEnter && 'starting:grid-rows-[0fr]'
       )}
     >
-      <div className="min-h-0 min-w-0 overflow-hidden">
+      <div
+        className={cn(
+          'min-h-0 min-w-0',
+          (!open || transitioning) && 'overflow-hidden'
+        )}
+      >
         <div
           className={cn(
             'transition-[opacity,translate] motion-reduce:transition-none',

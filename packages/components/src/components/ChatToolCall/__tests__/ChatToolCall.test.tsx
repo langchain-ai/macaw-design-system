@@ -841,3 +841,22 @@ describe('ChatToolCallGroup header icons', () => {
     expect(trigger.querySelectorAll('svg')).toHaveLength(3);
   });
 });
+
+describe('ChatToolCallGroup content clipping', () => {
+  it('does not clip open rows, so outer focus rings stay visible', async () => {
+    const { user } = render(
+      <ChatToolCallGroup label="1 tool call">
+        <ChatToolCall toolCall={call} variant="simple" onInspect={() => {}} />
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    const trigger = screen.getByRole('button', { name: '1 tool call' });
+    const clip = document.getElementById(
+      trigger.getAttribute('aria-controls') ?? ''
+    )?.firstElementChild;
+    expect(clip).toHaveClass('overflow-hidden');
+
+    await user.click(trigger);
+    expect(clip).not.toHaveClass('overflow-hidden');
+  });
+});
