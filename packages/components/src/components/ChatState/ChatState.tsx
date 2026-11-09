@@ -67,6 +67,8 @@ export interface ChatStateProps {
   label?: ReactNode;
   /** Defaults to true in simple and false in default. */
   showElapsed?: boolean;
+  /** Set false when a parent already shows the streaming indicator. */
+  showIndicator?: boolean;
   /** Host-supplied duration takes precedence over the internal streaming clock. */
   elapsedMs?: number;
   timerPrecision?: ChatStateTimerPrecision;
@@ -78,6 +80,7 @@ export function ChatState({
   variant = 'default',
   label,
   showElapsed = variant === 'simple',
+  showIndicator = true,
   elapsedMs,
   timerPrecision = 'seconds',
   className,
@@ -101,7 +104,7 @@ export function ChatState({
       )}
     >
       {status === 'streaming' ? (
-        <LoadingIndicator size="sm" tone="neutral" />
+        showIndicator && <LoadingIndicator size="sm" tone="neutral" />
       ) : StatusIcon ? (
         <StatusIcon
           size={12}

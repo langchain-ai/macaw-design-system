@@ -10,8 +10,8 @@ interface ChatToolCallRowStatusProps {
 }
 
 /**
- * Success, and the running indicator inside a group, are hidden visually but
- * stay mounted, so the live region keeps announcing each status change.
+ * Success is hidden visually but stays mounted, so the live region still
+ * announces the change.
  */
 export function ChatToolCallRowStatus({
   status,
@@ -19,15 +19,11 @@ export function ChatToolCallRowStatus({
   elapsedMs,
   inGroup,
 }: ChatToolCallRowStatusProps) {
-  const hidesIndicator = inGroup && status === 'streaming';
   return (
     <span
-      data-indicator={hidesIndicator ? 'hidden' : undefined}
       className={cn(
         'inline-flex items-center',
-        status === 'completed' && 'sr-only',
-        // Important: LoadingIndicator's display comes from unlayered module CSS.
-        hidesIndicator && '[&_[data-animated]]:hidden!'
+        status === 'completed' && 'sr-only'
       )}
     >
       <ChatState
@@ -35,6 +31,7 @@ export function ChatToolCallRowStatus({
         label={label}
         status={status}
         showElapsed={status === 'streaming'}
+        showIndicator={!inGroup}
         elapsedMs={elapsedMs}
       />
     </span>

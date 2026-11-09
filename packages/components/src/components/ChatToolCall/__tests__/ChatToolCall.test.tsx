@@ -830,15 +830,12 @@ describe('ChatToolCallGroup success check', () => {
     expect(within(header()).getByRole('status')).toHaveTextContent('Streaming');
     const rowStatus = within(row()).getByRole('status');
     expect(rowStatus).toHaveTextContent('Running');
-    expect(rowStatus.closest('[data-indicator="hidden"]')).not.toBeNull();
+    expect(row().querySelector('[data-animated]')).toBeNull();
     expect(within(row()).getByRole('timer')).toBeVisible();
 
     rerender(<Group lastStatus="failed" />);
     expect(within(header()).queryByRole('status')).not.toBeInTheDocument();
     expect(within(row()).getByRole('status')).toHaveTextContent('Failed');
-    expect(
-      within(row()).getByRole('status').closest('[data-indicator="hidden"]')
-    ).toBeNull();
 
     rerender(<Group lastStatus="succeeded" />);
     expect(within(header()).getByRole('status')).toHaveTextContent('Completed');
