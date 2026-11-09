@@ -266,20 +266,47 @@ const stateCalls: ChatToolCallModel[] = [
 ];
 
 export const States: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Standalone rows show every status except success. Inside a group, the header carries the running indicator and the success check, so running rows show only their seconds.',
+      },
+    },
+  },
   render: () => (
     <ToolCallVariants>
-      {(variant) => (
-        <div className="flex flex-col gap-0">
-          {stateCalls.map((toolCall) => (
-            <ChatToolCall
-              key={toolCall.id}
-              toolCall={toolCall}
-              variant={variant}
-              onInspect={inspectToolCall}
-            />
-          ))}
-        </div>
-      )}
+      {(variant) => {
+        const rows = stateCalls.map((toolCall) => (
+          <ChatToolCall
+            key={toolCall.id}
+            toolCall={toolCall}
+            variant={variant}
+            onInspect={inspectToolCall}
+          />
+        ));
+        return (
+          <div className="flex flex-col gap-space-5">
+            <div className="flex flex-col gap-space-2">
+              <Text variant="xs" color="tertiary">
+                Standalone
+              </Text>
+              <div className="flex flex-col gap-0">{rows}</div>
+            </div>
+            <div className="flex flex-col gap-space-2">
+              <Text variant="xs" color="tertiary">
+                In a group
+              </Text>
+              <ChatToolCallGroup
+                label={`${stateCalls.length} tool calls`}
+                defaultExpanded
+              >
+                {rows}
+              </ChatToolCallGroup>
+            </div>
+          </div>
+        );
+      }}
     </ToolCallVariants>
   ),
 };
