@@ -105,7 +105,7 @@ export function ChatState({
       ) : StatusIcon ? (
         <StatusIcon
           size={12}
-          weight="regular"
+          weight="fill"
           aria-hidden="true"
           className={cn(
             'shrink-0',

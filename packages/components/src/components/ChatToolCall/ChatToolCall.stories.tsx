@@ -2,7 +2,13 @@ import type { ReactNode } from 'react';
 
 import { fn } from 'storybook/test';
 
+import { GithubLogoIcon } from '@phosphor-icons/react/dist/ssr/GithubLogo';
+import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
+import { NotionLogoIcon } from '@phosphor-icons/react/dist/ssr/NotionLogo';
+import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
+import { SlackLogoIcon } from '@phosphor-icons/react/dist/ssr/SlackLogo';
+import { TerminalIcon } from '@phosphor-icons/react/dist/ssr/Terminal';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
@@ -118,6 +124,7 @@ const meta = {
       description: {
         component: `- Default shows summaries and expandable details; Simple is a status-only row.
 - Hosts supply \`onInspect\` for Simple's clickable row, decide whether to open a pane or dialog, and can describe the action with \`inspectLabel\` (default: “View tool details”).
+- Every row leads with a 12px single-color icon. Hosts map product or provider icons through \`icon\`; without one the row uses a generic wrench, and \`null\` omits it.
 - Hosts validate tool-specific payloads before passing presentation slots; unknown payloads use the generic fallback.
 - Preserve content order and stable IDs; \`ChatToolCallGroup\` provides the outer accordion for both variants.`,
       },
@@ -181,6 +188,7 @@ export const Default: Story = {
               elapsedMs: 85,
             }}
             label="Edit file"
+            icon={<PencilSimpleIcon size={12} weight="regular" />}
             summary="src/utils/formatDate.ts"
             defaultExpanded
           >
@@ -211,6 +219,7 @@ export const Default: Story = {
               elapsedMs: 1_800,
             }}
             label="Run tests"
+            icon={<TerminalIcon size={12} weight="regular" />}
             summary="yarn test"
             defaultExpanded
           />
@@ -308,6 +317,81 @@ export const ToolContent: Story = {
             defaultExpanded
           />
         </div>
+      )}
+    </ToolCallVariants>
+  ),
+};
+
+const iconCalls: {
+  toolCall: ChatToolCallModel;
+  label: string;
+  icon?: ChatToolCallProps['icon'];
+  summary?: string;
+}[] = [
+  {
+    toolCall: { id: 'notion', name: 'notion-search', status: 'succeeded' },
+    label: 'Search Notion',
+    icon: <NotionLogoIcon size={12} weight="regular" />,
+    summary: 'Q3 platform roadmap',
+  },
+  {
+    toolCall: {
+      id: 'github',
+      name: 'github_create_issue',
+      status: 'input-required',
+    },
+    label: 'Create GitHub issue',
+    icon: <GithubLogoIcon size={12} weight="regular" />,
+    summary: 'Retry policy ignores maxAttempts',
+  },
+  {
+    toolCall: {
+      id: 'slack',
+      name: 'slack_write_private_message',
+      status: 'running',
+      elapsedMs: 3_400,
+    },
+    label: 'Send Slack message',
+    icon: <SlackLogoIcon size={12} weight="regular" />,
+    summary: '@platform-oncall',
+  },
+  {
+    toolCall: { id: 'web', name: 'tavily_web_search', status: 'failed' },
+    label: 'Search the web',
+    icon: <GlobeIcon size={12} weight="regular" />,
+    summary: 'exponential backoff cap',
+  },
+  {
+    toolCall: { id: 'time', name: 'get_current_time', status: 'succeeded' },
+    label: 'Get current time',
+  },
+];
+
+export const Icons: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Hosts pass product or provider marks as single-color 12px icons. Tools without a mapping fall back to the wrench, so every row keeps the same leading column.',
+      },
+    },
+  },
+  render: () => (
+    <ToolCallVariants>
+      {(variant) => (
+        <ChatToolCallGroup label="5 tool calls" defaultExpanded>
+          {iconCalls.map(({ toolCall, label, icon, summary }) => (
+            <ChatToolCall
+              key={toolCall.id}
+              variant={variant}
+              onInspect={inspectToolCall}
+              toolCall={toolCall}
+              label={label}
+              icon={icon}
+              summary={summary}
+            />
+          ))}
+        </ChatToolCallGroup>
       )}
     </ToolCallVariants>
   ),

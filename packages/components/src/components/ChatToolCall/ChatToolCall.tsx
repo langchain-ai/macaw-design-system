@@ -1,5 +1,7 @@
 import { type ReactNode, useId } from 'react';
 
+import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
+
 import { ChatState, type ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import type {
@@ -9,6 +11,7 @@ import type {
 import { formatChatToolCallValue } from './ChatToolCall.value';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import { ChatToolCallDetails } from './ChatToolCallDetails';
+import { ChatToolCallIcon } from './ChatToolCallIcon';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 const STATUS_PRESENTATIONS = {
@@ -32,7 +35,11 @@ export interface ChatToolCallProps {
   /** Tooltip and accessible action label for Simple row inspection. */
   inspectLabel?: string;
   label?: string;
-  /** Noninteractive presentation slots; response controls belong in a separate content block. */
+  /**
+   * Leading 12px single-color icon, e.g. a product or provider mark. Undefined
+   * uses a generic wrench; null omits the icon. Noninteractive presentation
+   * slots; response controls belong in a separate content block.
+   */
   icon?: ReactNode;
   /** Undefined previews args; null omits the summary. */
   summary?: ReactNode;
@@ -74,15 +81,12 @@ export function ChatToolCall({
 }: ChatToolCallProps) {
   const summaryId = useId();
   const name = label ?? (toolCall.name || 'Tool');
+  const resolvedIcon =
+    icon === undefined ? <WrenchIcon size={12} weight="regular" /> : icon;
   const heading = (
-    <span className="inline-flex min-w-0 items-center gap-space-1">
-      {icon != null && (
-        <span
-          aria-hidden="true"
-          className="flex size-3 shrink-0 items-center justify-center text-icon-secondary [&_svg]:size-3"
-        >
-          {icon}
-        </span>
+    <span className="inline-flex min-w-0 items-center gap-space-2">
+      {resolvedIcon != null && (
+        <ChatToolCallIcon>{resolvedIcon}</ChatToolCallIcon>
       )}
       <Text
         as="span"

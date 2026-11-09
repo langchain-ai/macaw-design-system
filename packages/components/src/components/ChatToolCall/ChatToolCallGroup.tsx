@@ -1,12 +1,12 @@
 import { type ReactNode, useId } from 'react';
 
-import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
-import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { Text } from '../Text';
+import { ChatToolCallCaret } from './ChatToolCallCaret';
+import { ChatToolCallCollapse } from './ChatToolCallCollapse';
 
 export interface ChatToolCallGroupProps {
   /** Hosts supply the count/summary and group only consecutive content. */
@@ -44,23 +44,8 @@ export function ChatToolCallGroup({
         aria-controls={contentId}
         aria-expanded={isExpanded}
         onClick={() => setExpanded(!isExpanded)}
-        className="h-auto max-w-full justify-start gap-space-2 bg-transparent px-0 py-space-1 text-left shadow-none hover:bg-transparent"
+        className="h-auto max-w-full justify-start border-0 gap-space-1 bg-transparent px-space-1 py-space-1 text-left shadow-none hover:bg-transparent"
       >
-        <CaretRightIcon
-          size={12}
-          weight="regular"
-          aria-hidden="true"
-          className={cn(
-            'shrink-0 text-icon-tertiary transition-transform duration-normal motion-reduce:transition-none',
-            isExpanded && 'rotate-90'
-          )}
-        />
-        <WrenchIcon
-          size={16}
-          weight="regular"
-          aria-hidden="true"
-          className="shrink-0 text-icon-tertiary"
-        />
         <Text
           as="span"
           variant="xs"
@@ -69,10 +54,17 @@ export function ChatToolCallGroup({
         >
           {label}
         </Text>
+        <ChatToolCallCaret open={isExpanded} />
       </Button>
-      <div id={contentId} hidden={!isExpanded}>
-        <div className="flex min-w-0 flex-col gap-0 pl-space-5">{children}</div>
-      </div>
+      {/* Rows stay mounted while collapsed so nested expansion survives. */}
+      <ChatToolCallCollapse
+        open={isExpanded}
+        keepMounted
+        id={contentId}
+        className="flex min-w-0 flex-col gap-0"
+      >
+        {children}
+      </ChatToolCallCollapse>
     </div>
   );
 }

@@ -19,7 +19,9 @@ to the public presentation types and preserve stable IDs and stream order.
 
 `ChatToolCall` renders bounded plain-text or JSON previews without invoking
 getters or `toJSON`. Supply `summary`, `icon`, and `children` only after
-validating product-specific payloads. The `simple` variant delegates inspection
+validating product-specific payloads. Every row leads with a 12px single-color
+icon: map product or provider marks through `icon`; rows without one use a
+generic wrench, and `icon={null}` omits it. The `simple` variant delegates inspection
 through `onInspect`; the host owns navigation, dialogs, permissions, and trace
 loading. Use `inspectLabel` to describe the host-owned action when the default
 “View tool details” label is not accurate. Reasoning content must be an

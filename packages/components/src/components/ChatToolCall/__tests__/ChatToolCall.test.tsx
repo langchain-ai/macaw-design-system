@@ -1,5 +1,9 @@
 import { type ReactNode, useState } from 'react';
 
+import { renderToStaticMarkup } from 'react-dom/server';
+
+import { LightbulbIcon } from '@phosphor-icons/react/dist/ssr/Lightbulb';
+import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import {
@@ -617,5 +621,125 @@ describe('ChatToolCallReasoning', () => {
     expect(
       screen.queryByText('Public reasoning summary')
     ).not.toBeInTheDocument();
+  });
+});
+
+/** Path data of a Phosphor icon, to find it in rendered markup. */
+function iconPaths(icon: ReactNode) {
+  const root = document.createElement('div');
+  root.innerHTML = renderToStaticMarkup(icon);
+  return [...root.querySelectorAll('path')]
+    .map((path) => path.getAttribute('d'))
+    .join();
+}
+
+function containsIcon(root: Element, icon: ReactNode) {
+  const expected = iconPaths(icon);
+  return [...root.querySelectorAll('svg')].some(
+    (svg) =>
+      [...svg.querySelectorAll('path')]
+        .map((path) => path.getAttribute('d'))
+        .join() === expected
+  );
+}
+
+describe('icon column layout', () => {
+  const wrench = <WrenchIcon weight="regular" />;
+
+  it('falls back to a wrench, uses a host icon, and omits it for null', () => {
+    const { rerender } = render(
+      <ChatToolCall toolCall={call} />,
+      renderOptions
+    );
+    const row = () => screen.getByRole('group', { name: 'ask_user tool call' });
+    expect(containsIcon(row(), wrench)).toBe(true);
+
+    rerender(
+      <ChatToolCall toolCall={call} icon={<svg data-testid="host-icon" />} />
+    );
+    expect(screen.getByTestId('host-icon')).toBeInTheDocument();
+    expect(containsIcon(row(), wrench)).toBe(false);
+
+    rerender(<ChatToolCall toolCall={call} icon={null} />);
+    expect(screen.queryByTestId('host-icon')).not.toBeInTheDocument();
+    expect(containsIcon(row(), wrench)).toBe(false);
+  });
+
+  it.each(variants)('shows the icon in the %s variant', (variant) => {
+    render(
+      <ChatToolCall
+        toolCall={call}
+        variant={variant}
+        onInspect={() => undefined}
+      />,
+      renderOptions
+    );
+    expect(
+      containsIcon(
+        screen.getByRole('group', { name: 'ask_user tool call' }),
+        wrench
+      )
+    ).toBe(true);
+  });
+
+  it('gives reasoning rows a lightbulb', () => {
+    render(
+      <ChatToolCallReasoning>Public reasoning summary</ChatToolCallReasoning>,
+      renderOptions
+    );
+    expect(
+      containsIcon(
+        screen.getByRole('group', { name: 'Reasoning summary' }),
+        <LightbulbIcon weight="regular" />
+      )
+    ).toBe(true);
+  });
+
+  it('places the caret after the status', () => {
+    render(<ChatToolCall toolCall={call} />, renderOptions);
+    const row = screen.getByRole('group', { name: 'ask_user tool call' });
+    const status = within(row).getByRole('group', { name: 'Needs input' });
+    const svgs = row.querySelectorAll('svg');
+    const caret = svgs[svgs.length - 1];
+    expect(status.compareDocumentPosition(caret)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+  });
+
+  it('toggles details when the label is clicked and unmounts them when closed', async () => {
+    const { user } = render(<ChatToolCall toolCall={call} />, renderOptions);
+    const disclosure = screen.getByRole('button', {
+      name: 'Details for ask_user',
+    });
+    await user.click(screen.getByText('ask_user'));
+    expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('region', { name: 'ask_user details' })
+    ).toBeVisible();
+
+    await user.click(disclosure);
+    expect(disclosure).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      screen.queryByRole('region', { name: 'ask_user details', hidden: true })
+    ).not.toBeInTheDocument();
+  });
+
+  it('drops the wrench from the group header and hides collapsed rows', async () => {
+    const { user } = render(
+      <ChatToolCallGroup label="1 tool call" defaultExpanded>
+        <ChatToolCall toolCall={call} icon={null} />
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    const trigger = screen.getByRole('button', { name: '1 tool call' });
+    expect(containsIcon(trigger, wrench)).toBe(false);
+
+    const content = document.getElementById(
+      trigger.getAttribute('aria-controls') ?? ''
+    );
+    expect(content).not.toHaveAttribute('hidden');
+    await user.click(trigger);
+    expect(content).toHaveAttribute('hidden');
+    expect(content).toHaveAttribute('inert');
   });
 });
