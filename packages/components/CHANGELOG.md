@@ -1,3 +1,14 @@
+## 1.7.7 (2026-11-09)
+
+### 🩹 Fixes
+
+- keep line chart date labels inside the viewport ([#105](https://github.com/langchain-ai/macaw-design-system/pull/105))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+- Robin @open-swe
+
 ## 1.7.6 (2026-11-09)
 
 ### 🩹 Fixes
