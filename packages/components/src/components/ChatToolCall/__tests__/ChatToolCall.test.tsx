@@ -742,3 +742,87 @@ describe('icon column layout', () => {
     expect(content).toHaveAttribute('inert');
   });
 });
+
+describe('ChatToolCallGroup status', () => {
+  const groupedCalls: ChatToolCallModel[] = [
+    { id: 'done', name: 'search_documents', status: 'succeeded' },
+    { id: 'broken', name: 'run_tests', status: 'failed' },
+    { id: 'busy', name: 'send_message', status: 'running', elapsedMs: 3_400 },
+  ];
+
+  function renderGroup() {
+    return render(
+      <ChatToolCallGroup label="3 tool calls" defaultExpanded>
+        {groupedCalls.map((toolCall) => (
+          <ChatToolCall key={toolCall.id} toolCall={toolCall} />
+        ))}
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+  }
+
+  const row = (name: string) =>
+    screen.getByRole('group', { name: `${name} tool call` });
+
+  it('keeps every row status when the group has no status', () => {
+    renderGroup();
+    expect(
+      within(row('search_documents')).getByRole('status')
+    ).toHaveTextContent('Succeeded');
+    expect(within(row('send_message')).getByRole('status')).toHaveTextContent(
+      'Running'
+    );
+  });
+
+  it.each(variants)(
+    'moves success and the running indicator to the header in %s',
+    (variant) => {
+      render(
+        <ChatToolCallGroup
+          label="3 tool calls"
+          status="streaming"
+          defaultExpanded
+        >
+          {groupedCalls.map((toolCall) => (
+            <ChatToolCall
+              key={toolCall.id}
+              toolCall={toolCall}
+              variant={variant}
+              onInspect={() => undefined}
+            />
+          ))}
+        </ChatToolCallGroup>,
+        renderOptions
+      );
+      const statuses = screen.getAllByRole('status');
+      expect(statuses).toHaveLength(2);
+      expect(statuses[0]).toHaveTextContent('Streaming');
+      expect(
+        within(row('search_documents')).queryByRole('status')
+      ).not.toBeInTheDocument();
+      expect(within(row('run_tests')).getByRole('status')).toHaveTextContent(
+        'Failed'
+      );
+      const busy = row('send_message');
+      expect(within(busy).queryByRole('status')).not.toBeInTheDocument();
+      expect(within(busy).getByRole('timer')).toHaveTextContent('3s');
+    }
+  );
+
+  it('applies to reasoning rows too', () => {
+    render(
+      <ChatToolCallGroup label="1 step" status="completed" defaultExpanded>
+        <ChatToolCallReasoning status="completed">
+          Summary
+        </ChatToolCallReasoning>
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Reasoning summary' })
+      ).queryByRole('status')
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Completed');
+  });
+});

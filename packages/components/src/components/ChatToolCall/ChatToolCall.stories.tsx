@@ -125,6 +125,7 @@ const meta = {
         component: `- Default shows summaries and expandable details; Simple is a status-only row.
 - Hosts supply \`onInspect\` for Simple's clickable row, decide whether to open a pane or dialog, and can describe the action with \`inspectLabel\` (default: “View tool details”).
 - Every row leads with a 12px single-color icon. Hosts map product or provider icons through \`icon\`; without one the row uses a generic wrench, and \`null\` omits it.
+- Pass the combined \`status\` to \`ChatToolCallGroup\` to show it on the header; rows inside then skip their success check and show only seconds while running. Without it, every row shows its own status.
 - Hosts validate tool-specific payloads before passing presentation slots; unknown payloads use the generic fallback.
 - Preserve content order and stable IDs; \`ChatToolCallGroup\` provides the outer accordion for both variants.`,
       },
@@ -177,7 +178,11 @@ export const Default: Story = {
   render: () => (
     <ToolCallVariants>
       {(variant) => (
-        <ChatToolCallGroup label="3 tool calls" defaultExpanded>
+        <ChatToolCallGroup
+          label="3 tool calls"
+          status="completed"
+          defaultExpanded
+        >
           <ChatToolCall
             variant={variant}
             onInspect={inspectToolCall}
@@ -379,7 +384,11 @@ export const Icons: Story = {
   render: () => (
     <ToolCallVariants>
       {(variant) => (
-        <ChatToolCallGroup label="5 tool calls" defaultExpanded>
+        <ChatToolCallGroup
+          label="5 tool calls"
+          status="streaming"
+          defaultExpanded
+        >
           {iconCalls.map(({ toolCall, label, icon, summary }) => (
             <ChatToolCall
               key={toolCall.id}

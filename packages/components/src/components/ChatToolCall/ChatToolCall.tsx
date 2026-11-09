@@ -2,7 +2,7 @@ import { type ReactNode, useId } from 'react';
 
 import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 
-import { ChatState, type ChatStateStatus } from '../ChatState';
+import type { ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import type {
   ChatToolCallModel,
@@ -12,6 +12,7 @@ import { formatChatToolCallValue } from './ChatToolCall.value';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import { ChatToolCallDetails } from './ChatToolCallDetails';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
+import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 const STATUS_PRESENTATIONS = {
@@ -55,11 +56,9 @@ function ToolCallStatus({ toolCall }: Pick<ChatToolCallProps, 'toolCall'>) {
   const presentation = STATUS_PRESENTATIONS[toolCall.status];
 
   return (
-    <ChatState
-      variant="simple"
+    <ChatToolCallRowStatus
       label={presentation.label}
       status={presentation.status}
-      showElapsed={toolCall.status === 'running'}
       elapsedMs={toolCall.elapsedMs}
     />
   );

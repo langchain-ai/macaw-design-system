@@ -28,6 +28,9 @@ loading. Use `inspectLabel` to describe the host-owned action when the default
 intentionally disclosed summary, never raw hidden model reasoning.
 
 The default variant provides local expandable details. Groups preserve nested
-expansion state while collapsed. Controlled `expanded` props allow a host to
+expansion state while collapsed. Pass the combined lifecycle as
+`ChatToolCallGroup`'s `status` to show it on the header; rows inside then skip
+their success check and show only elapsed seconds while running. Hosts compute
+that status; without it, every row shows its own. Controlled `expanded` props allow a host to
 coordinate disclosure without moving tool execution or event parsing into the
 component.
