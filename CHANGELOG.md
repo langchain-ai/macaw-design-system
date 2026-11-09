@@ -1,3 +1,15 @@
+## 1.7.6 (2026-11-09)
+
+### 🩹 Fixes
+
+- let avatars inherit their parent cursor ([#106](https://github.com/langchain-ai/macaw-design-system/pull/106))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
 ## 1.7.5 (2026-11-06)
 
 ### 🩹 Fixes
