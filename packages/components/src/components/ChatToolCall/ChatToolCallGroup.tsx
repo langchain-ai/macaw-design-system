@@ -67,7 +67,7 @@ export function ChatToolCallGroup({
                 <span
                   key={index}
                   className={cn(
-                    'flex size-5 items-center justify-center rounded-[6px] bg-surface-level-2 ring-2 ring-[var(--bg-surface-level-1)]',
+                    'flex size-5 items-center justify-center rounded-[6px] border border-subtle bg-surface-level-2',
                     index > 0 && '-ml-space-1'
                   )}
                 >
