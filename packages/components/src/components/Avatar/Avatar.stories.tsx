@@ -1,8 +1,11 @@
+import { expect, within } from 'storybook/test';
+
 import { UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Avatar } from '.';
 import type { AvatarSize } from '.';
+import { Button } from '../Button/Button';
 import { Text } from '../Text/Text';
 
 interface AvatarStoryArgs {
@@ -46,6 +49,25 @@ const meta: Meta<AvatarStoryArgs> = {
 
 export default meta;
 type Story = StoryObj<AvatarStoryArgs>;
+
+export const InButton: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
+  render: () => (
+    <Button aria-label="Open profile">
+      <Avatar label="Ada Lovelace" shape="circle" badge />
+    </Button>
+  ),
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole('button', {
+      name: 'Open profile',
+    });
+    await expect(getComputedStyle(button).cursor).toBe('pointer');
+    for (const child of button.querySelectorAll('*')) {
+      await expect(getComputedStyle(child).cursor).toBe('pointer');
+    }
+  },
+};
 
 /** Default: an initial + color-from-string gradient, derived from the label. */
 export const Default: Story = {
