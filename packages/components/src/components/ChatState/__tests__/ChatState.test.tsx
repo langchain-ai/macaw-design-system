@@ -1,7 +1,3 @@
-import { renderToStaticMarkup } from 'react-dom/server';
-
-import { CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
-
 import { ChatState, type ChatStateStatus } from '..';
 import { act, render, screen } from '../../../test-utils';
 import { Button } from '../../Button';
@@ -306,18 +302,4 @@ describe('ChatState', () => {
       expect(screen.getByRole('timer')).toHaveTextContent('0s');
     }
   );
-
-  it('uses the filled status icon', () => {
-    const { container } = render(<ChatState status="completed" />, {
-      withProviders: false,
-    });
-    const reference = document.createElement('div');
-    reference.innerHTML = renderToStaticMarkup(
-      <CheckCircleIcon weight="fill" />
-    );
-    const paths = (root: ParentNode) =>
-      [...root.querySelectorAll('path')].map((path) => path.getAttribute('d'));
-
-    expect(paths(container)).toEqual(paths(reference));
-  });
 });
