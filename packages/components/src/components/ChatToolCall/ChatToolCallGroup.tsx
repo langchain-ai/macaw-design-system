@@ -104,7 +104,7 @@ export function ChatToolCallGroup({
           open={isExpanded}
           keepMounted
           id={contentId}
-          className="flex min-w-0 flex-col gap-0"
+          className="flex min-w-0 flex-col gap-0.5"
         >
           {children}
         </ChatToolCallCollapse>
