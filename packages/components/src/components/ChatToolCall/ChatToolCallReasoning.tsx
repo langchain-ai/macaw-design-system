@@ -2,14 +2,12 @@ import type { ReactNode } from 'react';
 
 import { LightbulbIcon } from '@phosphor-icons/react/dist/ssr/Lightbulb';
 
-import { ChatState, type ChatStateStatus } from '../ChatState';
+import type { ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
-import {
-  ChatToolCallGroupedTimer,
-  useReportToGroup,
-} from './ChatToolCallGroupContext';
+import { useReportToGroup } from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
+import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 export interface ChatToolCallReasoningProps {
@@ -57,17 +55,13 @@ export function ChatToolCallReasoning({
       </Text>
     </span>
   );
-  const state =
-    status === 'completed' ? null : status === 'streaming' && inGroup ? (
-      <ChatToolCallGroupedTimer elapsedMs={elapsedMs} />
-    ) : (
-      <ChatState
-        variant="simple"
-        status={status}
-        showElapsed={status === 'streaming'}
-        elapsedMs={elapsedMs}
-      />
-    );
+  const state = (
+    <ChatToolCallRowStatus
+      status={status}
+      elapsedMs={elapsedMs}
+      inGroup={inGroup}
+    />
+  );
 
   if (variant === 'simple') {
     return (

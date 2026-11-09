@@ -80,16 +80,14 @@ export function ChatToolCallAccordion({
           </span>
         )}
         {/* Status and caret share the trailing slot: status at rest, caret on
-            hover, keyboard focus, or while open. */}
+            hover or keyboard focus. */}
         <span className="pointer-events-none relative grid shrink-0 items-center justify-items-end *:col-start-1 *:row-start-1">
           <span
             className={cn(
               'flex items-center',
               SWAP_TRANSITION,
               hasDetails &&
-                (isExpanded
-                  ? 'scale-90 opacity-0'
-                  : 'group-hover/row:scale-90 group-hover/row:opacity-0 group-has-[:focus-visible]/row:scale-90 group-has-[:focus-visible]/row:opacity-0')
+                'group-hover/row:scale-90 group-hover/row:opacity-0 group-has-[:focus-visible]/row:scale-90 group-has-[:focus-visible]/row:opacity-0'
             )}
           >
             {status}
@@ -99,8 +97,7 @@ export function ChatToolCallAccordion({
               open={isExpanded}
               className={cn(
                 SWAP_TRANSITION,
-                !isExpanded &&
-                  'scale-90 opacity-0 group-hover/row:scale-100 group-hover/row:opacity-100 group-has-[:focus-visible]/row:scale-100 group-has-[:focus-visible]/row:opacity-100'
+                'scale-90 opacity-0 group-hover/row:scale-100 group-hover/row:opacity-100 group-has-[:focus-visible]/row:scale-100 group-has-[:focus-visible]/row:opacity-100'
               )}
             />
           )}

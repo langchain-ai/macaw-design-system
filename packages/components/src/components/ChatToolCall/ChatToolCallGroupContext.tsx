@@ -11,7 +11,6 @@ import {
 } from 'react';
 
 import type { ChatStateStatus } from '../ChatState';
-import { ChatStateTimer } from '../ChatState/ChatStateTimer';
 
 interface RowReport {
   status: ChatStateStatus;
@@ -87,21 +86,4 @@ export function useGroupRows() {
   }
 
   return { registry, anyRunning, allSucceeded, icons };
-}
-
-/** A running row inside a group shows only its seconds; the header has the indicator. */
-export function ChatToolCallGroupedTimer({
-  elapsedMs,
-}: {
-  elapsedMs?: number;
-}) {
-  return (
-    <ChatStateTimer
-      visible
-      running
-      elapsedMs={elapsedMs}
-      precision="seconds"
-      format="seconds"
-    />
-  );
 }

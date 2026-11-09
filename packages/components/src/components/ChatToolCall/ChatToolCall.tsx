@@ -2,7 +2,7 @@ import { type ReactNode, useId } from 'react';
 
 import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 
-import { ChatState, type ChatStateStatus } from '../ChatState';
+import type { ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import type {
   ChatToolCallModel,
@@ -11,11 +11,9 @@ import type {
 import { formatChatToolCallValue } from './ChatToolCall.value';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import { ChatToolCallDetails } from './ChatToolCallDetails';
-import {
-  ChatToolCallGroupedTimer,
-  useReportToGroup,
-} from './ChatToolCallGroupContext';
+import { useReportToGroup } from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
+import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 const STATUS_PRESENTATIONS = {
@@ -55,24 +53,18 @@ export interface ChatToolCallProps {
   className?: string;
 }
 
-// Success shows by omission: every other status has its own icon.
 function ToolCallStatus({
   toolCall,
   inGroup,
 }: Pick<ChatToolCallProps, 'toolCall'> & { inGroup: boolean }) {
-  if (toolCall.status === 'succeeded') return null;
-  if (toolCall.status === 'running' && inGroup) {
-    return <ChatToolCallGroupedTimer elapsedMs={toolCall.elapsedMs} />;
-  }
   const presentation = STATUS_PRESENTATIONS[toolCall.status];
 
   return (
-    <ChatState
-      variant="simple"
+    <ChatToolCallRowStatus
       label={presentation.label}
       status={presentation.status}
-      showElapsed={toolCall.status === 'running'}
       elapsedMs={toolCall.elapsedMs}
+      inGroup={inGroup}
     />
   );
 }

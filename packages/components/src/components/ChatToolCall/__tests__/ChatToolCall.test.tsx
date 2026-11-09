@@ -203,16 +203,34 @@ describe('ChatToolCall', () => {
     }
   );
 
-  it.each(variants)('omits the status of a succeeded call in %s', (variant) => {
-    render(
-      <ChatToolCall
-        variant={variant}
-        toolCall={{ ...call, status: 'succeeded', elapsedMs: 65_900 }}
-      />,
+  it.each(variants)(
+    'keeps a visually hidden status for a succeeded call in %s',
+    (variant) => {
+      render(
+        <ChatToolCall
+          variant={variant}
+          toolCall={{ ...call, status: 'succeeded', elapsedMs: 65_900 }}
+        />,
+        renderOptions
+      );
+      const announcement = screen.getByRole('status');
+      expect(announcement).toHaveTextContent('Succeeded');
+      expect(announcement.closest('.sr-only')).not.toBeNull();
+      expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+    }
+  );
+
+  it('announces completion through the same live region', () => {
+    const { rerender } = render(
+      <ChatToolCall toolCall={{ ...call, status: 'running' }} />,
       renderOptions
     );
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+    const announcement = screen.getByRole('status');
+    expect(announcement).toHaveTextContent('Running');
+
+    rerender(<ChatToolCall toolCall={{ ...call, status: 'succeeded' }} />);
+    expect(screen.getByRole('status')).toBe(announcement);
+    expect(announcement).toHaveTextContent('Succeeded');
   });
 
   it.each(variants)('hides seconds when paused or settled in %s', (variant) => {
@@ -757,15 +775,20 @@ describe('icon column layout', () => {
 });
 
 describe('ChatToolCallReasoning status', () => {
-  it.each(variants)('omits the status once completed in %s', (variant) => {
-    render(
-      <ChatToolCallReasoning variant={variant} status="completed">
-        Public reasoning summary
-      </ChatToolCallReasoning>,
-      renderOptions
-    );
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-  });
+  it.each(variants)(
+    'keeps a visually hidden status once completed in %s',
+    (variant) => {
+      render(
+        <ChatToolCallReasoning variant={variant} status="completed">
+          Public reasoning summary
+        </ChatToolCallReasoning>,
+        renderOptions
+      );
+      const announcement = screen.getByRole('status');
+      expect(announcement).toHaveTextContent('Completed');
+      expect(announcement.closest('.sr-only')).not.toBeNull();
+    }
+  );
 });
 
 describe('ChatToolCallGroup success check', () => {
@@ -785,31 +808,40 @@ describe('ChatToolCallGroup success check', () => {
     );
   }
 
+  const header = () => {
+    const element = screen.getByRole('button', {
+      name: '2 tool calls',
+    }).parentElement;
+    if (!element) throw new Error('Group header not found');
+    return element;
+  };
+  const row = () => screen.getByRole('group', { name: 'run_tests tool call' });
+
   it('shows one check on the header once every row succeeded', () => {
     render(<Group lastStatus="succeeded" />, renderOptions);
-    const statuses = screen.getAllByRole('status');
-    expect(statuses).toHaveLength(1);
-    expect(statuses[0]).toHaveTextContent('Completed');
-    expect(
-      within(
-        screen.getByRole('group', { name: 'run_tests tool call' })
-      ).queryByRole('status')
-    ).not.toBeInTheDocument();
+    expect(within(header()).getByRole('status')).toHaveTextContent('Completed');
+    const rowStatus = within(row()).getByRole('status');
+    expect(rowStatus).toHaveTextContent('Succeeded');
+    expect(rowStatus.closest('.sr-only')).not.toBeNull();
   });
 
   it('moves the running indicator to the header and keeps seconds on the row', () => {
     const { rerender } = render(<Group lastStatus="running" />, renderOptions);
-    expect(screen.getAllByRole('status')).toHaveLength(1);
-    expect(screen.getByRole('status')).toHaveTextContent('Streaming');
-    const running = screen.getByRole('group', { name: 'run_tests tool call' });
-    expect(within(running).queryByRole('status')).not.toBeInTheDocument();
-    expect(within(running).getByRole('timer')).toBeVisible();
+    expect(within(header()).getByRole('status')).toHaveTextContent('Streaming');
+    const rowStatus = within(row()).getByRole('status');
+    expect(rowStatus).toHaveTextContent('Running');
+    expect(rowStatus.closest('[data-indicator="hidden"]')).not.toBeNull();
+    expect(within(row()).getByRole('timer')).toBeVisible();
 
     rerender(<Group lastStatus="failed" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Failed');
+    expect(within(header()).queryByRole('status')).not.toBeInTheDocument();
+    expect(within(row()).getByRole('status')).toHaveTextContent('Failed');
+    expect(
+      within(row()).getByRole('status').closest('[data-indicator="hidden"]')
+    ).toBeNull();
 
     rerender(<Group lastStatus="succeeded" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Completed');
+    expect(within(header()).getByRole('status')).toHaveTextContent('Completed');
   });
 });
 
