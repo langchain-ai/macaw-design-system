@@ -984,5 +984,15 @@ describe('ChatToolCallGroup elapsed time', () => {
 
     rerender(group('succeeded'));
     expect(within(header()).queryByRole('timer')).not.toBeInTheDocument();
+
+    // Between calls the host keeps the work running.
+    rerender(
+      <ChatToolCallGroup label="Working" running showElapsed elapsedMs={9_000}>
+        <ChatToolCall
+          toolCall={{ id: 'a', name: 'run_tests', status: 'succeeded' }}
+        />
+      </ChatToolCallGroup>
+    );
+    expect(within(header()).getByRole('timer')).toHaveTextContent('9s');
   });
 });

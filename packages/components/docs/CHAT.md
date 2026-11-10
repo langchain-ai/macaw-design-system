@@ -56,8 +56,9 @@ subagent's stream inside them. Wrap parallel runs in `ChatSubagentGroup`.
 todos with stable IDs. Put `presentation="drawer"` in `ChatComposer`'s `drawer`
 slot to keep it above the input while the agent works.
 
-Summarize a turn's work with `ChatToolCallGroup`: pass `showElapsed` and
-`startedAt` while it runs, then a label such as
+Summarize a turn's work with `ChatToolCallGroup`: pass `running`,
+`showElapsed`, and `startedAt` while it runs, so the header keeps working
+between calls, then a label such as
 `` `Worked for ${formatChatDuration(ms)} · 6 actions` ``. `ChatToolCallReasoning`
 with `expandWhileStreaming` stays open while reasoning streams, unless the
 reader toggles it.
