@@ -1,6 +1,5 @@
 import type { ChatMessageStatus } from '../ChatMessage';
 import type { ChatPlanItem, ChatPlanItemStatus } from '../ChatPlan';
-import type { ChatSubagentModel } from '../ChatSubagent';
 import type { ChatToolCallStatus } from '../ChatToolCall';
 import type {
   ChatThreadFile,
@@ -9,6 +8,7 @@ import type {
   ChatThreadPart,
   ChatThreadQueuedMessage,
   ChatThreadSnapshot,
+  ChatThreadSubagent,
   ChatThreadTurn,
   ToChatThreadOptions,
 } from './ChatThread.types';
@@ -187,7 +187,7 @@ function subagentModel({
   call: MessageToolCall;
   status: ChatToolCallStatus;
   handle: unknown;
-}): ChatSubagentModel {
+}): ChatThreadSubagent {
   const args = isRecord(call.args) ? call.args : {};
   const snapshot = isRecord(handle) ? handle : {};
   const startedAt = toTime(snapshot.startedAt);

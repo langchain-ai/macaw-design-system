@@ -23,6 +23,7 @@ export type {
   ChatThreadSelectors,
   ChatThreadSnapshot,
   ChatThreadStream,
+  ChatThreadSubagent,
   ChatThreadToolPresentation,
   ChatThreadToolRenderer,
   ChatThreadTurn,

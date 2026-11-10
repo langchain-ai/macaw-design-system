@@ -1,13 +1,16 @@
 import { type ReactNode, useMemo, useState } from 'react';
 
+import { ArrowSquareOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareOut';
+import { RobotIcon } from '@phosphor-icons/react/dist/ssr/Robot';
+
 import { formatChatDuration } from '../ChatState';
-import { ChatSubagent, ChatSubagentGroup } from '../ChatSubagent';
 import {
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,
   type ChatToolCallModel,
 } from '../ChatToolCall';
+import { IconButton } from '../IconButton';
 import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Text } from '../Text';
 import type {
@@ -92,6 +95,12 @@ function SubagentTranscript({
   );
 }
 
+const SUBAGENT_ICON = <RobotIcon size={12} weight="regular" />;
+
+/**
+ * A subagent run as a tool row named for the subagent. It shows the current
+ * step while it runs, and its own transcript in the details.
+ */
 function SubagentPart({
   part,
 }: {
@@ -99,7 +108,8 @@ function SubagentPart({
 }) {
   const { thread, tools, onOpenSubagent } = useThread();
   const { stream, selectors } = thread;
-  const running = part.subagent.status === 'running';
+  const { subagent } = part;
+  const running = subagent.status === 'running';
   // While running, follow the subagent's own tool calls for its current
   // step. Without a target the selector returns the root calls without
   // subscribing, so a finished subagent costs nothing.
@@ -122,18 +132,47 @@ function SubagentPart({
     if (current?.name)
       activity = describeToolCall(current.name, current.args, tools);
   }
+  const result = part.result ? plainText(part.result) : undefined;
   const canExpand = Boolean(selectors?.useMessages && part.handle);
   return (
-    <ChatSubagent
-      subagent={part.subagent}
-      activity={activity ?? (running ? 'Working' : undefined)}
-      result={part.result ? plainText(part.result) : undefined}
-      onOpen={onOpenSubagent ? () => onOpenSubagent(part.subagent) : undefined}
+    <ChatToolCall
+      toolCall={{
+        id: subagent.id,
+        name: 'task',
+        status: subagent.status,
+        args: subagent.task ? { description: subagent.task } : undefined,
+        result,
+        elapsedMs: subagent.elapsedMs,
+      }}
+      label={subagent.name}
+      icon={SUBAGENT_ICON}
+      summary={(running && activity) || subagent.task || null}
+      meta={
+        onOpenSubagent ? (
+          <IconButton
+            type="button"
+            icon={ArrowSquareOutIcon}
+            iconWeight="regular"
+            size="xs"
+            variant="plain"
+            color="secondary"
+            label={`Open ${subagent.name}`}
+            onClick={() => onOpenSubagent(subagent)}
+          />
+        ) : undefined
+      }
     >
       {canExpand ? (
-        <SubagentTranscript handle={part.handle} running={running} />
+        <div className="flex min-w-0 flex-col gap-space-1">
+          <SubagentTranscript handle={part.handle} running={running} />
+          {result && (
+            <Text variant="xs" color="secondary" className="line-clamp-3">
+              {result}
+            </Text>
+          )}
+        </div>
       ) : undefined}
-    </ChatSubagent>
+    </ChatToolCall>
   );
 }
 
@@ -142,29 +181,8 @@ export function WorkParts({ parts }: { parts: ChatThreadPart[] }) {
   for (let index = 0; index < parts.length; index += 1) {
     const part = parts[index];
     if (part.type === 'subagent') {
-      // Subagents started together sit side by side.
-      const run: Extract<ChatThreadPart, { type: 'subagent' }>[] = [];
-      while (parts[index]?.type === 'subagent') {
-        run.push(parts[index] as Extract<ChatThreadPart, { type: 'subagent' }>);
-        index += 1;
-      }
-      index -= 1;
-      nodes.push(
-        <div key={run[0].id} className="py-space-1">
-          {run.length > 1 ? (
-            <ChatSubagentGroup label={`${run.length} subagents`}>
-              {run.map((item) => (
-                <SubagentPart key={item.id} part={item} />
-              ))}
-            </ChatSubagentGroup>
-          ) : (
-            <SubagentPart part={run[0]} />
-          )}
-        </div>
-      );
-      continue;
-    }
-    if (part.type === 'tool-call') {
+      nodes.push(<SubagentPart key={part.id} part={part} />);
+    } else if (part.type === 'tool-call') {
       nodes.push(
         <ToolCallPart
           key={part.id}

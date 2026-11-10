@@ -178,7 +178,7 @@ describe('LangGraphChat', () => {
     await user.click(summary);
     expect(summary).toHaveAttribute('aria-expanded', 'true');
     expect(
-      screen.getByRole('group', { name: 'researcher subagent' })
+      screen.getByRole('group', { name: 'researcher tool call' })
     ).toBeVisible();
     expect(screen.getByRole('table')).toBeVisible();
   });

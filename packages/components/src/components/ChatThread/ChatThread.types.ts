@@ -2,8 +2,11 @@ import type { ReactElement } from 'react';
 
 import type { ChatMessageModel, ChatMessageStatus } from '../ChatMessage';
 import type { ChatPlanItem } from '../ChatPlan';
-import type { ChatSubagentModel } from '../ChatSubagent';
-import type { ChatToolCallModel, ChatToolCallProps } from '../ChatToolCall';
+import type {
+  ChatToolCallModel,
+  ChatToolCallProps,
+  ChatToolCallStatus,
+} from '../ChatToolCall';
 
 /**
  * The parts of a LangGraph `useStream` handle the chat reads. Every
@@ -87,6 +90,20 @@ export interface ChatThreadPartSource {
   result?: unknown;
 }
 
+/** A delegated subagent run, such as a deep agent's `task` call. */
+export interface ChatThreadSubagent {
+  /** The ID of the tool call that started it. */
+  id: string;
+  /** The subagent's type or name, such as "researcher". */
+  name: string;
+  /** The task it was given. */
+  task?: string;
+  status: ChatToolCallStatus;
+  elapsedMs?: number;
+  /** Wall-clock start, when the stream reports one. */
+  startedAt?: Date | number;
+}
+
 export type ChatThreadPart = (
   | { type: 'text'; id: string; text: string; streaming: boolean }
   | { type: 'reasoning'; id: string; text: string; streaming: boolean }
@@ -100,7 +117,7 @@ export type ChatThreadPart = (
   | {
       type: 'subagent';
       id: string;
-      subagent: ChatSubagentModel;
+      subagent: ChatThreadSubagent;
       /** The subagent's final answer, once it returns. */
       result?: string;
       /** The stream's subagent handle; selectors scope to it. */

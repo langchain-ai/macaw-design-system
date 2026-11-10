@@ -16,15 +16,20 @@ import {
 
 export type ChatComposerDrawerIntent = 'neutral' | 'info' | 'warning' | 'error';
 
+// Dividers match the drawer border, so stacked drawer content reads as one surface.
 const DRAWER_INTENT_CLASSES: Record<ChatComposerDrawerIntent, string> = {
-  neutral: 'border-subtle bg-surface-level-2',
-  info: 'border-brand-subtle bg-brand-subtle',
-  warning: 'border-warning bg-warning',
-  error: 'border-error bg-error',
+  neutral: 'border-subtle divide-subtle bg-surface-level-2',
+  info: 'border-brand-subtle divide-brand-subtle bg-brand-subtle',
+  warning: 'border-warning divide-warning bg-warning',
+  error: 'border-error divide-error bg-error',
 };
 
 export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
-  /** Supplementary content attached above the editor, inside the composer form. */
+  /**
+   * Supplementary content attached above the editor, inside the composer form.
+   * Several items, such as a plan and a question, stack with dividers; put the
+   * one the input answers last, next to it.
+   */
   drawer?: ReactNode;
   /**
    * Drawer surface color. Color alone doesn't convey severity, so the drawer
@@ -185,9 +190,9 @@ export function ChatComposer({
             disabled={disabled}
             className={cn(
               // Extends under the composer's rounded top so the seam stays hidden.
-              'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 overflow-y-auto overscroll-contain rounded-t-lg border border-b-0 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
+              'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 divide-y overflow-y-auto overscroll-contain rounded-t-lg border border-b-0 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
               DRAWER_INTENT_CLASSES[drawerIntent],
-              disabled && 'border-disabled'
+              disabled && 'border-disabled divide-disabled'
             )}
           >
             {drawer}

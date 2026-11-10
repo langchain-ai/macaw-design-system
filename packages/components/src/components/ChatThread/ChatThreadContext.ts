@@ -6,12 +6,12 @@ import {
   useContext,
 } from 'react';
 
-import type { ChatSubagentModel } from '../ChatSubagent';
 import type { ChatToolCallModel } from '../ChatToolCall';
 import type {
   ChatThreadInterrupt,
   ChatThreadPart,
   ChatThreadPartSource,
+  ChatThreadSubagent,
   ChatThreadToolPresentation,
   ChatThreadToolRenderer,
 } from './ChatThread.types';
@@ -25,7 +25,7 @@ export interface ThreadContextValue {
     interrupt: ChatThreadInterrupt,
     thread: ChatThreadState
   ) => ReactNode | undefined;
-  onOpenSubagent?: (subagent: ChatSubagentModel) => void;
+  onOpenSubagent?: (subagent: ChatThreadSubagent) => void;
 }
 
 export const ThreadContext = createContext<ThreadContextValue | null>(null);

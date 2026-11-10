@@ -17,7 +17,6 @@ import {
 } from '../ChatMessage';
 import { ChatPlan } from '../ChatPlan';
 import { ChatState } from '../ChatState';
-import type { ChatSubagentModel } from '../ChatSubagent';
 import { copyToClipboard } from '../CopyButton';
 import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Skeleton } from '../Skeleton';
@@ -25,6 +24,7 @@ import { Text } from '../Text';
 import { Textarea } from '../Textarea';
 import type {
   ChatThreadInterrupt,
+  ChatThreadSubagent,
   ChatThreadToolRenderer,
   ChatThreadTurn,
 } from './ChatThread.types';
@@ -304,7 +304,7 @@ export interface ChatThreadProps {
     thread: ChatThreadState
   ) => ReactNode | undefined;
   /** Opens a subagent's full thread, such as in a side pane. */
-  onOpenSubagent?: (subagent: ChatSubagentModel) => void;
+  onOpenSubagent?: (subagent: ChatThreadSubagent) => void;
   /** Names the agent in its message headers. */
   agentName?: string;
   /** Fixed content above the conversation. */
