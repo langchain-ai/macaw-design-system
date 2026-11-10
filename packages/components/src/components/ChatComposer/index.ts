@@ -14,6 +14,8 @@ export type {
   ChatComposerInputHandle,
   ChatComposerInputProps,
 } from './ChatComposerInput';
+export { ChatComposerTextarea } from './ChatComposerTextarea';
+export type { ChatComposerTextareaProps } from './ChatComposerTextarea';
 export {
   ChatComposerAttachmentMenu,
   ChatComposerAttachments,

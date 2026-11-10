@@ -38,10 +38,12 @@ import {
   ChatComposer,
   ChatComposerContext,
   ChatComposerInput,
+  ChatComposerTextarea,
 } from '@langchain/macaw-components/ChatComposer';
 import type {
   ChatComposerInputProps,
   ChatComposerProps,
+  ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
 import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
 import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
@@ -217,6 +219,14 @@ void [
   ChatComposerContext,
   ChatComposerInput,
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  ChatComposerTextarea,
+  {
+    name: 'message',
+    value: '',
+    onChange: () => {},
+    onKeyDown: () => {},
+    ref: { current: null },
+  } satisfies ChatComposerTextareaProps,
   { action: 'sending' } satisfies ChatComposerProps,
   // @ts-expect-error onStop belongs to action="stop".
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
