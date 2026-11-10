@@ -278,6 +278,8 @@ export function WorkSummary({
       // closed once it's done, unless the reader chose otherwise.
       expanded={readerChoice ?? (working || waiting)}
       onExpandedChange={setReaderChoice}
+      // Keeps the header working while the agent decides its next call.
+      running={working}
       showElapsed={working}
       startedAt={working ? timing?.startedAt : undefined}
     >
