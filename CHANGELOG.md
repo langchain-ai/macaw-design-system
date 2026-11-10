@@ -1,3 +1,13 @@
+## 1.7.8 (2026-11-10)
+
+### 🚀 Features
+
+- **components:** add ChatComposerTextarea and fix chat Stop and row-action focus ([#108](https://github.com/langchain-ai/macaw-design-system/pull/108))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.7.7 (2026-11-09)
 
 ### 🩹 Fixes
