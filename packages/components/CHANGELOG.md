@@ -1,3 +1,13 @@
+## 1.7.9 (2026-11-10)
+
+### 🩹 Fixes
+
+- icons for tool call children, update design/add animation [FEP-579] ([#107](https://github.com/langchain-ai/macaw-design-system/pull/107))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.7.8 (2026-11-10)
 
 ### 🚀 Features
