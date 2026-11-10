@@ -2,7 +2,13 @@ import type { ReactNode } from 'react';
 
 import { fn } from 'storybook/test';
 
+import { GithubLogoIcon } from '@phosphor-icons/react/dist/ssr/GithubLogo';
+import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
+import { NotionLogoIcon } from '@phosphor-icons/react/dist/ssr/NotionLogo';
+import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
+import { SlackLogoIcon } from '@phosphor-icons/react/dist/ssr/SlackLogo';
+import { TerminalIcon } from '@phosphor-icons/react/dist/ssr/Terminal';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
@@ -81,8 +87,9 @@ const variants: NonNullable<ChatToolCallProps['variant']>[] = [
 
 const inspectToolCall = fn();
 
-const updatedDateCode = `export function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('en-US').format(date);
+const retryPolicyCode = `export function nextDelay(attempt: number, policy: RetryPolicy) {
+  if (attempt >= policy.maxAttempts) return null;
+  return Math.min(policy.baseMs * 2 ** attempt, policy.capMs);
 }`;
 
 function ToolCallVariants({
@@ -118,6 +125,8 @@ const meta = {
       description: {
         component: `- Default shows summaries and expandable details; Simple is a status-only row.
 - Hosts supply \`onInspect\` for Simple's clickable row, decide whether to open a pane or dialog, and can describe the action with \`inspectLabel\` (default: “View tool details”).
+- Every row leads with a 12px single-color icon. Hosts map product or provider icons through \`icon\`; without one the row uses a generic wrench, and \`null\` omits it.
+- Succeeded rows show no status; every other state keeps its own icon, so a quiet row means done.
 - Hosts validate tool-specific payloads before passing presentation slots; unknown payloads use the generic fallback.
 - Preserve content order and stable IDs; \`ChatToolCallGroup\` provides the outer accordion for both variants.`,
       },
@@ -166,65 +175,186 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+interface DefaultRow {
+  toolCall: ChatToolCallModel;
+  label: string;
+  icon?: ReactNode;
+  summary?: string;
+  details?: ReactNode;
+  defaultExpanded?: boolean;
+}
+
+const defaultRows: (DefaultRow | 'reasoning')[] = [
+  {
+    toolCall: {
+      id: 'notion-search',
+      name: 'notion-search',
+      status: 'succeeded',
+      args: {
+        query: 'Q3 platform roadmap and migration plan for the agent runtime',
+      },
+      result: {
+        results: ['Agent Runtime - Migration RFC', 'Q3 Platform Roadmap'],
+      },
+      elapsedMs: 1_240,
+    },
+    label: 'Search Notion',
+    icon: <NotionLogoIcon size={12} weight="regular" />,
+    summary: 'Q3 platform roadmap and migration plan for the agent runtime',
+  },
+  {
+    toolCall: {
+      id: 'notion-fetch',
+      name: 'notion-fetch',
+      status: 'succeeded',
+      args: { id: 'agent-runtime-migration-rfc' },
+      result:
+        'Retries must respect maxAttempts. Backoff is exponential with a 30s cap.',
+      elapsedMs: 640,
+    },
+    label: 'Read Notion page',
+    icon: <NotionLogoIcon size={12} weight="regular" />,
+    summary: 'Agent Runtime - Migration RFC',
+  },
+  {
+    toolCall: {
+      id: 'search-docs',
+      name: 'search_documents',
+      status: 'succeeded',
+      args: { query: 'retry policy maxAttempts' },
+      result: { matches: ['Deployment guide', 'Release checklist'] },
+      elapsedMs: 2_400,
+    },
+    label: 'Search documents',
+    icon: <MagnifyingGlassIcon size={12} weight="regular" />,
+    summary: '2 documents found',
+  },
+  'reasoning',
+  {
+    toolCall: {
+      id: 'edit-file',
+      name: 'edit_file',
+      status: 'succeeded',
+      elapsedMs: 85,
+    },
+    label: 'Edit file',
+    icon: <PencilSimpleIcon size={12} weight="regular" />,
+    summary: 'packages/runtime/src/scheduler/retryPolicy.ts',
+    defaultExpanded: true,
+    details: (
+      <div className="flex min-w-0 flex-col gap-space-2">
+        <Text variant="xs" color="tertiary">
+          Stop scheduling once maxAttempts is reached.
+        </Text>
+        <div className="max-h-60 max-w-full overflow-auto rounded-md bg-surface-level-2 p-space-2 [overflow-wrap:anywhere]">
+          <CodeLite
+            language="typescript"
+            value={retryPolicyCode}
+            className="text-xxs"
+            showGutter={false}
+            wrapLines
+          />
+        </div>
+      </div>
+    ),
+  },
+  {
+    toolCall: {
+      id: 'run-tests',
+      name: 'bash',
+      status: 'failed',
+      args: { command: 'pnpm nx test runtime --testPathPattern=scheduler' },
+      error:
+        '1 test failed.\nretryPolicy > returns null after maxAttempts\n  Expected: null\n  Received: 30000',
+      elapsedMs: 18_300,
+    },
+    label: 'Run tests',
+    icon: <TerminalIcon size={12} weight="regular" />,
+    summary: 'pnpm nx test runtime --testPathPattern=scheduler',
+  },
+  {
+    toolCall: {
+      id: 'web-search',
+      name: 'tavily_web_search',
+      status: 'succeeded',
+      args: { query: 'exponential backoff cap off-by-one maxAttempts' },
+      result: { results: 3 },
+      elapsedMs: 3_100,
+    },
+    label: 'Search the web',
+    icon: <GlobeIcon size={12} weight="regular" />,
+    summary: 'exponential backoff cap off-by-one maxAttempts',
+  },
+  {
+    toolCall: {
+      id: 'get-time',
+      name: 'get_current_time',
+      status: 'succeeded',
+      result: '2026-11-09T15:12:04-08:00',
+      elapsedMs: 12,
+    },
+    label: 'Get current time',
+  },
+  {
+    toolCall: {
+      id: 'github-issue',
+      name: 'github_create_issue',
+      status: 'input-required',
+      args: {
+        repo: 'langchain-ai/agent-runtime',
+        title: 'Retry policy ignores maxAttempts when the backoff hits its cap',
+      },
+    },
+    label: 'Create GitHub issue',
+    icon: <GithubLogoIcon size={12} weight="regular" />,
+    summary: 'Retry policy ignores maxAttempts when the backoff hits its cap',
+  },
+  {
+    toolCall: {
+      id: 'slack-message',
+      name: 'slack_write_private_message',
+      status: 'running',
+      args: { user_email_or_id: 'platform-oncall' },
+      elapsedMs: 3_400,
+    },
+    label: 'Send Slack message',
+    icon: <SlackLogoIcon size={12} weight="regular" />,
+    summary: '@platform-oncall',
+  },
+];
+
 export const Default: Story = {
   render: () => (
     <ToolCallVariants>
       {(variant) => (
-        <ChatToolCallGroup label="3 tool calls" defaultExpanded>
-          <ChatToolCall
-            variant={variant}
-            onInspect={inspectToolCall}
-            toolCall={{
-              id: 'edit',
-              name: 'edit_file',
-              status: 'succeeded',
-              elapsedMs: 85,
-            }}
-            label="Edit file"
-            summary="src/utils/formatDate.ts"
-            defaultExpanded
-          >
-            <div className="flex min-w-0 flex-col gap-space-2">
-              <Text variant="xs" color="tertiary">
-                Updated date formatting.
-              </Text>
-              <div className="max-h-60 max-w-full overflow-auto rounded-md bg-surface-level-2 p-space-2 [overflow-wrap:anywhere]">
-                <CodeLite
-                  language="typescript"
-                  value={updatedDateCode}
-                  className="text-xxs"
-                  showGutter={false}
-                  wrapLines
-                />
-              </div>
-            </div>
-          </ChatToolCall>
-          <ChatToolCall
-            variant={variant}
-            onInspect={inspectToolCall}
-            toolCall={{
-              id: 'shell',
-              name: 'bash',
-              status: 'succeeded',
-              args: { command: 'yarn test' },
-              result: '2 test suites passed.\n14 tests passed.',
-              elapsedMs: 1_800,
-            }}
-            label="Run tests"
-            summary="yarn test"
-            defaultExpanded
-          />
-          <ChatToolCall
-            toolCall={exampleCall}
-            {...getSearchToolCallPresentation(exampleCall)}
-            variant={variant}
-            onInspect={inspectToolCall}
-          />
-          <ChatToolCallReasoning status="completed">
-            <Text variant="xs" color="tertiary">
-              The document search and test results support the final response.
-            </Text>
-          </ChatToolCallReasoning>
+        <ChatToolCallGroup label="9 tool calls" defaultExpanded>
+          {defaultRows.map((row) =>
+            row === 'reasoning' ? (
+              <ChatToolCallReasoning
+                key="reasoning"
+                variant={variant}
+                onInspect={inspectToolCall}
+              >
+                <Text variant="xs" color="tertiary">
+                  The RFC says retries stop at maxAttempts, but the scheduler
+                  keeps retrying. Checking the retry policy next.
+                </Text>
+              </ChatToolCallReasoning>
+            ) : (
+              <ChatToolCall
+                key={row.toolCall.id}
+                variant={variant}
+                onInspect={inspectToolCall}
+                toolCall={row.toolCall}
+                label={row.label}
+                icon={row.icon}
+                summary={row.summary}
+                defaultExpanded={row.defaultExpanded}
+              >
+                {row.details}
+              </ChatToolCall>
+            )
+          )}
         </ChatToolCallGroup>
       )}
     </ToolCallVariants>
@@ -256,20 +386,47 @@ const stateCalls: ChatToolCallModel[] = [
 ];
 
 export const States: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Standalone rows show every status except success. Inside a group, the header carries the running indicator and the success check, so running rows show only their seconds.',
+      },
+    },
+  },
   render: () => (
     <ToolCallVariants>
-      {(variant) => (
-        <div className="flex flex-col gap-0">
-          {stateCalls.map((toolCall) => (
-            <ChatToolCall
-              key={toolCall.id}
-              toolCall={toolCall}
-              variant={variant}
-              onInspect={inspectToolCall}
-            />
-          ))}
-        </div>
-      )}
+      {(variant) => {
+        const rows = stateCalls.map((toolCall) => (
+          <ChatToolCall
+            key={toolCall.id}
+            toolCall={toolCall}
+            variant={variant}
+            onInspect={inspectToolCall}
+          />
+        ));
+        return (
+          <div className="flex flex-col gap-space-5">
+            <div className="flex flex-col gap-space-2">
+              <Text variant="xs" color="tertiary">
+                Standalone
+              </Text>
+              <div className="flex flex-col gap-0">{rows}</div>
+            </div>
+            <div className="flex flex-col gap-space-2">
+              <Text variant="xs" color="tertiary">
+                In a group
+              </Text>
+              <ChatToolCallGroup
+                label={`${stateCalls.length} tool calls`}
+                defaultExpanded
+              >
+                {rows}
+              </ChatToolCallGroup>
+            </div>
+          </div>
+        );
+      }}
     </ToolCallVariants>
   ),
 };
@@ -313,33 +470,115 @@ export const ToolContent: Story = {
   ),
 };
 
+const iconCalls: {
+  toolCall: ChatToolCallModel;
+  label: string;
+  icon?: ChatToolCallProps['icon'];
+  summary?: string;
+}[] = [
+  {
+    toolCall: { id: 'notion', name: 'notion-search', status: 'succeeded' },
+    label: 'Search Notion',
+    icon: <NotionLogoIcon size={12} weight="regular" />,
+    summary: 'Q3 platform roadmap',
+  },
+  {
+    toolCall: {
+      id: 'github',
+      name: 'github_create_issue',
+      status: 'input-required',
+    },
+    label: 'Create GitHub issue',
+    icon: <GithubLogoIcon size={12} weight="regular" />,
+    summary: 'Retry policy ignores maxAttempts',
+  },
+  {
+    toolCall: {
+      id: 'slack',
+      name: 'slack_write_private_message',
+      status: 'running',
+      elapsedMs: 3_400,
+    },
+    label: 'Send Slack message',
+    icon: <SlackLogoIcon size={12} weight="regular" />,
+    summary: '@platform-oncall',
+  },
+  {
+    toolCall: { id: 'web', name: 'tavily_web_search', status: 'failed' },
+    label: 'Search the web',
+    icon: <GlobeIcon size={12} weight="regular" />,
+    summary: 'exponential backoff cap',
+  },
+  {
+    toolCall: { id: 'time', name: 'get_current_time', status: 'succeeded' },
+    label: 'Get current time',
+  },
+];
+
+export const Icons: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Hosts pass product or provider marks as single-color 12px icons. Tools without a mapping fall back to the wrench, so every row keeps the same leading column.',
+      },
+    },
+  },
+  render: () => (
+    <ToolCallVariants>
+      {(variant) => (
+        <ChatToolCallGroup label="5 tool calls" defaultExpanded>
+          {iconCalls.map(({ toolCall, label, icon, summary }) => (
+            <ChatToolCall
+              key={toolCall.id}
+              variant={variant}
+              onInspect={inspectToolCall}
+              toolCall={toolCall}
+              label={label}
+              icon={icon}
+              summary={summary}
+            />
+          ))}
+        </ChatToolCallGroup>
+      )}
+    </ToolCallVariants>
+  ),
+};
+
 export const NarrowWidth: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          'Long names and summaries truncate without forcing the conversation wider. Expand the default row to verify wrapped detail content.',
+          'Long names and summaries truncate without forcing the conversation wider. Each column is 16rem wide. Expand the default row to verify wrapped detail content.',
       },
     },
   },
   decorators: [
     (Story) => (
-      <div className="w-64 min-w-0">
+      <div className="mx-auto w-[33.5rem] min-w-0">
         <Story />
       </div>
     ),
   ],
   render: () => (
-    <ChatToolCall
-      toolCall={{
-        id: 'narrow-search',
-        name: 'search_documents_with_a_very_long_tool_name',
-        status: 'succeeded',
-        args: { query: 'A long deployment readiness query' },
-        result: 'A long response that wraps within the available detail width.',
-      }}
-      summary="A long summary that stays within a narrow conversation"
-      defaultExpanded
-    />
+    <ToolCallVariants>
+      {(variant) => (
+        <ChatToolCall
+          variant={variant}
+          onInspect={inspectToolCall}
+          toolCall={{
+            id: 'narrow-search',
+            name: 'search_documents_with_a_very_long_tool_name',
+            status: 'succeeded',
+            args: { query: 'A long deployment readiness query' },
+            result:
+              'A long response that wraps within the available detail width.',
+          }}
+          summary="A long summary that stays within a narrow conversation"
+          defaultExpanded
+        />
+      )}
+    </ToolCallVariants>
   ),
 };

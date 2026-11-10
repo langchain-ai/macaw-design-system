@@ -1,5 +1,11 @@
 import { type ReactNode, useState } from 'react';
 
+import { renderToStaticMarkup } from 'react-dom/server';
+
+import { LightbulbIcon } from '@phosphor-icons/react/dist/ssr/Lightbulb';
+import { NotionLogoIcon } from '@phosphor-icons/react/dist/ssr/NotionLogo';
+import { SlackLogoIcon } from '@phosphor-icons/react/dist/ssr/SlackLogo';
+import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import {
@@ -172,7 +178,6 @@ describe('ChatToolCall', () => {
   const statuses: ChatToolCallStatus[] = [
     'pending',
     'running',
-    'succeeded',
     'failed',
     'canceled',
     'input-required',
@@ -197,6 +202,36 @@ describe('ChatToolCall', () => {
       }
     }
   );
+
+  it.each(variants)(
+    'keeps a visually hidden status for a succeeded call in %s',
+    (variant) => {
+      render(
+        <ChatToolCall
+          variant={variant}
+          toolCall={{ ...call, status: 'succeeded', elapsedMs: 65_900 }}
+        />,
+        renderOptions
+      );
+      const announcement = screen.getByRole('status');
+      expect(announcement).toHaveTextContent('Succeeded');
+      expect(announcement.closest('.sr-only')).not.toBeNull();
+      expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+    }
+  );
+
+  it('announces completion through the same live region', () => {
+    const { rerender } = render(
+      <ChatToolCall toolCall={{ ...call, status: 'running' }} />,
+      renderOptions
+    );
+    const announcement = screen.getByRole('status');
+    expect(announcement).toHaveTextContent('Running');
+
+    rerender(<ChatToolCall toolCall={{ ...call, status: 'succeeded' }} />);
+    expect(screen.getByRole('status')).toBe(announcement);
+    expect(announcement).toHaveTextContent('Succeeded');
+  });
 
   it.each(variants)('hides seconds when paused or settled in %s', (variant) => {
     const { rerender } = render(
@@ -617,5 +652,240 @@ describe('ChatToolCallReasoning', () => {
     expect(
       screen.queryByText('Public reasoning summary')
     ).not.toBeInTheDocument();
+  });
+});
+
+function iconPaths(icon: ReactNode) {
+  const root = document.createElement('div');
+  root.innerHTML = renderToStaticMarkup(icon);
+  return [...root.querySelectorAll('path')]
+    .map((path) => path.getAttribute('d'))
+    .join();
+}
+
+function containsIcon(root: Element, icon: ReactNode) {
+  const expected = iconPaths(icon);
+  return [...root.querySelectorAll('svg')].some(
+    (svg) =>
+      [...svg.querySelectorAll('path')]
+        .map((path) => path.getAttribute('d'))
+        .join() === expected
+  );
+}
+
+describe('icon column layout', () => {
+  const wrench = <WrenchIcon weight="regular" />;
+
+  it('falls back to a wrench, uses a host icon, and omits it for null', () => {
+    const { rerender } = render(
+      <ChatToolCall toolCall={call} />,
+      renderOptions
+    );
+    const row = () => screen.getByRole('group', { name: 'ask_user tool call' });
+    expect(containsIcon(row(), wrench)).toBe(true);
+
+    rerender(
+      <ChatToolCall toolCall={call} icon={<svg data-testid="host-icon" />} />
+    );
+    expect(screen.getByTestId('host-icon')).toBeInTheDocument();
+    expect(containsIcon(row(), wrench)).toBe(false);
+
+    rerender(<ChatToolCall toolCall={call} icon={null} />);
+    expect(screen.queryByTestId('host-icon')).not.toBeInTheDocument();
+    expect(containsIcon(row(), wrench)).toBe(false);
+  });
+
+  it.each(variants)('shows the icon in the %s variant', (variant) => {
+    render(
+      <ChatToolCall
+        toolCall={call}
+        variant={variant}
+        onInspect={() => undefined}
+      />,
+      renderOptions
+    );
+    expect(
+      containsIcon(
+        screen.getByRole('group', { name: 'ask_user tool call' }),
+        wrench
+      )
+    ).toBe(true);
+  });
+
+  it('gives reasoning rows a lightbulb', () => {
+    render(
+      <ChatToolCallReasoning>Public reasoning summary</ChatToolCallReasoning>,
+      renderOptions
+    );
+    expect(
+      containsIcon(
+        screen.getByRole('group', { name: 'Reasoning summary' }),
+        <LightbulbIcon weight="regular" />
+      )
+    ).toBe(true);
+  });
+
+  it('places the caret after the status', () => {
+    render(<ChatToolCall toolCall={call} />, renderOptions);
+    const row = screen.getByRole('group', { name: 'ask_user tool call' });
+    const status = within(row).getByRole('group', { name: 'Needs input' });
+    const svgs = row.querySelectorAll('svg');
+    const caret = svgs[svgs.length - 1];
+    expect(status.compareDocumentPosition(caret)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+  });
+
+  it('toggles details when the label is clicked and unmounts them when closed', async () => {
+    const { user } = render(<ChatToolCall toolCall={call} />, renderOptions);
+    const disclosure = screen.getByRole('button', {
+      name: 'Details for ask_user',
+    });
+    await user.click(screen.getByText('ask_user'));
+    expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('region', { name: 'ask_user details' })
+    ).toBeVisible();
+
+    await user.click(disclosure);
+    expect(disclosure).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      screen.queryByRole('region', { name: 'ask_user details', hidden: true })
+    ).not.toBeInTheDocument();
+  });
+
+  it('drops the wrench from the group header and hides collapsed rows', async () => {
+    const { user } = render(
+      <ChatToolCallGroup label="1 tool call" defaultExpanded>
+        <ChatToolCall toolCall={call} icon={null} />
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    const trigger = screen.getByRole('button', { name: '1 tool call' });
+    expect(containsIcon(trigger, wrench)).toBe(false);
+
+    const content = document.getElementById(
+      trigger.getAttribute('aria-controls') ?? ''
+    );
+    expect(content).not.toHaveAttribute('hidden');
+    await user.click(trigger);
+    expect(content).toHaveAttribute('hidden');
+    expect(content).toHaveAttribute('inert');
+  });
+});
+
+describe('ChatToolCallReasoning status', () => {
+  it.each(variants)(
+    'keeps a visually hidden status once completed in %s',
+    (variant) => {
+      render(
+        <ChatToolCallReasoning variant={variant} status="completed">
+          Public reasoning summary
+        </ChatToolCallReasoning>,
+        renderOptions
+      );
+      const announcement = screen.getByRole('status');
+      expect(announcement).toHaveTextContent('Completed');
+      expect(announcement.closest('.sr-only')).not.toBeNull();
+    }
+  );
+});
+
+describe('ChatToolCallGroup success check', () => {
+  function Group({ lastStatus }: { lastStatus: ChatToolCallStatus }) {
+    return (
+      <ChatToolCallGroup label="2 tool calls" defaultExpanded>
+        <ChatToolCall
+          toolCall={{ id: 'a', name: 'search_documents', status: 'succeeded' }}
+        />
+        <ChatToolCall
+          toolCall={{ id: 'b', name: 'run_tests', status: lastStatus }}
+        />
+        <ChatToolCallReasoning status="completed">
+          Summary
+        </ChatToolCallReasoning>
+      </ChatToolCallGroup>
+    );
+  }
+
+  const header = () => {
+    const element = screen.getByRole('button', {
+      name: '2 tool calls',
+    }).parentElement;
+    if (!element) throw new Error('Group header not found');
+    return element;
+  };
+  const row = () => screen.getByRole('group', { name: 'run_tests tool call' });
+
+  it('shows one check on the header once every row succeeded', () => {
+    render(<Group lastStatus="succeeded" />, renderOptions);
+    expect(within(header()).getByRole('status')).toHaveTextContent('Completed');
+    const rowStatus = within(row()).getByRole('status');
+    expect(rowStatus).toHaveTextContent('Succeeded');
+    expect(rowStatus.closest('.sr-only')).not.toBeNull();
+  });
+
+  it('moves the running indicator to the header and keeps seconds on the row', () => {
+    const { rerender } = render(<Group lastStatus="running" />, renderOptions);
+    expect(within(header()).getByRole('status')).toHaveTextContent('Streaming');
+    const rowStatus = within(row()).getByRole('status');
+    expect(rowStatus).toHaveTextContent('Running');
+    expect(row().querySelector('[data-animated]')).toBeNull();
+    expect(within(row()).getByRole('timer')).toBeVisible();
+
+    rerender(<Group lastStatus="failed" />);
+    expect(within(header()).queryByRole('status')).not.toBeInTheDocument();
+    expect(within(row()).getByRole('status')).toHaveTextContent('Failed');
+
+    rerender(<Group lastStatus="succeeded" />);
+    expect(within(header()).getByRole('status')).toHaveTextContent('Completed');
+  });
+});
+
+describe('ChatToolCallGroup header icons', () => {
+  it('stacks each distinct host icon once and skips the wrench fallback', () => {
+    render(
+      <ChatToolCallGroup label="4 tool calls" defaultExpanded>
+        <ChatToolCall
+          toolCall={{ ...call, id: '1' }}
+          icon={<NotionLogoIcon />}
+        />
+        <ChatToolCall
+          toolCall={{ ...call, id: '2' }}
+          icon={<NotionLogoIcon />}
+        />
+        <ChatToolCall
+          toolCall={{ ...call, id: '3' }}
+          icon={<SlackLogoIcon />}
+        />
+        <ChatToolCall toolCall={{ ...call, id: '4' }} />
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    const trigger = screen.getByRole('button', { name: '4 tool calls' });
+    expect(containsIcon(trigger, <NotionLogoIcon />)).toBe(true);
+    expect(containsIcon(trigger, <SlackLogoIcon />)).toBe(true);
+    expect(containsIcon(trigger, <WrenchIcon weight="regular" />)).toBe(false);
+    // Two tiles plus the caret.
+    expect(trigger.querySelectorAll('svg')).toHaveLength(3);
+  });
+});
+
+describe('ChatToolCallGroup content clipping', () => {
+  it('does not clip open rows, so outer focus rings stay visible', async () => {
+    const { user } = render(
+      <ChatToolCallGroup label="1 tool call">
+        <ChatToolCall toolCall={call} variant="simple" onInspect={() => {}} />
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    const trigger = screen.getByRole('button', { name: '1 tool call' });
+    const clip = document.getElementById(
+      trigger.getAttribute('aria-controls') ?? ''
+    )?.firstElementChild;
+    expect(clip).toHaveClass('overflow-hidden');
+
+    await user.click(trigger);
+    expect(clip).not.toHaveClass('overflow-hidden');
   });
 });

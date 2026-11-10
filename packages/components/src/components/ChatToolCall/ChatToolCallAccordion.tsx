@@ -1,10 +1,14 @@
 import { type ReactNode, useId } from 'react';
 
-import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
+import { ChatToolCallCaret } from './ChatToolCallCaret';
+import { ChatToolCallCollapse } from './ChatToolCallCollapse';
+
+const SWAP_TRANSITION =
+  'transition-[opacity,scale] duration-fast ease-out motion-reduce:transition-none';
 
 interface ChatToolCallAccordionProps {
   heading: ReactNode;
@@ -53,7 +57,7 @@ export function ChatToolCallAccordion({
         className
       )}
     >
-      <div className="flex flex-wrap items-center gap-space-2 rounded-md px-space-1 transition-colors duration-fast hover:bg-surface-level-2 motion-reduce:transition-none">
+      <div className="group/row relative flex min-w-0 items-center gap-space-2 rounded-md px-space-1 transition-colors duration-fast hover:bg-surface-level-2 motion-reduce:transition-none">
         {hasDetails ? (
           <Button
             type="button"
@@ -65,38 +69,53 @@ export function ChatToolCallAccordion({
             aria-controls={detailsId}
             aria-expanded={isExpanded}
             onClick={() => setExpanded(!isExpanded)}
-            className="h-auto min-w-0 flex-1 justify-start gap-space-2 px-0 py-space-1 text-left shadow-none hover:bg-transparent"
+            // Stretched over the row so the status and caret are clickable too.
+            className="static h-auto min-w-0 flex-1 border-0 justify-start gap-space-2 px-0 py-space-1 text-left shadow-none outline-none after:absolute after:inset-0 after:rounded-md hover:bg-transparent focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-focus"
           >
-            <CaretRightIcon
-              size={12}
-              weight="regular"
-              aria-hidden="true"
-              className={cn(
-                'shrink-0 text-icon-tertiary transition-transform duration-normal motion-reduce:transition-none',
-                isExpanded && 'rotate-90'
-              )}
-            />
             {heading}
           </Button>
         ) : (
-          <span className="flex min-w-0 flex-1 items-center gap-space-2 py-space-1 pl-space-5">
+          <span className="flex min-w-0 flex-1 items-center gap-space-2 py-space-1">
             {heading}
           </span>
         )}
-        {status}
+        {/* Status and caret share the trailing slot: status at rest, caret on
+            hover or keyboard focus. */}
+        <span className="pointer-events-none relative grid shrink-0 items-center justify-items-end *:col-start-1 *:row-start-1">
+          <span
+            className={cn(
+              'flex items-center',
+              SWAP_TRANSITION,
+              hasDetails &&
+                'group-hover/row:scale-90 group-hover/row:opacity-0 group-has-[:focus-visible]/row:scale-90 group-has-[:focus-visible]/row:opacity-0'
+            )}
+          >
+            {status}
+          </span>
+          {hasDetails && (
+            <ChatToolCallCaret
+              open={isExpanded}
+              className={cn(
+                SWAP_TRANSITION,
+                'scale-90 opacity-0 group-hover/row:scale-100 group-hover/row:opacity-100 group-has-[:focus-visible]/row:scale-100 group-has-[:focus-visible]/row:opacity-100'
+              )}
+            />
+          )}
+        </span>
       </div>
-      {isExpanded && (
-        <div
+      {hasDetails && (
+        <ChatToolCallCollapse
+          open={isExpanded}
           id={detailsId}
           role="region"
           aria-label={detailsLabel}
           className={cn(
-            'ml-space-2 min-w-0 border-l border-subtle py-space-2 pl-space-4 text-tertiary',
+            'min-w-0 py-space-2 pl-space-5 pr-space-1 text-tertiary',
             detailsClassName
           )}
         >
           {children}
-        </div>
+        </ChatToolCallCollapse>
       )}
     </div>
   );

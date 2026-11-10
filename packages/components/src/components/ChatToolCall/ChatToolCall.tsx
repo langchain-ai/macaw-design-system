@@ -1,6 +1,8 @@
 import { type ReactNode, useId } from 'react';
 
-import { ChatState, type ChatStateStatus } from '../ChatState';
+import { WrenchIcon } from '@phosphor-icons/react/dist/ssr/Wrench';
+
+import type { ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import type {
   ChatToolCallModel,
@@ -9,6 +11,9 @@ import type {
 import { formatChatToolCallValue } from './ChatToolCall.value';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import { ChatToolCallDetails } from './ChatToolCallDetails';
+import { useReportToGroup } from './ChatToolCallGroupContext';
+import { ChatToolCallIcon } from './ChatToolCallIcon';
+import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
 
 const STATUS_PRESENTATIONS = {
@@ -32,7 +37,11 @@ export interface ChatToolCallProps {
   /** Tooltip and accessible action label for Simple row inspection. */
   inspectLabel?: string;
   label?: string;
-  /** Noninteractive presentation slots; response controls belong in a separate content block. */
+  /**
+   * Leading 12px single-color icon, e.g. a product or provider mark. Undefined
+   * uses a generic wrench; null omits the icon. Noninteractive presentation
+   * slots; response controls belong in a separate content block.
+   */
   icon?: ReactNode;
   /** Undefined previews args; null omits the summary. */
   summary?: ReactNode;
@@ -44,16 +53,18 @@ export interface ChatToolCallProps {
   className?: string;
 }
 
-function ToolCallStatus({ toolCall }: Pick<ChatToolCallProps, 'toolCall'>) {
+function ToolCallStatus({
+  toolCall,
+  inGroup,
+}: Pick<ChatToolCallProps, 'toolCall'> & { inGroup: boolean }) {
   const presentation = STATUS_PRESENTATIONS[toolCall.status];
 
   return (
-    <ChatState
-      variant="simple"
+    <ChatToolCallRowStatus
       label={presentation.label}
       status={presentation.status}
-      showElapsed={toolCall.status === 'running'}
       elapsedMs={toolCall.elapsedMs}
+      inGroup={inGroup}
     />
   );
 }
@@ -72,17 +83,18 @@ export function ChatToolCall({
   onExpandedChange,
   className,
 }: ChatToolCallProps) {
+  const inGroup = useReportToGroup({
+    status: STATUS_PRESENTATIONS[toolCall.status].status,
+    icon,
+  });
   const summaryId = useId();
   const name = label ?? (toolCall.name || 'Tool');
+  const resolvedIcon =
+    icon === undefined ? <WrenchIcon size={12} weight="regular" /> : icon;
   const heading = (
-    <span className="inline-flex min-w-0 items-center gap-space-1">
-      {icon != null && (
-        <span
-          aria-hidden="true"
-          className="flex size-3 shrink-0 items-center justify-center text-icon-secondary [&_svg]:size-3"
-        >
-          {icon}
-        </span>
+    <span className="inline-flex min-w-0 items-center gap-space-2">
+      {resolvedIcon != null && (
+        <ChatToolCallIcon>{resolvedIcon}</ChatToolCallIcon>
       )}
       <Text
         as="span"
@@ -101,7 +113,7 @@ export function ChatToolCall({
       <ChatToolCallStatusRow
         groupLabel={`${name} tool call`}
         heading={heading}
-        status={<ToolCallStatus toolCall={toolCall} />}
+        status={<ToolCallStatus toolCall={toolCall} inGroup={inGroup} />}
         onInspect={onInspect}
         inspectLabel={inspectLabel}
         className={className}
@@ -142,7 +154,7 @@ export function ChatToolCall({
           )}
         </>
       }
-      status={<ToolCallStatus toolCall={toolCall} />}
+      status={<ToolCallStatus toolCall={toolCall} inGroup={inGroup} />}
       expanded={expanded}
       defaultExpanded={defaultExpanded}
       onExpandedChange={onExpandedChange}
