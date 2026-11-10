@@ -23,8 +23,6 @@ export interface ChatToolCallReasoningProps {
   inspectLabel?: string;
   /** Use a duration once done, e.g. `Thought for ${formatChatDuration(ms)}`. */
   label?: string;
-  /** Leading 12px single-color icon. Undefined uses a lightbulb; null omits it. */
-  icon?: ReactNode;
   status?: ChatStateStatus;
   elapsedMs?: number;
   expanded?: boolean;
@@ -45,7 +43,6 @@ export function ChatToolCallReasoning({
   onInspect,
   inspectLabel,
   label = 'Reasoning summary',
-  icon,
   status = 'completed',
   elapsedMs,
   expanded,
@@ -56,13 +53,11 @@ export function ChatToolCallReasoning({
   const inGroup = useReportToGroup({ status });
   const [readerChoice, setReaderChoice] = useState<boolean>();
   const followsStream = expandWhileStreaming && expanded === undefined;
-  const resolvedIcon =
-    icon === undefined ? <LightbulbIcon size={12} weight="regular" /> : icon;
   const heading = (
     <span className="inline-flex min-w-0 items-center gap-space-2">
-      {resolvedIcon != null && (
-        <ChatToolCallIcon>{resolvedIcon}</ChatToolCallIcon>
-      )}
+      <ChatToolCallIcon>
+        <LightbulbIcon size={12} weight="regular" />
+      </ChatToolCallIcon>
       <Text
         as="span"
         variant="xs"

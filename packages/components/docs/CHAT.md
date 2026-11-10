@@ -39,48 +39,36 @@ expansion state while collapsed. Controlled `expanded` props allow a host to
 coordinate disclosure without moving tool execution or event parsing into the
 component.
 
-`ChatToolCall` takes `meta` for short trailing details, such as a duration, an
-edit count, or a link to related work. It sits outside the row toggle, so it can
-hold its own link or button. Set `keepMounted` when custom details hold state,
-such as a selected result view, that should survive closing them.
+`ChatToolCall` takes `meta` for short trailing details, such as an edit count
+or a link. It sits outside the row toggle, so it can hold its own link or
+button.
 
 ## Agent work
 
-Import `ChatSubagent` and `ChatSubagentGroup` from
-`@langchain/macaw-components/ChatSubagent` for delegated agent runs, such as a
-deep agent's `task` tool calls. Render each where the agent started it, keyed by
-that call's ID, and map the call's lifecycle to `status`. `activity` names the
-current step while it runs and is not announced; status changes are. `result`
-summarizes the outcome. Details in `children` mount only while expanded, so
-subscribe to the subagent's own stream inside them. `onOpen` hands the full
-thread to a host-owned pane. Wrap subagents that run in parallel in
-`ChatSubagentGroup`.
+`ChatSubagent` (from `@langchain/macaw-components/ChatSubagent`) shows a
+delegated agent run, such as a deep agent's `task` call. Render it where the
+agent started it, keyed by that call's ID. `activity` names the current step,
+`result` the outcome, and `onOpen` hands the full thread to a host pane.
+Details in `children` mount only while expanded, so subscribe to the
+subagent's stream inside them. Wrap parallel runs in `ChatSubagentGroup`.
 
-Import `ChatPlan` from `@langchain/macaw-components/ChatPlan` for an agent's
-task list, such as the todos a deep agent writes with `write_todos`. Give each
-item a stable ID. Put `presentation="drawer"` in `ChatComposer`'s `drawer` slot
-to keep the plan above the message input while the agent works.
+`ChatPlan` (from `@langchain/macaw-components/ChatPlan`) shows an agent's
+todos with stable IDs. Put `presentation="drawer"` in `ChatComposer`'s `drawer`
+slot to keep it above the input while the agent works.
 
-Summarize a turn's work with `ChatToolCallGroup`. While it runs, pass
-`showElapsed` and `startedAt`; when it ends, use a label such as
-`` `Worked for ${formatChatDuration(ms)} · 6 actions` ``. Keep calls that are
-running, failed, or waiting for input outside a collapsed group when the reader
-needs to see them. `ChatToolCallReasoning` with `expandWhileStreaming` opens
-while reasoning streams and closes when it ends, unless the reader has toggled
-it; pass `icon` to replace the lightbulb.
+Summarize a turn's work with `ChatToolCallGroup`: pass `showElapsed` and
+`startedAt` while it runs, then a label such as
+`` `Worked for ${formatChatDuration(ms)} · 6 actions` ``. `ChatToolCallReasoning`
+with `expandWhileStreaming` stays open while reasoning streams, unless the
+reader toggles it.
 
-`ChatState` takes `startedAt` so a remounted row keeps counting, and switches to
-hours and minutes after an hour. Set `announce={false}` when a parent announces
-the outcome, so rows of a long list stay quiet. `formatChatDuration` formats
-durations the same way for labels.
+`ChatState` takes `startedAt` so a remounted row keeps counting, and
+`announce={false}` when a parent announces the outcome.
 
 ## Approvals and queued messages
 
-The approval variant of `ChatRichContent` takes `edit` for decisions that may
-change the request before approving it, such as a human-in-the-loop `edit`
-decision on a tool call. Edit swaps the card body for `edit.content`, whose
-fields the host owns and validates; `edit.onSubmit` saves the edited request.
-
-`ChatMessageActions` shows `cancel` only on a queued message. Set
-`action="stopping"` on `ChatComposer` while a stop request is pending; Stop shows
-progress and sending stays blocked.
+Approval `ChatRichContent` takes `edit` to change a request before approving
+it, such as a human-in-the-loop `edit` decision. `edit.content` replaces the
+body with host-owned fields; `edit.onSubmit` saves them. `ChatMessageActions`
+shows `cancel` on queued messages, and `ChatComposer` takes
+`action="stopping"` while a stop is pending.

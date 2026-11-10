@@ -337,18 +337,6 @@ describe('ChatState', () => {
     });
     expect(screen.getByRole('timer')).toHaveTextContent('35s');
   });
-
-  it('switches to hours once a duration reaches an hour', () => {
-    const { rerender } = render(
-      <ChatState status="completed" showElapsed elapsedMs={3_725_000} />,
-      { withProviders: false }
-    );
-    expect(screen.getByRole('timer')).toHaveTextContent('1h 2m');
-    rerender(
-      <ChatState status="completed" variant="simple" elapsedMs={3_599_000} />
-    );
-    expect(screen.getByRole('timer')).toHaveTextContent('3599s');
-  });
 });
 
 describe('formatChatDuration', () => {

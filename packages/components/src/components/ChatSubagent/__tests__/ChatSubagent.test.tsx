@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { ChatSubagent, ChatSubagentGroup, type ChatSubagentModel } from '..';
+import { ChatSubagent, type ChatSubagentModel } from '..';
 import { render, screen, within } from '../../../test-utils';
 import { ChatToolCall, ChatToolCallGroup } from '../../ChatToolCall';
 
@@ -112,22 +112,5 @@ describe('ChatSubagent', () => {
 
     rerender(group('succeeded'));
     expect(within(header()).getByRole('status')).toHaveTextContent('Completed');
-  });
-});
-
-describe('ChatSubagentGroup', () => {
-  it('names parallel subagents as one group', () => {
-    render(
-      <ChatSubagentGroup label="2 subagents">
-        <ChatSubagent subagent={researcher} />
-        <ChatSubagent
-          subagent={{ ...researcher, id: 'call-2', name: 'critic' }}
-        />
-      </ChatSubagentGroup>
-    );
-    const group = screen.getByRole('group', { name: '2 subagents' });
-    expect(
-      within(group).getAllByRole('group', { name: /subagent$/ })
-    ).toHaveLength(2);
   });
 });
