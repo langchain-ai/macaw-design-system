@@ -73,8 +73,7 @@ Custom components should compose primitives and keep feature data, permissions, 
 
 Import the tool-call presentation family from
 `@langchain/macaw-components/ChatToolCall`, shared lifecycle presentation
-from `@langchain/macaw-components/ChatState`, delegated agent runs from
-`@langchain/macaw-components/ChatSubagent`, and agent task lists from
+from `@langchain/macaw-components/ChatState`, and agent task lists from
 `@langchain/macaw-components/ChatPlan`. They are intentionally omitted from the
 root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
 
@@ -240,7 +239,8 @@ with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
 model moves focus to the message input.
 
 Use `drawer` for content above the editor, such as questions to answer before
-sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
+sending. Several items stack with dividers; put the one the input answers,
+such as a question, last. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
 

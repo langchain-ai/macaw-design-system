@@ -2,14 +2,14 @@ import { useId, useState } from 'react';
 
 import { CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
 import { CircleIcon } from '@phosphor-icons/react/dist/ssr/Circle';
-import { CircleHalfIcon } from '@phosphor-icons/react/dist/ssr/CircleHalf';
-import { ListChecksIcon } from '@phosphor-icons/react/dist/ssr/ListChecks';
+import { CircleDashedIcon } from '@phosphor-icons/react/dist/ssr/CircleDashed';
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { ChatToolCallCaret } from '../ChatToolCall/ChatToolCallCaret';
 import { ChatToolCallCollapse } from '../ChatToolCall/ChatToolCallCollapse';
+import { CircularProgress } from '../CircularProgress';
 import { Text } from '../Text';
 
 export type ChatPlanItemStatus = 'pending' | 'in-progress' | 'completed';
@@ -26,7 +26,10 @@ export interface ChatPlanProps {
   items: readonly ChatPlanItem[];
   /** Defaults to "Plan". */
   title?: string;
-  /** `drawer` fits `ChatComposer`'s drawer slot above the message input. */
+  /**
+   * `drawer` fits `ChatComposer`'s drawer slot, alone or stacked with other
+   * drawer content.
+   */
   presentation?: 'block' | 'drawer';
   expanded?: boolean;
   defaultExpanded?: boolean;
@@ -34,29 +37,27 @@ export interface ChatPlanProps {
   className?: string;
 }
 
+// Outline icons in ChatState's colors, so a plan reads like the rest of the chat.
 const ITEM_PRESENTATIONS = {
   pending: {
     label: 'Pending',
     icon: CircleIcon,
     iconClassName: 'text-icon-tertiary',
-    segmentClassName: 'bg-surface-level-3',
+    textColor: 'secondary',
   },
   'in-progress': {
     label: 'In progress',
-    icon: CircleHalfIcon,
-    iconClassName: 'text-icon-brand',
-    segmentClassName: 'bg-brand',
+    icon: CircleDashedIcon,
+    iconClassName: 'text-icon-secondary',
+    textColor: 'primary',
   },
   completed: {
     label: 'Completed',
     icon: CheckCircleIcon,
     iconClassName: 'text-icon-success',
-    segmentClassName: 'bg-success-strong',
+    textColor: 'tertiary',
   },
 } as const;
-
-/** Beyond this many tasks the segments would be too thin to read; use one bar. */
-const MAX_SEGMENTS = 12;
 
 const ENTER =
   'animate-in fade-in ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:animate-none';
@@ -77,41 +78,6 @@ function summarize(items: readonly ChatPlanItem[]) {
     progress: done === total ? `All ${total} done` : `${done} of ${total} done`,
     current: undefined,
   };
-}
-
-function PlanProgress({
-  items,
-  done,
-}: {
-  items: readonly ChatPlanItem[];
-  done: number;
-}) {
-  if (items.length > MAX_SEGMENTS) {
-    return (
-      <span
-        aria-hidden="true"
-        className="relative h-1 w-14 shrink-0 overflow-hidden rounded-full bg-surface-level-3"
-      >
-        <span
-          className="absolute inset-y-0 left-0 rounded-full bg-success-strong transition-[width] duration-slower ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
-          style={{ width: `${(done / items.length) * 100}%` }}
-        />
-      </span>
-    );
-  }
-  return (
-    <span aria-hidden="true" className="flex h-1 w-14 shrink-0 gap-0.5">
-      {items.map((item) => (
-        <span
-          key={item.id}
-          className={cn(
-            'h-full min-w-0.5 flex-1 rounded-full transition-colors duration-slow motion-reduce:transition-none',
-            ITEM_PRESENTATIONS[item.status].segmentClassName
-          )}
-        />
-      ))}
-    </span>
-  );
 }
 
 /**
@@ -152,7 +118,13 @@ export function ChatPlan({
       className={cn(
         'flex min-w-0 max-w-full flex-col font-sans text-primary',
         isDrawer
-          ? 'px-space-4 py-space-2'
+          ? // Its own neutral surface keeps the plan neutral when it shares a
+            // drawer whose intent colors a question or notice.
+            cn(
+              'bg-surface-level-2 px-space-4 py-space-2',
+              ENTER,
+              'duration-normal'
+            )
           : 'rounded-lg border border-subtle bg-elevated px-space-3 py-space-2',
         className
       )}
@@ -169,16 +141,15 @@ export function ChatPlan({
         onClick={() => setExpanded(!isExpanded)}
         className="h-auto min-w-0 justify-start gap-space-2 border-0 bg-transparent px-0 py-space-1 text-left shadow-none hover:bg-transparent"
       >
-        <ListChecksIcon
-          size={16}
-          weight="regular"
-          aria-hidden="true"
-          className="shrink-0 text-icon-secondary"
+        <CircularProgress
+          size={14}
+          strokeWidth={2}
+          segments={[{ variant: 'success', percentage: done / items.length }]}
+          className="shrink-0"
         />
         <Text as="span" variant="xs" weight="medium" className="shrink-0">
           {title}
         </Text>
-        <PlanProgress items={items} done={done} />
         <Text
           as="span"
           variant="xs"
@@ -211,7 +182,9 @@ export function ChatPlan({
           aria-label={`${title} tasks`}
           className={cn(
             'm-0 flex list-none flex-col gap-space-1 p-0 pb-space-1 pt-space-1',
-            isDrawer && 'max-h-[40dvh] overflow-y-auto overscroll-contain'
+            // Short enough that a question sharing the drawer stays in view.
+            isDrawer &&
+              'max-h-[min(12rem,30dvh)] overflow-y-auto overscroll-contain'
           )}
         >
           {items.map((item) => {
@@ -219,6 +192,7 @@ export function ChatPlan({
               icon: StatusIcon,
               iconClassName,
               label,
+              textColor,
             } = ITEM_PRESENTATIONS[item.status];
             const justCompleted =
               item.status === 'completed' && !initial.completed.has(item.id);
@@ -231,24 +205,20 @@ export function ChatPlan({
                 <StatusIcon
                   // Remounts on each status change so a new check pops in.
                   key={item.status}
-                  size={16}
-                  weight={item.status === 'pending' ? 'regular' : 'fill'}
+                  size={14}
+                  weight="regular"
                   aria-hidden="true"
                   className={cn(
                     'mt-0.5 shrink-0',
                     iconClassName,
-                    justCompleted && cn(ENTER, 'zoom-in-50 duration-normal')
+                    justCompleted && cn(ENTER, 'zoom-in-75 duration-normal')
                   )}
                 />
                 <Text
                   as="span"
                   variant="xs"
-                  color={item.status === 'completed' ? 'tertiary' : undefined}
-                  weight={item.status === 'in-progress' ? 'medium' : 'normal'}
-                  className={cn(
-                    'min-w-0 leading-5 transition-colors duration-slow [overflow-wrap:anywhere] motion-reduce:transition-none',
-                    item.status === 'completed' && 'line-through'
-                  )}
+                  color={textColor}
+                  className="min-w-0 leading-5 transition-colors duration-slow [overflow-wrap:anywhere] motion-reduce:transition-none"
                 >
                   {item.label}
                   <span className="sr-only">{` (${label})`}</span>

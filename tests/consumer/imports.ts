@@ -92,14 +92,6 @@ import type {
   ChatStateTimerPrecision,
 } from '@langchain/macaw-components/ChatState';
 import {
-  ChatSubagent,
-  ChatSubagentGroup,
-} from '@langchain/macaw-components/ChatSubagent';
-import type {
-  ChatSubagentModel,
-  ChatSubagentProps,
-} from '@langchain/macaw-components/ChatSubagent';
-import {
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,
@@ -259,16 +251,6 @@ void [
     items: [{ id: '1', label: 'Search', status: 'in-progress' }],
   } satisfies ChatPlanProps,
   { id: '1', label: 'Search', status: 'completed' } satisfies ChatPlanItem,
-  ChatSubagent,
-  ChatSubagentGroup,
-  {
-    subagent: { id: 'task-1', name: 'researcher', status: 'running' },
-  } satisfies ChatSubagentProps,
-  {
-    id: 'task-1',
-    name: 'researcher',
-    status: 'succeeded',
-  } satisfies ChatSubagentModel,
   {
     title: 'Review',
     variant: 'approval',

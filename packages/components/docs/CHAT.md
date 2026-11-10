@@ -45,16 +45,16 @@ button.
 
 ## Agent work
 
-`ChatSubagent` (from `@langchain/macaw-components/ChatSubagent`) shows a
-delegated agent run, such as a deep agent's `task` call. Render it where the
-agent started it, keyed by that call's ID. `activity` names the current step,
-`result` the outcome, and `onOpen` hands the full thread to a host pane.
-Details in `children` mount only while expanded, so subscribe to the
-subagent's stream inside them. Wrap parallel runs in `ChatSubagentGroup`.
-
 `ChatPlan` (from `@langchain/macaw-components/ChatPlan`) shows an agent's
 todos with stable IDs. Put `presentation="drawer"` in `ChatComposer`'s `drawer`
-slot to keep it above the input while the agent works.
+slot to keep it above the input while the agent works. It can share the drawer:
+the drawer stacks its items with dividers, so pass the plan first and a
+question last, next to the input that answers it. The plan keeps a neutral
+surface under any `drawerIntent`.
+
+Show a delegated subagent run, such as a deep agent's `task` call, as a
+`ChatToolCall` with the subagent's name as `label` and its task as `summary`.
+Its own tool calls go in the details, which mount only while expanded.
 
 Summarize a turn's work with `ChatToolCallGroup`: pass `running`,
 `showElapsed`, and `startedAt` while it runs, so the header keeps working
