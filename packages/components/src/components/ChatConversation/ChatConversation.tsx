@@ -337,8 +337,13 @@ function connectConversationScroll(
   function update(source: 'scroll' | 'resize' | 'reposition') {
     const { scrollTop } = viewport;
     const atEnd = distanceToEnd() <= FOLLOW_THRESHOLD;
+    // When content below shrinks, the browser pulls scrollTop back to the new
+    // end before the spacer can grow; that isn't the reader scrolling.
+    const clamped =
+      scrollTop < lastScrollTop &&
+      viewport.scrollHeight - viewport.clientHeight - scrollTop <= 1;
     if (pinnedId !== undefined) {
-      if (source === 'scroll' && scrollTop !== lastScrollTop) {
+      if (source === 'scroll' && scrollTop !== lastScrollTop && !clamped) {
         holdingPin = false;
         // Scrolling down to the end of a reply that outgrew the viewport
         // hands back to bottom-following.

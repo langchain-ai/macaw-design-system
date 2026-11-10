@@ -12,6 +12,7 @@ import {
   ChatComposerToolbar,
 } from '../ChatComposer';
 import { ChatMessage, type ChatMessageModel } from '../ChatMessage';
+import { ChatToolCall, ChatToolCallGroup } from '../ChatToolCall';
 import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
 
@@ -282,6 +283,10 @@ const packingParagraphs = [
   'Tech: phone chargers, a power bank for the trail, and headphones for the drive. A paper map is a good backup where the signal is patchy.',
   'Food: a refillable water bottle, snacks for the drive, and a thermos if you want coffee on the morning walk.',
   'Documents: your booking confirmation, a payment card, and some cash for small cafés and parking meters.',
+  'Outdoors: a compact umbrella, a reusable bag for beach finds, and a small first-aid kit with plasters for the long walks.',
+  'Evenings: a light sweater or scarf, since coastal towns cool down quickly once the sun sets.',
+  'Rainy afternoons: a paperback or a deck of cards for a slow hour in a café.',
+  'The drive: a phone mount, a charging cable, and a playlist or podcast downloaded before you leave.',
   'Before you go: check the tide times for the beach walk and the rental’s check-in instructions.',
   'Leave some space for anything you pick up along the way. A bag with room to spare is easier to repack on Sunday.',
 ];
@@ -634,6 +639,8 @@ function PinningHarness() {
   // Paragraph count of the reply to each sent message.
   const [replies, setReplies] = useState<number[]>([]);
   const [pinnedMessageId, setPinnedMessageId] = useState<string>();
+  // Whether the latest reply's tool steps are expanded.
+  const [stepsOpen, setStepsOpen] = useState(true);
   const latest = replies.length - 1;
   const addTurn = () => setReplies((current) => [...current, 0]);
   const messages = [
@@ -656,13 +663,36 @@ function PinningHarness() {
         id: `reply-${turn}`,
         role: 'assistant',
         status: turn === latest ? 'streaming' : 'completed',
-        content: paragraphBlocks(
-          `reply-${turn}`,
-          Array.from(
-            { length: paragraphs },
-            (_, index) => packingParagraphs[index % packingParagraphs.length]
-          )
-        ),
+        content: [
+          {
+            id: `reply-${turn}-steps`,
+            type: 'custom',
+            content: (
+              <ChatToolCallGroup
+                label="3 steps"
+                expanded={turn === latest && stepsOpen}
+              >
+                {['search', 'read_file', 'write_file'].map((name) => (
+                  <ChatToolCall
+                    key={name}
+                    toolCall={{
+                      id: `${turn}-${name}`,
+                      name,
+                      status: 'succeeded',
+                    }}
+                  />
+                ))}
+              </ChatToolCallGroup>
+            ),
+          },
+          ...paragraphBlocks(
+            `reply-${turn}`,
+            Array.from(
+              { length: paragraphs },
+              (_, index) => packingParagraphs[index % packingParagraphs.length]
+            )
+          ),
+        ],
       },
     ]),
   ];
@@ -676,6 +706,7 @@ function PinningHarness() {
             size="sm"
             onClick={() => {
               setPinnedMessageId(`sent-${replies.length}`);
+              setStepsOpen(true);
               addTurn();
             }}
           >
@@ -687,6 +718,7 @@ function PinningHarness() {
             onClick={() => {
               // The host can know the sent message's ID before it renders.
               setPinnedMessageId(`sent-${replies.length}`);
+              setStepsOpen(true);
               window.setTimeout(addTurn, 50);
             }}
           >
@@ -704,6 +736,13 @@ function PinningHarness() {
             }
           >
             Stream a paragraph
+          </Button>
+          <Button
+            size="sm"
+            color="secondary"
+            onClick={() => setStepsOpen(false)}
+          >
+            Collapse the steps
           </Button>
         </div>
       }
@@ -750,6 +789,16 @@ export const PinsSentMessageAboveReply: Story = {
     expect(pinnedOffset).toBeLessThanOrEqual(48);
     expect(overflow()).toBeLessThan(0);
     expect(jumpButton()).not.toBeInTheDocument();
+
+    // A reply that gets shorter, such as its steps collapsing, leaves it in
+    // place.
+    await streamParagraph();
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Collapse the steps' })
+    );
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await settle();
+    expectWithinPixel(messageOffset(log, 'sent-0'), pinnedOffset);
 
     // The reply streams in beneath it without moving it, and no reserved
     // space is left once the reply fills the viewport.
