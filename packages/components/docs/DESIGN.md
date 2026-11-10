@@ -76,6 +76,21 @@ Import the tool-call presentation family from
 from `@langchain/macaw-components/ChatState`. They are intentionally omitted
 from the root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
 
+## Description lists
+
+Import `DescriptionList`, `DescriptionListItem`, `DescriptionListTerm`, and
+`DescriptionListDetail` from `@langchain/macaw-components/DescriptionList` for
+read-only label/value metadata. Compose each term and detail inside an item;
+they retain native `dl`, `dt`, and `dd` semantics. The default `responsive`
+layout uses two columns when the list's container is at least 24rem wide and
+stacks below that. Use `layout="stacked"` to keep terms above values at all widths.
+Long text wraps without truncation.
+
+Values can contain links, badges, copy buttons, or skeletons. Consumers own
+formatting, loading announcements, missing-value text, error recovery, and
+accessible names for nested controls. Do not use this family for editable forms
+or tabular datasets. Compose an empty state outside the list when no terms exist.
+
 ## Breadcrumbs
 
 Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
