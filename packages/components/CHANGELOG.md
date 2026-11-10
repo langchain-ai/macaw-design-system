@@ -1,3 +1,23 @@
+## 1.7.9 (2026-11-10)
+
+### 🩹 Fixes
+
+- icons for tool call children, update design/add animation [FEP-579] ([#107](https://github.com/langchain-ai/macaw-design-system/pull/107))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.7.8 (2026-11-10)
+
+### 🚀 Features
+
+- **components:** add ChatComposerTextarea and fix chat Stop and row-action focus ([#108](https://github.com/langchain-ai/macaw-design-system/pull/108))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.7.7 (2026-11-09)
 
 ### 🩹 Fixes
