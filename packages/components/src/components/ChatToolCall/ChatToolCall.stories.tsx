@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import { fn } from 'storybook/test';
 
@@ -18,6 +18,8 @@ import {
   type ChatToolCallModel,
   type ChatToolCallProps,
 } from '.';
+import { Button } from '../Button';
+import { formatChatDuration } from '../ChatState';
 import { CodeLite } from '../Code/CodeLite';
 import { Text } from '../Text';
 
@@ -543,6 +545,154 @@ export const Icons: Story = {
       )}
     </ToolCallVariants>
   ),
+};
+
+export const TrailingMetadata: Story = {
+  render: () => (
+    <div className="flex w-[28rem] max-w-full flex-col gap-0.5">
+      <ChatToolCall
+        toolCall={{
+          id: 'edit',
+          name: 'edit_file',
+          status: 'succeeded',
+          args: { file_path: 'src/retry.ts' },
+        }}
+        icon={<PencilSimpleIcon size={12} weight="regular" />}
+        label="Edit"
+        summary="src/retry.ts"
+        meta={
+          <Text
+            as="span"
+            variant="xs"
+            color="tertiary"
+            className="tabular-nums"
+          >
+            +12 −3
+          </Text>
+        }
+      />
+      <ChatToolCall
+        toolCall={{
+          id: 'slack',
+          name: 'send_message',
+          status: 'succeeded',
+          args: { channel: '#releases' },
+        }}
+        icon={<SlackLogoIcon size={12} weight="regular" />}
+        label="Message"
+        summary="#releases"
+        meta={
+          <Button size="xs" variant="plain" color="secondary">
+            Open thread
+          </Button>
+        }
+      />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`meta` holds short trailing details such as an edit count or a link. It sits outside the row toggle, so it can be a link or button.',
+      },
+    },
+  },
+};
+
+function StreamingReasoningExample() {
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    if (done) return;
+    const timeout = setTimeout(() => setDone(true), 3_000);
+    return () => clearTimeout(timeout);
+  }, [done]);
+
+  return (
+    <div className="flex w-[28rem] max-w-full flex-col gap-space-2">
+      <ChatToolCallReasoning
+        status={done ? 'completed' : 'streaming'}
+        label={done ? `Thought for ${formatChatDuration(3_000)}` : 'Thinking'}
+        elapsedMs={done ? 3_000 : undefined}
+        expandWhileStreaming
+      >
+        The retry policy should cap the delay so a long outage doesn&apos;t
+        stall the queue. Compare exponential backoff with a fixed ceiling.
+      </ChatToolCallReasoning>
+      <Button
+        size="xs"
+        variant="outlined"
+        className="self-start"
+        onClick={() => setDone(false)}
+      >
+        Replay
+      </Button>
+    </div>
+  );
+}
+
+export const ReasoningWhileStreaming: Story = {
+  render: () => <StreamingReasoningExample />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`expandWhileStreaming` opens reasoning while it streams and closes it when done. Once the reader toggles it, their choice sticks.',
+      },
+    },
+  },
+};
+
+function WorkSummaryExample() {
+  const [running, setRunning] = useState(true);
+  const [startedAt] = useState(() => Date.now());
+  useEffect(() => {
+    if (!running) return;
+    const timeout = setTimeout(() => setRunning(false), 4_000);
+    return () => clearTimeout(timeout);
+  }, [running]);
+
+  return (
+    <div className="w-[28rem] max-w-full">
+      <ChatToolCallGroup
+        label={
+          running
+            ? 'Working'
+            : `Worked for ${formatChatDuration(4_000)} · 3 actions`
+        }
+        showElapsed
+        startedAt={startedAt}
+      >
+        <ChatToolCall
+          toolCall={{ ...exampleCall, id: 'w1' }}
+          icon={<MagnifyingGlassIcon size={12} weight="regular" />}
+        />
+        <ChatToolCallReasoning status="completed">
+          Two results mention the retry policy.
+        </ChatToolCallReasoning>
+        <ChatToolCall
+          toolCall={{
+            id: 'w2',
+            name: 'run_tests',
+            status: running ? 'running' : 'succeeded',
+            args: { path: 'tests/retry.test.ts' },
+          }}
+          icon={<TerminalIcon size={12} weight="regular" />}
+        />
+      </ChatToolCallGroup>
+    </div>
+  );
+}
+
+export const WorkSummary: Story = {
+  render: () => <WorkSummaryExample />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Summarize a turn's work in one group: a live timer while rows run (`showElapsed` with `startedAt`), then a label such as “Worked for 4s · 3 actions” built with `formatChatDuration`.",
+      },
+    },
+  },
 };
 
 export const NarrowWidth: Story = {

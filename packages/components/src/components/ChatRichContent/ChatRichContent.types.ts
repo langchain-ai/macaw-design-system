@@ -84,6 +84,25 @@ interface ChatRichContentApprovalProps extends ChatRichContentBaseProps {
     value: string;
     onChange: (value: string) => void;
   };
+  /**
+   * Lets the reviewer change the request before approving it, such as an
+   * `edit` decision on a tool call. Edit swaps the card body for `content`,
+   * whose fields the host owns and validates. `onSubmit` saves the edited
+   * request; the host then sets approved or an error state. Block
+   * presentation only.
+   */
+  edit?: ChatRichContentApprovalEdit;
+}
+
+export interface ChatRichContentApprovalEdit {
+  /** Fields for the edited request, or a renderer that receives the card state. */
+  content: ReactNode | ChatRichContentRenderer;
+  /** Saves the edited request; throw to stay in edit mode after a failure. */
+  onSubmit: () => void | Promise<void>;
+  /** Defaults to "Edit". */
+  label?: string;
+  /** Defaults to "Approve with edits". */
+  submitLabel?: string;
 }
 
 export type ChatRichContentProps =

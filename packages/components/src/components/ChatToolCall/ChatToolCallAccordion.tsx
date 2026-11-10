@@ -13,6 +13,8 @@ const SWAP_TRANSITION =
 interface ChatToolCallAccordionProps {
   heading: ReactNode;
   status: ReactNode;
+  /** Trailing content before the status, outside the toggle. */
+  meta?: ReactNode;
   children: ReactNode;
   groupLabel: string;
   triggerLabel: string;
@@ -21,6 +23,8 @@ interface ChatToolCallAccordionProps {
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  /** Keep details mounted while collapsed so their state survives. */
+  keepMounted?: boolean;
   className?: string;
   detailsClassName?: string;
 }
@@ -28,6 +32,7 @@ interface ChatToolCallAccordionProps {
 export function ChatToolCallAccordion({
   heading,
   status,
+  meta,
   children,
   groupLabel,
   triggerLabel,
@@ -36,6 +41,7 @@ export function ChatToolCallAccordion({
   expanded,
   defaultExpanded = false,
   onExpandedChange,
+  keepMounted = false,
   className,
   detailsClassName,
 }: ChatToolCallAccordionProps) {
@@ -79,6 +85,12 @@ export function ChatToolCallAccordion({
             {heading}
           </span>
         )}
+        {meta != null && (
+          // Raised above the stretched toggle so links and buttons stay clickable.
+          <span className="relative z-[1] flex min-w-0 shrink-0 items-center gap-space-1 text-tertiary">
+            {meta}
+          </span>
+        )}
         {/* Status and caret share the trailing slot: status at rest, caret on
             hover or keyboard focus. */}
         <span className="pointer-events-none relative grid shrink-0 items-center justify-items-end *:col-start-1 *:row-start-1">
@@ -106,6 +118,7 @@ export function ChatToolCallAccordion({
       {hasDetails && (
         <ChatToolCallCollapse
           open={isExpanded}
+          keepMounted={keepMounted}
           id={detailsId}
           role="region"
           aria-label={detailsLabel}

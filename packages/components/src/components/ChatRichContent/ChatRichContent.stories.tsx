@@ -240,6 +240,77 @@ function ApprovalRetryExample() {
   );
 }
 
+function EditableApprovalExample() {
+  const [state, setState] = useState<ChatRichContentState>('unanswered');
+  const [path, setPath] = useState('/user/memories');
+  const [approvedPath, setApprovedPath] = useState<string>();
+
+  return (
+    <ChatRichContent
+      variant="approval"
+      title="Review Tool Call"
+      description="List files in a directory."
+      state={state}
+      message={
+        state === 'approved' && approvedPath
+          ? `Approved with edits: ${approvedPath}`
+          : undefined
+      }
+      onApprove={() => setState('approved')}
+      onReject={() => setState('rejected')}
+      onUndo={() => {
+        setApprovedPath(undefined);
+        setState('unanswered');
+      }}
+      edit={{
+        content: ({ disabled, isError, errorId }) => (
+          <Input
+            label="Path"
+            value={path}
+            onChange={setPath}
+            debounceMs={0}
+            disabled={disabled}
+            isError={isError}
+            aria-describedby={errorId}
+          />
+        ),
+        onSubmit: () => {
+          if (!path.trim().startsWith('/')) {
+            setState('validation-error');
+            throw new Error('Enter an absolute path.');
+          }
+          setApprovedPath(path.trim());
+          setState('approved');
+        },
+      }}
+    >
+      <div className="min-w-0 overflow-auto rounded-md bg-surface-level-2 p-space-2">
+        <CodeLite
+          language="json"
+          value={JSON.stringify(
+            { path: approvedPath ?? '/user/memories' },
+            null,
+            2
+          )}
+          showGutter={false}
+        />
+      </div>
+    </ChatRichContent>
+  );
+}
+
+export const ApprovalWithEdit: Story = {
+  render: () => <EditableApprovalExample />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "- `edit` adds an Edit step for decisions that allow changing the request, such as a tool call's arguments. The host owns the fields and validation; Approve with edits saves through `edit.onSubmit`.",
+      },
+    },
+  },
+};
+
 export const ApprovalStates: Story = {
   render: () => (
     <div className="flex flex-col gap-space-6">

@@ -30,6 +30,7 @@ function ComposerHarness({
   submitDisabled = false,
   streaming = false,
   sending = false,
+  stopping = false,
   withSubmitHandler = true,
 }: {
   initialDraft?: string;
@@ -37,15 +38,18 @@ function ComposerHarness({
   submitDisabled?: boolean;
   streaming?: boolean;
   sending?: boolean;
+  stopping?: boolean;
   withSubmitHandler?: boolean;
 }) {
   const [draft, setDraft] = useState(initialDraft);
   const [files, setFiles] = useState<File[]>([]);
   const [result, setResult] = useState('Not submitted');
   const [model, setModel] = useState('balanced');
-  const actionProps: ChatComposerProps = streaming
-    ? { action: 'stop', onStop: () => setResult('Stopped') }
-    : { action: sending ? 'sending' : 'send' };
+  const actionProps: ChatComposerProps = stopping
+    ? { action: 'stopping' }
+    : streaming
+      ? { action: 'stop', onStop: () => setResult('Stopped') }
+      : { action: sending ? 'sending' : 'send' };
 
   return (
     <>
@@ -307,6 +311,21 @@ describe('ChatComposer', () => {
       );
     }
   );
+
+  it('shows a pending stop and blocks sending until it settles', async () => {
+    const { user } = render(<ComposerHarness stopping />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+
+    expect(
+      screen.getByRole('button', { name: 'Stopping response' })
+    ).toBeDisabled();
+    await user.tab();
+    expect(input).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByLabelText('Submission result')).toHaveTextContent(
+      'Not submitted'
+    );
+  });
 
   it('keeps Stop available with an empty draft and submission disabled', async () => {
     const { user } = render(

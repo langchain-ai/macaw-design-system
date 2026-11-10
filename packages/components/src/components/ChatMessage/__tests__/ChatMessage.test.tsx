@@ -203,6 +203,35 @@ describe('ChatMessage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('offers cancel only while a message is queued', async () => {
+    const onCancel = vi.fn();
+    const actions = {
+      copy: { onClick: () => {} },
+      edit: { onClick: () => {} },
+      cancel: { onClick: onCancel },
+    };
+    const { rerender, user } = render(
+      <ChatMessageActions status="queued" actions={actions} />
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Edit message' })
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel queued message' })
+    );
+    expect(onCancel).toHaveBeenCalledOnce();
+
+    rerender(<ChatMessageActions status="completed" actions={actions} />);
+    expect(
+      screen.queryByRole('button', { name: 'Cancel queued message' })
+    ).not.toBeInTheDocument();
+    rerender(<ChatMessageActions status="queued" readOnly actions={actions} />);
+    expect(
+      screen.queryByRole('button', { name: 'Cancel queued message' })
+    ).not.toBeInTheDocument();
+  });
+
   it('renders no action group when every action is unavailable', () => {
     render(
       <ChatMessageActions readOnly actions={{ edit: { onClick: () => {} } }} />

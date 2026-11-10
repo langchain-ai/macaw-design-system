@@ -1,4 +1,4 @@
-import { ChatState, type ChatStateStatus } from '..';
+import { ChatState, type ChatStateStatus, formatChatDuration } from '..';
 import { act, render, screen } from '../../../test-utils';
 import { Button } from '../../Button';
 
@@ -311,5 +311,56 @@ describe('ChatState', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Streaming');
     expect(screen.getByRole('timer')).toBeInTheDocument();
     expect(container.querySelector('[data-animated]')).toBeNull();
+  });
+
+  it('can leave announcements to a parent while keeping its accessible name', () => {
+    render(<ChatState status="failed" variant="simple" announce={false} />, {
+      withProviders: false,
+    });
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Failed' })).toBeVisible();
+  });
+
+  it('counts from a host start time across remounts', () => {
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    const startedAt = new Date('2025-12-31T23:59:30Z');
+    const { unmount } = render(
+      <ChatState status="streaming" showElapsed startedAt={startedAt} />,
+      { withProviders: false }
+    );
+    expect(screen.getByRole('timer')).toHaveTextContent('30s');
+    unmount();
+
+    act(() => vi.advanceTimersByTime(5_000));
+    render(<ChatState status="streaming" showElapsed startedAt={startedAt} />, {
+      withProviders: false,
+    });
+    expect(screen.getByRole('timer')).toHaveTextContent('35s');
+  });
+
+  it('switches to hours once a duration reaches an hour', () => {
+    const { rerender } = render(
+      <ChatState status="completed" showElapsed elapsedMs={3_725_000} />,
+      { withProviders: false }
+    );
+    expect(screen.getByRole('timer')).toHaveTextContent('1h 2m');
+    rerender(
+      <ChatState status="completed" variant="simple" elapsedMs={3_599_000} />
+    );
+    expect(screen.getByRole('timer')).toHaveTextContent('3599s');
+  });
+});
+
+describe('formatChatDuration', () => {
+  it.each([
+    [0, {}, '0s'],
+    [12_400, {}, '12s'],
+    [65_000, {}, '1m 5s'],
+    [65_000, { format: 'seconds' as const }, '65s'],
+    [59_950, { precision: 'tenths' as const }, '59.9s'],
+    [7_380_000, {}, '2h 3m'],
+    [Number.NaN, {}, '0s'],
+  ])('formats %s ms with %o as %s', (milliseconds, options, expected) => {
+    expect(formatChatDuration(milliseconds, options)).toBe(expected);
   });
 });

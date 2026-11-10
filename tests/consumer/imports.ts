@@ -60,6 +60,11 @@ import {
   ChatMessageActions,
 } from '@langchain/macaw-components/ChatMessage';
 import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
+import { ChatPlan } from '@langchain/macaw-components/ChatPlan';
+import type {
+  ChatPlanItem,
+  ChatPlanProps,
+} from '@langchain/macaw-components/ChatPlan';
 import {
   ChatRichContent,
   ChatRichContentChoices,
@@ -75,12 +80,23 @@ import type {
   ChatRichContentRendererContext,
   ChatRichContentState,
 } from '@langchain/macaw-components/ChatRichContent';
-import { ChatState } from '@langchain/macaw-components/ChatState';
+import {
+  ChatState,
+  formatChatDuration,
+} from '@langchain/macaw-components/ChatState';
 import type {
   ChatStateProps,
   ChatStateStatus,
   ChatStateTimerPrecision,
 } from '@langchain/macaw-components/ChatState';
+import {
+  ChatSubagent,
+  ChatSubagentGroup,
+} from '@langchain/macaw-components/ChatSubagent';
+import type {
+  ChatSubagentModel,
+  ChatSubagentProps,
+} from '@langchain/macaw-components/ChatSubagent';
 import {
   ChatToolCall,
   ChatToolCallGroup,
@@ -227,6 +243,27 @@ void [
   { status: 'streaming', showElapsed: true } satisfies ChatStateProps,
   'input-required' satisfies ChatStateStatus,
   'tenths' satisfies ChatStateTimerPrecision,
+  formatChatDuration(65_000) satisfies string,
+  ChatPlan,
+  {
+    items: [{ id: '1', label: 'Search', status: 'in-progress' }],
+  } satisfies ChatPlanProps,
+  { id: '1', label: 'Search', status: 'completed' } satisfies ChatPlanItem,
+  ChatSubagent,
+  ChatSubagentGroup,
+  {
+    subagent: { id: 'task-1', name: 'researcher', status: 'running' },
+  } satisfies ChatSubagentProps,
+  {
+    id: 'task-1',
+    name: 'researcher',
+    status: 'succeeded',
+  } satisfies ChatSubagentModel,
+  {
+    title: 'Review',
+    variant: 'approval',
+    edit: { content: null, onSubmit() {} },
+  } satisfies ChatRichContentProps,
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,

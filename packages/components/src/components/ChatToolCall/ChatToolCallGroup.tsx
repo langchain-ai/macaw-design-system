@@ -15,12 +15,25 @@ import {
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 
 export interface ChatToolCallGroupProps {
-  /** Hosts supply the count/summary and group only consecutive content. */
+  /**
+   * Hosts supply the count/summary and group only consecutive content. To
+   * summarize a whole turn, use a label such as
+   * `Worked for ${formatChatDuration(ms)} · 6 actions`.
+   */
   label: string;
   children: ReactNode;
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  /** Show elapsed time beside the header's indicator while a row runs. */
+  showElapsed?: boolean;
+  /** Host-measured duration for the header timer. */
+  elapsedMs?: number;
+  /**
+   * Wall-clock start of the grouped work, such as the turn's first event. The
+   * header timer counts from it, so it keeps counting across remounts.
+   */
+  startedAt?: Date | number;
   className?: string;
 }
 
@@ -30,6 +43,9 @@ export function ChatToolCallGroup({
   expanded,
   defaultExpanded = false,
   onExpandedChange,
+  showElapsed = false,
+  elapsedMs,
+  startedAt,
   className,
 }: ChatToolCallGroupProps) {
   const contentId = useId();
@@ -94,7 +110,9 @@ export function ChatToolCallGroup({
             <ChatState
               variant="simple"
               status={anyRunning ? 'streaming' : 'completed'}
-              showElapsed={false}
+              showElapsed={showElapsed && anyRunning}
+              elapsedMs={elapsedMs}
+              startedAt={startedAt}
             />
           </span>
         )}

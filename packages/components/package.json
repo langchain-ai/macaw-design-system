@@ -96,6 +96,10 @@
       "types": "./dist/components/ChatMessage/index.d.ts",
       "import": "./dist/components/ChatMessage/index.js"
     },
+    "./ChatPlan": {
+      "types": "./dist/components/ChatPlan/index.d.ts",
+      "import": "./dist/components/ChatPlan/index.js"
+    },
     "./ChatRichContent": {
       "types": "./dist/components/ChatRichContent/index.d.ts",
       "import": "./dist/components/ChatRichContent/index.js"
@@ -103,6 +107,10 @@
     "./ChatState": {
       "types": "./dist/components/ChatState/index.d.ts",
       "import": "./dist/components/ChatState/index.js"
+    },
+    "./ChatSubagent": {
+      "types": "./dist/components/ChatSubagent/index.d.ts",
+      "import": "./dist/components/ChatSubagent/index.js"
     },
     "./ChatToolCall": {
       "types": "./dist/components/ChatToolCall/index.d.ts",

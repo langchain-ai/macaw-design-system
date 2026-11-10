@@ -45,11 +45,22 @@ export interface ChatToolCallProps {
   icon?: ReactNode;
   /** Undefined previews args; null omits the summary. */
   summary?: ReactNode;
+  /**
+   * Trailing metadata before the status, such as a duration, an edit count,
+   * or a link to related work. It sits outside the toggle, so it may hold
+   * its own link or button; keep it short.
+   */
+  meta?: ReactNode;
   /** Undefined uses generic details; null omits the detail region. */
   children?: ReactNode;
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  /**
+   * Keep custom details mounted while collapsed, so state such as a selected
+   * result view or a scroll position survives closing and reopening.
+   */
+  keepMounted?: boolean;
   className?: string;
 }
 
@@ -77,10 +88,12 @@ export function ChatToolCall({
   label,
   icon,
   summary,
+  meta,
   children,
   expanded,
   defaultExpanded = false,
   onExpandedChange,
+  keepMounted = false,
   className,
 }: ChatToolCallProps) {
   const inGroup = useReportToGroup({
@@ -114,6 +127,7 @@ export function ChatToolCall({
         groupLabel={`${name} tool call`}
         heading={heading}
         status={<ToolCallStatus toolCall={toolCall} inGroup={inGroup} />}
+        meta={meta}
         onInspect={onInspect}
         inspectLabel={inspectLabel}
         className={className}
@@ -155,9 +169,11 @@ export function ChatToolCall({
         </>
       }
       status={<ToolCallStatus toolCall={toolCall} inGroup={inGroup} />}
+      meta={meta}
       expanded={expanded}
       defaultExpanded={defaultExpanded}
       onExpandedChange={onExpandedChange}
+      keepMounted={keepMounted}
       className={className}
     >
       {detailContent}

@@ -71,7 +71,18 @@ export interface ChatStateProps {
   showIndicator?: boolean;
   /** Host-supplied duration takes precedence over the internal streaming clock. */
   elapsedMs?: number;
+  /**
+   * Wall-clock start of the operation. While streaming, the internal clock
+   * counts from it instead of from mount, so a remounted row keeps its count.
+   * Pass `elapsedMs` for finished operations.
+   */
+  startedAt?: Date | number;
   timerPrecision?: ChatStateTimerPrecision;
+  /**
+   * Announces status changes through a polite live region. Set false when a
+   * parent announces the outcome, so rows of a long list stay quiet.
+   */
+  announce?: boolean;
   className?: string;
 }
 
@@ -82,7 +93,9 @@ export function ChatState({
   showElapsed = variant === 'simple',
   showIndicator = true,
   elapsedMs,
+  startedAt,
   timerPrecision = 'seconds',
+  announce = true,
   className,
 }: ChatStateProps) {
   const labelId = useId();
@@ -122,9 +135,9 @@ export function ChatState({
         as="span"
         variant="xs"
         weight="normal"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
+        role={announce ? 'status' : undefined}
+        aria-live={announce ? 'polite' : undefined}
+        aria-atomic={announce ? 'true' : undefined}
         className={cn(
           simple
             ? 'sr-only'
@@ -159,6 +172,7 @@ export function ChatState({
       <ChatStateTimer
         visible={showElapsed}
         elapsedMs={elapsedMs}
+        startedAt={startedAt instanceof Date ? startedAt.getTime() : startedAt}
         precision={simple ? 'seconds' : timerPrecision}
         format={simple ? 'seconds' : 'duration'}
         running={status === 'streaming'}

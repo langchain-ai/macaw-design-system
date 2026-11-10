@@ -889,3 +889,147 @@ describe('ChatToolCallGroup content clipping', () => {
     expect(clip).not.toHaveClass('overflow-hidden');
   });
 });
+
+describe('ChatToolCall trailing metadata', () => {
+  it.each(variants)(
+    'keeps interactive metadata outside the %s row toggle',
+    async (variant) => {
+      const onOpen = vi.fn();
+      const { user } = render(
+        <ChatToolCall
+          toolCall={call}
+          variant={variant}
+          onInspect={variant === 'simple' ? () => {} : undefined}
+          meta={
+            <Button size="xs" variant="plain" onClick={onOpen}>
+              Open thread
+            </Button>
+          }
+        />,
+        renderOptions
+      );
+      const meta = screen.getByRole('button', { name: 'Open thread' });
+      const toggle = screen.getByRole('button', {
+        name:
+          variant === 'simple'
+            ? 'ask_user tool call: View tool details'
+            : 'Details for ask_user',
+      });
+
+      expect(toggle).not.toContainElement(meta);
+      await user.click(meta);
+      expect(onOpen).toHaveBeenCalledOnce();
+      if (variant === 'default') {
+        expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      }
+    }
+  );
+});
+
+describe('ChatToolCall kept details', () => {
+  function ResultViews() {
+    const [view, setView] = useState('Table');
+    return (
+      <Button size="xs" onClick={() => setView('Raw')}>
+        {`${view} view`}
+      </Button>
+    );
+  }
+
+  it('preserves custom detail state across closing and reopening', async () => {
+    const { user } = render(
+      <ChatToolCall toolCall={call} keepMounted defaultExpanded>
+        <ResultViews />
+      </ChatToolCall>,
+      renderOptions
+    );
+    const disclosure = screen.getByRole('button', {
+      name: 'Details for ask_user',
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Table view' }));
+    await user.click(disclosure);
+    expect(
+      screen.queryByRole('button', { name: 'Raw view' })
+    ).not.toBeInTheDocument();
+    await user.click(disclosure);
+    expect(screen.getByRole('button', { name: 'Raw view' })).toBeVisible();
+  });
+});
+
+describe('ChatToolCallReasoning while streaming', () => {
+  function Reasoning({ status }: { status: 'streaming' | 'completed' }) {
+    return (
+      <ChatToolCallReasoning
+        status={status}
+        label={status === 'streaming' ? 'Thinking' : 'Thought for 4s'}
+        expandWhileStreaming
+      >
+        Comparing the two plans.
+      </ChatToolCallReasoning>
+    );
+  }
+
+  it('opens while streaming and closes when the reasoning ends', () => {
+    const { rerender } = render(
+      <Reasoning status="streaming" />,
+      renderOptions
+    );
+    expect(screen.getByRole('button', { name: 'Thinking' })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+
+    rerender(<Reasoning status="completed" />);
+    expect(
+      screen.getByRole('button', { name: 'Thought for 4s' })
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it("keeps the reader's choice once they toggle it", async () => {
+    const { rerender, user } = render(
+      <Reasoning status="streaming" />,
+      renderOptions
+    );
+    await user.click(screen.getByRole('button', { name: 'Thinking' }));
+    await user.click(screen.getByRole('button', { name: 'Thinking' }));
+
+    rerender(<Reasoning status="completed" />);
+    expect(
+      screen.getByRole('button', { name: 'Thought for 4s' })
+    ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('uses a host icon and omits it for null', () => {
+    const brain = <SlackLogoIcon weight="regular" />;
+    const { rerender } = render(
+      <ChatToolCallReasoning icon={brain}>Summary</ChatToolCallReasoning>,
+      renderOptions
+    );
+    const row = () => screen.getByRole('group', { name: 'Reasoning summary' });
+    expect(containsIcon(row(), brain)).toBe(true);
+
+    rerender(
+      <ChatToolCallReasoning icon={null}>Summary</ChatToolCallReasoning>
+    );
+    expect(containsIcon(row(), brain)).toBe(false);
+    expect(containsIcon(row(), <LightbulbIcon weight="regular" />)).toBe(false);
+  });
+});
+
+describe('ChatToolCallGroup elapsed time', () => {
+  it('shows elapsed time in the header only while work runs', () => {
+    const group = (status: ChatToolCallStatus) => (
+      <ChatToolCallGroup label="Working" showElapsed elapsedMs={8_000}>
+        <ChatToolCall toolCall={{ id: 'a', name: 'run_tests', status }} />
+      </ChatToolCallGroup>
+    );
+    const { rerender } = render(group('running'), renderOptions);
+    const header = () =>
+      screen.getByRole('button', { name: 'Working' }).parentElement!;
+    expect(within(header()).getByRole('timer')).toHaveTextContent('8s');
+
+    rerender(group('succeeded'));
+    expect(within(header()).queryByRole('timer')).not.toBeInTheDocument();
+  });
+});

@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { LightbulbIcon } from '@phosphor-icons/react/dist/ssr/Lightbulb';
 
+import { cn } from '../../utils/cn';
 import type { ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
@@ -9,6 +10,8 @@ import { useReportToGroup } from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
+
+import thinkingStyles from '../ThinkingState/ThinkingState.module.css';
 
 export interface ChatToolCallReasoningProps {
   /** Only content intentionally disclosed by the host; never raw hidden model reasoning. */
@@ -18,12 +21,22 @@ export interface ChatToolCallReasoningProps {
   onInspect?: () => void;
   /** Tooltip and accessible action label for Simple row inspection. */
   inspectLabel?: string;
+  /** Use a duration once done, e.g. `Thought for ${formatChatDuration(ms)}`. */
   label?: string;
+  /** Leading 12px single-color icon. Undefined uses a lightbulb; null omits it. */
+  icon?: ReactNode;
   status?: ChatStateStatus;
   elapsedMs?: number;
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  /**
+   * Open the details while `status` is `streaming` and close them when it
+   * ends, so the reader can watch the reasoning arrive. Once the reader opens
+   * or closes the details, their choice sticks. Ignored when `expanded` is
+   * controlled; replaces `defaultExpanded`.
+   */
+  expandWhileStreaming?: boolean;
 }
 
 export function ChatToolCallReasoning({
@@ -32,24 +45,34 @@ export function ChatToolCallReasoning({
   onInspect,
   inspectLabel,
   label = 'Reasoning summary',
+  icon,
   status = 'completed',
   elapsedMs,
   expanded,
   defaultExpanded = false,
   onExpandedChange,
+  expandWhileStreaming = false,
 }: ChatToolCallReasoningProps) {
   const inGroup = useReportToGroup({ status });
+  const [readerChoice, setReaderChoice] = useState<boolean>();
+  const followsStream = expandWhileStreaming && expanded === undefined;
+  const resolvedIcon =
+    icon === undefined ? <LightbulbIcon size={12} weight="regular" /> : icon;
   const heading = (
     <span className="inline-flex min-w-0 items-center gap-space-2">
-      <ChatToolCallIcon>
-        <LightbulbIcon size={12} weight="regular" />
-      </ChatToolCallIcon>
+      {resolvedIcon != null && (
+        <ChatToolCallIcon>{resolvedIcon}</ChatToolCallIcon>
+      )}
       <Text
         as="span"
         variant="xs"
         weight="medium"
-        color="secondary"
-        className="min-w-0 truncate"
+        // Streaming reasoning shimmers like ThinkingState's active label.
+        color={status === 'streaming' ? undefined : 'secondary'}
+        className={cn(
+          'min-w-0 truncate',
+          status === 'streaming' && thinkingStyles.shimmer
+        )}
       >
         {label}
       </Text>
@@ -82,9 +105,14 @@ export function ChatToolCallReasoning({
       detailsLabel={`${label} details`}
       heading={heading}
       status={state}
-      expanded={expanded}
+      expanded={
+        followsStream ? (readerChoice ?? status === 'streaming') : expanded
+      }
       defaultExpanded={defaultExpanded}
-      onExpandedChange={onExpandedChange}
+      onExpandedChange={(next) => {
+        if (followsStream) setReaderChoice(next);
+        onExpandedChange?.(next);
+      }}
       detailsClassName="break-words [overflow-wrap:anywhere]"
     >
       {children}

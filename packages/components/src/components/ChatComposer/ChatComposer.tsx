@@ -37,6 +37,8 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
 } & (
     | { action?: 'send' | 'sending'; onStop?: never }
     | { action: 'stop'; onStop: () => void }
+    /** A stop request is pending; Stop shows progress and sending stays blocked. */
+    | { action: 'stopping'; onStop?: never }
   );
 
 // A disabled or read-only part of the composer, such as a read-only message
@@ -241,6 +243,7 @@ const ACTION_LABELS = {
   send: 'Send message',
   sending: 'Sending message',
   stop: 'Stop response',
+  stopping: 'Stopping response',
 } satisfies Record<ChatComposerContextValue['action'], string>;
 
 // Pending sends use the composer's action="sending", which also blocks the
@@ -257,6 +260,7 @@ export function ChatComposerAction({
 }: ChatComposerActionProps) {
   const composer = useChatComposerContext();
   const isStop = composer.action === 'stop';
+  const isStopping = composer.action === 'stopping';
   return (
     <IconButton
       size="sm"
@@ -264,13 +268,14 @@ export function ChatComposerAction({
       color="primary"
       iconWeight="regular"
       {...props}
-      type={isStop ? 'button' : 'submit'}
-      icon={isStop ? StopIcon : ArrowUpIcon}
+      type={isStop || isStopping ? 'button' : 'submit'}
+      icon={isStop || isStopping ? StopIcon : ArrowUpIcon}
       label={label ?? ACTION_LABELS[composer.action]}
+      // A pending stop can't be sent again, and canSubmit is false while it settles.
       disabled={
         composer.disabled || disabled || (!isStop && !composer.canSubmit)
       }
-      loading={composer.action === 'sending'}
+      loading={composer.action === 'sending' || isStopping}
       onClick={isStop ? composer.onStop : undefined}
     />
   );
