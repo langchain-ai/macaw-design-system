@@ -68,6 +68,7 @@ export {
   ChatComposerContext,
   ChatComposerInput,
   ChatComposerModelSelect,
+  ChatComposerTextarea,
   ChatComposerToolbar,
 } from './ChatComposer';
 export type {
@@ -81,6 +82,7 @@ export type {
   ChatComposerInputProps,
   ChatComposerModelSelectProps,
   ChatComposerProps,
+  ChatComposerTextareaProps,
   ChatComposerToolbarProps,
 } from './ChatComposer';
 

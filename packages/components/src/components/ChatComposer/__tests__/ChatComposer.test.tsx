@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createRef, useState } from 'react';
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +9,7 @@ import {
   ChatComposerAttachments,
   ChatComposerInput,
   ChatComposerModelSelect,
+  ChatComposerTextarea,
   ChatComposerToolbar,
 } from '..';
 import type { ChatComposerProps } from '..';
@@ -338,6 +339,22 @@ describe('ChatComposer', () => {
     expect(screen.getByRole('combobox', { name: 'Model' })).toBeDisabled();
   });
 
+  it('keeps Stop available while the composer is disabled', async () => {
+    const { user } = render(<ComposerHarness streaming disabled />);
+
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    expect(input).toHaveAttribute('contenteditable', 'false');
+    expect(
+      screen.getByRole('button', { name: 'Add attachments' })
+    ).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Model' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Stop response' }));
+    expect(screen.getByLabelText('Submission result')).toHaveTextContent(
+      'Stopped'
+    );
+  });
+
   it('supports attachment-only messages and selecting the same file again after removal', async () => {
     const { user } = render(<ComposerHarness initialDraft="" />);
     await screen.findByRole('textbox', { name: 'Message' });
@@ -577,6 +594,48 @@ describe('composer with a drawer', () => {
     rerender(composer(false));
     await user.click(screen.getByRole('button', { name: 'Send' }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ChatComposerTextarea', () => {
+  it('keeps native form data, ref, and host key handling', async () => {
+    const textareaRef = createRef<HTMLTextAreaElement>();
+    const submitted: string[] = [];
+    function Harness() {
+      const [draft, setDraft] = useState('');
+      return (
+        <ChatComposer
+          submitDisabled={!draft}
+          onSubmit={(event) => {
+            submitted.push(String(new FormData(event.currentTarget).get('q')));
+          }}
+        >
+          <ChatComposerTextarea
+            ref={textareaRef}
+            name="q"
+            value={draft}
+            onChange={setDraft}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowUp') setDraft('Earlier message');
+              // A host menu, such as slash commands, can take Enter first.
+              if (event.key === 'Enter' && draft.startsWith('/')) {
+                event.preventDefault();
+              }
+            }}
+          />
+        </ChatComposer>
+      );
+    }
+    const { user } = render(<Harness />);
+    const textarea = screen.getByRole('textbox', { name: 'Message' });
+    expect(textareaRef.current).toBe(textarea);
+
+    await user.type(textarea, '/help{Enter}');
+    expect(submitted).toEqual([]);
+
+    await user.clear(textarea);
+    await user.keyboard('{ArrowUp}{Shift>}{Enter}{/Shift}more{Enter}');
+    expect(submitted).toEqual(['Earlier message\nmore']);
   });
 });
 

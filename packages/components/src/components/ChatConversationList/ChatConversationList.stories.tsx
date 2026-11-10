@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
-import { fn } from 'storybook/test';
+import { expect, fn } from 'storybook/test';
 
 import { EnvelopeIcon } from '@phosphor-icons/react/dist/ssr/Envelope';
+import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -33,7 +34,7 @@ const meta = {
         component: `Compact conversation list with keyboard navigation.
 
 - **Rows:** Title, indicator, and hover/focus actions. Both stay visible on touch.
-- **Menus:** Rename, Pin/Unpin, Delete; customize with \`actions.items\`.
+- **Menus:** Rename, Pin/Unpin, Delete; customize with \`actions.items\`. An item that moves focus, such as into an inline confirmation, keeps it there.
 - **Groups:** One level of collapsible folders, with Rename/Delete actions.
 - **Keyboard:** Up/Down and Home/End move focus; Enter/Space activate; Tab reaches actions.
 - **States:** Standard loading skeletons, automatic empty state, and optional error content.
@@ -140,6 +141,99 @@ function GroupsExample() {
 
 export const Groups: Story = {
   render: () => <GroupsExample />,
+};
+
+const CONFIRMATION_TITLES = ['Release planning', 'Research summary'];
+
+function InlineConfirmationExample() {
+  const [titles, setTitles] = useState(CONFIRMATION_TITLES);
+  const [confirming, setConfirming] = useState<string | null>(null);
+
+  return (
+    <ChatConversationList aria-label="Conversations with inline confirmation">
+      {titles.map((title) => (
+        <Fragment key={title}>
+          <ChatConversationListItem
+            title={title}
+            actions={{
+              items: (
+                <DropdownMenuItem
+                  size="sm"
+                  className="gap-space-2 text-error-secondary"
+                  onSelect={() => setConfirming(title)}
+                >
+                  <TrashIcon size={16} weight="regular" aria-hidden />
+                  Delete
+                </DropdownMenuItem>
+              ),
+            }}
+          />
+          {confirming === title && (
+            <div
+              role="listitem"
+              className="flex flex-col gap-space-2 rounded-lg bg-surface-level-2 p-space-3"
+            >
+              <Text variant="sm">Delete “{title}”?</Text>
+              <div className="flex justify-end gap-space-2">
+                <Button
+                  autoFocus
+                  size="sm"
+                  color="secondary"
+                  variant="outlined"
+                  onClick={() => setConfirming(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  color="error"
+                  onClick={() => {
+                    setTitles((current) =>
+                      current.filter((item) => item !== title)
+                    );
+                    setConfirming(null);
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          )}
+        </Fragment>
+      ))}
+    </ChatConversationList>
+  );
+}
+
+/**
+ * An item can move focus as it closes the menu, here into an inline
+ * confirmation rendered as its own list item. Focus goes there instead of
+ * back to the trigger.
+ */
+export const InlineConfirmation: Story = {
+  render: () => <InlineConfirmationExample />,
+  play: async ({ canvas, userEvent }) => {
+    // The menu restores focus a task after it closes.
+    const afterMenuCloses = () =>
+      new Promise((resolve) => setTimeout(resolve, 50));
+    await userEvent.tab();
+    await userEvent.tab();
+    const trigger = canvas.getByRole('button', {
+      name: 'Actions for Release planning',
+    });
+    await expect(trigger).toHaveFocus();
+
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Escape}');
+    await afterMenuCloses();
+    await expect(trigger).toHaveFocus();
+
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
+    const cancel = await canvas.findByRole('button', { name: 'Cancel' });
+    await afterMenuCloses();
+    await expect(cancel).toHaveFocus();
+  },
 };
 
 export const CustomActions: Story = {
