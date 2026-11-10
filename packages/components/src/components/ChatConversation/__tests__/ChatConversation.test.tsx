@@ -234,27 +234,8 @@ describe('ChatConversation', () => {
       ));
     }
 
-    // jsdom has no layout, so where a pin lands is covered by the
-    // PinsSentMessageAboveReply story; these check that it stops following.
-    it('stops following the bottom once a message is pinned', () => {
-      const { rerender } = render(
-        <ChatConversation>
-          <Messages ids={['a', 'b']} />
-        </ChatConversation>
-      );
-      const viewport = screen.getByRole('log');
-      setLayout(viewport, { scrollHeight: 1000, clientHeight: 400 });
-      resize();
-
-      rerender(
-        <ChatConversation pinnedMessageId="b">
-          <Messages ids={['a', 'b']} />
-        </ChatConversation>
-      );
-      setLayout(viewport, { scrollHeight: 1400, clientHeight: 400 });
-      resize();
-      expect(viewport.scrollTop).toBeLessThan(1400);
-    });
+    // jsdom has no layout; the PinsSentMessageAboveReply story covers where a
+    // pin lands.
 
     it('keeps following until the pinned message renders', () => {
       const { rerender } = render(

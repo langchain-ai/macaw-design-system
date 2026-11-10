@@ -8,23 +8,17 @@ mapping.
 ## Conversation scrolling
 
 `ChatConversation` follows new output while the reader is at the bottom;
-scrolling up pauses following and shows **Jump to latest**. `follow="none"`
-never scrolls on its own, so the log opens at the top unless the host sets
-`scrollTop` through `viewportRef`, and **Jump to latest** still appears.
+scrolling up pauses it and shows **Jump to latest**. `follow="none"` never
+scrolls on its own.
 
-Set `pinnedMessageId` to a message's ID when the reader sends it. Each new ID
-scrolls that message to the top once and reserves space below it, so the reply
-streams in underneath instead of pushing it away. The space shrinks as the
-reply grows and is gone once the reply fills the viewport. Following pauses
-while pinned and resumes when the reader scrolls to the end or uses **Jump to
-latest**. Clearing the ID neither scrolls nor ends the pin.
+Set `pinnedMessageId` to the message the reader just sent: it moves to the top,
+and the reply streams in below it. Following resumes when the reader scrolls
+to the end or uses **Jump to latest**.
 
-When the reader isn't following the bottom, content inserted above the first
-visible message, such as a page of earlier messages, keeps that message where
-it was in the viewport. The host fetches history and decides when to load it,
-without adjusting `scrollTop`. Pinning and anchoring find messages by
-`data-chat-message-id`, which `ChatMessage` sets on its root; give custom rows
-the same attribute. All scrolling is instant.
+Earlier messages inserted above the reader keep the first visible message in
+place, so the host only fetches and renders them. Both find messages by
+`data-chat-message-id`, which `ChatMessage` sets; give custom rows the same
+attribute.
 
 ## Tool calls and shared state
 

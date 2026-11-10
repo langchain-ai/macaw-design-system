@@ -185,10 +185,8 @@ const meta = {
         component: [
           '- Bounded-height layout: fixed `header`/`footer`, scrolling `children`.',
           '- Messages and footer share a centered column capped at 768px.',
-          '- Follows new content while the reader is within 48px of the bottom; scrolling up pauses following and shows **Jump to latest**. `follow="none"` turns following off; **Jump to latest** still appears.',
-          '- `pinnedMessageId` brings a just-sent message to the top and reserves space for the reply beneath it (see Pin Sent Message).',
-          '- Content inserted above the reader, such as earlier messages, keeps the first visible message in place (see Load Earlier Messages).',
-          '- Messages are found by their `data-chat-message-id` attribute, which `ChatMessage` sets; custom rows set it themselves.',
+          '- Follows new content while the reader is within 48px of the bottom; scrolling up shows **Jump to latest**. `follow="none"` turns following off.',
+          '- `pinnedMessageId` keeps a just-sent message at the top while its reply streams in, and loading earlier messages keeps the reader in place (both match `data-chat-message-id`).',
           '- Remount with a conversation `key` when switching threads.',
           '- The message log does not announce changes; announce completed replies from a polite `role="status"` region in the host (see Streaming).',
           '- Not included: history fetching, pagination, or virtualization.',
@@ -284,10 +282,6 @@ const packingParagraphs = [
   'Tech: phone chargers, a power bank for the trail, and headphones for the drive. A paper map is a good backup where the signal is patchy.',
   'Food: a refillable water bottle, snacks for the drive, and a thermos if you want coffee on the morning walk.',
   'Documents: your booking confirmation, a payment card, and some cash for small cafés and parking meters.',
-  'Outdoors: a compact umbrella, a reusable bag for beach finds, and a small first-aid kit with plasters for the long walks.',
-  'Evenings: a light sweater or scarf, since coastal towns cool down quickly once the sun sets.',
-  'Rainy afternoons: a paperback or a deck of cards for a slow hour in a café.',
-  'The drive: a phone mount, a charging cable, and a playlist or podcast downloaded before you leave.',
   'Before you go: check the tide times for the beach walk and the rental’s check-in instructions.',
   'Leave some space for anything you pick up along the way. A bag with room to spare is easier to repack on Sunday.',
 ];
@@ -404,12 +398,8 @@ export const PinSentMessage: Story = {
   parameters: {
     docs: {
       description: {
-        story: [
-          '- Send a message and it moves to the top of the log, with space reserved below for the reply to stream into.',
-          '- The space shrinks as the reply grows and is gone once the reply fills the viewport; the sent message stays put and **Jump to latest** appears.',
-          '- Scroll to the bottom or use **Jump to latest** to follow the rest of the reply.',
-          '- The host sets `pinnedMessageId` to the sent message’s ID; `ChatMessage` provides the matching `data-chat-message-id`.',
-        ].join('\n'),
+        story:
+          'Send a message: it moves to the top and the reply streams in below it. Scroll to the end or use **Jump to latest** to follow the rest.',
       },
     },
   },
@@ -531,10 +521,8 @@ export const LoadEarlierMessages: Story = {
   parameters: {
     docs: {
       description: {
-        story: [
-          '- Scroll to the top and load earlier messages. They are added above, and the messages you were reading stay where they are.',
-          '- The host fetches history and renders the control; `ChatConversation` holds the first visible message in place whenever content is inserted above it and the reader isn’t following the bottom.',
-        ].join('\n'),
+        story:
+          'Scroll to the top and load earlier messages: they are added above, and what you were reading stays put.',
       },
     },
   },

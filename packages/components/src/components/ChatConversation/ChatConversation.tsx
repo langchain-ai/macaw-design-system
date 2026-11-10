@@ -47,14 +47,10 @@ export interface ChatConversationProps {
    */
   follow?: 'bottom' | 'none';
   /**
-   * ID of a message to bring to the top of the viewport, usually the one the
-   * reader just sent. Each new ID scrolls that message's element to the top once
-   * and reserves space below it, so the reply streams in beneath it instead of
-   * pushing it away. Bottom-following pauses while pinned and resumes when the
-   * reader scrolls to the bottom or uses Jump to latest.
-   *
-   * The element is found by its `data-chat-message-id` attribute, which
-   * `ChatMessage` sets; custom rows set it themselves.
+   * ID of a message to bring to the top, usually the one just sent. Each new ID
+   * scrolls it up once and reserves space below for the reply. Following
+   * resumes at the bottom or on Jump to latest. Matches `data-chat-message-id`,
+   * which `ChatMessage` sets.
    */
   pinnedMessageId?: string;
   /**
@@ -242,10 +238,9 @@ function connectConversationScroll(
   }
 
   function findMessage(id: string) {
-    for (const element of content.querySelectorAll(MESSAGE_SELECTOR)) {
-      if (element.getAttribute(MESSAGE_ID_ATTRIBUTE) === id) return element;
-    }
-    return null;
+    return content.querySelector(
+      `[${MESSAGE_ID_ATTRIBUTE}="${CSS.escape(id)}"]`
+    );
   }
 
   function isVisible(element: Element, viewportTop: number) {
