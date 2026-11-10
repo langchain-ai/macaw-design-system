@@ -18,6 +18,8 @@ export interface CopyButtonProps extends DataAttributes {
   className?: string;
   copyText?: string;
   disabled?: boolean;
+  /** Applies to the full variant only. */
+  color?: 'primary' | 'secondary';
   onCopy?: () => void;
 }
 
@@ -39,13 +41,14 @@ export function CopyButton(props: CopyButtonProps) {
   }
 
   const CopyStatusIcon = copied ? CheckIcon : CopySimpleIcon;
+  const color = props.color ?? 'secondary';
 
   return (
     <Button
       {...dataAttributes}
       size="sm"
-      color="secondary"
-      variant="outlined"
+      color={color}
+      variant={color === 'primary' ? 'normal' : 'outlined'}
       aria-label={copied ? 'Copied' : (props.copyText ?? 'Copy')}
       onClick={(event) => {
         event.stopPropagation();

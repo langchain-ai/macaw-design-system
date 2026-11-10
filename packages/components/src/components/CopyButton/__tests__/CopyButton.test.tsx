@@ -62,4 +62,14 @@ describe('CopyButton', () => {
       ).toHaveAttribute('data-analytics-id', 'copy-button');
     }
   );
+
+  it('renders the primary color as a filled button', () => {
+    lsRender(
+      <CopyButton copy="run-id" copyText="Copy run ID" color="primary" />
+    );
+
+    expect(screen.getByRole('button', { name: 'Copy run ID' })).toHaveClass(
+      'button-primary-bg'
+    );
+  });
 });

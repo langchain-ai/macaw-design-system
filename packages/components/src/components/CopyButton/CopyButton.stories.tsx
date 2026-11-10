@@ -50,6 +50,10 @@ const meta = {
       control: { type: 'select' },
       options: ['full', 'icon'],
     },
+    color: {
+      control: { type: 'select' },
+      options: ['secondary', 'primary'],
+    },
     className: { control: false },
   },
   render: (args) => (
@@ -68,6 +72,14 @@ export const CustomLabel: Story = {
   args: {
     copy: 'run_019f8b33-4dfb-76a1-9fd6-987c9576ce38',
     copyText: 'Copy run ID',
+  },
+};
+
+export const Primary: Story = {
+  args: {
+    copy: 'npm install langsmith',
+    copyText: 'Copy command',
+    color: 'primary',
   },
 };
 
