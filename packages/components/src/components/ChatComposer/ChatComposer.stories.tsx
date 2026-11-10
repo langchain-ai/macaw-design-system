@@ -535,9 +535,10 @@ export const DisabledWhileResponding: Story = {
     const stop = canvas.getByRole('button', { name: 'Stop response' });
     await expect(stop).toBeEnabled();
     await userEvent.click(stop);
-    await expect(canvas.getByRole('status')).toHaveTextContent(
-      'Response stopped.'
-    );
+    // The rich input's loading placeholder is also a status, so match the text.
+    await expect(
+      await canvas.findByText('Response stopped. Your draft is preserved.')
+    ).toBeVisible();
   },
 };
 
