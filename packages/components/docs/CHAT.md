@@ -34,11 +34,20 @@ to the public presentation types and preserve stable IDs and stream order.
 
 `ChatToolCall` renders bounded plain-text or JSON previews without invoking
 getters or `toJSON`. Supply `summary`, `icon`, and `children` only after
-validating product-specific payloads. The `simple` variant delegates inspection
+validating product-specific payloads. Every row leads with a 12px single-color
+icon: map product or provider marks through `icon`; rows without one use a
+generic wrench, and `icon={null}` omits it. The `simple` variant delegates inspection
 through `onInspect`; the host owns navigation, dialogs, permissions, and trace
 loading. Use `inspectLabel` to describe the host-owned action when the default
 “View tool details” label is not accurate. Reasoning content must be an
 intentionally disclosed summary, never raw hidden model reasoning.
+
+Rows show success by omission: pending, running, failed, canceled, and
+needs-input keep their own status, and a succeeded row shows none. Inside
+`ChatToolCallGroup`, the header shows the loading indicator while any row is
+running (those rows show only elapsed seconds) and a single check once every
+row has succeeded. It also stacks up to three distinct host-supplied row icons
+beside its label.
 
 The default variant provides local expandable details. Groups preserve nested
 expansion state while collapsed. Controlled `expanded` props allow a host to

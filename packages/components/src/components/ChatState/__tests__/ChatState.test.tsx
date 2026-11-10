@@ -302,4 +302,14 @@ describe('ChatState', () => {
       expect(screen.getByRole('timer')).toHaveTextContent('0s');
     }
   );
+
+  it('can leave the streaming indicator to a parent', () => {
+    const { container } = render(
+      <ChatState status="streaming" variant="simple" showIndicator={false} />,
+      { withProviders: false }
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Streaming');
+    expect(screen.getByRole('timer')).toBeInTheDocument();
+    expect(container.querySelector('[data-animated]')).toBeNull();
+  });
 });
