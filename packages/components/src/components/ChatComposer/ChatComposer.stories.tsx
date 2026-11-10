@@ -517,7 +517,7 @@ export const DisabledWhileResponding: Story = {
     docs: {
       description: {
         story:
-          'A composer disabled during a response, such as when a usage limit arrives mid-run, still lets the reader stop it. Host controls inside the composer take `disabled` themselves.',
+          'A composer disabled during a response, such as when a usage limit arrives mid-run, still lets the reader stop it. Only the composer’s own parts read `disabled`, so pass it to any controls you add inside the composer.',
       },
     },
   },
@@ -525,7 +525,23 @@ export const DisabledWhileResponding: Story = {
     <ComposerDemo
       disabled
       initialResponding
-      initialDraft="New messages are paused for this workspace."
+      initialDraft="Also check the staging deploy"
+      drawerIntent="warning"
+      drawer={
+        <div className="flex items-start gap-space-2 px-space-3 py-space-3">
+          <WarningIcon
+            size={16}
+            weight="regular"
+            aria-hidden
+            className="shrink-0 text-warning-primary"
+          />
+          <Text variant="sm">
+            <span className="font-medium">Usage limit reached: </span>
+            New messages are paused for this workspace. You can still stop the
+            current response.
+          </Text>
+        </div>
+      }
     />
   ),
   play: async ({ canvas, userEvent }) => {

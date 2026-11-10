@@ -1,9 +1,8 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useId, useRef, useState } from 'react';
 
 import { expect, fn } from 'storybook/test';
 
 import { EnvelopeIcon } from '@phosphor-icons/react/dist/ssr/Envelope';
-import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -20,6 +19,7 @@ import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 
 const onRename = fn().mockName('onRename');
+const onTogglePin = fn().mockName('onTogglePin');
 const onDelete = fn().mockName('onDelete');
 const onMarkRead = fn().mockName('onMarkRead');
 
@@ -143,72 +143,98 @@ export const Groups: Story = {
   render: () => <GroupsExample />,
 };
 
-const CONFIRMATION_TITLES = ['Release planning', 'Research summary'];
+const CONFIRMATION_TITLES = [
+  'Release planning',
+  'Research summary',
+  'Token audit',
+];
 
 function InlineConfirmationExample() {
   const [titles, setTitles] = useState(CONFIRMATION_TITLES);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const questionId = useId();
+  const listRef = useRef<HTMLDivElement>(null);
+  const rowRefs = useRef(new Map<string, HTMLButtonElement>());
+
+  // The focused button unmounts with the confirmation, so focus moves first.
+  const cancel = (title: string) => {
+    setConfirming(null);
+    rowRefs.current.get(title)?.focus();
+  };
+  const remove = (title: string) => {
+    const index = titles.indexOf(title);
+    const neighbor = titles[index + 1] ?? titles[index - 1];
+    setTitles((current) => current.filter((item) => item !== title));
+    setConfirming(null);
+    const next = neighbor && rowRefs.current.get(neighbor);
+    if (next) next.focus();
+    else listRef.current?.focus();
+  };
 
   return (
-    <ChatConversationList aria-label="Conversations with inline confirmation">
-      {titles.map((title) => (
-        <Fragment key={title}>
-          <ChatConversationListItem
-            title={title}
-            actions={{
-              items: (
-                <DropdownMenuItem
-                  size="sm"
-                  className="gap-space-2 text-error-secondary"
-                  onSelect={() => setConfirming(title)}
-                >
-                  <TrashIcon size={16} weight="regular" aria-hidden />
-                  Delete
-                </DropdownMenuItem>
-              ),
-            }}
-          />
-          {confirming === title && (
-            <div
-              role="listitem"
-              className="flex flex-col gap-space-2 rounded-lg bg-surface-level-2 p-space-3"
-            >
-              <Text variant="sm">Delete “{title}”?</Text>
-              <div className="flex justify-end gap-space-2">
-                <Button
-                  autoFocus
-                  size="sm"
-                  color="secondary"
-                  variant="outlined"
-                  onClick={() => setConfirming(null)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  color="error"
-                  onClick={() => {
-                    setTitles((current) =>
-                      current.filter((item) => item !== title)
-                    );
-                    setConfirming(null);
+    // Takes focus when the last conversation is deleted.
+    <div ref={listRef} tabIndex={-1} className="outline-hidden">
+      <ChatConversationList aria-label="Conversations with inline confirmation">
+        {titles.map((title) => (
+          <Fragment key={title}>
+            <ChatConversationListItem
+              ref={(node) => {
+                if (node) rowRefs.current.set(title, node);
+                else rowRefs.current.delete(title);
+              }}
+              title={title}
+              actions={{
+                onRename,
+                onTogglePin,
+                onDelete: () => setConfirming(title),
+              }}
+            />
+            {confirming === title && (
+              <div role="listitem">
+                <div
+                  role="group"
+                  aria-labelledby={questionId}
+                  className="flex flex-col gap-space-2 rounded-lg bg-surface-level-2 p-space-3"
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') cancel(title);
                   }}
                 >
-                  Delete
-                </Button>
+                  <Text id={questionId} variant="sm">
+                    Delete “{title}”?
+                  </Text>
+                  <div className="flex justify-end gap-space-2">
+                    <Button
+                      autoFocus
+                      size="sm"
+                      color="secondary"
+                      variant="outlined"
+                      onClick={() => cancel(title)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      color="error"
+                      onClick={() => remove(title)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-        </Fragment>
-      ))}
-    </ChatConversationList>
+            )}
+          </Fragment>
+        ))}
+      </ChatConversationList>
+    </div>
   );
 }
 
 /**
- * An item can move focus as it closes the menu, here into an inline
- * confirmation rendered as its own list item. Focus goes there instead of
- * back to the trigger.
+ * Hosts own confirmation. Here Delete opens a confirmation in its own list
+ * item, labelled by its question, and focus moves into it as the menu closes.
+ * Cancel or Escape returns focus to the conversation; Delete moves it to the
+ * next one.
  */
 export const InlineConfirmation: Story = {
   render: () => <InlineConfirmationExample />,
@@ -216,23 +242,41 @@ export const InlineConfirmation: Story = {
     // The menu restores focus a task after it closes.
     const afterMenuCloses = () =>
       new Promise((resolve) => setTimeout(resolve, 50));
-    await userEvent.tab();
-    await userEvent.tab();
+    const row = canvas.getByRole('button', { name: 'Release planning' });
     const trigger = canvas.getByRole('button', {
       name: 'Actions for Release planning',
     });
-    await expect(trigger).toHaveFocus();
+    const requestDelete = async () => {
+      await userEvent.keyboard('{Enter}');
+      await userEvent.keyboard('{End}');
+      await userEvent.keyboard('{Enter}');
+      await afterMenuCloses();
+    };
 
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     await userEvent.keyboard('{Escape}');
     await afterMenuCloses();
     await expect(trigger).toHaveFocus();
 
+    await requestDelete();
+    await expect(
+      canvas.getByRole('group', { name: 'Delete “Release planning”?' })
+    ).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+    await userEvent.keyboard('{Escape}');
+    await expect(row).toHaveFocus();
+
+    await userEvent.tab();
+    await requestDelete();
+    await userEvent.tab();
     await userEvent.keyboard('{Enter}');
-    await userEvent.keyboard('{Enter}');
-    const cancel = await canvas.findByRole('button', { name: 'Cancel' });
-    await afterMenuCloses();
-    await expect(cancel).toHaveFocus();
+    await expect(row).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Research summary' })
+    ).toHaveFocus();
   },
 };
 
