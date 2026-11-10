@@ -98,6 +98,19 @@ import type {
   ChatSubagentProps,
 } from '@langchain/macaw-components/ChatSubagent';
 import {
+  ChatThread,
+  deepAgentTools,
+  LangGraphChat,
+  toChatThread,
+  toHumanInTheLoopResponse,
+  useChatThread,
+} from '@langchain/macaw-components/ChatThread';
+import type {
+  ChatThreadSelectors,
+  ChatThreadStream,
+  LangGraphChatProps,
+} from '@langchain/macaw-components/ChatThread';
+import {
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,
@@ -264,6 +277,22 @@ void [
     variant: 'approval',
     edit: { content: null, onSubmit() {} },
   } satisfies ChatRichContentProps,
+  ChatThread,
+  LangGraphChat,
+  useChatThread,
+  deepAgentTools,
+  toChatThread({ messages: [{ type: 'human', content: 'Hi' }] }).turns,
+  toHumanInTheLoopResponse,
+  {
+    messages: [],
+    isLoading: false,
+    submit() {},
+    stop() {},
+  } satisfies ChatThreadStream,
+  {} satisfies ChatThreadSelectors,
+  {
+    stream: { messages: [], isLoading: false, submit() {}, stop() {} },
+  } satisfies LangGraphChatProps,
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,

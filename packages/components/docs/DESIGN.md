@@ -76,7 +76,9 @@ Import the tool-call presentation family from
 from `@langchain/macaw-components/ChatState`, delegated agent runs from
 `@langchain/macaw-components/ChatSubagent`, and agent task lists from
 `@langchain/macaw-components/ChatPlan`. They are intentionally omitted from the
-root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
+root barrel. For LangGraph agents, `@langchain/macaw-components/ChatThread`
+connects a `useStream` handle to these parts. See [CHAT.md](./CHAT.md) for the
+host/component boundary.
 
 ## Breadcrumbs
 

@@ -112,6 +112,10 @@
       "types": "./dist/components/ChatSubagent/index.d.ts",
       "import": "./dist/components/ChatSubagent/index.js"
     },
+    "./ChatThread": {
+      "types": "./dist/components/ChatThread/index.d.ts",
+      "import": "./dist/components/ChatThread/index.js"
+    },
     "./ChatToolCall": {
       "types": "./dist/components/ChatToolCall/index.d.ts",
       "import": "./dist/components/ChatToolCall/index.js"
