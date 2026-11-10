@@ -23,8 +23,6 @@ interface ChatToolCallAccordionProps {
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
-  /** Keep details mounted while collapsed so their state survives. */
-  keepMounted?: boolean;
   className?: string;
   detailsClassName?: string;
 }
@@ -41,7 +39,6 @@ export function ChatToolCallAccordion({
   expanded,
   defaultExpanded = false,
   onExpandedChange,
-  keepMounted = false,
   className,
   detailsClassName,
 }: ChatToolCallAccordionProps) {
@@ -118,7 +115,6 @@ export function ChatToolCallAccordion({
       {hasDetails && (
         <ChatToolCallCollapse
           open={isExpanded}
-          keepMounted={keepMounted}
           id={detailsId}
           role="region"
           aria-label={detailsLabel}

@@ -70,10 +70,6 @@ export const Expanded: Story = {
   args: { defaultExpanded: true },
 };
 
-export const Finished: Story = {
-  args: { items: planAt(labels.length), defaultExpanded: true },
-};
-
 function ComposerWithPlan() {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState('');

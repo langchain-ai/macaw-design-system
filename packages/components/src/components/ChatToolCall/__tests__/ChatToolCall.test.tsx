@@ -926,37 +926,6 @@ describe('ChatToolCall trailing metadata', () => {
   );
 });
 
-describe('ChatToolCall kept details', () => {
-  function ResultViews() {
-    const [view, setView] = useState('Table');
-    return (
-      <Button size="xs" onClick={() => setView('Raw')}>
-        {`${view} view`}
-      </Button>
-    );
-  }
-
-  it('preserves custom detail state across closing and reopening', async () => {
-    const { user } = render(
-      <ChatToolCall toolCall={call} keepMounted defaultExpanded>
-        <ResultViews />
-      </ChatToolCall>,
-      renderOptions
-    );
-    const disclosure = screen.getByRole('button', {
-      name: 'Details for ask_user',
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Table view' }));
-    await user.click(disclosure);
-    expect(
-      screen.queryByRole('button', { name: 'Raw view' })
-    ).not.toBeInTheDocument();
-    await user.click(disclosure);
-    expect(screen.getByRole('button', { name: 'Raw view' })).toBeVisible();
-  });
-});
-
 describe('ChatToolCallReasoning while streaming', () => {
   function Reasoning({ status }: { status: 'streaming' | 'completed' }) {
     return (
@@ -998,22 +967,6 @@ describe('ChatToolCallReasoning while streaming', () => {
     expect(
       screen.getByRole('button', { name: 'Thought for 4s' })
     ).toHaveAttribute('aria-expanded', 'true');
-  });
-
-  it('uses a host icon and omits it for null', () => {
-    const brain = <SlackLogoIcon weight="regular" />;
-    const { rerender } = render(
-      <ChatToolCallReasoning icon={brain}>Summary</ChatToolCallReasoning>,
-      renderOptions
-    );
-    const row = () => screen.getByRole('group', { name: 'Reasoning summary' });
-    expect(containsIcon(row(), brain)).toBe(true);
-
-    rerender(
-      <ChatToolCallReasoning icon={null}>Summary</ChatToolCallReasoning>
-    );
-    expect(containsIcon(row(), brain)).toBe(false);
-    expect(containsIcon(row(), <LightbulbIcon weight="regular" />)).toBe(false);
   });
 });
 

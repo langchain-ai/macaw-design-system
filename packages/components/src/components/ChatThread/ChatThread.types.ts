@@ -183,7 +183,7 @@ export interface ChatThreadModel {
 
 export type ChatThreadToolPresentation = Pick<
   ChatToolCallProps,
-  'label' | 'icon' | 'summary' | 'meta' | 'children' | 'keepMounted'
+  'label' | 'icon' | 'summary' | 'meta' | 'children'
 >;
 
 /**

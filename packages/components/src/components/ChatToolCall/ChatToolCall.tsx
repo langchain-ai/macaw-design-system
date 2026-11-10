@@ -56,11 +56,6 @@ export interface ChatToolCallProps {
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
-  /**
-   * Keep custom details mounted while collapsed, so state such as a selected
-   * result view or a scroll position survives closing and reopening.
-   */
-  keepMounted?: boolean;
   className?: string;
 }
 
@@ -93,7 +88,6 @@ export function ChatToolCall({
   expanded,
   defaultExpanded = false,
   onExpandedChange,
-  keepMounted = false,
   className,
 }: ChatToolCallProps) {
   const inGroup = useReportToGroup({
@@ -173,7 +167,6 @@ export function ChatToolCall({
       expanded={expanded}
       defaultExpanded={defaultExpanded}
       onExpandedChange={onExpandedChange}
-      keepMounted={keepMounted}
       className={className}
     >
       {detailContent}
