@@ -195,6 +195,8 @@ void [
   {
     children: null,
     label: 'Support chat',
+    follow: 'none',
+    pinnedMessageId: 'message-1',
     viewportRef: { current: null },
   } satisfies ChatConversationProps,
   ChatMessage,

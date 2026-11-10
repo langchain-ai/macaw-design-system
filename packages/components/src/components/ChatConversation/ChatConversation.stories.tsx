@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { expect, waitFor } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChatConversation } from '.';
+import { ChatConversation, type ChatConversationProps } from '.';
 import { Button } from '../Button';
 import {
   ChatComposer,
@@ -76,8 +76,55 @@ const exchanges = [
   },
 ];
 
-function historyMessages(prefix = 'history'): ChatMessageModel[] {
-  return exchanges.flatMap((exchange, index) => [
+// Older turns of the same thread, oldest page first, for loading history.
+const earlierPages = [
+  [
+    {
+      question: 'We have a free weekend next month. Any ideas?',
+      answer: [
+        'A short trip you can reach in under three hours is easy to plan on short notice: a coastal town, a lake cabin, or a small city with good food.',
+      ],
+    },
+    {
+      question: 'We like being near the water. Coast or lake?',
+      answer: [
+        'The coast gives you beaches and seafood; a lake is quieter and often cheaper. If you want room to wander, the coast is the safer bet.',
+      ],
+    },
+    {
+      question: 'Coast it is. How far ahead should we book?',
+      answer: [
+        'Two to three weeks is usually enough outside the summer peak. Book somewhere to stay first, then look at restaurants.',
+      ],
+    },
+  ],
+  [
+    {
+      question: 'What should we look for in a place to stay?',
+      answer: [
+        'For a short trip, walkability matters most. Look for somewhere a few minutes from the waterfront, with parking if you are driving.',
+      ],
+    },
+    {
+      question: 'Hotel or rental?',
+      answer: [
+        'A rental gives you a kitchen and more space; a small hotel saves you cleaning and check-in. For two nights, either works.',
+      ],
+    },
+    {
+      question: 'We booked a rental near the harbor.',
+      answer: [
+        'Great choice. Next, sketch a loose plan so you are not deciding everything on the spot.',
+      ],
+    },
+  ],
+];
+
+function historyMessages(
+  prefix = 'history',
+  turns: readonly { question: string; answer: readonly string[] }[] = exchanges
+): ChatMessageModel[] {
+  return turns.flatMap((exchange, index) => [
     {
       id: `${prefix}-${index}-user`,
       role: 'user',
@@ -121,7 +168,16 @@ function DemoComposer() {
 const meta = {
   title: 'Components/Chat/ChatConversation',
   component: ChatConversation,
-  tags: ['autodocs', 'chat', 'conversation', 'scroll', 'layout'],
+  tags: [
+    'autodocs',
+    'chat',
+    'conversation',
+    'scroll',
+    'layout',
+    'pin',
+    'anchor',
+    'history',
+  ],
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -129,10 +185,13 @@ const meta = {
         component: [
           '- Bounded-height layout: fixed `header`/`footer`, scrolling `children`.',
           '- Messages and footer share a centered column capped at 768px.',
-          '- Follows new content while the reader is within 48px of the bottom; scrolling up pauses following and shows **Jump to latest**.',
+          '- Follows new content while the reader is within 48px of the bottom; scrolling up pauses following and shows **Jump to latest**. `follow="none"` turns following off; **Jump to latest** still appears.',
+          '- `pinnedMessageId` brings a just-sent message to the top and reserves space for the reply beneath it (see Pin Sent Message).',
+          '- Content inserted above the reader, such as earlier messages, keeps the first visible message in place (see Load Earlier Messages).',
+          '- Messages are found by their `data-chat-message-id` attribute, which `ChatMessage` sets; custom rows set it themselves.',
           '- Remount with a conversation `key` when switching threads.',
           '- The message log does not announce changes; announce completed replies from a polite `role="status"` region in the host (see Streaming).',
-          '- Not included: history fetching, pagination, virtualization, or anchoring when older messages are inserted above the viewport. Hosts that load history upward can adjust `scrollTop` through `viewportRef`.',
+          '- Not included: history fetching, pagination, or virtualization.',
         ].join('\n'),
       },
     },
@@ -216,20 +275,49 @@ const streamedParagraphs = [
   'If you want, I can turn this into a checklist you can share with your travel companion.',
 ];
 
-function StreamingExample() {
+const packingParagraphs = [
+  'Here is a packing list, grouped so you can check things off as you go.',
+  'Clothes: two outfits for walking, one for dinner, a warm layer for evenings by the water, and sleepwear. Pack the rain jacket even if the forecast looks clear.',
+  'Shoes: comfortable walking shoes for the coastal trail, plus sandals for the beach. Leave heavier boots at home unless rain is certain.',
+  'Beach: a towel each, sunscreen, sunglasses, and a hat. A small tote keeps everything together for the afternoon.',
+  'Toiletries: travel-size basics, any medication, and lip balm with SPF. Check whether the rental provides shampoo before packing your own.',
+  'Tech: phone chargers, a power bank for the trail, and headphones for the drive. A paper map is a good backup where the signal is patchy.',
+  'Food: a refillable water bottle, snacks for the drive, and a thermos if you want coffee on the morning walk.',
+  'Documents: your booking confirmation, a payment card, and some cash for small cafés and parking meters.',
+  'Outdoors: a compact umbrella, a reusable bag for beach finds, and a small first-aid kit with plasters for the long walks.',
+  'Evenings: a light sweater or scarf, since coastal towns cool down quickly once the sun sets.',
+  'Rainy afternoons: a paperback or a deck of cards for a slow hour in a café.',
+  'The drive: a phone mount, a charging cable, and a playlist or podcast downloaded before you leave.',
+  'Before you go: check the tide times for the beach walk and the rental’s check-in instructions.',
+  'Leave some space for anything you pick up along the way. A bag with room to spare is easier to repack on Sunday.',
+];
+
+function StreamingExample({
+  follow,
+  pinSentMessage = false,
+  question = 'Can you make it even more relaxed?',
+  paragraphs = streamedParagraphs,
+  hint = 'Send, then scroll up mid-reply.',
+}: Pick<ChatConversationProps, 'follow'> & {
+  /** Pin each sent message to the top while its reply streams in. */
+  pinSentMessage?: boolean;
+  question?: string;
+  paragraphs?: readonly string[];
+  hint?: string;
+}) {
   const [messages, setMessages] = useState(historyMessages);
   const [reply, setReply] = useState<{ id: string; streamed: number }>();
-  const isStreaming =
-    reply !== undefined && reply.streamed < streamedParagraphs.length;
+  const [pinnedMessageId, setPinnedMessageId] = useState<string>();
+  const isStreaming = reply !== undefined && reply.streamed < paragraphs.length;
 
   useEffect(() => {
-    if (!reply || reply.streamed >= streamedParagraphs.length) return;
+    if (!reply || reply.streamed >= paragraphs.length) return;
     const timer = window.setTimeout(
       () => setReply({ ...reply, streamed: reply.streamed + 1 }),
-      900
+      pinSentMessage ? 600 : 900
     );
     return () => window.clearTimeout(timer);
-  }, [reply]);
+  }, [reply, paragraphs, pinSentMessage]);
 
   function send() {
     const id = `stream-${messages.length}`;
@@ -244,7 +332,7 @@ function StreamingExample() {
             id: `${id}-question`,
             type: 'text',
             appearance: 'bubble',
-            text: 'Can you make it even more relaxed?',
+            text: question,
           },
         ],
       },
@@ -256,6 +344,7 @@ function StreamingExample() {
       },
     ]);
     setReply({ id: `${id}-assistant`, streamed: 0 });
+    if (pinSentMessage) setPinnedMessageId(`${id}-user`);
   }
 
   const shownMessages = messages.map(
@@ -266,7 +355,7 @@ function StreamingExample() {
             status: isStreaming ? 'streaming' : 'completed',
             content: paragraphBlocks(
               reply.id,
-              streamedParagraphs.slice(0, reply.streamed)
+              paragraphs.slice(0, reply.streamed)
             ),
           }
         : message
@@ -274,11 +363,11 @@ function StreamingExample() {
 
   return (
     <ChatConversation
+      follow={follow}
+      pinnedMessageId={pinnedMessageId}
       footer={
         <div className="flex items-center justify-between gap-space-3">
-          <Text color="tertiary">
-            {isStreaming ? 'Responding…' : 'Send, then scroll up mid-reply.'}
-          </Text>
+          <Text color="tertiary">{isStreaming ? 'Responding…' : hint}</Text>
           <Button size="sm" disabled={isStreaming} onClick={send}>
             Send
           </Button>
@@ -302,11 +391,37 @@ export const Streaming: Story = {
           '- Send a message to stream a reply one paragraph at a time.',
           '- Stay at the bottom and the view follows each paragraph.',
           '- Scroll up mid-reply and the view holds still; **Jump to latest** resumes following and keeps focus in the message log.',
+          '- Set `follow` to `none` and the view never moves on its own; **Jump to latest** appears once the reply passes the bottom.',
         ].join('\n'),
       },
     },
   },
-  render: () => <StreamingExample />,
+  render: ({ follow }) => <StreamingExample follow={follow} />,
+};
+
+export const PinSentMessage: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story: [
+          '- Send a message and it moves to the top of the log, with space reserved below for the reply to stream into.',
+          '- The space shrinks as the reply grows and is gone once the reply fills the viewport; the sent message stays put and **Jump to latest** appears.',
+          '- Scroll to the bottom or use **Jump to latest** to follow the rest of the reply.',
+          '- The host sets `pinnedMessageId` to the sent message’s ID; `ChatMessage` provides the matching `data-chat-message-id`.',
+        ].join('\n'),
+      },
+    },
+  },
+  render: ({ follow }) => (
+    <StreamingExample
+      follow={follow}
+      pinSentMessage
+      question="Can you write us a packing list?"
+      paragraphs={packingParagraphs}
+      hint="Send to pin your message to the top."
+    />
+  ),
 };
 
 const threads = [
@@ -357,6 +472,75 @@ export const SwitchingConversations: Story = {
   render: () => <SwitchingExample />,
 };
 
+function LoadEarlierExample() {
+  const [loadedPages, setLoadedPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const loadButtonRef = useRef<HTMLButtonElement>(null);
+  const firstLoadedPage = earlierPages.length - loadedPages;
+
+  useEffect(() => {
+    if (!loading) return;
+    // Stands in for the host's history request.
+    const timer = window.setTimeout(() => {
+      // The button goes away with the last page; keep focus in the log.
+      if (
+        firstLoadedPage === 1 &&
+        document.activeElement === loadButtonRef.current
+      ) {
+        viewportRef.current?.focus({ preventScroll: true });
+      }
+      setLoadedPages((pages) => pages + 1);
+      setLoading(false);
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [loading, firstLoadedPage]);
+
+  const messages = [
+    ...earlierPages.flatMap((page, index) =>
+      index >= firstLoadedPage ? historyMessages(`earlier-${index}`, page) : []
+    ),
+    ...historyMessages(),
+  ];
+
+  return (
+    <ChatConversation viewportRef={viewportRef}>
+      {firstLoadedPage > 0 ? (
+        <Button
+          ref={loadButtonRef}
+          size="sm"
+          color="secondary"
+          loading={loading}
+          className="self-center"
+          onClick={() => setLoading(true)}
+        >
+          Load earlier messages
+        </Button>
+      ) : (
+        <Text variant="sm" color="tertiary" className="self-center">
+          Start of conversation
+        </Text>
+      )}
+      <ConversationMessages messages={messages} />
+    </ChatConversation>
+  );
+}
+
+export const LoadEarlierMessages: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story: [
+          '- Scroll to the top and load earlier messages. They are added above, and the messages you were reading stay where they are.',
+          '- The host fetches history and renders the control; `ChatConversation` holds the first visible message in place whenever content is inserted above it and the reader isn’t following the bottom.',
+        ].join('\n'),
+      },
+    },
+  },
+  render: () => <LoadEarlierExample />,
+};
+
 export const CustomBackground: Story = {
   tags: ['a11y-test'],
   parameters: {
@@ -399,8 +583,9 @@ export const FollowsBackToBackGrowth: Story = {
     const gap = () => log.scrollHeight - log.clientHeight - log.scrollTop;
     await waitFor(() => expect(gap()).toBeLessThanOrEqual(1));
 
-    // Grow again right after the log pins itself, before the browser fires
-    // the scroll event from that pin, so the event sees the taller content.
+    // Grow again right after the log scrolls to the bottom, before the browser
+    // fires the scroll event from that scroll, so the event sees the taller
+    // content.
     await new Promise<void>((resolve) => {
       const observer = new ResizeObserver(() => {
         observer.disconnect();
@@ -418,5 +603,259 @@ export const FollowsBackToBackGrowth: Story = {
     expect(
       canvas.queryByRole('button', { name: 'Jump to latest' })
     ).not.toBeInTheDocument();
+  },
+};
+
+const gapToEnd = (log: HTMLElement) =>
+  log.scrollHeight - log.clientHeight - log.scrollTop;
+
+async function settle() {
+  // Two frames let resize observers run and the scroll events they cause land.
+  await nextFrame();
+  await nextFrame();
+}
+
+function messageOffset(log: HTMLElement, id: string) {
+  const message = log.querySelector(`[data-chat-message-id="${id}"]`);
+  if (!message) throw new Error(`No message with ID ${id}`);
+  return message.getBoundingClientRect().top - log.getBoundingClientRect().top;
+}
+
+/** Viewport offsets of the messages the reader can currently see. */
+function visibleMessageOffsets(log: HTMLElement) {
+  const viewport = log.getBoundingClientRect();
+  const offsets = new Map<string, number>();
+  for (const message of log.querySelectorAll('[data-chat-message-id]')) {
+    const rect = message.getBoundingClientRect();
+    if (rect.bottom > viewport.top && rect.top < viewport.bottom) {
+      offsets.set(
+        message.getAttribute('data-chat-message-id')!,
+        rect.top - viewport.top
+      );
+    }
+  }
+  return offsets;
+}
+
+function expectWithinPixel(actual: number, expected: number) {
+  expect(actual).toBeGreaterThanOrEqual(expected - 1);
+  expect(actual).toBeLessThanOrEqual(expected + 1);
+}
+
+function PinningHarness() {
+  // Paragraph count of the reply to each sent message.
+  const [replies, setReplies] = useState<number[]>([]);
+  const [pinnedMessageId, setPinnedMessageId] = useState<string>();
+  const latest = replies.length - 1;
+  const addTurn = () => setReplies((current) => [...current, 0]);
+  const messages = [
+    ...historyMessages(),
+    ...replies.flatMap((paragraphs, turn): ChatMessageModel[] => [
+      {
+        id: `sent-${turn}`,
+        role: 'user',
+        status: 'completed',
+        content: [
+          {
+            id: `sent-${turn}-question`,
+            type: 'text',
+            appearance: 'bubble',
+            text: 'Can you write us a packing list?',
+          },
+        ],
+      },
+      {
+        id: `reply-${turn}`,
+        role: 'assistant',
+        status: turn === latest ? 'streaming' : 'completed',
+        content: paragraphBlocks(
+          `reply-${turn}`,
+          Array.from(
+            { length: paragraphs },
+            (_, index) => packingParagraphs[index % packingParagraphs.length]
+          )
+        ),
+      },
+    ]),
+  ];
+
+  return (
+    <ChatConversation
+      pinnedMessageId={pinnedMessageId}
+      footer={
+        <div className="flex gap-space-2">
+          <Button
+            size="sm"
+            onClick={() => {
+              setPinnedMessageId(`sent-${replies.length}`);
+              addTurn();
+            }}
+          >
+            Send
+          </Button>
+          <Button
+            size="sm"
+            color="secondary"
+            onClick={() => {
+              // The host can know the sent message's ID before it renders.
+              setPinnedMessageId(`sent-${replies.length}`);
+              window.setTimeout(addTurn, 50);
+            }}
+          >
+            Send, render later
+          </Button>
+          <Button
+            size="sm"
+            color="secondary"
+            onClick={() =>
+              setReplies((current) =>
+                current.map((paragraphs, turn) =>
+                  turn === current.length - 1 ? paragraphs + 1 : paragraphs
+                )
+              )
+            }
+          >
+            Stream a paragraph
+          </Button>
+        </div>
+      }
+    >
+      <ConversationMessages messages={messages} />
+    </ChatConversation>
+  );
+}
+
+export const PinsSentMessageAboveReply: Story = {
+  tags: ['!dev', '!autodocs', 'a11y-test'],
+  render: () => <PinningHarness />,
+  play: async ({ canvas, userEvent }) => {
+    const log = canvas.getByRole('log');
+    const content = log.firstElementChild as HTMLElement;
+    // How far the content runs past the bottom of the viewport.
+    const overflow = () =>
+      content.getBoundingClientRect().bottom -
+      log.getBoundingClientRect().bottom;
+    const jumpButton = () =>
+      canvas.queryByRole('button', { name: 'Jump to latest' });
+    const send = () =>
+      userEvent.click(canvas.getByRole('button', { name: 'Send' }));
+    const streamParagraph = async () => {
+      await userEvent.click(
+        canvas.getByRole('button', { name: 'Stream a paragraph' })
+      );
+      await settle();
+    };
+    const streamPastViewport = async (id: string, offset: number) => {
+      for (let paragraph = 0; overflow() <= 48; paragraph++) {
+        expect(paragraph).toBeLessThan(40);
+        await streamParagraph();
+        expectWithinPixel(messageOffset(log, id), offset);
+      }
+    };
+    await waitFor(() => expect(gapToEnd(log)).toBeLessThanOrEqual(1));
+
+    // The sent message moves to the top, with room below for the reply.
+    await send();
+    await settle();
+    const pinnedOffset = messageOffset(log, 'sent-0');
+    expect(pinnedOffset).toBeGreaterThanOrEqual(0);
+    expect(pinnedOffset).toBeLessThanOrEqual(48);
+    expect(overflow()).toBeLessThan(0);
+    expect(jumpButton()).not.toBeInTheDocument();
+
+    // The reply streams in beneath it without moving it, and no reserved
+    // space is left once the reply fills the viewport.
+    await streamPastViewport('sent-0', pinnedOffset);
+    await waitFor(() => expect(jumpButton()).toBeVisible());
+    expect(log.scrollHeight).toBeLessThanOrEqual(content.offsetHeight + 1);
+
+    // Jump to latest follows the rest of the reply.
+    await userEvent.click(jumpButton()!);
+    await streamParagraph();
+    expect(gapToEnd(log)).toBeLessThanOrEqual(1);
+
+    // The next message is pinned the same way; scrolling down to the end of
+    // its reply also resumes following.
+    await send();
+    await settle();
+    expectWithinPixel(messageOffset(log, 'sent-1'), pinnedOffset);
+    await streamPastViewport('sent-1', pinnedOffset);
+    log.scrollTop = log.scrollHeight;
+    await settle();
+    await streamParagraph();
+    expect(gapToEnd(log)).toBeLessThanOrEqual(1);
+    expect(jumpButton()).not.toBeInTheDocument();
+
+    // A pin whose message renders later lands once the message appears.
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Send, render later' })
+    );
+    await waitFor(() => messageOffset(log, 'sent-2'));
+    await settle();
+    expectWithinPixel(messageOffset(log, 'sent-2'), pinnedOffset);
+  },
+};
+
+function EarlierPagesHarness() {
+  const [pages, setPages] = useState(0);
+  const messages = [
+    // Page 1 is the most recent earlier page.
+    ...Array.from({ length: pages }, (_, index) =>
+      historyMessages(`earlier-${pages - index}`)
+    ).flat(),
+    ...historyMessages(),
+  ];
+
+  return (
+    <ChatConversation
+      footer={
+        <Button size="sm" onClick={() => setPages((count) => count + 1)}>
+          Load earlier messages
+        </Button>
+      }
+    >
+      <ConversationMessages messages={messages} />
+    </ChatConversation>
+  );
+}
+
+export const KeepsPlaceWhenEarlierMessagesLoad: Story = {
+  tags: ['!dev', '!autodocs', 'a11y-test'],
+  render: () => <EarlierPagesHarness />,
+  play: async ({ canvas, userEvent }) => {
+    const log = canvas.getByRole('log');
+    const loadPage = async (page: number) => {
+      await userEvent.click(
+        canvas.getByRole('button', { name: 'Load earlier messages' })
+      );
+      await waitFor(() => messageOffset(log, `earlier-${page}-0-user`));
+      await settle();
+    };
+    const expectVisibleMessagesHeld = async (load: () => Promise<void>) => {
+      const before = visibleMessageOffsets(log);
+      expect(before.size).toBeGreaterThan(0);
+      await load();
+      for (const [id, offset] of before) {
+        expectWithinPixel(messageOffset(log, id), offset);
+      }
+    };
+
+    // Following the bottom, the latest messages stay in view.
+    await waitFor(() => expect(gapToEnd(log)).toBeLessThanOrEqual(1));
+    await loadPage(1);
+    expect(gapToEnd(log)).toBeLessThanOrEqual(1);
+
+    // Scrolled to the very top, what the reader sees holds still.
+    log.scrollTop = 0;
+    await settle();
+    await expectVisibleMessagesHeld(() => loadPage(2));
+
+    // So it does partway up, with the first visible message cut off.
+    log.scrollTop = Math.round(log.scrollTop / 2) + 37;
+    await settle();
+    await expectVisibleMessagesHeld(() => loadPage(3));
+    expect(
+      canvas.getByRole('button', { name: 'Jump to latest' })
+    ).toBeVisible();
   },
 };
