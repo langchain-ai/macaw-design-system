@@ -31,6 +31,11 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
    * content should also say it in text or with an icon.
    */
   drawerIntent?: ChatComposerDrawerIntent;
+  /**
+   * Blocks writing and sending. Stop stays available while `action` is
+   * `stop`, so host controls inside the composer must take `disabled`
+   * themselves to stay disabled during a response.
+   */
   disabled?: boolean;
   submitDisabled?: boolean;
   onFilesSelected?: (files: File[]) => void;
@@ -188,7 +193,9 @@ export function ChatComposer({
         )}
         <fieldset
           ref={fieldsetRef}
-          disabled={disabled}
+          // A disabled fieldset would also disable Stop; the composer's own
+          // parts read `disabled` from context instead.
+          disabled={disabled && action !== 'stop'}
           className={cn(
             'relative m-0 flex w-full min-w-0 flex-col gap-space-2 rounded-lg border border-subtle bg-elevated p-space-2 transition-[border-color,box-shadow,background-color] duration-normal motion-reduce:transition-none',
             // Toolbar menus portal out, so focus-within would flash as focus
@@ -267,9 +274,8 @@ export function ChatComposerAction({
       type={isStop ? 'button' : 'submit'}
       icon={isStop ? StopIcon : ArrowUpIcon}
       label={label ?? ACTION_LABELS[composer.action]}
-      disabled={
-        composer.disabled || disabled || (!isStop && !composer.canSubmit)
-      }
+      // canSubmit already accounts for a disabled composer; Stop ignores it.
+      disabled={disabled || (!isStop && !composer.canSubmit)}
       loading={composer.action === 'sending'}
       onClick={isStop ? composer.onStop : undefined}
     />

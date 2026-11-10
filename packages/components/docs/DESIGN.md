@@ -209,10 +209,11 @@ only inside `ChatComposer`: `ChatComposerInput`, optional
 
 Control the draft with `value`/`onChange` on `ChatComposerInput` and send from
 `onSubmit`. Set `submitDisabled` when there is no text and no attachments, and
-`disabled` to lock the whole composer. Set `action="sending"` while a send is
+`disabled` to lock writing and sending. Set `action="sending"` while a send is
 pending and `action="stop"` with `onStop` during generation. Both block sending
-and keep the input and attachments usable. Skip any state your app does not
-have.
+and keep the input and attachments usable. Stop stays available when the
+composer is also `disabled`, so pass `disabled` to your own controls inside it
+as well. Skip any state your app does not have.
 
 Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
 sends from any block. Without `onSubmit`, Enter only adds paragraphs. Three
@@ -221,6 +222,11 @@ backticks start a code block. The input grows from `minHeight` (40px) to
 load, the input switches to a plain textarea and reports the error to
 `ErrorReporterContext` from
 `@langchain/macaw-components/contexts/ErrorReporterContext`.
+
+Use `ChatComposerTextarea` in place of `ChatComposerInput` for plain text when
+the host relies on the native textarea: its ref and selection, a `name` in
+form data, or its own key handling such as message history. Enter sends unless
+the host's `onKeyDown` prevents it.
 
 Validate files in `onFilesSelected`, which receives picked, dropped, and pasted
 files. `accept` and `multiple` only configure the picker. Render accepted files

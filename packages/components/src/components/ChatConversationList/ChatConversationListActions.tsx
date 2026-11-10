@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 
 import { DotsThreeIcon } from '@phosphor-icons/react/dist/ssr/DotsThree';
 
@@ -28,6 +28,10 @@ export function ChatConversationListActions({
   children,
 }: ChatConversationListActionsProps) {
   const [open, setOpen] = useState(false);
+  // Where an item tried to move focus, such as into an inline rename field or
+  // confirmation. The open menu traps focus, so focus goes there once the menu
+  // closes instead of back to the trigger.
+  const focusTargetRef = useRef<HTMLElement | null>(null);
   // Closes the menu when the row becomes disabled, so it can't reopen on its
   // own once the row is enabled again.
   if (disabled && open) setOpen(false);
@@ -39,7 +43,13 @@ export function ChatConversationListActions({
         open && 'opacity-100'
       )}
     >
-      <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenu
+        open={open}
+        onOpenChange={(next) => {
+          if (next) focusTargetRef.current = null;
+          setOpen(next);
+        }}
+      >
         <DropdownMenuTrigger asChild>
           <IconButton
             // Lets the row's indicator hide while the menu is open, which
@@ -67,6 +77,24 @@ export function ChatConversationListActions({
           // The menu portals out, but React still bubbles its clicks through
           // the row to host handlers.
           onClick={(event) => event.stopPropagation()}
+          // The trap moves focus back during blur, before focus can land
+          // outside, so the intended target is only known here.
+          onBlur={(event) => {
+            const next = event.relatedTarget;
+            if (
+              next instanceof HTMLElement &&
+              !event.currentTarget.contains(next)
+            ) {
+              focusTargetRef.current = next;
+            }
+          }}
+          onCloseAutoFocus={(event) => {
+            const target = focusTargetRef.current;
+            focusTargetRef.current = null;
+            if (!target?.isConnected) return;
+            event.preventDefault();
+            target.focus();
+          }}
         >
           {children}
         </DropdownMenuContent>
