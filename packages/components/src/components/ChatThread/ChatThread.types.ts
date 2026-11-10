@@ -76,7 +76,18 @@ export interface ToChatThreadOptions {
   subagentTools?: readonly string[];
 }
 
-export type ChatThreadPart =
+/**
+ * The original messages behind a part, for renderers that need fields Macaw
+ * doesn't map, such as provider-specific content blocks or artifacts.
+ */
+export interface ChatThreadPartSource {
+  /** The AI message the part came from. */
+  message: unknown;
+  /** The tool result message, once the call returns. */
+  result?: unknown;
+}
+
+export type ChatThreadPart = (
   | { type: 'text'; id: string; text: string; streaming: boolean }
   | { type: 'reasoning'; id: string; text: string; streaming: boolean }
   | {
@@ -96,7 +107,8 @@ export type ChatThreadPart =
       handle?: unknown;
       interruptId?: string;
     }
-  | { type: 'image'; id: string; url: string };
+  | { type: 'image'; id: string; url: string }
+) & { source: ChatThreadPartSource };
 
 /** A human message and everything the agent did in response. */
 export interface ChatThreadTurn {
@@ -176,8 +188,11 @@ export type ChatThreadToolPresentation = Pick<
 
 /**
  * Presents one tool by name. Return row props to keep the shared tool row,
- * your own element to replace it, or null to hide the call.
+ * your own element to replace it, or null to hide the call. `source` holds
+ * the original messages for calls in the thread; approval cards and live
+ * status lines render before a call has one.
  */
 export type ChatThreadToolRenderer = (
-  toolCall: ChatToolCallModel
+  toolCall: ChatToolCallModel,
+  source?: ChatThreadPartSource
 ) => ChatThreadToolPresentation | ReactElement | null;

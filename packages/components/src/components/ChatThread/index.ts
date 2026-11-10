@@ -18,6 +18,7 @@ export type {
   ChatThreadInterrupt,
   ChatThreadModel,
   ChatThreadPart,
+  ChatThreadPartSource,
   ChatThreadQueuedMessage,
   ChatThreadSelectors,
   ChatThreadSnapshot,

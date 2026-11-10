@@ -323,7 +323,7 @@ describe('LangGraphChat', () => {
     expect(cancel).toHaveBeenCalledWith('queued-1');
   });
 
-  it('presents tools by name and hides the ones a host returns null for', async () => {
+  it('presents tools by name from their original messages and hides the ones a host returns null for', async () => {
     const { user } = render(
       <LangGraphChat
         stream={staticStream({
@@ -339,10 +339,26 @@ describe('LangGraphChat', () => {
                 { id: 'internal', name: 'log_metric', args: {} },
               ],
             },
+            {
+              id: 'r1',
+              type: 'tool',
+              tool_call_id: 'search',
+              content: 'Found docs.',
+              artifact: { hits: 3 },
+            },
           ],
         })}
         tools={{
-          web_search: () => ({ label: 'Web search', summary: 'docs' }),
+          // Renderers can read fields Macaw doesn't map, like a tool artifact.
+          web_search: (_toolCall, source) => {
+            const result = source?.result as
+              | { artifact?: { hits: number } }
+              | undefined;
+            return {
+              label: 'Web search',
+              summary: `${result?.artifact?.hits ?? 0} hits`,
+            };
+          },
           log_metric: () => null,
         }}
       />
@@ -352,6 +368,7 @@ describe('LangGraphChat', () => {
     expect(
       screen.getByRole('group', { name: 'Web search tool call' })
     ).toBeVisible();
+    expect(screen.getByText('3 hits')).toBeVisible();
     expect(screen.queryByText('log_metric')).toBeNull();
   });
 });

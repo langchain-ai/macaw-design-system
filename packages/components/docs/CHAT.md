@@ -133,7 +133,10 @@ export function AgentChat() {
 
 Tool rows use `deepAgentTools` for the built-in deep agent tools. Pass `tools`
 to present others by name: return row props, your own element, or `null` to
-hide a call. `renderInterrupt` takes over requests the app understands, such
+hide a call. A renderer's second argument holds the original AI message and
+tool result, for fields Macaw doesn't map, such as artifacts or
+provider-specific content; every part in `toChatThread` carries the same
+`source`. `renderInterrupt` takes over requests the app understands, such
 as sign-in; return undefined for the default approval, reply, or response
 card. Requests paused together resume together once each has a decision, and
 sending is paused until they do.

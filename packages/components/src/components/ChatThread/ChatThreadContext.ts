@@ -11,6 +11,7 @@ import type { ChatToolCallModel } from '../ChatToolCall';
 import type {
   ChatThreadInterrupt,
   ChatThreadPart,
+  ChatThreadPartSource,
   ChatThreadToolPresentation,
   ChatThreadToolRenderer,
 } from './ChatThread.types';
@@ -42,9 +43,10 @@ export type ToolPresentation =
 
 export function present(
   tools: Record<string, ChatThreadToolRenderer>,
-  toolCall: ChatToolCallModel
+  toolCall: ChatToolCallModel,
+  source?: ChatThreadPartSource
 ): ToolPresentation {
-  const output = tools[toolCall.name]?.(toolCall);
+  const output = tools[toolCall.name]?.(toolCall, source);
   if (output === undefined) return { kind: 'row', props: {} };
   if (output === null) return { kind: 'hidden' };
   if (isValidElement(output)) return { kind: 'element', element: output };

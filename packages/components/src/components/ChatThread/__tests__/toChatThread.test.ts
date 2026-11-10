@@ -42,6 +42,11 @@ describe('toChatThread', () => {
       'text',
     ]);
     expect(turns[0].actionCount).toBe(1);
+    // Parts keep the messages they came from for custom renderers.
+    expect(turns[0].parts[1].source).toEqual({
+      message: expect.objectContaining({ id: 'a1' }),
+      result: expect.objectContaining({ id: 'result-call-1' }),
+    });
   });
 
   it('settles a call from its result, then the live stream, then the run', () => {

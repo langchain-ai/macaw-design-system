@@ -12,6 +12,7 @@ import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Text } from '../Text';
 import type {
   ChatThreadPart,
+  ChatThreadPartSource,
   ChatThreadToolRenderer,
   ChatThreadTurn,
 } from './ChatThread.types';
@@ -19,9 +20,15 @@ import { plainText, present, useThread } from './ChatThreadContext';
 import { describeToolCall } from './deepAgentTools';
 import { toChatThread } from './toChatThread';
 
-function ToolCallPart({ toolCall }: { toolCall: ChatToolCallModel }) {
+function ToolCallPart({
+  toolCall,
+  source,
+}: {
+  toolCall: ChatToolCallModel;
+  source?: ChatThreadPartSource;
+}) {
   const { tools } = useThread();
-  const presentation = present(tools, toolCall);
+  const presentation = present(tools, toolCall, source);
   if (presentation.kind === 'hidden') return null;
   if (presentation.kind === 'element') return presentation.element;
   return <ChatToolCall toolCall={toolCall} {...presentation.props} />;
@@ -58,7 +65,11 @@ function SubagentTranscript({
     <div className="flex min-w-0 flex-col gap-0.5">
       {parts.map((part) =>
         part.type === 'tool-call' ? (
-          <ToolCallPart key={part.id} toolCall={part.toolCall} />
+          <ToolCallPart
+            key={part.id}
+            toolCall={part.toolCall}
+            source={part.source}
+          />
         ) : part.type === 'text' ? (
           <MarkdownDisplay
             key={part.id}
@@ -154,7 +165,13 @@ export function WorkParts({ parts }: { parts: ChatThreadPart[] }) {
       continue;
     }
     if (part.type === 'tool-call') {
-      nodes.push(<ToolCallPart key={part.id} toolCall={part.toolCall} />);
+      nodes.push(
+        <ToolCallPart
+          key={part.id}
+          toolCall={part.toolCall}
+          source={part.source}
+        />
+      );
     } else if (part.type === 'reasoning') {
       nodes.push(
         <ChatToolCallReasoning
@@ -221,7 +238,7 @@ export function visibleActionCount(
     (part) =>
       part.type === 'subagent' ||
       (part.type === 'tool-call' &&
-        present(tools, part.toolCall).kind !== 'hidden')
+        present(tools, part.toolCall, part.source).kind !== 'hidden')
   ).length;
 }
 

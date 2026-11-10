@@ -297,12 +297,14 @@ export function toChatThread(
     }
     const turn = turns[turns.length - 1];
     const latest = runActive && index === lastAiIndex;
+    const source = { message: message.raw };
     if (message.reasoning) {
       turn.parts.push({
         type: 'reasoning',
         id: `${message.id}:reasoning`,
         text: message.reasoning,
         streaming: latest && !message.text && message.toolCalls.length === 0,
+        source,
       });
     }
     if (message.text) {
@@ -311,6 +313,7 @@ export function toChatThread(
         id: `${message.id}:text`,
         text: message.text,
         streaming: latest && message.toolCalls.length === 0,
+        source,
       });
     }
     for (const url of message.images) {
@@ -318,6 +321,7 @@ export function toChatThread(
         type: 'image',
         id: `${message.id}:image:${url.length}`,
         url,
+        source,
       });
     }
     for (const call of message.toolCalls) {
@@ -332,6 +336,7 @@ export function toChatThread(
         paused: interrupts.length > 0,
       });
       const value = resultValue(result, liveCall);
+      const callSource = { message: message.raw, result: result?.raw };
       turn.actionCount += 1;
       if (subagentNames.has(call.name)) {
         const handle = snapshot.subagents?.get(call.id);
@@ -342,6 +347,7 @@ export function toChatThread(
           result: textFromValue(value),
           handle,
           interruptId,
+          source: callSource,
         } satisfies ChatThreadPart);
         continue;
       }
@@ -349,6 +355,7 @@ export function toChatThread(
         type: 'tool-call',
         id: call.id,
         interruptId,
+        source: callSource,
         toolCall: {
           id: call.id,
           name: call.name,
