@@ -45,6 +45,8 @@ import type {
   ChatComposerProps,
   ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
+import { ChatContextWindow } from '@langchain/macaw-components/ChatContextWindow';
+import type { ChatContextWindowProps } from '@langchain/macaw-components/ChatContextWindow';
 import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
 import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
@@ -209,6 +211,12 @@ void [
   { action: 'sending' } satisfies ChatComposerProps,
   // @ts-expect-error onStop belongs to action="stop".
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
+  ChatContextWindow,
+  {
+    tokensUsed: 65_800,
+    contextWindow: 200_000,
+    totalCost: '$0.25',
+  } satisfies ChatContextWindowProps,
   ChatConversation,
   {
     children: null,
