@@ -19,7 +19,7 @@ import { ChatRichContentQuestionNav } from './ChatRichContentQuestionNav';
 import { ChatRichContentStatus } from './ChatRichContentStatus';
 
 const containerClassName =
-  'flex w-full min-w-0 flex-col gap-space-3 rounded-xl border border-subtle bg-elevated p-space-4 transition-colors duration-normal [overflow-wrap:anywhere] focus-within:border-focus motion-reduce:transition-none';
+  'flex w-full min-w-0 flex-col gap-space-3 rounded-xl border border-subtle bg-elevated p-space-4 [overflow-wrap:anywhere]';
 
 const stateMessages: Record<ChatRichContentState, string | undefined> = {
   unanswered: undefined,

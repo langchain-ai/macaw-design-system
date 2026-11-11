@@ -1,3 +1,14 @@
+## 1.7.10 (2026-11-11)
+
+### 🚀 Features
+
+- **chat:** add ChatPlan and close agent chat gaps ([#109](https://github.com/langchain-ai/macaw-design-system/pull/109))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun
+- Nick
+
 ## 1.7.9 (2026-11-10)
 
 ### 🩹 Fixes

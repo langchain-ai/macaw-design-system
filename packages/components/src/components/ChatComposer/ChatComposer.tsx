@@ -63,6 +63,11 @@ function isAttachmentTargetBlocked(target: EventTarget) {
   );
 }
 
+// Clicks on the composer's own empty space go to the message input; clicks on
+// controls, fields, links, and the editor itself keep their behavior.
+const COMPOSER_CLICK_TARGET_SELECTOR =
+  'a[href], button, input, select, textarea, label, summary, [tabindex], [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="menuitem"], [role="option"], [role="combobox"], [role="checkbox"], [role="radio"], [role="switch"], [role="tab"]';
+
 // A fieldset is barred from constraint validation, so its own
 // reportValidity() never inspects the controls inside it.
 function reportFieldsetValidity(fieldset: HTMLFieldSetElement | null) {
@@ -203,6 +208,17 @@ export function ChatComposer({
           // A disabled fieldset would also disable Stop; the composer's own
           // parts read `disabled` from context instead.
           disabled={disabled && action !== 'stop'}
+          onClick={(event) => {
+            if (
+              event.defaultPrevented ||
+              !(event.target instanceof Element) ||
+              event.target.closest(COMPOSER_CLICK_TARGET_SELECTOR) ||
+              // Finishing a drag selection, such as in an attachment name.
+              window.getSelection()?.isCollapsed === false
+            )
+              return;
+            inputFocusRef.current?.();
+          }}
           className={cn(
             'relative m-0 flex w-full min-w-0 flex-col gap-space-2 rounded-lg border border-subtle bg-elevated p-space-2 transition-[border-color,box-shadow,background-color] duration-normal motion-reduce:transition-none',
             // Toolbar menus portal out, so focus-within would flash as focus
