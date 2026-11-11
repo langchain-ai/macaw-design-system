@@ -6,6 +6,24 @@ import { ChatConversation } from '../ChatConversation';
 
 let resizeCallbacks: ResizeObserverCallback[] = [];
 const OriginalResizeObserver = globalThis.ResizeObserver;
+let mutationObservers: FakeMutationObserver[] = [];
+const OriginalMutationObserver = globalThis.MutationObserver;
+
+class FakeMutationObserver {
+  observing = false;
+  constructor(readonly callback: MutationCallback) {
+    mutationObservers.push(this);
+  }
+  observe() {
+    this.observing = true;
+  }
+  disconnect() {
+    this.observing = false;
+  }
+  takeRecords() {
+    return [];
+  }
+}
 
 beforeEach(() => {
   resizeCallbacks = [];
@@ -17,10 +35,13 @@ beforeEach(() => {
     unobserve() {}
     disconnect() {}
   };
+  mutationObservers = [];
+  globalThis.MutationObserver = FakeMutationObserver;
 });
 
 afterEach(() => {
   globalThis.ResizeObserver = OriginalResizeObserver;
+  globalThis.MutationObserver = OriginalMutationObserver;
 });
 
 function setLayout(
@@ -41,6 +62,15 @@ function resize() {
   act(() => {
     for (const callback of resizeCallbacks) {
       callback([], {} as ResizeObserver);
+    }
+  });
+}
+
+/** Notifies the mutation observers that are currently observing. */
+function mutate() {
+  act(() => {
+    for (const observer of mutationObservers) {
+      if (observer.observing) observer.callback([], {} as MutationObserver);
     }
   });
 }
@@ -170,6 +200,96 @@ describe('ChatConversation', () => {
   it('makes the log keyboard-focusable', () => {
     renderConversation();
     expect(screen.getByRole('log')).toHaveAttribute('tabindex', '0');
+  });
+
+  it('never scrolls on its own with follow="none", but still offers a jump', () => {
+    render(
+      <ChatConversation follow="none">
+        <p>Hello</p>
+      </ChatConversation>
+    );
+    const viewport = screen.getByRole('log');
+    setLayout(viewport, { scrollHeight: 1000, clientHeight: 400 });
+    resize();
+    expect(viewport.scrollTop).toBe(0);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Jump to latest' }));
+    expect(viewport.scrollTop).toBe(1000);
+    expect(viewport).toHaveFocus();
+
+    setLayout(viewport, { scrollHeight: 1600, clientHeight: 400 });
+    resize();
+    expect(viewport.scrollTop).toBe(1000);
+    expect(
+      screen.getByRole('button', { name: 'Jump to latest' })
+    ).toBeVisible();
+  });
+
+  it('stops following when switched to none, and resumes when switched back at the end', () => {
+    const { rerender } = render(
+      <ChatConversation>
+        <p>Hello</p>
+      </ChatConversation>
+    );
+    const viewport = screen.getByRole('log');
+    setLayout(viewport, { scrollHeight: 1000, clientHeight: 400 });
+    resize();
+
+    rerender(
+      <ChatConversation follow="none">
+        <p>Hello</p>
+      </ChatConversation>
+    );
+    setLayout(viewport, { scrollHeight: 1400, clientHeight: 400 });
+    resize();
+    expect(viewport.scrollTop).toBe(1000);
+
+    rerender(
+      <ChatConversation follow="bottom">
+        <p>Hello</p>
+      </ChatConversation>
+    );
+    expect(viewport.scrollTop).toBe(1400);
+    setLayout(viewport, { scrollHeight: 1800, clientHeight: 400 });
+    resize();
+    expect(viewport.scrollTop).toBe(1800);
+  });
+
+  describe('pinnedMessageId', () => {
+    function Messages({ ids }: { ids: string[] }) {
+      return ids.map((id) => (
+        <p key={id} data-chat-message-id={id}>
+          {id}
+        </p>
+      ));
+    }
+
+    // jsdom has no layout; the PinsSentMessageAboveReply story covers where a
+    // pin lands.
+
+    it('keeps following until the pinned message renders', () => {
+      const { rerender } = render(
+        <ChatConversation pinnedMessageId="c">
+          <Messages ids={['a', 'b']} />
+        </ChatConversation>
+      );
+      const viewport = screen.getByRole('log');
+      setLayout(viewport, { scrollHeight: 1000, clientHeight: 400 });
+      resize();
+      setLayout(viewport, { scrollHeight: 1400, clientHeight: 400 });
+      resize();
+      expect(viewport.scrollTop).toBe(1400);
+
+      rerender(
+        <ChatConversation pinnedMessageId="c">
+          <Messages ids={['a', 'b', 'c']} />
+        </ChatConversation>
+      );
+      // No resize: a message added to content shorter than the viewport
+      // doesn't change its size.
+      mutate();
+      expect(viewport.scrollTop).toBeLessThan(1400);
+    });
   });
 
   it('exposes the scrolling element through viewportRef', () => {

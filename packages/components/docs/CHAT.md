@@ -5,6 +5,21 @@ own message and event parsing, network requests, streaming, persistence,
 authorization, analytics, tool execution, and product-specific tool or logo
 mapping.
 
+## Conversation scrolling
+
+`ChatConversation` follows new output while the reader is at the bottom;
+scrolling up pauses it and shows **Jump to latest**. `follow="none"` never
+scrolls on its own.
+
+Set `pinnedMessageId` to the message the reader just sent: it moves to the top,
+and the reply streams in below it. Following resumes when the reader scrolls
+to the end or uses **Jump to latest**.
+
+Earlier messages inserted above the reader keep the first visible message in
+place, so the host only fetches and renders them. Both find messages by
+`data-chat-message-id`, which `ChatMessage` sets; give custom rows the same
+attribute.
+
 ## Tool calls and shared state
 
 Import `ChatState` from `@langchain/macaw-components/ChatState`. It owns the
