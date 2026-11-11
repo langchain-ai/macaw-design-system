@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   ChatThreadDecision,
@@ -182,97 +182,113 @@ export function useChatThread(
     setUserTurnsAtSend(undefined);
   }
 
-  function submit(input: unknown, options?: object) {
-    return invoke(stream, stream.submit, input, options);
-  }
-
-  function resumeOne(id: string, value: unknown) {
-    const interrupt = model.interrupts.find((item) => item.id === id);
-    // Generated IDs stand in for interrupts the server sent without one.
-    const serverId =
-      interrupt && isRecord(interrupt.raw) && interrupt.raw.id === id
-        ? id
-        : undefined;
-    if (stream.respond) {
-      return invoke(
-        stream,
-        stream.respond,
-        value,
-        serverId ? { interruptId: serverId } : undefined
-      );
+  // Actions read the latest render through a ref, so they keep one identity
+  // and hosts can list them as effect dependencies.
+  const latest = useRef({ stream, model, queue, userTurnCount: 0 });
+  useLayoutEffect(() => {
+    latest.current = { stream, model, queue, userTurnCount: userTurns.length };
+  });
+  const actions = useMemo<ChatThreadActions>(() => {
+    function submit(input: unknown, options?: object) {
+      const { stream } = latest.current;
+      return invoke(stream, stream.submit, input, options);
     }
-    return submit(null, { command: { resume: value } });
-  }
 
-  const actions: ChatThreadActions = {
-    async send(text) {
-      setUserTurnsAtSend(userTurns.length);
-      try {
+    function resumeOne(id: string, value: unknown) {
+      const { stream, model } = latest.current;
+      const interrupt = model.interrupts.find((item) => item.id === id);
+      // Generated IDs stand in for interrupts the server sent without one.
+      const serverId =
+        interrupt && isRecord(interrupt.raw) && interrupt.raw.id === id
+          ? id
+          : undefined;
+      if (stream.respond) {
+        return invoke(
+          stream,
+          stream.respond,
+          value,
+          serverId ? { interruptId: serverId } : undefined
+        );
+      }
+      return submit(null, { command: { resume: value } });
+    }
+
+    return {
+      async send(text) {
+        const { stream, userTurnCount } = latest.current;
+        setUserTurnsAtSend(userTurnCount);
+        try {
+          await submit(
+            humanInput(text),
+            stream.isLoading ? { multitaskStrategy: 'enqueue' } : undefined
+          );
+        } catch (error) {
+          // Don't claim the next message from someone else as this one.
+          setUserTurnsAtSend(undefined);
+          throw error;
+        }
+      },
+      async stop() {
+        const { stream } = latest.current;
+        setStopping(true);
+        try {
+          await invoke(stream, stream.stop);
+        } finally {
+          setStopping(false);
+        }
+      },
+      async respond(interruptId, decisions) {
+        const interrupt = latest.current.model.interrupts.find(
+          (item) => item.id === interruptId
+        );
+        const value =
+          interrupt?.kind === 'approval'
+            ? toHumanInTheLoopResponse(interrupt, decisions)
+            : decisions;
+        await resumeOne(interruptId, value);
+      },
+      async resume(valuesById) {
+        const { stream } = latest.current;
+        const ids = Object.keys(valuesById);
+        if (ids.length === 1) {
+          await resumeOne(ids[0], valuesById[ids[0]]);
+          return;
+        }
+        // Interrupts paused at one checkpoint must resume in one command.
+        if (stream.respondAll) {
+          await invoke(stream, stream.respondAll, valuesById);
+          return;
+        }
+        await submit(null, { command: { resume: valuesById } });
+      },
+      async cancelQueued(id) {
+        await latest.current.queue?.cancel(id);
+      },
+      async fork(text, forkPoint) {
+        // 0.3.x forks from a checkpoint object; 1.x and 2.0 from its ID.
         await submit(
           humanInput(text),
-          stream.isLoading ? { multitaskStrategy: 'enqueue' } : undefined
+          latest.current.stream.getMessagesMetadata
+            ? { checkpoint: forkPoint }
+            : { forkFrom: forkPoint }
         );
-      } catch (error) {
-        // Don't claim the next message from someone else as this one.
-        setUserTurnsAtSend(undefined);
-        throw error;
-      }
-    },
-    async stop() {
-      setStopping(true);
-      try {
-        await invoke(stream, stream.stop);
-      } finally {
-        setStopping(false);
-      }
-    },
-    async respond(interruptId, decisions) {
-      const interrupt = model.interrupts.find(
-        (item) => item.id === interruptId
-      );
-      const value =
-        interrupt?.kind === 'approval'
-          ? toHumanInTheLoopResponse(interrupt, decisions)
-          : decisions;
-      await resumeOne(interruptId, value);
-    },
-    async resume(valuesById) {
-      const ids = Object.keys(valuesById);
-      if (ids.length === 1) {
-        await resumeOne(ids[0], valuesById[ids[0]]);
-        return;
-      }
-      // Interrupts paused at one checkpoint must resume in one command.
-      if (stream.respondAll) {
-        await invoke(stream, stream.respondAll, valuesById);
-        return;
-      }
-      await submit(null, { command: { resume: valuesById } });
-    },
-    async cancelQueued(id) {
-      await queue?.cancel(id);
-    },
-    async fork(text, forkPoint) {
-      // 0.3.x forks from a checkpoint object; 1.x and 2.0 from its ID.
-      await submit(
-        humanInput(text),
-        stream.getMessagesMetadata
-          ? { checkpoint: forkPoint }
-          : { forkFrom: forkPoint }
-      );
-    },
-  };
+      },
+    };
+  }, []);
 
-  return {
-    model,
-    actions,
-    stream,
-    selectors,
-    isThreadLoading: stream.isThreadLoading === true,
-    stopping,
-    timings,
-    sentMessageId,
-  };
+  return useMemo(
+    () => ({
+      model,
+      actions,
+      stream,
+      selectors,
+      isThreadLoading: stream.isThreadLoading === true,
+      stopping,
+      timings,
+      sentMessageId,
+    }),
+    [model, actions, stream, selectors, stopping, timings, sentMessageId]
+  );
 }
 
 /**

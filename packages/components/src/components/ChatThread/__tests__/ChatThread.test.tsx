@@ -42,22 +42,24 @@ function approvalInterrupt(casing: 'camel' | 'snake', requests: number) {
 }
 
 describe('useChatThread actions', () => {
-  it('sends a message, and queues it while a run is active', async () => {
+  it('sends a message, and queues it while a run is active, with stable actions', async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const { result, rerender } = renderHook(
       ({ isLoading }) =>
         useChatThread(staticStream({ ...emptyState, isLoading }, { submit })),
       { initialProps: { isLoading: false } }
     );
+    const { actions } = result.current;
 
-    await act(() => result.current.actions.send('Hello'));
+    await act(() => actions.send('Hello'));
     expect(submit).toHaveBeenLastCalledWith(
       { messages: [{ type: 'human', content: 'Hello' }] },
       undefined
     );
 
     rerender({ isLoading: true });
-    await act(() => result.current.actions.send('And then?'));
+    expect(result.current.actions).toBe(actions);
+    await act(() => actions.send('And then?'));
     expect(submit).toHaveBeenLastCalledWith(
       { messages: [{ type: 'human', content: 'And then?' }] },
       { multitaskStrategy: 'enqueue' }

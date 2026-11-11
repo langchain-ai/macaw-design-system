@@ -226,8 +226,10 @@ export function WorkParts({ parts }: { parts: ChatThreadPart[] }) {
 
 export function ImagePart({ url }: { url: string }) {
   // Generated images arrive inline; remote URLs stay links so they aren't
-  // fetched without the reader's action.
+  // fetched without the reader's action. Other schemes come from model
+  // output and aren't safe to link.
   if (!url.startsWith('data:image/')) {
+    if (!/^https?:\/\//i.test(url)) return null;
     return (
       <a
         href={url}

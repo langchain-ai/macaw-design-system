@@ -59,6 +59,18 @@ function lineChanges(before: string, after: string) {
   return { added: b.length - common, removed: a.length - common };
 }
 
+// Renderers run on every render, so keep each call's counts with its args.
+const changesByArgs = new WeakMap<object, ReturnType<typeof lineChanges>>();
+
+function cachedLineChanges(input: object, before: string, after: string) {
+  let changes = changesByArgs.get(input);
+  if (!changes) {
+    changes = lineChanges(before, after);
+    changesByArgs.set(input, changes);
+  }
+  return changes;
+}
+
 const EXTENSION_LANGUAGES: Record<string, CodeLiteCodeProps['language']> = {
   ts: 'typescript',
   tsx: 'typescript',
@@ -128,7 +140,8 @@ export const deepAgentTools: Record<string, ChatThreadToolRenderer> = {
     };
   },
   edit_file: ({ args: input }) => {
-    const { file_path, old_string, new_string } = args(input);
+    const fields = args(input);
+    const { file_path, old_string, new_string } = fields;
     const path = text(file_path);
     const before = typeof old_string === 'string' ? old_string : undefined;
     const after = typeof new_string === 'string' ? new_string : undefined;
@@ -138,7 +151,7 @@ export const deepAgentTools: Record<string, ChatThreadToolRenderer> = {
       summary: path,
       meta:
         before !== undefined && after !== undefined ? (
-          <DiffStat {...lineChanges(before, after)} />
+          <DiffStat {...cachedLineChanges(fields, before, after)} />
         ) : null,
       children:
         before !== undefined && after !== undefined ? (
