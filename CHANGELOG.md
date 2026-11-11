@@ -1,3 +1,13 @@
+## 1.7.11 (2026-11-11)
+
+### 🚀 Features
+
+- **chat:** pin sent messages and keep the reading position in ChatConversation ([#110](https://github.com/langchain-ai/macaw-design-system/pull/110))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.7.10 (2026-11-11)
 
 ### 🚀 Features
