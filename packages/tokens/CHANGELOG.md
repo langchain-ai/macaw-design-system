@@ -1,3 +1,7 @@
+## 1.7.10 (2026-11-11)
+
+This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
+
 ## 1.7.9 (2026-11-10)
 
 This was a version bump only for @langchain/macaw-tokens to align it with other projects, there were no code changes.
