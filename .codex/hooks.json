@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.agents/hooks/design-system-context.sh\" SessionStart",
+            "timeout": 5,
+            "statusMessage": "Loading Macaw design-system guidance",
+            "additionalContextLimit": 10000
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.agents/hooks/design-system-context.sh\" SubagentStart",
+            "timeout": 5,
+            "statusMessage": "Loading Macaw design-system guidance",
+            "additionalContextLimit": 10000
+          }
+        ]
+      }
+    ]
+  }
+}
