@@ -96,6 +96,10 @@
       "types": "./dist/components/ChatMessage/index.d.ts",
       "import": "./dist/components/ChatMessage/index.js"
     },
+    "./ChatPlan": {
+      "types": "./dist/components/ChatPlan/index.d.ts",
+      "import": "./dist/components/ChatPlan/index.js"
+    },
     "./ChatRichContent": {
       "types": "./dist/components/ChatRichContent/index.d.ts",
       "import": "./dist/components/ChatRichContent/index.js"

@@ -38,3 +38,38 @@ The default variant provides local expandable details. Groups preserve nested
 expansion state while collapsed. Controlled `expanded` props allow a host to
 coordinate disclosure without moving tool execution or event parsing into the
 component.
+
+`ChatToolCall` takes `meta` for short trailing details, such as an edit count
+or a link. It sits outside the row toggle, so it can hold its own link or
+button.
+
+## Agent work
+
+`ChatPlan` (from `@langchain/macaw-components/ChatPlan`) shows an agent's
+todos with stable IDs. Put `presentation="drawer"` in `ChatComposer`'s `drawer`
+slot to keep it above the input while the agent works. It can share the drawer:
+the drawer stacks its items with dividers, so pass the plan first and a
+question last, next to the input that answers it. The plan keeps a neutral
+surface under any `drawerIntent`.
+
+Show a delegated subagent run, such as a deep agent's `task` call, as a
+`ChatToolCall` with the subagent's name as `label` and its task as `summary`.
+Its own tool calls go in the details, which mount only while expanded.
+
+Summarize a turn's work with `ChatToolCallGroup`: pass `running`,
+`showElapsed`, and `startedAt` while it runs, so the header keeps working
+between calls, then a label such as
+`` `Worked for ${formatChatDuration(ms)} · 6 actions` ``. `ChatToolCallReasoning`
+with `expandWhileStreaming` stays open while reasoning streams, unless the
+reader toggles it.
+
+`ChatState` takes `startedAt` so a remounted row keeps counting, and
+`announce={false}` when a parent announces the outcome.
+
+## Approvals and queued messages
+
+Approval `ChatRichContent` takes `edit` to change a request before approving
+it, such as a human-in-the-loop `edit` decision. `edit.content` replaces the
+body with host-owned fields; `edit.onSubmit` saves them. `ChatMessageActions`
+shows `cancel` on queued messages, and `ChatComposer` takes
+`action="stopping"` while a stop is pending.

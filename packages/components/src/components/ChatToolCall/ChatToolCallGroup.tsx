@@ -15,12 +15,30 @@ import {
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 
 export interface ChatToolCallGroupProps {
-  /** Hosts supply the count/summary and group only consecutive content. */
+  /**
+   * Hosts supply the count/summary and group only consecutive content. To
+   * summarize a whole turn, use a label such as
+   * `Worked for ${formatChatDuration(ms)} · 6 actions`.
+   */
   label: string;
   children: ReactNode;
   expanded?: boolean;
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  /**
+   * Marks the work as in progress even when no row runs, such as while the
+   * agent decides its next step. Defaults to whether any row is running.
+   */
+  running?: boolean;
+  /** Show elapsed time beside the header's indicator while the work runs. */
+  showElapsed?: boolean;
+  /** Host-measured duration for the header timer. */
+  elapsedMs?: number;
+  /**
+   * Wall-clock start of the grouped work, such as the turn's first event. The
+   * header timer counts from it, so it keeps counting across remounts.
+   */
+  startedAt?: Date | number;
   className?: string;
 }
 
@@ -30,6 +48,10 @@ export function ChatToolCallGroup({
   expanded,
   defaultExpanded = false,
   onExpandedChange,
+  running,
+  showElapsed = false,
+  elapsedMs,
+  startedAt,
   className,
 }: ChatToolCallGroupProps) {
   const contentId = useId();
@@ -39,6 +61,7 @@ export function ChatToolCallGroup({
     onChange: onExpandedChange,
   });
   const { registry, anyRunning, allSucceeded, icons } = useGroupRows();
+  const working = running ?? anyRunning;
 
   return (
     <div className={cn('min-w-0 max-w-full font-sans text-xxs', className)}>
@@ -89,12 +112,14 @@ export function ChatToolCallGroup({
           </span>
         </Button>
         {/* Rows omit success and the running indicator; the header carries them. */}
-        {(anyRunning || allSucceeded) && (
+        {(working || allSucceeded) && (
           <span className="pointer-events-none relative flex shrink-0 items-center">
             <ChatState
               variant="simple"
-              status={anyRunning ? 'streaming' : 'completed'}
-              showElapsed={false}
+              status={working ? 'streaming' : 'completed'}
+              showElapsed={showElapsed && working}
+              elapsedMs={elapsedMs}
+              startedAt={startedAt}
             />
           </span>
         )}

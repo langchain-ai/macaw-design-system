@@ -96,6 +96,7 @@ interface ComposerDemoProps {
   attachmentAppearance?: Pick<ChatComposerAttachmentsProps, 'size' | 'variant'>;
   initialResponding?: boolean;
   initialSending?: boolean;
+  initialStopping?: boolean;
   queueWhileRunning?: boolean;
   narrow?: boolean;
   showTools?: boolean;
@@ -153,6 +154,7 @@ function ComposerDemo({
   attachmentAppearance,
   initialResponding = false,
   initialSending = false,
+  initialStopping = false,
   queueWhileRunning = false,
   narrow = false,
   showTools = false,
@@ -167,6 +169,7 @@ function ComposerDemo({
   const [attachments, setAttachments] = useState(initialAttachments);
   const [isResponding, setIsResponding] = useState(initialResponding);
   const [isSending, setIsSending] = useState(initialSending);
+  const [isStopping, setIsStopping] = useState(initialStopping);
   const [queuedCount, setQueuedCount] = useState(0);
   const [notice, setNotice] = useState('');
   const [lastMessage, setLastMessage] = useState('');
@@ -180,14 +183,21 @@ function ComposerDemo({
     Boolean(draft.trim() || attachments.length) && !hasPendingAttachments;
 
   const stop = () => {
-    setIsResponding(false);
-    setNotice('Response stopped. Your draft is preserved.');
+    // Cancellation takes a moment to confirm; Stop shows it as pending.
+    setIsStopping(true);
+    setTimeout(() => {
+      setIsStopping(false);
+      setIsResponding(false);
+      setNotice('Response stopped. Your draft is preserved.');
+    }, 800);
   };
   const actionProps: ChatComposerProps = isSending
     ? { action: 'sending' }
-    : isResponding && !queueWhileRunning
-      ? { action: 'stop', onStop: stop }
-      : { action: 'send' };
+    : isStopping
+      ? { action: 'stopping' }
+      : isResponding && !queueWhileRunning
+        ? { action: 'stop', onStop: stop }
+        : { action: 'send' };
 
   return (
     <div
@@ -489,6 +499,25 @@ export const WhileStreaming: Story = {
         />
       </div>
     </div>
+  ),
+};
+
+export const WhileStopping: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`action="stopping"` shows progress on Stop while a cancellation is pending. Sending stays blocked until the host confirms the stop and returns to `send`.',
+      },
+    },
+  },
+  render: () => (
+    <ComposerDemo
+      initialResponding
+      initialStopping
+      initialDraft="Drafting a follow-up while the response stops…"
+    />
   ),
 };
 

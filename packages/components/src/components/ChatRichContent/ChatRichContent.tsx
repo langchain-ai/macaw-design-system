@@ -19,7 +19,7 @@ import { ChatRichContentQuestionNav } from './ChatRichContentQuestionNav';
 import { ChatRichContentStatus } from './ChatRichContentStatus';
 
 const containerClassName =
-  'flex w-full min-w-0 flex-col gap-space-3 rounded-xl border border-subtle bg-elevated p-space-4 transition-colors duration-normal [overflow-wrap:anywhere] focus-within:border-focus motion-reduce:transition-none';
+  'flex w-full min-w-0 flex-col gap-space-3 rounded-xl border border-subtle bg-elevated p-space-4 [overflow-wrap:anywhere]';
 
 const stateMessages: Record<ChatRichContentState, string | undefined> = {
   unanswered: undefined,
@@ -65,8 +65,38 @@ export function ChatRichContent(props: ChatRichContentProps) {
     onUndo,
     rejectLabel = 'Reject',
     rejectionReason,
+    edit,
   } = approval ?? {};
-  const submitAction = approval ? approval.onApprove : form?.onSubmit;
+  // Drawers submit through the composer, so editing stays in block cards.
+  const editConfig = isDrawer ? undefined : edit;
+  const [editing, setEditing] = useState(false);
+  // The body crossfades between the request and its edit fields once toggled.
+  const [editToggled, setEditToggled] = useState(false);
+  const isEditing = editing && editConfig !== undefined;
+  const bodyContent = isEditing ? editConfig.content : children;
+  const submitAction = isEditing
+    ? editConfig.onSubmit
+    : approval
+      ? approval.onApprove
+      : form?.onSubmit;
+  const fieldsetRef = useRef<HTMLFieldSetElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const pendingFocus = useRef<'fields' | 'edit' | null>(null);
+  // Entering edit mode moves focus to the first field; Cancel returns it to Edit.
+  useLayoutEffect(() => {
+    const target = pendingFocus.current;
+    if (!target) return;
+    pendingFocus.current = null;
+    if (target === 'edit') {
+      editButtonRef.current?.focus();
+      return;
+    }
+    fieldsetRef.current
+      ?.querySelector<HTMLElement>(
+        'input, textarea, select, [contenteditable="true"], button, [tabindex]:not([tabindex="-1"])'
+      )
+      ?.focus();
+  });
   const id = useId();
   const currentQuestion = navigation?.current ?? 1;
   const [questionTransition, setQuestionTransition] = useState({
@@ -111,6 +141,8 @@ export function ChatRichContent(props: ChatRichContentProps) {
     state === 'unanswered' ||
     state === 'validation-error' ||
     state === 'submission-failed';
+  // A saved decision ends editing; undoing it returns to the original request.
+  if (editing && !editable) setEditing(false);
   const pending = submission !== undefined;
   const displayState = pending && editable ? 'submitting' : state;
   const hasDecision = state === 'approved' || state === 'rejected';
@@ -210,8 +242,43 @@ export function ChatRichContent(props: ChatRichContentProps) {
   }
 
   function renderSecondaryActions(size: 'xs' | 'sm') {
+    if (isEditing) {
+      return (
+        <Button
+          type="button"
+          size={size}
+          color="secondary"
+          variant="plain"
+          disabled={pending}
+          onClick={() => {
+            pendingFocus.current = 'edit';
+            setEditToggled(true);
+            setEditing(false);
+          }}
+        >
+          Cancel
+        </Button>
+      );
+    }
     return (
       <>
+        {editConfig && (
+          <Button
+            ref={editButtonRef}
+            type="button"
+            size={size}
+            color="secondary"
+            variant="plain"
+            disabled={actionsDisabled}
+            onClick={() => {
+              pendingFocus.current = 'fields';
+              setEditToggled(true);
+              setEditing(true);
+            }}
+          >
+            {editConfig.label ?? 'Edit'}
+          </Button>
+        )}
         {onSkip && (
           <Button
             type="button"
@@ -375,21 +442,30 @@ export function ChatRichContent(props: ChatRichContentProps) {
           isDrawer && (children == null ? 'pt-space-1' : 'pt-space-4')
         )}
       >
-        {children != null && (
+        {bodyContent != null && (
           <fieldset
-            key={currentQuestion}
+            key={`${currentQuestion}-${isEditing ? 'edit' : 'review'}`}
+            ref={fieldsetRef}
             disabled={disabled}
+            aria-label={
+              isEditing
+                ? `${editConfig.label ?? 'Edit'} ${title}`.trim()
+                : undefined
+            }
             className={cn(
               'm-0 flex min-w-0 flex-col gap-space-4 border-0 p-0',
-              questionAnimation
+              questionAnimation,
+              editToggled &&
+                'duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] animate-in fade-in slide-in-from-bottom-1 motion-reduce:animate-none'
             )}
           >
-            {typeof children === 'function'
-              ? children({ disabled, isError, errorId })
-              : children}
+            {typeof bodyContent === 'function'
+              ? bodyContent({ disabled, isError, errorId })
+              : bodyContent}
           </fieldset>
         )}
         {rejectionReason &&
+          !isEditing &&
           state !== 'submitted' &&
           state !== 'approved' &&
           (!readOnly || rejectionReason.value) && (
@@ -467,11 +543,13 @@ export function ChatRichContent(props: ChatRichContentProps) {
               >
                 {nextAction
                   ? 'Next'
-                  : approval
-                    ? (approval.approveLabel ?? 'Approve')
-                    : state === 'submission-failed'
-                      ? 'Retry response'
-                      : (form?.submitLabel ?? 'Submit response')}
+                  : isEditing
+                    ? (editConfig.submitLabel ?? 'Approve with edits')
+                    : approval
+                      ? (approval.approveLabel ?? 'Approve')
+                      : state === 'submission-failed'
+                        ? 'Retry response'
+                        : (form?.submitLabel ?? 'Submit response')}
               </Button>
             )}
           </div>

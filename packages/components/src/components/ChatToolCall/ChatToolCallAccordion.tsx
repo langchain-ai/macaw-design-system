@@ -13,6 +13,8 @@ const SWAP_TRANSITION =
 interface ChatToolCallAccordionProps {
   heading: ReactNode;
   status: ReactNode;
+  /** Trailing content before the status, outside the toggle. */
+  meta?: ReactNode;
   children: ReactNode;
   groupLabel: string;
   triggerLabel: string;
@@ -28,6 +30,7 @@ interface ChatToolCallAccordionProps {
 export function ChatToolCallAccordion({
   heading,
   status,
+  meta,
   children,
   groupLabel,
   triggerLabel,
@@ -77,6 +80,12 @@ export function ChatToolCallAccordion({
         ) : (
           <span className="flex min-w-0 flex-1 items-center gap-space-2 py-space-1">
             {heading}
+          </span>
+        )}
+        {meta != null && (
+          // Raised above the stretched toggle so links and buttons stay clickable.
+          <span className="relative z-[1] flex min-w-0 shrink-0 items-center gap-space-1 text-tertiary">
+            {meta}
           </span>
         )}
         {/* Status and caret share the trailing slot: status at rest, caret on

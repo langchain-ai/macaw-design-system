@@ -1,4 +1,4 @@
-import { useImperativeHandle } from 'react';
+import { useEffect, useImperativeHandle, useRef } from 'react';
 
 import { EditorContent } from '@tiptap/react';
 
@@ -71,11 +71,25 @@ export function ChatComposerRichInput({
     [editor, editable]
   );
 
+  // Until the user first places the caret, ProseMirror's selection sits at the
+  // start of the draft, so composer-level focus starts at the end instead.
+  const hasFocusedRef = useRef(false);
+  useEffect(() => {
+    if (!editor) return;
+    const markFocused = () => {
+      hasFocusedRef.current = true;
+    };
+    editor.on('focus', markFocused);
+    return () => {
+      editor.off('focus', markFocused);
+    };
+  }, [editor]);
+
   useImperativeHandle(
     composer.inputFocusRef,
     () => () => {
       if (!editable || !editor) return false;
-      editor.commands.focus('end');
+      editor.commands.focus(hasFocusedRef.current ? null : 'end');
       return true;
     },
     [editor, editable]

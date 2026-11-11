@@ -253,6 +253,88 @@ describe('ChatRichContent', () => {
   );
 
   describe('approval', () => {
+    function EditableApproval({
+      presentation,
+    }: {
+      presentation?: 'block' | 'drawer';
+    }) {
+      const [query, setQuery] = useState('deploy staging');
+      const [saved, setSaved] = useState<string>();
+      const [state, setState] = useState<ChatRichContentState>('unanswered');
+      return (
+        <>
+          <ChatRichContent
+            variant="approval"
+            presentation={presentation}
+            title="Run search"
+            state={state}
+            onApprove={() => setState('approved')}
+            onReject={() => setState('rejected')}
+            onUndo={() => setState('unanswered')}
+            edit={{
+              content: ({ disabled }) => (
+                <Input
+                  label="Query"
+                  value={query}
+                  onChange={setQuery}
+                  debounceMs={0}
+                  disabled={disabled}
+                />
+              ),
+              onSubmit: () => {
+                setSaved(query);
+                setState('approved');
+              },
+            }}
+          >
+            <p>Search for deploy staging</p>
+          </ChatRichContent>
+          <output aria-label="Saved request">{saved ?? 'Nothing saved'}</output>
+        </>
+      );
+    }
+
+    it('lets the reviewer edit the request before approving it', async () => {
+      const { user } = render(<EditableApproval />);
+
+      await user.click(screen.getByRole('button', { name: 'Edit' }));
+      const field = screen.getByRole('textbox', { name: 'Query' });
+      expect(field).toHaveFocus();
+      expect(screen.queryByText('Search for deploy staging')).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Reject' })).toBeNull();
+
+      await user.clear(field);
+      await user.type(field, 'deploy production');
+      await user.click(
+        screen.getByRole('button', { name: 'Approve with edits' })
+      );
+
+      expect(screen.getByLabelText('Saved request')).toHaveTextContent(
+        'deploy production'
+      );
+      expect(screen.getByText('Approved')).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+      expect(screen.getByText('Search for deploy staging')).toBeVisible();
+    });
+
+    it('returns to the original request and the Edit button on cancel', async () => {
+      const { user } = render(<EditableApproval />);
+
+      await user.click(screen.getByRole('button', { name: 'Edit' }));
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.getByText('Search for deploy staging')).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Edit' })).toHaveFocus();
+      expect(screen.getByLabelText('Saved request')).toHaveTextContent(
+        'Nothing saved'
+      );
+    });
+
+    it('leaves editing to block cards', () => {
+      render(<EditableApproval presentation="drawer" />);
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+    });
+
     it('associates rejection validation with the editable reason field', () => {
       render(
         <ChatRichContent

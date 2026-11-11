@@ -16,15 +16,20 @@ import {
 
 export type ChatComposerDrawerIntent = 'neutral' | 'info' | 'warning' | 'error';
 
+// Dividers match the drawer border, so stacked drawer content reads as one surface.
 const DRAWER_INTENT_CLASSES: Record<ChatComposerDrawerIntent, string> = {
-  neutral: 'border-subtle bg-surface-level-2',
-  info: 'border-brand-subtle bg-brand-subtle',
-  warning: 'border-warning bg-warning',
-  error: 'border-error bg-error',
+  neutral: 'border-subtle divide-subtle bg-surface-level-2',
+  info: 'border-brand-subtle divide-brand-subtle bg-brand-subtle',
+  warning: 'border-warning divide-warning bg-warning',
+  error: 'border-error divide-error bg-error',
 };
 
 export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
-  /** Supplementary content attached above the editor, inside the composer form. */
+  /**
+   * Supplementary content attached above the editor, inside the composer form.
+   * Several items, such as a plan and a question, stack with dividers; put the
+   * one the input answers last, next to it.
+   */
   drawer?: ReactNode;
   /**
    * Drawer surface color. Color alone doesn't convey severity, so the drawer
@@ -42,6 +47,8 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
 } & (
     | { action?: 'send' | 'sending'; onStop?: never }
     | { action: 'stop'; onStop: () => void }
+    /** A stop request is pending; Stop shows progress and sending stays blocked. */
+    | { action: 'stopping'; onStop?: never }
   );
 
 // A disabled or read-only part of the composer, such as a read-only message
@@ -55,6 +62,11 @@ function isAttachmentTargetBlocked(target: EventTarget) {
     ) !== null
   );
 }
+
+// Clicks on the composer's own empty space go to the message input; clicks on
+// controls, fields, links, and the editor itself keep their behavior.
+const COMPOSER_CLICK_TARGET_SELECTOR =
+  'a[href], button, input, select, textarea, label, summary, [tabindex], [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="menuitem"], [role="option"], [role="combobox"], [role="checkbox"], [role="radio"], [role="switch"], [role="tab"]';
 
 // A fieldset is barred from constraint validation, so its own
 // reportValidity() never inspects the controls inside it.
@@ -183,9 +195,9 @@ export function ChatComposer({
             disabled={disabled}
             className={cn(
               // Extends under the composer's rounded top so the seam stays hidden.
-              'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 overflow-y-auto overscroll-contain rounded-t-lg border border-b-0 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
+              'mx-space-3 -mb-space-3 max-h-[50dvh] min-w-0 divide-y overflow-y-auto overscroll-contain rounded-t-lg border border-b-0 pb-space-3 duration-normal ease-out animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none',
               DRAWER_INTENT_CLASSES[drawerIntent],
-              disabled && 'border-disabled'
+              disabled && 'border-disabled divide-disabled'
             )}
           >
             {drawer}
@@ -196,6 +208,17 @@ export function ChatComposer({
           // A disabled fieldset would also disable Stop; the composer's own
           // parts read `disabled` from context instead.
           disabled={disabled && action !== 'stop'}
+          onClick={(event) => {
+            if (
+              event.defaultPrevented ||
+              !(event.target instanceof Element) ||
+              event.target.closest(COMPOSER_CLICK_TARGET_SELECTOR) ||
+              // Finishing a drag selection, such as in an attachment name.
+              window.getSelection()?.isCollapsed === false
+            )
+              return;
+            inputFocusRef.current?.();
+          }}
           className={cn(
             'relative m-0 flex w-full min-w-0 flex-col gap-space-2 rounded-lg border border-subtle bg-elevated p-space-2 transition-[border-color,box-shadow,background-color] duration-normal motion-reduce:transition-none',
             // Toolbar menus portal out, so focus-within would flash as focus
@@ -248,6 +271,7 @@ const ACTION_LABELS = {
   send: 'Send message',
   sending: 'Sending message',
   stop: 'Stop response',
+  stopping: 'Stopping response',
 } satisfies Record<ChatComposerContextValue['action'], string>;
 
 // Pending sends use the composer's action="sending", which also blocks the
@@ -264,6 +288,7 @@ export function ChatComposerAction({
 }: ChatComposerActionProps) {
   const composer = useChatComposerContext();
   const isStop = composer.action === 'stop';
+  const isStopping = composer.action === 'stopping';
   return (
     <IconButton
       size="sm"
@@ -271,12 +296,13 @@ export function ChatComposerAction({
       color="primary"
       iconWeight="regular"
       {...props}
-      type={isStop ? 'button' : 'submit'}
-      icon={isStop ? StopIcon : ArrowUpIcon}
+      type={isStop || isStopping ? 'button' : 'submit'}
+      icon={isStop || isStopping ? StopIcon : ArrowUpIcon}
       label={label ?? ACTION_LABELS[composer.action]}
-      // canSubmit already accounts for a disabled composer; Stop ignores it.
+      // canSubmit is false while disabled, sending, or stopping, so this also
+      // disables Stop once a stop is pending; Stop ignores `disabled` otherwise.
       disabled={disabled || (!isStop && !composer.canSubmit)}
-      loading={composer.action === 'sending'}
+      loading={composer.action === 'sending' || isStopping}
       onClick={isStop ? composer.onStop : undefined}
     />
   );

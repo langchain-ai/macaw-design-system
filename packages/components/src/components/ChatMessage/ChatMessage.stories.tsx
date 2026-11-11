@@ -115,6 +115,7 @@ const exampleActions = {
   copy: { onClick: fn() },
   edit: { onClick: fn() },
   retry: { onClick: fn() },
+  cancel: { onClick: fn() },
 };
 
 function ConversationExample() {
@@ -255,7 +256,12 @@ export const WithMetadata: Story = {
   },
 };
 
-const statuses: ChatMessageStatus[] = ['streaming', 'failed', 'completed'];
+const statuses: ChatMessageStatus[] = [
+  'queued',
+  'streaming',
+  'failed',
+  'completed',
+];
 
 const revealParagraphs: ChatMessageContentBlock[] = [
   {
@@ -370,9 +376,11 @@ function ActionsExample({
                   type: 'text',
                   text: readOnly
                     ? 'This is a read-only message. The readOnly prop is separate from status.'
-                    : status === 'failed'
-                      ? 'This is a failed message.'
-                      : 'This message completed successfully.',
+                    : status === 'queued'
+                      ? 'This message is queued; it can be canceled before it sends.'
+                      : status === 'failed'
+                        ? 'This is a failed message.'
+                        : 'This message completed successfully.',
                 },
               ],
       }}

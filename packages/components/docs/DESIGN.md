@@ -72,9 +72,10 @@ Custom components should compose primitives and keep feature data, permissions, 
 ## Chat
 
 Import the tool-call presentation family from
-`@langchain/macaw-components/ChatToolCall` and shared lifecycle presentation
-from `@langchain/macaw-components/ChatState`. They are intentionally omitted
-from the root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
+`@langchain/macaw-components/ChatToolCall`, shared lifecycle presentation
+from `@langchain/macaw-components/ChatState`, and agent task lists from
+`@langchain/macaw-components/ChatPlan`. They are intentionally omitted from the
+root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
 
 ## Breadcrumbs
 
@@ -210,7 +211,8 @@ only inside `ChatComposer`: `ChatComposerInput`, optional
 Control the draft with `value`/`onChange` on `ChatComposerInput` and send from
 `onSubmit`. Set `submitDisabled` when there is no text and no attachments, and
 `disabled` to lock writing and sending. Set `action="sending"` while a send is
-pending and `action="stop"` with `onStop` during generation. Both block sending
+pending, `action="stop"` with `onStop` during generation, and
+`action="stopping"` while a stop request is pending. All three block sending
 and keep the input and attachments usable. Stop stays available when the
 composer is also `disabled`, so pass `disabled` to your own controls inside it
 as well. Skip any state your app does not have.
@@ -237,7 +239,8 @@ with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
 model moves focus to the message input.
 
 Use `drawer` for content above the editor, such as questions to answer before
-sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
+sending. Several items stack with dividers; put the one the input answers,
+such as a question, last. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
 
@@ -255,7 +258,8 @@ owns submission, so keep its `disabled`, `submitDisabled`, `action`, and
 `drawerIntent` in sync with `state`. Set `customInput="external"` on choices to
 take custom text from the composer input, and focus it from `onCustomSelect`.
 
-Use `variant="approval"` for decisions. Set `submitted`, `approved`, or
+Use `variant="approval"` for decisions, and `edit` when the reviewer may change
+the request before approving it. Set `submitted`, `approved`, or
 `rejected` only after saving. An action stays pending until `state` changes from
 where it started (ignoring `submitting`), so throw from the callback when a
 retry fails with the same error state. Key the card by request ID for a new

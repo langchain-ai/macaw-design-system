@@ -11,6 +11,7 @@ import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr/ArrowClockwis
 import { CopySimpleIcon } from '@phosphor-icons/react/dist/ssr/CopySimple';
 import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
 import type { IconComponent } from '../../utils/icon-types';
@@ -263,8 +264,10 @@ export function ChatMessageBody({
       className={cn(
         'flex w-full min-w-0 max-w-full flex-col gap-space-3 [overflow-wrap:anywhere]',
         alignment === 'end' && 'items-end',
-        // Keep wide host content from stretching the message.
-        '[&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto',
+        // Keep wide host content from stretching the message. Tables that
+        // already sit in a scrolling region, such as MarkdownDisplay's, keep
+        // table layout so they can fill the message width.
+        '[&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table:not([role=region]>table)]:block [&_table:not([role=region]>table)]:max-w-full [&_table:not([role=region]>table)]:overflow-x-auto',
         className
       )}
       {...props}
@@ -311,6 +314,7 @@ const actionDefinitions: {
   { name: 'copy', label: 'Copy message', icon: CopySimpleIcon },
   { name: 'edit', label: 'Edit message', icon: PencilSimpleIcon },
   { name: 'retry', label: 'Retry message', icon: ArrowClockwiseIcon },
+  { name: 'cancel', label: 'Cancel queued message', icon: XIcon },
 ];
 
 function canChangeMessage(status: ChatMessageStatus, readOnly: boolean) {
@@ -322,6 +326,16 @@ function canChangeMessage(status: ChatMessageStatus, readOnly: boolean) {
   );
 }
 
+function isActionAvailable(
+  name: keyof ChatMessageActionCapabilities,
+  status: ChatMessageStatus,
+  readOnly: boolean
+) {
+  if (name === 'copy') return true;
+  if (name === 'cancel') return !readOnly && status === 'queued';
+  return canChangeMessage(status, readOnly);
+}
+
 export interface ChatMessageActionsProps extends ComponentPropsWithRef<'div'> {
   actions?: ChatMessageActionCapabilities;
   status?: ChatMessageStatus;
@@ -329,9 +343,10 @@ export interface ChatMessageActionsProps extends ComponentPropsWithRef<'div'> {
 }
 
 /**
- * Copy, edit, and retry buttons, plus any host actions in `children`. Edit
- * and retry are hidden while the message is pending or read-only; copy stays
- * available. Renders nothing when no actions remain.
+ * Copy, edit, retry, and cancel buttons, plus any host actions in `children`.
+ * Edit and retry are hidden while the message is pending or read-only; cancel
+ * appears only on a queued message; copy stays available. Renders nothing
+ * when no actions remain.
  */
 export function ChatMessageActions({
   actions,
@@ -341,10 +356,9 @@ export function ChatMessageActions({
   className,
   ...props
 }: ChatMessageActionsProps) {
-  const canChange = canChangeMessage(status, readOnly);
   const visibleActions = actionDefinitions.flatMap((definition) => {
     const action = actions?.[definition.name];
-    return action && (definition.name === 'copy' || canChange)
+    return action && isActionAvailable(definition.name, status, readOnly)
       ? [{ ...definition, action }]
       : [];
   });
