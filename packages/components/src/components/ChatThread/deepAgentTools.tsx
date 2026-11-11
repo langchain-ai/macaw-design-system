@@ -8,11 +8,12 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { TerminalIcon } from '@phosphor-icons/react/dist/ssr/Terminal';
 
-import { ChatPlan, type ChatPlanItem } from '../ChatPlan';
+import { ChatPlan } from '../ChatPlan';
 import { CodeLite, type CodeLiteCodeProps } from '../Code/CodeLite';
 import { Text } from '../Text';
 import type { ChatThreadToolRenderer } from './ChatThread.types';
 import { isRecord } from './messages';
+import { planItems } from './toChatThread';
 
 function args(value: unknown) {
   return isRecord(value) ? value : {};
@@ -89,27 +90,6 @@ function DiffStat({ added, removed }: { added: number; removed: number }) {
       <span className="text-success-secondary">+{added}</span>{' '}
       <span className="text-error-secondary">−{removed}</span>
     </Text>
-  );
-}
-
-function todoItems(value: unknown): ChatPlanItem[] {
-  const todos = args(value).todos;
-  if (!Array.isArray(todos)) return [];
-  return todos.flatMap((todo, index): ChatPlanItem[] =>
-    isRecord(todo) && typeof todo.content === 'string'
-      ? [
-          {
-            id: `todo-${index}`,
-            label: todo.content,
-            status:
-              todo.status === 'completed'
-                ? 'completed'
-                : todo.status === 'in_progress'
-                  ? 'in-progress'
-                  : 'pending',
-          },
-        ]
-      : []
   );
 }
 
@@ -198,7 +178,7 @@ export const deepAgentTools: Record<string, ChatThreadToolRenderer> = {
     };
   },
   write_todos: ({ args: input }) => {
-    const items = todoItems(input);
+    const items = planItems(args(input).todos);
     const done = items.filter((item) => item.status === 'completed').length;
     return {
       label: 'Update plan',

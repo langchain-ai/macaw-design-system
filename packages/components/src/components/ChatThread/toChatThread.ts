@@ -117,9 +117,10 @@ function toolCallStatus({
   return paused ? 'pending' : 'canceled';
 }
 
-function planFromValues(values: unknown): ChatPlanItem[] | undefined {
-  if (!isRecord(values) || !Array.isArray(values.todos)) return undefined;
-  const items = values.todos.flatMap((todo, index): ChatPlanItem[] => {
+/** Reads a deep agent's todos, from its state or a `write_todos` call. */
+export function planItems(todos: unknown): ChatPlanItem[] {
+  if (!Array.isArray(todos)) return [];
+  return todos.flatMap((todo, index): ChatPlanItem[] => {
     if (!isRecord(todo) || typeof todo.content !== 'string') return [];
     const status: ChatPlanItemStatus =
       todo.status === 'completed'
@@ -130,6 +131,10 @@ function planFromValues(values: unknown): ChatPlanItem[] | undefined {
     // Deep agents rewrite the whole list, so position is the stable identity.
     return [{ id: `todo-${index}`, label: todo.content, status }];
   });
+}
+
+function planFromValues(values: unknown): ChatPlanItem[] | undefined {
+  const items = isRecord(values) ? planItems(values.todos) : [];
   return items.length ? items : undefined;
 }
 
@@ -153,7 +158,7 @@ function queuedFromEntries(queue: readonly unknown[] | undefined) {
   });
 }
 
-/** Matches each approval request to the call it gates, newest calls first. */
+/** Matches each approval request, in order, to an open call it gates. */
 function anchorInterrupts(
   interrupts: ChatThreadInterrupt[],
   calls: { call: MessageToolCall; settled: boolean }[]
@@ -241,24 +246,31 @@ export function toChatThread(
     }
   }
   const live = liveToolCalls(snapshot.toolCalls);
+  let lastAiIndex = -1;
+  let lastHumanIndex = -1;
+  messages.forEach((message, index) => {
+    if (message.kind === 'ai') lastAiIndex = index;
+    if (message.kind === 'human') lastHumanIndex = index;
+  });
+  // Only the newest turn's open calls can wait on the run or an interrupt;
+  // calls left open in earlier turns were canceled.
+  const isCurrent = (index: number) => index > lastHumanIndex;
   const interrupts = (snapshot.interrupts ?? []).map(parseInterrupt);
   const gates = anchorInterrupts(
     interrupts,
-    messages.flatMap((message) =>
-      message.toolCalls.map((call) => ({
-        call,
-        settled: results.has(call.id),
-      }))
+    messages.flatMap((message, index) =>
+      isCurrent(index)
+        ? message.toolCalls.map((call) => ({
+            call,
+            settled: results.has(call.id),
+          }))
+        : []
     )
   );
   const subagentNames = new Set(subagentTools);
   const error = errorMessage(snapshot.error);
 
   const turns: ChatThreadTurn[] = [];
-  let lastAiIndex = -1;
-  messages.forEach((message, index) => {
-    if (message.kind === 'ai') lastAiIndex = index;
-  });
   messages.forEach((message, index) => {
     if (message.kind === 'human') {
       turns.push({
@@ -316,10 +328,10 @@ export function toChatThread(
         source,
       });
     }
-    for (const url of message.images) {
+    for (const [imageIndex, url] of message.images.entries()) {
       turn.parts.push({
         type: 'image',
-        id: `${message.id}:image:${url.length}`,
+        id: `${message.id}:image:${imageIndex}`,
         url,
         source,
       });
@@ -332,8 +344,8 @@ export function toChatThread(
         result,
         live: liveCall,
         gated: interruptId !== undefined,
-        runActive,
-        paused: interrupts.length > 0,
+        runActive: runActive && isCurrent(index),
+        paused: interrupts.length > 0 && isCurrent(index),
       });
       const value = resultValue(result, liveCall);
       const callSource = { message: message.raw, result: result?.raw };

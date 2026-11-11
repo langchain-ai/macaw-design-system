@@ -135,6 +135,36 @@ describe('useChatThread actions', () => {
     expect(respondAll).toHaveBeenCalledWith({ a: 'yes', b: 'no' });
   });
 
+  it('times a turn’s work without the wait for an approval', () => {
+    vi.useFakeTimers({ now: 0 });
+    try {
+      const messages = completedState.messages.slice(0, 2);
+      const { result, rerender } = renderHook(
+        ({ isLoading, interrupts }) =>
+          useChatThread(
+            staticStream({ ...emptyState, messages, isLoading, interrupts })
+          ),
+        { initialProps: { isLoading: true, interrupts: [] as unknown[] } }
+      );
+      const turnId = result.current.model.turns[0].id;
+
+      vi.setSystemTime(3_000);
+      rerender({
+        isLoading: false,
+        interrupts: [approvalInterrupt('camel', 1)],
+      });
+      vi.setSystemTime(60_000);
+      rerender({ isLoading: true, interrupts: [] });
+      vi.setSystemTime(62_000);
+      rerender({ isLoading: false, interrupts: [] });
+
+      const timing = result.current.timings[turnId];
+      expect(timing.endedAt! - timing.startedAt).toBe(5_000);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('resumes through submit on a stream without respond', async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const stream = staticStream(
@@ -168,6 +198,43 @@ describe('useChatThread actions', () => {
 });
 
 describe('LangGraphChat', () => {
+  it('keeps an answer with an image outside the work summary', () => {
+    render(
+      <LangGraphChat
+        stream={staticStream({
+          ...emptyState,
+          messages: [
+            { id: 'h1', type: 'human', content: 'Draw it' },
+            {
+              id: 'a1',
+              type: 'ai',
+              content: '',
+              tool_calls: [{ id: 'c1', name: 'render', args: {} }],
+            },
+            { id: 't1', type: 'tool', tool_call_id: 'c1', content: 'ok' },
+            {
+              id: 'a2',
+              type: 'ai',
+              content: [
+                { type: 'text', text: 'Here is the chart.' },
+                { type: 'image_url', image_url: 'data:image/png;base64,AA==' },
+              ],
+            },
+          ],
+        })}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: '1 action' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+    expect(screen.getByText('Here is the chart.')).toBeVisible();
+    expect(
+      screen.getByRole('img', { name: 'Image from the agent' })
+    ).toBeVisible();
+  });
+
   it('summarizes finished work and opens it on request', async () => {
     const { user } = render(
       <LangGraphChat stream={staticStream(completedState)} />
@@ -278,6 +345,32 @@ describe('LangGraphChat', () => {
     expect(respond).toHaveBeenCalledOnce();
     expect(respond).toHaveBeenCalledWith(
       { decisions: [{ type: 'approve' }, { type: 'reject' }] },
+      { interruptId: 'approval-1' }
+    );
+  });
+
+  it('resumes the built-in approvals without the ones a host renders', async () => {
+    const respond = vi.fn().mockResolvedValue(undefined);
+    const hostApproval = { ...approvalInterrupt('snake', 1), id: 'host' };
+    const { user } = render(
+      <LangGraphChat
+        stream={staticStream(
+          {
+            ...emptyState,
+            interrupts: [approvalInterrupt('snake', 1), hostApproval],
+          },
+          { respond }
+        )}
+        renderInterrupt={(interrupt) =>
+          interrupt.id === 'host' ? <p>Host approval</p> : undefined
+        }
+      />
+    );
+
+    expect(screen.getByText('Host approval')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Approve' }));
+    expect(respond).toHaveBeenCalledWith(
+      { decisions: [{ type: 'approve' }] },
       { interruptId: 'approval-1' }
     );
   });

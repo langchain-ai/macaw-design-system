@@ -171,12 +171,11 @@ export function normalizeMessage(
   }
 
   let toolCalls: MessageToolCall[] = [];
-  const rawToolCalls = Array.isArray(message.tool_calls)
-    ? message.tool_calls
-    : Array.isArray(message.tool_call_chunks)
-      ? message.tool_call_chunks
-      : undefined;
-  if (rawToolCalls?.length) {
+  // A streaming chunk can carry an empty `tool_calls` beside its chunks.
+  const rawToolCalls = [message.tool_calls, message.tool_call_chunks].find(
+    (calls): calls is unknown[] => Array.isArray(calls) && calls.length > 0
+  );
+  if (rawToolCalls) {
     toolCalls = rawToolCalls.flatMap((call) => {
       if (!isRecord(call)) return [];
       const name = readString(call.name);

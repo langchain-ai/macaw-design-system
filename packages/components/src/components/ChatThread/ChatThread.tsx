@@ -35,7 +35,12 @@ import {
   useThread,
 } from './ChatThreadContext';
 import { InterruptRequests } from './ChatThreadRequests';
-import { visibleActionCount, WorkParts, WorkSummary } from './ChatThreadWork';
+import {
+  ImagePart,
+  visibleActionCount,
+  WorkParts,
+  WorkSummary,
+} from './ChatThreadWork';
 import { deepAgentTools } from './deepAgentTools';
 import {
   type ChatThreadState,
@@ -64,7 +69,11 @@ function UserMessage({ turn }: { turn: ChatThreadTurn }) {
       const text = draft.trim();
       if (!text) return;
       setEditing(false);
-      void thread.actions.fork(text, forkPoint);
+      thread.actions.fork(text, forkPoint).catch(() => {
+        // Reopen the edit so the reader can send it again.
+        setDraft(text);
+        setEditing(true);
+      });
     };
     return (
       <div
@@ -154,6 +163,14 @@ function AgentMessage({
     });
   }
   for (const part of answer) {
+    if (part.type === 'image') {
+      blocks.push({
+        id: part.id,
+        type: 'custom',
+        content: <ImagePart url={part.url} />,
+      });
+      continue;
+    }
     if (part.type !== 'text') continue;
     blocks.push({
       id: part.id,

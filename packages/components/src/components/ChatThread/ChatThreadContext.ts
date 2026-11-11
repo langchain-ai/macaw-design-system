@@ -69,11 +69,14 @@ export function errorText(error: unknown) {
     : 'Could not send your response.';
 }
 
-/** Work comes before the answer: everything up to the last non-text part. */
+/**
+ * Work comes before the answer: everything up to the agent's last step. Text
+ * and images after it are the answer.
+ */
 export function splitParts(parts: ChatThreadPart[]) {
   let lastWork = -1;
   parts.forEach((part, index) => {
-    if (part.type !== 'text') lastWork = index;
+    if (part.type !== 'text' && part.type !== 'image') lastWork = index;
   });
   return {
     work: parts.slice(0, lastWork + 1),

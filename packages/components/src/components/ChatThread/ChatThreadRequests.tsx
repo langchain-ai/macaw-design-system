@@ -272,11 +272,19 @@ export function InterruptRequests() {
     setSubmitting(false);
     setFailure(undefined);
   }
+  const custom = new Map(
+    interrupts.map((interrupt) => [
+      interrupt.id,
+      renderInterrupt?.(interrupt, thread),
+    ])
+  );
+  // A host that renders an approval itself also resumes it, so the built-in
+  // cards batch only the approvals they show.
   const approvals = interrupts.filter(
     (
       interrupt
     ): interrupt is Extract<ChatThreadInterrupt, { kind: 'approval' }> =>
-      interrupt.kind === 'approval'
+      interrupt.kind === 'approval' && custom.get(interrupt.id) === undefined
   );
   const total = approvals.reduce(
     (sum, interrupt) => sum + interrupt.requests.length,
@@ -330,9 +338,9 @@ export function InterruptRequests() {
   return (
     <div className="flex min-w-0 flex-col gap-space-3">
       {interrupts.map((interrupt) => {
-        const custom = renderInterrupt?.(interrupt, thread);
-        if (custom !== undefined)
-          return <Fragment key={interrupt.id}>{custom}</Fragment>;
+        const rendered = custom.get(interrupt.id);
+        if (rendered !== undefined)
+          return <Fragment key={interrupt.id}>{rendered}</Fragment>;
         if (interrupt.kind === 'other') {
           return <OtherInterrupt key={interrupt.id} interrupt={interrupt} />;
         }

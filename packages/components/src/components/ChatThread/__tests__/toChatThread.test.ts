@@ -86,9 +86,19 @@ describe('toChatThread', () => {
       open: 'running',
     });
     expect(statuses(false).open).toBe('canceled');
+
+    // A call left open in an earlier turn stays canceled in the next run.
+    const next = toChatThread({
+      messages: [...messages, human('h2', 'Again')],
+      isLoading: true,
+    });
+    expect(next.turns[0].parts.at(-1)).toMatchObject({
+      id: 'open',
+      toolCall: { status: 'canceled' },
+    });
   });
 
-  it('gives id-less tool calls stable ids', () => {
+  it('gives id-less tool calls stable ids, including ones still streaming', () => {
     const snapshot = {
       messages: [ai('a1', '', [{ name: 'search', args: {} }])],
     };
@@ -96,14 +106,29 @@ describe('toChatThread', () => {
     const second = toChatThread(snapshot).turns[0].parts[0];
     expect(first.id).toBe('a1:tool:0');
     expect(second.id).toBe(first.id);
+
+    const streaming = toChatThread({
+      messages: [
+        {
+          ...ai('a2', ''),
+          tool_calls: [],
+          tool_call_chunks: [{ name: 'search', args: '{"q' }],
+        },
+      ],
+    });
+    expect(streaming.turns[0].parts).toMatchObject([
+      { id: 'a2:tool:0', toolCall: { name: 'search', args: '{"q' } },
+    ]);
   });
 
-  it('reads text, reasoning, and tool calls from content blocks', () => {
+  it('reads text, reasoning, images, and tool calls from content blocks', () => {
     const { turns } = toChatThread({
       messages: [
         ai('a1', [
           { type: 'thinking', thinking: 'Weighing options.' },
           { type: 'text', text: 'Done.' },
+          { type: 'image_url', image_url: 'https://cdn.test/a.png' },
+          { type: 'image_url', image_url: 'https://cdn.test/b.png' },
           { type: 'tool_use', id: 'call-1', name: 'ls', input: { path: '/' } },
         ]),
       ],
@@ -111,8 +136,12 @@ describe('toChatThread', () => {
     expect(turns[0].parts).toMatchObject([
       { type: 'reasoning', text: 'Weighing options.' },
       { type: 'text', text: 'Done.' },
+      { type: 'image', url: 'https://cdn.test/a.png' },
+      { type: 'image', url: 'https://cdn.test/b.png' },
       { type: 'tool-call', toolCall: { name: 'ls', args: { path: '/' } } },
     ]);
+    const ids = turns[0].parts.map((part) => part.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('streams only the newest text while the run is active', () => {

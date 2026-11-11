@@ -224,7 +224,7 @@ export function WorkParts({ parts }: { parts: ChatThreadPart[] }) {
   return <>{nodes}</>;
 }
 
-function ImagePart({ url }: { url: string }) {
+export function ImagePart({ url }: { url: string }) {
   // Generated images arrive inline; remote URLs stay links so they aren't
   // fetched without the reader's action.
   if (!url.startsWith('data:image/')) {

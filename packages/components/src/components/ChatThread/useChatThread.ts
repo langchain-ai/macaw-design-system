@@ -53,8 +53,17 @@ export interface ChatThreadActions {
 }
 
 export interface ChatThreadTiming {
+  /**
+   * When the turn started working, moved later by any time it spent paused
+   * on an interrupt, so `endedAt - startedAt` is the time spent working.
+   */
   startedAt: number;
   endedAt?: number;
+}
+
+interface TurnTiming extends ChatThreadTiming {
+  /** The turn stopped on an interrupt, so it resumes when the run does. */
+  paused?: boolean;
 }
 
 export interface ChatThreadState {
@@ -119,7 +128,7 @@ export function useChatThread(
   );
 
   const [stopping, setStopping] = useState(false);
-  const [timings, setTimings] = useState<Record<string, ChatThreadTiming>>({});
+  const [timings, setTimings] = useState<Record<string, TurnTiming>>({});
   // How many user turns existed when the reader last sent a message.
   const [userTurnsAtSend, setUserTurnsAtSend] = useState<number>();
   const [sentMessageId, setSentMessageId] = useState<string>();
@@ -131,14 +140,40 @@ export function useChatThread(
     setTimings({ ...timings, [lastTurn.id]: { startedAt: Date.now() } });
   } else if (
     lastTurn &&
+    stream.isLoading &&
+    lastTiming?.paused &&
+    lastTiming.endedAt !== undefined
+  ) {
+    // Resuming after an interrupt: leave the wait out of the working time.
+    setTimings({
+      ...timings,
+      [lastTurn.id]: {
+        startedAt: lastTiming.startedAt + Date.now() - lastTiming.endedAt,
+      },
+    });
+  } else if (
+    lastTurn &&
     !stream.isLoading &&
     lastTiming &&
-    !lastTiming.endedAt
+    lastTiming.endedAt === undefined
   ) {
     setTimings({
       ...timings,
-      [lastTurn.id]: { ...lastTiming, endedAt: Date.now() },
+      [lastTurn.id]: {
+        startedAt: lastTiming.startedAt,
+        endedAt: Date.now(),
+        paused: model.interrupts.length > 0,
+      },
     });
+  } else if (
+    lastTurn &&
+    !stream.isLoading &&
+    lastTiming &&
+    !lastTiming.paused &&
+    model.interrupts.length > 0
+  ) {
+    // The interrupt can arrive after the run reports it stopped.
+    setTimings({ ...timings, [lastTurn.id]: { ...lastTiming, paused: true } });
   }
   // The first user turn to appear after a send is the reader's message.
   const userTurns = model.turns.filter((turn) => turn.user);
@@ -172,10 +207,16 @@ export function useChatThread(
   const actions: ChatThreadActions = {
     async send(text) {
       setUserTurnsAtSend(userTurns.length);
-      await submit(
-        humanInput(text),
-        stream.isLoading ? { multitaskStrategy: 'enqueue' } : undefined
-      );
+      try {
+        await submit(
+          humanInput(text),
+          stream.isLoading ? { multitaskStrategy: 'enqueue' } : undefined
+        );
+      } catch (error) {
+        // Don't claim the next message from someone else as this one.
+        setUserTurnsAtSend(undefined);
+        throw error;
+      }
     },
     async stop() {
       setStopping(true);
