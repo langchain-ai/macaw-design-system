@@ -218,6 +218,8 @@ function connectConversationScroll(
   let holdingPin = false;
   /** The first visible message and its offset within the scrolled content. */
   let anchor: { element: Element; top: number } | null = null;
+  /** Keeps a pinned message clear of the top fade. */
+  const pinInset = parseFloat(getComputedStyle(viewport).scrollPaddingTop) || 0;
 
   function offsetTop(element: Element) {
     return (
@@ -271,6 +273,7 @@ function connectConversationScroll(
     pendingPinId = undefined;
     holdingPin = true;
     following = false;
+    pendingPinObserver.disconnect();
   }
 
   function unpin() {
@@ -299,8 +302,7 @@ function connectConversationScroll(
       following = follow === 'bottom' && distanceToEnd() <= FOLLOW_THRESHOLD;
       return;
     }
-    const inset = parseFloat(getComputedStyle(viewport).scrollPaddingTop) || 0;
-    const target = Math.max(0, offsetTop(pinned) - inset);
+    const target = Math.max(0, offsetTop(pinned) - pinInset);
     const contentHeight = viewport.scrollHeight - spacerHeight;
     setSpacer(
       Math.max(0, Math.ceil(target + viewport.clientHeight - contentHeight))
@@ -365,12 +367,19 @@ function connectConversationScroll(
 
   const handleScroll = () => update('scroll');
 
-  const observer = new ResizeObserver(() => {
+  function relayout() {
     tryPendingPin();
     layoutPin();
     if (following) viewport.scrollTop = viewport.scrollHeight;
     else if (!holdingPin) restoreAnchor();
     update('resize');
+  }
+
+  const observer = new ResizeObserver(relayout);
+  // While the content is shorter than the viewport, `min-h-full` keeps its
+  // size fixed, so a newly rendered message doesn't trigger a resize.
+  const pendingPinObserver = new MutationObserver(() => {
+    if (pendingPinId !== undefined && findMessage(pendingPinId)) relayout();
   });
   observer.observe(viewport);
   observer.observe(content);
@@ -391,11 +400,15 @@ function connectConversationScroll(
     pin(id) {
       pendingPinId = id;
       tryPendingPin();
+      if (pendingPinId !== undefined) {
+        pendingPinObserver.observe(content, { childList: true, subtree: true });
+      }
       layoutPin();
       update('reposition');
     },
     jumpToLatest() {
       pendingPinId = undefined;
+      pendingPinObserver.disconnect();
       unpin();
       following = follow === 'bottom';
       viewport.scrollTop = viewport.scrollHeight;
@@ -403,6 +416,7 @@ function connectConversationScroll(
     },
     disconnect() {
       observer.disconnect();
+      pendingPinObserver.disconnect();
       viewport.removeEventListener('scroll', handleScroll);
       setSpacer(0);
     },

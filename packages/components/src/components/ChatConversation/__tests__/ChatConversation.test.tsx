@@ -6,6 +6,24 @@ import { ChatConversation } from '../ChatConversation';
 
 let resizeCallbacks: ResizeObserverCallback[] = [];
 const OriginalResizeObserver = globalThis.ResizeObserver;
+let mutationObservers: FakeMutationObserver[] = [];
+const OriginalMutationObserver = globalThis.MutationObserver;
+
+class FakeMutationObserver {
+  observing = false;
+  constructor(readonly callback: MutationCallback) {
+    mutationObservers.push(this);
+  }
+  observe() {
+    this.observing = true;
+  }
+  disconnect() {
+    this.observing = false;
+  }
+  takeRecords() {
+    return [];
+  }
+}
 
 beforeEach(() => {
   resizeCallbacks = [];
@@ -17,10 +35,13 @@ beforeEach(() => {
     unobserve() {}
     disconnect() {}
   };
+  mutationObservers = [];
+  globalThis.MutationObserver = FakeMutationObserver;
 });
 
 afterEach(() => {
   globalThis.ResizeObserver = OriginalResizeObserver;
+  globalThis.MutationObserver = OriginalMutationObserver;
 });
 
 function setLayout(
@@ -41,6 +62,15 @@ function resize() {
   act(() => {
     for (const callback of resizeCallbacks) {
       callback([], {} as ResizeObserver);
+    }
+  });
+}
+
+/** Notifies the mutation observers that are currently observing. */
+function mutate() {
+  act(() => {
+    for (const observer of mutationObservers) {
+      if (observer.observing) observer.callback([], {} as MutationObserver);
     }
   });
 }
@@ -255,9 +285,10 @@ describe('ChatConversation', () => {
           <Messages ids={['a', 'b', 'c']} />
         </ChatConversation>
       );
-      setLayout(viewport, { scrollHeight: 1800, clientHeight: 400 });
-      resize();
-      expect(viewport.scrollTop).toBeLessThan(1800);
+      // No resize: a message added to content shorter than the viewport
+      // doesn't change its size.
+      mutate();
+      expect(viewport.scrollTop).toBeLessThan(1400);
     });
   });
 
