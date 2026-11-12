@@ -33,7 +33,7 @@ const VIEWPORT_STYLE = {
 } as CSSProperties;
 
 export interface ChatConversationHandle {
-  /** Resume following the latest output and focus the reading region. */
+  /** Resume following the latest output. Focus stays where it is. */
   jumpToLatest: () => void;
   /** Bring a message to the top, reserving space for its reply. */
   pinMessage: (id: string) => void;
@@ -43,7 +43,11 @@ export interface ChatConversationProps {
   ref?: Ref<ChatConversationHandle>;
   /** Shared message/footer column overrides, including maximum width and padding. */
   columnClassName?: string;
-  /** Replace the jump control; returning null hides it. Rendered only away from the end. */
+  /**
+   * Replace the jump control; returning null hides it. Rendered only away
+   * from the end. Its `jumpToLatest` also moves focus to the message log,
+   * since the control disappears.
+   */
   renderJumpToLatest?: (
     actions: Pick<ChatConversationHandle, 'jumpToLatest'>
   ) => ReactNode;
@@ -137,8 +141,9 @@ export function ChatConversation({
     if (pinnedMessageId !== undefined) scrollRef.current?.pin(pinnedMessageId);
   }, [pinnedMessageId]);
 
+  // Host calls can come from the composer, so they leave focus alone.
   useImperativeHandle(ref, () => ({
-    jumpToLatest,
+    jumpToLatest: () => scrollRef.current?.jumpToLatest(),
     pinMessage: (id) => scrollRef.current?.pin(id),
   }));
 

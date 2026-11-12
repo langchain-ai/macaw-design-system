@@ -42,8 +42,19 @@ type ListItemProps = ComponentProps<'li'> & ExtraProps;
 type InputProps = ComponentProps<'input'> & ExtraProps;
 type ImageProps = ComponentProps<'img'> & ExtraProps;
 type SpanProps = ComponentProps<'span'> & ExtraProps;
+type HastElement = NonNullable<ExtraProps['node']>;
+
+const hastText = (
+  node: HastElement | HastElement['children'][number]
+): string =>
+  node.type === 'text'
+    ? node.value
+    : node.type === 'element'
+      ? node.children.map(hastText).join('')
+      : '';
 
 export interface MarkdownDisplayCodeBlock {
+  /** Fenced source, without the line ending before the closing fence. */
   code: string;
   language?: string;
   codeOverflow: 'wrap' | 'scroll';
@@ -221,7 +232,7 @@ const createHeading = (
   };
 
 const MARKDOWN_COMPONENTS: Components = {
-  pre: function MarkdownPre({ children }) {
+  pre: function MarkdownPre({ children, node }) {
     const { codeOverflow, renderCodeBlock } = useContext(
       MarkdownDisplayContext
     );
@@ -232,12 +243,19 @@ const MARKDOWN_COMPONENTS: Components = {
       ? children
       : undefined;
     const language = child?.props.className?.match(/language-([^\s]+)/)?.[1];
-    const code =
+    // A rehype plugin may have split the source into elements, such as
+    // highlighted spans, so fall back to the tree's text.
+    const source =
       typeof child?.props.children === 'string'
         ? child.props.children
-        : String(child?.props.children ?? '');
+        : node
+          ? hastText(node)
+          : '';
+    // The line ending before the closing fence isn't part of the code.
+    const code = source.replace(/\n$/, '');
 
     const customBlock = renderCodeBlock?.({ code, language, codeOverflow });
+    if (customBlock === null) return null;
 
     return (
       <div
@@ -245,7 +263,8 @@ const MARKDOWN_COMPONENTS: Components = {
         data-search-code=""
         className={cn('w-full min-w-0', blockSpacing)}
       >
-        {customBlock === undefined ? (
+        {/* `false` keeps the fallback, so `language === 'x' && <X />` works. */}
+        {customBlock === undefined || customBlock === false ? (
           <MarkdownCodeBlock
             code={code}
             language={language}
@@ -445,9 +464,15 @@ export interface MarkdownDisplayProps {
    * remounts every element it renders.
    */
   components?: Components;
-  /** Render selected fenced languages; undefined keeps the Macaw code fallback. */
+  /**
+   * Render selected fenced languages. Return `undefined` or `false` to keep
+   * Macaw's code block, or `null` to omit the block.
+   */
   renderCodeBlock?: (block: MarkdownDisplayCodeBlock) => ReactNode;
-  /** Trusted application plugins, appended after GFM and before HTML neutralization. */
+  /**
+   * Trusted application plugins, run after GFM. Raw HTML stays disabled in
+   * the parser, so the tree they receive has no HTML from the content.
+   */
   remarkPlugins?: Options['remarkPlugins'];
   /** Trusted application transforms, run before Macaw trailing-content decoration. */
   rehypePlugins?: Options['rehypePlugins'];

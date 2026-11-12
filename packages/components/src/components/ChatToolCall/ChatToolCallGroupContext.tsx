@@ -87,7 +87,8 @@ export function useGroupRows() {
   const seen = new Set<string | ReactElement['type']>();
   for (const { icon, iconKey } of reports) {
     if (!isValidElement(icon)) continue;
-    const identity = iconKey ?? icon.type;
+    // Prefixed so a key can't match an intrinsic type such as `svg`.
+    const identity = iconKey === undefined ? icon.type : `key:${iconKey}`;
     if (seen.has(identity)) continue;
     seen.add(identity);
     icons.push(icon);

@@ -23,10 +23,12 @@ attribute.
 Use a `ref` typed as `ChatConversationHandle` for `jumpToLatest()` and
 `pinMessage(id)`. These use the same scrolling/follow behavior as the built-in
 control and `pinnedMessageId`; use `viewportRef` for raw position reads or
-restoration. `jumpToLatest()` also focuses the reading region. Replace the
-floating control with `renderJumpToLatest={({ jumpToLatest }) => ...}`;
-return `null` to hide it. The host owns the replacement's accessible label,
-focus styles, and pointer events. `columnClassName` overrides the shared
+restoration. The handle's `jumpToLatest()` leaves focus where it is, so the
+composer can call it. Replace the floating control with
+`renderJumpToLatest={({ jumpToLatest }) => ...}`; return `null` to hide it.
+That `jumpToLatest` moves focus to the message log, since the control
+disappears. The host owns the replacement's accessible label, focus styles,
+and pointer events. `columnClassName` overrides the shared
 message/footer width and padding (for example `max-w-full`), not the viewport.
 
 ## Tool calls and shared state
@@ -97,9 +99,9 @@ Summarize a turn's work with `ChatToolCallGroup`: pass `running`,
 `showElapsed`, and `startedAt` while it runs, so the header keeps working
 between calls, then a label such as
 `` `Worked for ${formatChatDuration(ms)} · 6 actions` ``. `ChatToolCallReasoning`
-also takes `startedAt` for its streaming clock and
 with `expandWhileStreaming` stays open while reasoning streams, unless the
-reader toggles it.
+reader toggles it. It also takes `startedAt`, so its streaming clock keeps
+counting across remounts.
 
 `ChatState` takes `startedAt` so a remounted row keeps counting, and
 `announce={false}` when a parent announces the outcome.
@@ -115,8 +117,8 @@ shows `cancel` on queued messages, and `ChatComposer` takes
 ## Composer input surface
 
 `ChatComposer`'s `className` styles the outer form, including its drawer.
-Use `inputSurfaceClassName` for an input-only border, ring, shadow, or fill.
-Existing `ChatComposerTextarea` supports native selection and key handling;
+Use `inputSurfaceClassName` for an input-only border, ring, shadow, or fill;
+disabled and file drop-target styles still apply over it. Existing `ChatComposerTextarea` supports native selection and key handling;
 a host-owned rich editor can still be composed as children. Entity/mention
 serialization, atomic editing, and caret-anchored suggestion menus are not a
 public rich-input contract yet; keep those editors host-owned rather than
@@ -125,15 +127,17 @@ flattening entities into Markdown or guessing a menu anchor.
 ## Markdown extensions
 
 `MarkdownDisplay` accepts trusted application `remarkPlugins` and
-`rehypePlugins`. Remark extensions run after GFM and before Macaw neutralizes
-raw HTML; rehype transforms run before Macaw's trailing-content decoration.
+`rehypePlugins`. Remark plugins run after GFM. Raw HTML stays disabled in the
+parser, so they never receive HTML from the content. Rehype transforms run
+before Macaw's trailing-content decoration.
 Defaults, component mappings, and the oversized plain-text fallback remain in
 place. Plugins are application code, not a sandbox: audit their output and do
 not pass plugins supplied by untrusted content.
 
 Use `renderCodeBlock={({ code, language, codeOverflow }) => ...}` for selected
-fenced languages. Returning `undefined` keeps Macaw's code renderer; `null`
-omits the block. For example, the host can supply its safe Mermaid renderer
+fenced languages. Returning `undefined` or `false` keeps Macaw's code
+renderer, so `language === 'mermaid' && ...` works; `null` omits the block.
+`code` excludes the line ending before the closing fence. For example, the host can supply its safe Mermaid renderer
 for `language === 'mermaid'` without loading a diagram library for every
 Markdown consumer. The host owns diagram loading, sanitization, streaming
 completion, error handling, and accessibility. A full `components.pre`

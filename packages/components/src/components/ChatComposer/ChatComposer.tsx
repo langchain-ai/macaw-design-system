@@ -36,7 +36,10 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
    * content should also say it in text or with an icon.
    */
   drawerIntent?: ChatComposerDrawerIntent;
-  /** Styles the input surface only, excluding the drawer and outer form. */
+  /**
+   * Styles the input surface only, excluding the drawer and outer form.
+   * Disabled and file drop-target styles still apply over it.
+   */
   inputSurfaceClassName?: string;
   /**
    * Blocks writing and sending. Stop stays available while `action` is
@@ -227,11 +230,11 @@ export function ChatComposer({
             // Toolbar menus portal out, so focus-within would flash as focus
             // moves from their trigger to the menu; only typing shows focus.
             'has-[:is(textarea,[contenteditable=true]):focus]:border-focus has-[:is(textarea,[contenteditable=true]):focus]:shadow-[0_0_0_1px_var(--border-focus)]',
+            inputSurfaceClassName,
             disabled && 'border-disabled bg-input-disabled',
             isDropTarget &&
               !disabled &&
-              'border-focus bg-surface-level-2 shadow-[0_0_0_1px_var(--border-focus)]',
-            inputSurfaceClassName
+              'border-focus bg-surface-level-2 shadow-[0_0_0_1px_var(--border-focus)]'
           )}
         >
           {children}

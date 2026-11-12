@@ -748,16 +748,18 @@ describe('composer submit keys', () => {
 });
 
 it('applies input surface overrides independently of the drawer and form', () => {
-  const { container } = render(
+  const composer = (disabled: boolean) => (
     <ChatComposer
       aria-label="Draft"
       className="outer-form"
       inputSurfaceClassName="border-focus shadow-md"
       drawer={<p>Drawer content</p>}
+      disabled={disabled}
     >
       <textarea aria-label="Message" />
     </ChatComposer>
   );
+  const { container, rerender } = render(composer(false));
   const form = container.querySelector('form');
   const inputSurface = screen.getByRole('textbox').closest('fieldset');
   expect(form).toHaveClass('outer-form');
@@ -766,4 +768,9 @@ it('applies input surface overrides independently of the drawer and form', () =>
   expect(
     screen.getByText('Drawer content').closest('fieldset')
   ).not.toHaveClass('shadow-md');
+
+  // The disabled state still wins over the host's rest styling.
+  rerender(composer(true));
+  expect(inputSurface).toHaveClass('border-disabled', 'shadow-md');
+  expect(inputSurface).not.toHaveClass('border-focus');
 });

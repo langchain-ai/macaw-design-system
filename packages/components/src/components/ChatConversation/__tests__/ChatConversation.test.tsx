@@ -313,7 +313,7 @@ describe('Conversation host controls', () => {
       <ChatConversation
         ref={ref}
         columnClassName="max-w-full"
-        footer={<p>Footer</p>}
+        footer={<textarea aria-label="Draft" />}
         renderJumpToLatest={({ jumpToLatest }) => (
           <button onClick={jumpToLatest}>Latest answer</button>
         )}
@@ -331,9 +331,14 @@ describe('Conversation host controls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Latest answer' }));
     expect(viewport.scrollTop).toBe(1000);
     expect(viewport).toHaveFocus();
+
+    // A host call, such as from the composer, leaves focus in place.
+    const draft = screen.getByRole('textbox', { name: 'Draft' });
+    draft.focus();
     scrollTo(viewport, 100);
     act(() => ref.current?.jumpToLatest());
     expect(viewport.scrollTop).toBe(1000);
+    expect(draft).toHaveFocus();
     act(() => ref.current?.pinMessage('question'));
     expect(screen.getByText('Question').parentElement).toHaveClass(
       'max-w-full'
@@ -341,12 +346,13 @@ describe('Conversation host controls', () => {
     expect(screen.getByText('Question').parentElement).not.toHaveClass(
       'max-w-3xl'
     );
-    expect(screen.getByText('Footer').parentElement).toHaveClass('max-w-full');
+    expect(draft.parentElement).toHaveClass('max-w-full');
   });
 
   it('lets the host hide the built-in jump without disabling imperative scrolling', () => {
+    const ref = createRef<ChatConversationHandle>();
     render(
-      <ChatConversation renderJumpToLatest={() => null}>
+      <ChatConversation ref={ref} renderJumpToLatest={() => null}>
         <p>Hello</p>
       </ChatConversation>
     );
@@ -355,5 +361,7 @@ describe('Conversation host controls', () => {
     resize();
     scrollTo(viewport, 100);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    act(() => ref.current?.jumpToLatest());
+    expect(viewport.scrollTop).toBe(1000);
   });
 });

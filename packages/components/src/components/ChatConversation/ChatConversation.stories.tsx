@@ -14,6 +14,7 @@ import {
   ChatComposer,
   ChatComposerInput,
   ChatComposerToolbar,
+  type ChatComposerProps,
 } from '../ChatComposer';
 import { ChatMessage, type ChatMessageModel } from '../ChatMessage';
 import { ChatToolCall, ChatToolCallGroup } from '../ChatToolCall';
@@ -152,10 +153,13 @@ function historyMessages(
   ]);
 }
 
-function DemoComposer() {
+function DemoComposer(
+  props: Pick<ChatComposerProps, 'drawer' | 'inputSurfaceClassName'>
+) {
   const [draft, setDraft] = useState('');
   return (
     <ChatComposer
+      {...props}
       aria-label="Chat composer"
       submitDisabled={!draft.trim()}
       onSubmit={() => setDraft('')}
@@ -938,20 +942,14 @@ function HostControlsDemo() {
         </div>
       )}
       footer={
-        <ChatComposer
+        <DemoComposer
           drawer={
             <Text variant="xs" className="p-space-3">
               Plan stays outside the input shadow.
             </Text>
           }
-          inputSurfaceClassName="shadow-md border-focus"
-        >
-          <textarea
-            aria-label="Message"
-            placeholder="Ask a follow-up"
-            className="min-w-0 resize-none bg-transparent p-space-2 text-sm outline-hidden"
-          />
-        </ChatComposer>
+          inputSurfaceClassName="shadow-md"
+        />
       }
     >
       {Array.from({ length: 8 }, (_, i) => (
@@ -974,5 +972,26 @@ function HostControlsDemo() {
 }
 
 export const HostControls: Story = {
+  tags: ['a11y-test'],
   render: () => <HostControlsDemo />,
+  play: async ({ canvas, userEvent }) => {
+    const log = canvas.getByRole('log');
+    const returnButton = () =>
+      canvas.queryByRole('button', { name: 'Return to answer' });
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Pin message 3' })
+    );
+    await waitFor(() => {
+      const offset = messageOffset(log, 'host-message-3');
+      expect(offset).toBeGreaterThanOrEqual(0);
+      expect(offset).toBeLessThanOrEqual(48);
+    });
+    await waitFor(() => expect(returnButton()).toBeVisible());
+
+    // A host control keeps its focus; only the disappearing jump moves it.
+    const latest = canvas.getByRole('button', { name: 'Latest output' });
+    await userEvent.click(latest);
+    await waitFor(() => expect(returnButton()).not.toBeInTheDocument());
+    await expect(latest).toHaveFocus();
+  },
 };
