@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 
-import { CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
 import { ExclamationMarkIcon } from '@phosphor-icons/react/dist/ssr/ExclamationMark';
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
+import { SkullIcon } from '@phosphor-icons/react/dist/ssr/Skull';
 import { WarningIcon } from '@phosphor-icons/react/dist/ssr/Warning';
 
 import { XIcon } from '../../icons/PaddedPhosphorIcons';
@@ -67,7 +67,7 @@ export const Banner = ({
       case 'success':
         return (
           <Icon
-            icon={CheckCircleIcon}
+            icon={SkullIcon}
             weight="fill"
             size="md"
             className="text-success-secondary"
@@ -151,7 +151,7 @@ export const Banner = ({
         shadow && 'shadow-lg',
         intent === 'warning' && 'bg-warning',
         intent === 'info' && 'bg-brand-subtle-gradient',
-        intent === 'success' && 'bg-success',
+        intent === 'success' && 'bg-error-strong',
         intent === 'error' && 'bg-error',
         intent === 'neutral' && 'bg-elevated',
         intent === 'neutral' && !flush && 'border-default',

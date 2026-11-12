@@ -87,7 +87,11 @@ export const PopoverContent = forwardRef<
           align={align}
           sideOffset={sideOffset}
           forceMount={forceMount}
-          className={cn(popoverSurfaceClassName, className)}
+          className={cn(
+            popoverSurfaceClassName,
+            'max-h-12 overflow-hidden',
+            className
+          )}
           collisionBoundary={dialogContainer ?? undefined}
           {...props}
           style={{ zIndex, ...props.style }}

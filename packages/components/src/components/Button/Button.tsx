@@ -84,7 +84,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ? 'rounded-none'
         : size === 'xs'
           ? 'rounded-[3px]'
-          : `rounded-${size}`
+          : `rounded-${size}`,
+      color === 'primary' && variant === 'normal' && 'rounded-full',
+      (LeftIcon || RightIcon) &&
+        'h-auto flex-col-reverse gap-space-4 py-space-4'
     );
 
     // Generate unique class combinations for each color/variant combination
