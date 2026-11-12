@@ -11,10 +11,10 @@ import {
 
 describe('Popover variants', () => {
   it('inherits content colors through portals and preserves dismissal', () => {
-    const { rerender } = render(
+    render(
       <Popover defaultOpen>
         <PopoverTrigger>Open</PopoverTrigger>
-        <PopoverContent variant="warning">
+        <PopoverContent variant="info">
           Notice
           <PopoverArrow data-testid="arrow" />
         </PopoverContent>
@@ -22,40 +22,12 @@ describe('Popover variants', () => {
     );
 
     expect(screen.getByRole('dialog')).toHaveClass(
-      'bg-warning',
-      'border-warning'
+      'bg-brand-subtle',
+      'border-brand-subtle'
     );
-    expect(screen.getByTestId('arrow')).toHaveClass('fill-[var(--bg-warning)]');
-
-    rerender(
-      <Popover defaultOpen>
-        <PopoverTrigger>Open</PopoverTrigger>
-        <PopoverContent variant="success">
-          Notice
-          <PopoverArrow data-testid="arrow" />
-        </PopoverContent>
-      </Popover>
-    );
-
-    expect(screen.getByRole('dialog')).toHaveClass(
-      'bg-success',
-      'border-success'
-    );
-    expect(screen.getByTestId('arrow')).toHaveClass('fill-[var(--bg-success)]');
-    rerender(
-      <Popover defaultOpen>
-        <PopoverTrigger>Open</PopoverTrigger>
-        <PopoverContent variant="error">
-          Notice
-          <PopoverArrow data-testid="arrow" />
-        </PopoverContent>
-      </Popover>
-    );
-
-    expect(screen.getByRole('dialog')).toHaveClass('bg-error', 'border-error');
     expect(screen.getByTestId('arrow')).toHaveClass(
-      'fill-[var(--bg-error)]',
-      'stroke-[var(--border-error)]'
+      'fill-[var(--bg-brand-subtle)]',
+      'stroke-[var(--border-brand-subtle)]'
     );
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

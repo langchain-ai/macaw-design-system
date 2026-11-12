@@ -10,29 +10,18 @@ import zIndices from '../../utils/zIndices';
 import { useDialogContainer } from '../Dialog';
 import { popoverSurfaceClassName } from './constants';
 
-export type PopoverVariant =
-  | 'neutral'
-  | 'info'
-  | 'warning'
-  | 'success'
-  | 'error';
+export type PopoverVariant = 'neutral' | 'info';
 
 const PopoverVariantContext = createContext<PopoverVariant>('neutral');
 
 const surfaceByVariant = {
   neutral: 'bg-popover border-subtle',
   info: 'bg-brand-subtle border-brand-subtle',
-  warning: 'bg-warning border-warning',
-  success: 'bg-success border-success',
-  error: 'bg-error border-error',
 };
 
 const arrowByVariant = {
   neutral: 'fill-popover stroke-subtle',
   info: 'fill-[var(--bg-brand-subtle)] stroke-[var(--border-brand-subtle)]',
-  warning: 'fill-[var(--bg-warning)] stroke-[var(--border-warning)]',
-  success: 'fill-[var(--bg-success)] stroke-[var(--border-success)]',
-  error: 'fill-[var(--bg-error)] stroke-[var(--border-error)]',
 };
 
 export const Popover = PopoverPrimitive.Root;
