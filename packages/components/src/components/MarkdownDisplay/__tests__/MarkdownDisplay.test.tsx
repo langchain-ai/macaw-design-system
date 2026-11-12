@@ -426,3 +426,78 @@ describe('MarkdownDisplay', () => {
     );
   });
 });
+
+test('composes trusted plugins with GFM, literal HTML, and trailing content', () => {
+  function remarkHeading() {
+    return (tree: { children: { type: string; depth?: number }[] }) => {
+      for (const child of tree.children) {
+        if (child.type === 'heading') child.depth = 2;
+      }
+    };
+  }
+  function rehypeParagraph() {
+    return (tree: {
+      children: {
+        type: string;
+        tagName?: string;
+        properties?: Record<string, unknown>;
+      }[];
+    }) => {
+      for (const child of tree.children) {
+        if (child.tagName === 'p')
+          child.properties = { ...child.properties, id: 'plugin-paragraph' };
+      }
+    };
+  }
+  const { container } = render(
+    <MarkdownDisplay
+      content={'# Heading\n\n~~Removed~~ <script>alert(1)</script>'}
+      remarkPlugins={[remarkHeading]}
+      rehypePlugins={[rehypeParagraph]}
+      trailingContent={<span>Trailing</span>}
+    />
+  );
+  expect(
+    screen.getByRole('heading', { level: 2, name: 'Heading' })
+  ).toBeVisible();
+  expect(screen.getByText('Removed').closest('del')).toBeInTheDocument();
+  expect(container.querySelector('script')).toBeNull();
+  expect(container.querySelector('#plugin-paragraph')).toHaveTextContent(
+    '<script>alert(1)</script>Trailing'
+  );
+});
+
+test('skips custom plugins for oversized plain text', () => {
+  const plugin = vi.fn(() => () => undefined);
+  render(
+    <MarkdownDisplay
+      content="Oversized content"
+      maxMarkdownLength={1}
+      remarkPlugins={[plugin]}
+      rehypePlugins={[plugin]}
+    />
+  );
+  expect(plugin).not.toHaveBeenCalled();
+});
+
+test('delegates selected fenced languages while retaining the default code fallback', () => {
+  render(
+    <MarkdownDisplay
+      content={
+        '```mermaid\ngraph TD; A-->B\n```\n\n```typescript\nconst value = 1;\n```'
+      }
+      renderCodeBlock={({ code, language }) =>
+        language === 'mermaid' ? (
+          <figure aria-label="Diagram">{code}</figure>
+        ) : undefined
+      }
+    />
+  );
+  expect(screen.getByRole('figure', { name: 'Diagram' })).toHaveTextContent(
+    'graph TD; A-->B'
+  );
+  expect(screen.getByRole('region', { name: 'typescript' })).toHaveTextContent(
+    'const value = 1;'
+  );
+  expect(screen.getAllByRole('button', { name: 'Copy code' })).toHaveLength(1);
+});

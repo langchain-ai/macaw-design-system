@@ -8,3 +8,6 @@ export type {
   ChatToolCallModel,
   ChatToolCallStatus,
 } from './ChatToolCall.types';
+
+export { useChatToolCallGroupRow } from './ChatToolCallGroupContext';
+export type { ChatToolCallGroupRow } from './ChatToolCallGroupContext';

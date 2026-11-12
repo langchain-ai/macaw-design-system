@@ -17,6 +17,7 @@ import {
   ChatToolCallReasoning,
   type ChatToolCallModel,
   type ChatToolCallProps,
+  useChatToolCallGroupRow,
 } from '.';
 import { Button } from '../Button';
 import { formatChatDuration } from '../ChatState';
@@ -730,5 +731,65 @@ export const NarrowWidth: Story = {
         />
       )}
     </ToolCallVariants>
+  ),
+};
+
+function IntegrationRow({ integration }: { integration: 'slack' | 'notion' }) {
+  const inGroup = useChatToolCallGroupRow({
+    status: 'completed',
+    iconKey: integration,
+    icon:
+      integration === 'slack' ? (
+        <SlackLogoIcon size={12} weight="regular" />
+      ) : (
+        <NotionLogoIcon size={12} weight="regular" />
+      ),
+  });
+  return (
+    <Text variant="xs" color="secondary">
+      {integration === 'slack'
+        ? 'Read Slack messages'
+        : 'Read Notion documents'}
+      {!inGroup && ' · Completed'}
+    </Text>
+  );
+}
+
+function PersistentDetails() {
+  const [count, setCount] = useState(0);
+  return (
+    <Button
+      size="sm"
+      color="secondary"
+      aria-label={`Inspected ${count} times`}
+      onClick={() => setCount(count + 1)}
+    >
+      Inspected {count} times
+    </Button>
+  );
+}
+
+export const HostIntegration: Story = {
+  render: () => (
+    <div className="flex w-full min-w-0 flex-col gap-space-4">
+      <Text variant="xs" color="tertiary">
+        Custom rows register even while their group is closed.
+      </Text>
+      <ChatToolCallGroup label="Read 3 sources">
+        <IntegrationRow integration="slack" />
+        <IntegrationRow integration="slack" />
+        <IntegrationRow integration="notion" />
+      </ChatToolCallGroup>
+      <ChatToolCall
+        toolCall={exampleCall}
+        keepMounted
+        icon={<MagnifyingGlassIcon size={12} weight="regular" />}
+      >
+        <PersistentDetails />
+      </ChatToolCall>
+      <Text variant="xs" color="tertiary">
+        Open, increment, and close the tool: its count survives reopening.
+      </Text>
+    </div>
   ),
 };

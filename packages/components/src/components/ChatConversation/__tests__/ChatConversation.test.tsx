@@ -2,7 +2,10 @@ import { createRef } from 'react';
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { ChatConversation } from '../ChatConversation';
+import {
+  ChatConversation,
+  type ChatConversationHandle,
+} from '../ChatConversation';
 
 let resizeCallbacks: ResizeObserverCallback[] = [];
 const OriginalResizeObserver = globalThis.ResizeObserver;
@@ -300,5 +303,57 @@ describe('ChatConversation', () => {
       </ChatConversation>
     );
     expect(viewportRef.current).toBe(screen.getByRole('log'));
+  });
+});
+
+describe('Conversation host controls', () => {
+  it('exposes jump/pin actions and shares column overrides with the footer', () => {
+    const ref = createRef<ChatConversationHandle>();
+    render(
+      <ChatConversation
+        ref={ref}
+        columnClassName="max-w-full"
+        footer={<p>Footer</p>}
+        renderJumpToLatest={({ jumpToLatest }) => (
+          <button onClick={jumpToLatest}>Latest answer</button>
+        )}
+      >
+        <p data-chat-message-id="question">Question</p>
+      </ChatConversation>
+    );
+    const viewport = screen.getByRole('log');
+    setLayout(viewport, { scrollHeight: 1000, clientHeight: 400 });
+    resize();
+    scrollTo(viewport, 200);
+    expect(
+      screen.queryByRole('button', { name: 'Jump to latest' })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Latest answer' }));
+    expect(viewport.scrollTop).toBe(1000);
+    expect(viewport).toHaveFocus();
+    scrollTo(viewport, 100);
+    act(() => ref.current?.jumpToLatest());
+    expect(viewport.scrollTop).toBe(1000);
+    act(() => ref.current?.pinMessage('question'));
+    expect(screen.getByText('Question').parentElement).toHaveClass(
+      'max-w-full'
+    );
+    expect(screen.getByText('Question').parentElement).not.toHaveClass(
+      'max-w-3xl'
+    );
+    expect(screen.getByText('Footer').parentElement).toHaveClass('max-w-full');
+  });
+
+  it('lets the host hide the built-in jump without disabling imperative scrolling', () => {
+    render(
+      <ChatConversation renderJumpToLatest={() => null}>
+        <p>Hello</p>
+      </ChatConversation>
+    );
+    const viewport = screen.getByRole('log');
+    setLayout(viewport, { scrollHeight: 1000, clientHeight: 400 });
+    resize();
+    scrollTo(viewport, 100);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });

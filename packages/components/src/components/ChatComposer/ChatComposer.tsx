@@ -36,6 +36,8 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
    * content should also say it in text or with an icon.
    */
   drawerIntent?: ChatComposerDrawerIntent;
+  /** Styles the input surface only, excluding the drawer and outer form. */
+  inputSurfaceClassName?: string;
   /**
    * Blocks writing and sending. Stop stays available while `action` is
    * `stop`, so host controls inside the composer must take `disabled`
@@ -88,6 +90,7 @@ export function ChatComposer({
   drawer,
   drawerIntent = 'neutral',
   className,
+  inputSurfaceClassName,
   ref,
   disabled = false,
   submitDisabled = false,
@@ -227,7 +230,8 @@ export function ChatComposer({
             disabled && 'border-disabled bg-input-disabled',
             isDropTarget &&
               !disabled &&
-              'border-focus bg-surface-level-2 shadow-[0_0_0_1px_var(--border-focus)]'
+              'border-focus bg-surface-level-2 shadow-[0_0_0_1px_var(--border-focus)]',
+            inputSurfaceClassName
           )}
         >
           {children}

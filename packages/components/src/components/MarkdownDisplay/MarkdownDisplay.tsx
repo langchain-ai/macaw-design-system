@@ -9,7 +9,7 @@ import {
   useMemo,
 } from 'react';
 
-import type { Components, ExtraProps } from 'react-markdown';
+import type { Components, ExtraProps, Options } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remend from 'remend';
@@ -43,7 +43,14 @@ type InputProps = ComponentProps<'input'> & ExtraProps;
 type ImageProps = ComponentProps<'img'> & ExtraProps;
 type SpanProps = ComponentProps<'span'> & ExtraProps;
 
+export interface MarkdownDisplayCodeBlock {
+  code: string;
+  language?: string;
+  codeOverflow: 'wrap' | 'scroll';
+}
+
 interface MarkdownDisplayContextValue {
+  renderCodeBlock?: (block: MarkdownDisplayCodeBlock) => ReactNode;
   loadImages: boolean;
   trailingContent: ReactNode;
   codeOverflow: 'wrap' | 'scroll';
@@ -215,7 +222,9 @@ const createHeading = (
 
 const MARKDOWN_COMPONENTS: Components = {
   pre: function MarkdownPre({ children }) {
-    const { codeOverflow } = useContext(MarkdownDisplayContext);
+    const { codeOverflow, renderCodeBlock } = useContext(
+      MarkdownDisplayContext
+    );
     const child = isValidElement<{
       children?: ReactNode;
       className?: string;
@@ -228,17 +237,23 @@ const MARKDOWN_COMPONENTS: Components = {
         ? child.props.children
         : String(child?.props.children ?? '');
 
+    const customBlock = renderCodeBlock?.({ code, language, codeOverflow });
+
     return (
       <div
         data-search-block=""
         data-search-code=""
         className={cn('w-full min-w-0', blockSpacing)}
       >
-        <MarkdownCodeBlock
-          code={code}
-          language={language}
-          codeOverflow={codeOverflow}
-        />
+        {customBlock === undefined ? (
+          <MarkdownCodeBlock
+            code={code}
+            language={language}
+            codeOverflow={codeOverflow}
+          />
+        ) : (
+          customBlock
+        )}
       </div>
     );
   },
@@ -430,6 +445,12 @@ export interface MarkdownDisplayProps {
    * remounts every element it renders.
    */
   components?: Components;
+  /** Render selected fenced languages; undefined keeps the Macaw code fallback. */
+  renderCodeBlock?: (block: MarkdownDisplayCodeBlock) => ReactNode;
+  /** Trusted application plugins, appended after GFM and before HTML neutralization. */
+  remarkPlugins?: Options['remarkPlugins'];
+  /** Trusted application transforms, run before Macaw trailing-content decoration. */
+  rehypePlugins?: Options['rehypePlugins'];
   /**
    * Content that continues the rendered flow: inline after the final
    * paragraph's text, or after the last block when content ends otherwise.
@@ -461,9 +482,24 @@ export function MarkdownDisplay({
   textColor = 'primary',
   loadImages = false,
   components,
+  renderCodeBlock,
+  remarkPlugins,
+  rehypePlugins,
   trailingContent,
   afterContent,
 }: MarkdownDisplayProps) {
+  const resolvedRemarkPlugins = useMemo(
+    () =>
+      remarkPlugins
+        ? [remarkGfm, ...remarkPlugins, remarkDisableRawHtml]
+        : REMARK_PLUGINS,
+    [remarkPlugins]
+  );
+  const resolvedRehypePlugins = useMemo(
+    () =>
+      rehypePlugins ? [...rehypePlugins, ...REHYPE_PLUGINS] : REHYPE_PLUGINS,
+    [rehypePlugins]
+  );
   const markdownComponents = useMemo(
     () =>
       components
@@ -472,8 +508,8 @@ export function MarkdownDisplay({
     [components]
   );
   const contextValue = useMemo(
-    () => ({ loadImages, trailingContent, codeOverflow }),
-    [loadImages, trailingContent, codeOverflow]
+    () => ({ loadImages, trailingContent, codeOverflow, renderCodeBlock }),
+    [loadImages, trailingContent, codeOverflow, renderCodeBlock]
   );
   const isPlainText = content.length > maxMarkdownLength;
   const markdown = useMemo(() => {
@@ -538,8 +574,8 @@ export function MarkdownDisplay({
           <ErrorBoundary resetKey={content} fallback={() => plainText}>
             <MarkdownDisplayContext.Provider value={contextValue}>
               <ReactMarkdown
-                remarkPlugins={REMARK_PLUGINS}
-                rehypePlugins={REHYPE_PLUGINS}
+                remarkPlugins={resolvedRemarkPlugins}
+                rehypePlugins={resolvedRehypePlugins}
                 components={markdownComponents}
               >
                 {markdown}

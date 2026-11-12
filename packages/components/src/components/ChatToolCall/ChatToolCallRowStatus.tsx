@@ -5,6 +5,7 @@ interface ChatToolCallRowStatusProps {
   status: ChatStateStatus;
   label?: string;
   elapsedMs?: number;
+  startedAt?: Date | number;
   /** Inside a group, the header shows the running indicator instead. */
   inGroup: boolean;
 }
@@ -17,6 +18,7 @@ export function ChatToolCallRowStatus({
   status,
   label,
   elapsedMs,
+  startedAt,
   inGroup,
 }: ChatToolCallRowStatusProps) {
   return (
@@ -33,6 +35,7 @@ export function ChatToolCallRowStatus({
         showElapsed={status === 'streaming'}
         showIndicator={!inGroup}
         elapsedMs={elapsedMs}
+        startedAt={startedAt}
       />
     </span>
   );

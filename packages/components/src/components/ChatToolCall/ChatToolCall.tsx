@@ -11,7 +11,7 @@ import type {
 import { formatChatToolCallValue } from './ChatToolCall.value';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
 import { ChatToolCallDetails } from './ChatToolCallDetails';
-import { useReportToGroup } from './ChatToolCallGroupContext';
+import { useChatToolCallGroupRow } from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
@@ -43,6 +43,8 @@ export interface ChatToolCallProps {
    * slots; response controls belong in a separate content block.
    */
   icon?: ReactNode;
+  /** Stable integration identity for the group icon stack. */
+  iconKey?: string;
   /** Undefined previews args; null omits the summary. */
   summary?: ReactNode;
   /**
@@ -55,6 +57,8 @@ export interface ChatToolCallProps {
   children?: ReactNode;
   expanded?: boolean;
   defaultExpanded?: boolean;
+  /** Preserve detail state while closed; hidden details are inert. */
+  keepMounted?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
   className?: string;
 }
@@ -82,17 +86,20 @@ export function ChatToolCall({
   inspectLabel,
   label,
   icon,
+  iconKey,
   summary,
   meta,
   children,
   expanded,
   defaultExpanded = false,
+  keepMounted = false,
   onExpandedChange,
   className,
 }: ChatToolCallProps) {
-  const inGroup = useReportToGroup({
+  const inGroup = useChatToolCallGroupRow({
     status: STATUS_PRESENTATIONS[toolCall.status].status,
     icon,
+    iconKey,
   });
   const summaryId = useId();
   const name = label ?? (toolCall.name || 'Tool');
@@ -166,6 +173,7 @@ export function ChatToolCall({
       meta={meta}
       expanded={expanded}
       defaultExpanded={defaultExpanded}
+      keepMounted={keepMounted}
       onExpandedChange={onExpandedChange}
       className={className}
     >

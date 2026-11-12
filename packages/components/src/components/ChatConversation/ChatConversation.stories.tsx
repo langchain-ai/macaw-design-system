@@ -4,7 +4,11 @@ import { expect, waitFor } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChatConversation, type ChatConversationProps } from '.';
+import {
+  ChatConversation,
+  type ChatConversationHandle,
+  type ChatConversationProps,
+} from '.';
 import { Button } from '../Button';
 import {
   ChatComposer,
@@ -895,4 +899,80 @@ export const KeepsPlaceWhenEarlierMessagesLoad: Story = {
       canvas.getByRole('button', { name: 'Jump to latest' })
     ).toBeVisible();
   },
+};
+
+function HostControlsDemo() {
+  const conversation = useRef<ChatConversationHandle>(null);
+  return (
+    <ChatConversation
+      ref={conversation}
+      columnClassName="max-w-full"
+      className="h-[480px] w-[640px] max-w-full rounded-lg border border-subtle"
+      header={
+        <div className="flex gap-space-2 border-b border-subtle p-space-3">
+          <Button
+            size="sm"
+            color="secondary"
+            onClick={() => conversation.current?.pinMessage('host-message-3')}
+          >
+            Pin message 3
+          </Button>
+          <Button
+            size="sm"
+            color="secondary"
+            onClick={() => conversation.current?.jumpToLatest()}
+          >
+            Latest output
+          </Button>
+        </div>
+      }
+      renderJumpToLatest={({ jumpToLatest }) => (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-space-3">
+          <Button
+            size="sm"
+            onClick={jumpToLatest}
+            className="pointer-events-auto"
+          >
+            Return to answer
+          </Button>
+        </div>
+      )}
+      footer={
+        <ChatComposer
+          drawer={
+            <Text variant="xs" className="p-space-3">
+              Plan stays outside the input shadow.
+            </Text>
+          }
+          inputSurfaceClassName="shadow-md border-focus"
+        >
+          <textarea
+            aria-label="Message"
+            placeholder="Ask a follow-up"
+            className="min-w-0 resize-none bg-transparent p-space-2 text-sm outline-hidden"
+          />
+        </ChatComposer>
+      }
+    >
+      {Array.from({ length: 8 }, (_, i) => (
+        <div
+          key={i}
+          data-chat-message-id={`host-message-${i + 1}`}
+          className="flex flex-col gap-space-2"
+        >
+          <Text variant="xs" color="tertiary">
+            Message {i + 1}
+          </Text>
+          <Text variant="body">
+            The message and composer share the full column width. Use the host
+            controls to pin a message or return to the latest output.
+          </Text>
+        </div>
+      ))}
+    </ChatConversation>
+  );
+}
+
+export const HostControls: Story = {
+  render: () => <HostControlsDemo />,
 };
