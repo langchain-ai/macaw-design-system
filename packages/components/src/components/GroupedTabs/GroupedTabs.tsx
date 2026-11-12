@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ElementType, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '../../utils/cn';
@@ -30,6 +30,8 @@ export interface GroupedTabOption<T> {
 }
 
 export type GroupedTabsProps<T extends string | number> = {
+  /** A button-compatible component forwarding its ref and props, such as Headless UI Tab. */
+  buttonComponent?: ElementType;
   value: T;
   onChange: (value: T) => void;
   options: readonly GroupedTabOption<T>[];
@@ -44,6 +46,7 @@ export type GroupedTabsProps<T extends string | number> = {
 } & DataAttributes;
 
 export const GroupedTabs = <T extends string | number>({
+  buttonComponent: ButtonComponent = 'button',
   value,
   onChange,
   options,
@@ -138,7 +141,7 @@ export const GroupedTabs = <T extends string | number>({
           <div
             aria-hidden
             className={cn(
-              'pointer-events-none absolute inset-0 bg-surface-level-4',
+              'pointer-events-none absolute inset-0 bg-surface-level-4 motion-reduce:!transition-none',
               selectionClassName,
               indicatorClassName
             )}
@@ -157,9 +160,8 @@ export const GroupedTabs = <T extends string | number>({
             title={option.tooltip}
             {...option.tooltipProps}
           >
-            {/* eslint-disable-next-line react/forbid-elements */}
-            <button
-              ref={(el) => {
+            <ButtonComponent
+              ref={(el: HTMLButtonElement | null) => {
                 buttonRefs.current[idx] = el;
               }}
               type="button"
@@ -168,7 +170,7 @@ export const GroupedTabs = <T extends string | number>({
               disabled={option.disabled || disabled}
               className={cn(
                 'relative flex h-full items-center gap-space-1',
-                'transition-colors duration-fast',
+                'transition-colors duration-fast motion-reduce:transition-none',
                 {
                   'rounded-xs px-space-1': size === 'xs',
                   'rounded-xs px-space-2': size === 'sm',
@@ -204,7 +206,7 @@ export const GroupedTabs = <T extends string | number>({
                   </Text>
                 ))}
               {option.rightDecorator}
-            </button>
+            </ButtonComponent>
           </Tooltip>
         ))}
       </div>
