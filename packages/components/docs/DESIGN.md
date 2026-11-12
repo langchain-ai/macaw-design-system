@@ -106,6 +106,15 @@ pass an explicit `collisionBoundary` to override it.
 The base backdrop uses 75% of the semantic overlay color. The foreground layer
 adds 50% of that color, giving a visible increase in dimming in both themes.
 
+## Popover variants
+
+Import the Popover family from `@langchain/macaw-components/Popover`. Set
+`variant` on `PopoverContent` to `surface` (the default floating surface), `info`,
+`warning`, `success`, or `neutral`. Intent variants use Toast-style tinted fills
+and semantic borders; `neutral` uses Banner's elevated fill and default border.
+`PopoverArrow` inherits the enclosing content's variant automatically. State the
+intent in the content too, rather than relying on color alone.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
