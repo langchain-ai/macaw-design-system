@@ -64,7 +64,7 @@ export const Default: Story = {
 export const Variants: Story = {
   render: () => (
     <div className="flex flex-wrap justify-center gap-space-6">
-      {(['surface', 'info', 'warning', 'success', 'neutral'] as const).map(
+      {(['neutral', 'info', 'warning', 'success', 'error'] as const).map(
         (variant) => (
           <Popover key={variant} open>
             <PopoverTrigger asChild>

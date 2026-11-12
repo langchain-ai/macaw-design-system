@@ -11,28 +11,28 @@ import { useDialogContainer } from '../Dialog';
 import { popoverSurfaceClassName } from './constants';
 
 export type PopoverVariant =
-  | 'surface'
+  | 'neutral'
   | 'info'
   | 'warning'
   | 'success'
-  | 'neutral';
+  | 'error';
 
-const PopoverVariantContext = createContext<PopoverVariant>('surface');
+const PopoverVariantContext = createContext<PopoverVariant>('neutral');
 
 const surfaceByVariant = {
-  surface: 'bg-popover border-subtle',
+  neutral: 'bg-popover border-subtle',
   info: 'bg-brand-subtle border-brand-subtle',
   warning: 'bg-warning border-warning',
   success: 'bg-success border-success',
-  neutral: 'bg-elevated border-default',
+  error: 'bg-error border-error',
 };
 
 const arrowByVariant = {
-  surface: 'fill-popover stroke-subtle',
+  neutral: 'fill-popover stroke-subtle',
   info: 'fill-[var(--bg-brand-subtle)] stroke-[var(--border-brand-subtle)]',
   warning: 'fill-[var(--bg-warning)] stroke-[var(--border-warning)]',
   success: 'fill-[var(--bg-success)] stroke-[var(--border-success)]',
-  neutral: 'fill-elevated stroke-[var(--border-default)]',
+  error: 'fill-[var(--bg-error)] stroke-[var(--border-error)]',
 };
 
 export const Popover = PopoverPrimitive.Root;
@@ -92,7 +92,7 @@ export const PopoverContent = forwardRef<
       className,
       align = 'center',
       sideOffset = 4,
-      variant = 'surface',
+      variant = 'neutral',
       forceMount,
       container,
       children,

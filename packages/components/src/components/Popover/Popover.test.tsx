@@ -42,14 +42,50 @@ describe('Popover variants', () => {
       'border-success'
     );
     expect(screen.getByTestId('arrow')).toHaveClass('fill-[var(--bg-success)]');
+    rerender(
+      <Popover defaultOpen>
+        <PopoverTrigger>Open</PopoverTrigger>
+        <PopoverContent variant="error">
+          Notice
+          <PopoverArrow data-testid="arrow" />
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.getByRole('dialog')).toHaveClass('bg-error', 'border-error');
+    expect(screen.getByTestId('arrow')).toHaveClass(
+      'fill-[var(--bg-error)]',
+      'stroke-[var(--border-error)]'
+    );
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('preserves the default surface and caller overrides', () => {
-    render(
+    const { rerender } = render(
       <Popover defaultOpen>
-        <PopoverContent className="bg-elevated border-default">
+        <PopoverContent>
+          Notice
+          <PopoverArrow data-testid="arrow" />
+        </PopoverContent>
+      </Popover>
+    );
+
+    expect(screen.getByRole('dialog')).toHaveClass(
+      'bg-popover',
+      'border-subtle'
+    );
+    expect(screen.getByTestId('arrow')).toHaveClass(
+      'fill-popover',
+      'stroke-subtle'
+    );
+
+    rerender(
+      <Popover defaultOpen>
+        <PopoverContent
+          variant="neutral"
+          className="bg-elevated border-default"
+        >
           Notice
           <PopoverArrow />
         </PopoverContent>
