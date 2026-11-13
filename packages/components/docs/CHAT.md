@@ -1,9 +1,10 @@
 # Chat components
 
 Macaw chat families provide presentation and local interaction. Applications
-own message and event parsing, network requests, streaming, persistence,
-authorization, analytics, tool execution, and product-specific tool or logo
-mapping.
+own network requests, authentication, persistence, analytics, tool execution,
+and product-specific tool or logo mapping. For LangGraph agents, the
+`ChatThread` family also maps a `useStream` handle's state to these parts, so
+apps don't each rebuild that mapping; the app still creates the stream.
 
 ## Conversation scrolling
 
@@ -88,3 +89,58 @@ it, such as a human-in-the-loop `edit` decision. `edit.content` replaces the
 body with host-owned fields; `edit.onSubmit` saves them. `ChatMessageActions`
 shows `cancel` on queued messages, and `ChatComposer` takes
 `action="stopping"` while a stop is pending.
+
+## LangGraph streams
+
+Import from `@langchain/macaw-components/ChatThread`. Macaw never imports the
+LangGraph SDK: it reads the `useStream` handle the app passes in, so it works
+with `@langchain/react` 1.x and 2.0 under any package alias, and with the 0.3.x
+hook.
+
+- `LangGraphChat` is the drop-in agent chat for a stream.
+- `useChatThread(stream, options)` returns the thread model and actions
+  (`send`, `stop`, `respond`, `resume`, `cancelQueued`, `fork`) for apps that
+  place `ChatThread` in their own layout or render their own rows.
+- `toChatThread(snapshot)` is the pure mapping, for plain data such as recorded
+  threads.
+
+The mapping merges each tool call's status from its result message, the live
+tool stream, pending interrupts, and the run; groups messages into turns;
+matches deep agent `task` calls to subagent handles; anchors human-in-the-loop
+requests, in either casing, to the calls they gate; and reads deep agent todos
+and files. Pass selector hooks from your own `@langchain/react` import to turn
+on queued messages, edit and retry, and subagent details. Keep that object at
+module level so it never changes between renders.
+
+```tsx
+import {
+  useMessageMetadata,
+  useMessages,
+  useStream,
+  useSubmissionQueue,
+  useToolCalls,
+} from '@langchain/react';
+import { LangGraphChat } from '@langchain/macaw-components/ChatThread';
+
+const selectors = {
+  useMessageMetadata,
+  useMessages,
+  useSubmissionQueue,
+  useToolCalls,
+};
+
+export function AgentChat() {
+  const stream = useStream({ assistantId: 'agent', apiUrl: '/api/agent' });
+  return <LangGraphChat stream={stream} selectors={selectors} />;
+}
+```
+
+Tool rows use `deepAgentTools` for the built-in deep agent tools. Pass `tools`
+to present others by name: return row props, your own element, or `null` to
+hide a call. A renderer's second argument holds the original AI message and
+tool result, for fields Macaw doesn't map, such as artifacts or
+provider-specific content; every part in `toChatThread` carries the same
+`source`. `renderInterrupt` takes over requests the app understands, such
+as sign-in; return undefined for the default approval, reply, or response
+card. Requests paused together resume together once each has a decision, and
+sending is paused until they do.

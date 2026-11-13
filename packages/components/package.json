@@ -108,6 +108,10 @@
       "types": "./dist/components/ChatState/index.d.ts",
       "import": "./dist/components/ChatState/index.js"
     },
+    "./ChatThread": {
+      "types": "./dist/components/ChatThread/index.d.ts",
+      "import": "./dist/components/ChatThread/index.js"
+    },
     "./ChatToolCall": {
       "types": "./dist/components/ChatToolCall/index.d.ts",
       "import": "./dist/components/ChatToolCall/index.js"
