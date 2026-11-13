@@ -25,6 +25,7 @@ interface ChatToolCallAccordionProps {
   onExpandedChange?: (expanded: boolean) => void;
   className?: string;
   detailsClassName?: string;
+  keepMounted?: boolean;
 }
 
 export function ChatToolCallAccordion({
@@ -41,6 +42,7 @@ export function ChatToolCallAccordion({
   onExpandedChange,
   className,
   detailsClassName,
+  keepMounted,
 }: ChatToolCallAccordionProps) {
   const detailsId = useId();
   const hasDetails = children != null && children !== false;
@@ -115,6 +117,7 @@ export function ChatToolCallAccordion({
       {hasDetails && (
         <ChatToolCallCollapse
           open={isExpanded}
+          keepMounted={keepMounted}
           id={detailsId}
           role="region"
           aria-label={detailsLabel}

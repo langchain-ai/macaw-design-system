@@ -95,7 +95,8 @@ export function ChatToolCallCollapse({
       hidden={!open && !present}
       inert={!open}
       className={cn(
-        'grid min-w-0 transition-[grid-template-rows] motion-reduce:transition-none',
+        'min-w-0 transition-[grid-template-rows] motion-reduce:transition-none',
+        (open || present) && 'grid',
         EASE_OUT,
         open
           ? 'grid-rows-[1fr] duration-normal'
