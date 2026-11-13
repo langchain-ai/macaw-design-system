@@ -2,7 +2,7 @@
 export const buttonStyleMap = {
   // Primary variants - enabled
   'primary-normal-enabled':
-    'button-primary-bg button-primary-foreground border button-primary-border hover:border-transparent hover:button-primary-bg-hover dark:hover:button-primary-bg-hover dark:hover:border-transparent',
+    'bg-error-strong text-warning border border-error hover:bg-warning-strong hover:text-error',
   'primary-outlined-enabled':
     'bg-transparent text-brand-secondary border border-brand-strong hover:text-brand-primary hover:bg-brand-muted dark:border-brand dark:hover:bg-brand-subtle dark:hover:button-primary-border dark:hover:text-brand-primary',
   'primary-plain-enabled':
