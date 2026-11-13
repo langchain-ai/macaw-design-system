@@ -31,10 +31,6 @@ export const ZIndexContext = createContext<number>(zIndices.content);
  * 2. Wrap its children in <ZIndexProvider value={zIndex}> so that any further
  *    nested overlays can repeat the same calculation relative to this layer.
  *
- * Note: Tooltips do NOT use useZIndex — they have no semantic floor and always
- * render at contextZIndex + 1 directly, since they only need to appear above
- * whatever triggered them.
- *
  * @example
  * ```tsx
  * function MyPopover({ children }) {
