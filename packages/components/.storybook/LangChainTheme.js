@@ -1,8 +1,7 @@
-import { create } from 'storybook/theming';
+import { create, getPreferredColorScheme } from 'storybook/theming';
 
-// Storybook's manager needs a fixed-color image URL. The component asset uses
-// currentColor and is compiled through SVGR inside the preview/application.
-import LangChainLogo from './assets/LangChainLogoColor.svg';
+import LangChainLogo from './assets/MacawLogoColorNoBG.svg';
+import LangChainLogoDark from './assets/MacawLogoColorDarkNoBG.svg';
 
 export default create({
   brandTitle: 'Macaw Design System',
@@ -10,4 +9,6 @@ export default create({
   brandImage: LangChainLogo,
   brandTarget: '_self',
   colorPrimary: '#006ddd',
+    ...(getPreferredColorScheme() === 'light' ? { appBg: '#F2FAFF' } : {}),
+    ...(getPreferredColorScheme() === 'light' ? { brandImage: LangChainLogo } : { brandImage: LangChainLogoDark }),
 });
