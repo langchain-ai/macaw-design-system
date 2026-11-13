@@ -50,7 +50,7 @@ export function SplitViewPaneHeader({
   return (
     <header
       className={cn(
-        'sticky top-0 flex items-center gap-space-1 border-b border-subtle bg-elevated px-space-4 py-1.5 text-base font-semibold text-secondary',
+        'sticky top-0 flex h-12 shrink-0 items-center gap-space-1 border-b border-subtle bg-elevated px-space-4 text-base font-semibold text-secondary',
         headerClassName
       )}
       style={{ zIndex: zIndices.stickyHeader }}
