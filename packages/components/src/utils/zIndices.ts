@@ -37,6 +37,7 @@ const zIndices = {
   // Layout layer (this is arbitrarily 5 to give a few layers above the content layer)
   sidebar: 5,
 
+  /** @deprecated Legacy layout layer; use useZIndex(zIndices.tooltipOverlay) for hover tooltips. */
   tooltip: 6,
 
   selectionActionBar: 12, // Selection bars — above page headers, below tooltip overlays
