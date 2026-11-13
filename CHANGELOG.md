@@ -1,3 +1,13 @@
+## 1.7.12 (2026-11-13)
+
+### 🩹 Fixes
+
+- keep button tooltips above floating panels ([#87](https://github.com/langchain-ai/macaw-design-system/pull/87))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+
 ## 1.7.11 (2026-11-11)
 
 ### 🚀 Features
