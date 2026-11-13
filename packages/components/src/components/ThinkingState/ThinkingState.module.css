@@ -7,6 +7,17 @@
   gap: 10%;
 }
 
+/* Whole-pixel cells and gaps, so every pixel renders the same size. */
+@supports (width: round(1px, 1px)) {
+  .grid {
+    --pixel-gap: round(10%, 1px);
+    --pixel-size: round(down, calc((100% - 2 * var(--pixel-gap)) / 3), 1px);
+    grid-template: repeat(3, var(--pixel-size)) / repeat(3, var(--pixel-size));
+    gap: var(--pixel-gap);
+    place-content: center;
+  }
+}
+
 .pixel {
   border-radius: 1px;
   opacity: 0.15;
