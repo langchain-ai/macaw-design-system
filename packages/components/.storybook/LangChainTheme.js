@@ -10,6 +10,5 @@ export default create({
   brandTarget: '_self',
   colorPrimary: '#006ddd',
     ...(getPreferredColorScheme() === 'light' ? { appBg: '#F2FAFF' } : {}),
-
-  ...(getPreferredColorScheme() === 'light' ? { brandImage: LangChainLogo } : { brandImage: LangChainLogoDark }),
+    ...(getPreferredColorScheme() === 'light' ? { brandImage: LangChainLogo } : { brandImage: LangChainLogoDark }),
 });
