@@ -61,6 +61,36 @@ export const Default: Story = {
   ),
 };
 
+export const Variants: Story = {
+  render: () => (
+    <div className="flex flex-wrap justify-center gap-space-6">
+      {(['neutral', 'info'] as const).map((variant) => (
+        <Popover key={variant} open>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="sm"
+              className="w-48"
+            >
+              {variant}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent variant={variant} className="w-48" sideOffset={12}>
+            <div className="flex flex-col gap-space-2">
+              <Text variant="sm" weight="semibold">
+                {variant}
+              </Text>
+              <Text variant="sm">A popover with a matching arrow.</Text>
+            </div>
+            <PopoverArrow width={16} height={8} />
+          </PopoverContent>
+        </Popover>
+      ))}
+    </div>
+  ),
+};
+
 export const WithForm: Story = {
   render: () => (
     <Popover>
