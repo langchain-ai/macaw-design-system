@@ -1,0 +1,14 @@
+packages/components/.storybook/LangChainTheme.js
+  h_a27749d4737027 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8fbef17b9e9f73b72740ffdf255c818ee64ab8fe",
+  "prompts": {},
+  "humans": {
+    "h_a27749d4737027": {
+      "author": "Ian SooHoo <ian.soohoo@langchain.dev>"
+    }
+  }
+}
