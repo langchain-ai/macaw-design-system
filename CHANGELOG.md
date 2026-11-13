@@ -1,3 +1,13 @@
+## 1.7.13 (2026-11-13)
+
+### 🩹 Fixes
+
+- **components:** render loading indicator pixels at equal sizes ([#92](https://github.com/langchain-ai/macaw-design-system/pull/92))
+
+### ❤️ Thank You
+
+- Johannes du Plessis @johannes117
+
 ## 1.7.12 (2026-11-13)
 
 ### 🩹 Fixes
