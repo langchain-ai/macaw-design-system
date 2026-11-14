@@ -244,6 +244,21 @@ such as a question, last. Set `drawerIntent` to `info`, `warning`, or `error`, a
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
 
+## Chat context window
+
+Import `ChatContextWindow` from `@langchain/macaw-components/ChatContextWindow`.
+Place it beside `ChatComposerAction` in `ChatComposerToolbar`'s `actions` slot.
+It uses the shared `TooltipProvider` and opens details on hover, focus, or tap.
+Pass `tokensUsed`, optional `contextWindow`, `model`, and a host-formatted
+`totalCost` including currency. The host owns token accounting, model limits,
+and pricing; the component does not fetch or estimate them.
+
+The ring and detail bar warn at 80% and show full at 100%. Over-capacity counts
+remain visible while the progress fill caps at 100%. Missing or invalid limits
+show an empty, non-animated ring with an explanation, not a guessed percentage;
+pass `tokensUsed={null}` when usage is unavailable. Pass `disabled` explicitly
+when host controls should be disabled during a response.
+
 ## Chat rich content
 
 Import the parts from `@langchain/macaw-components/ChatRichContent`. The host
