@@ -14,6 +14,19 @@ export type { ButtonGroupProps } from './ButtonGroup';
 export { Card } from './Card';
 export type { CardIntent, CardProps } from './Card';
 
+export {
+  DescriptionList,
+  DescriptionListItem,
+  DescriptionListTerm,
+  DescriptionListDetail,
+} from './DescriptionList';
+export type {
+  DescriptionListProps,
+  DescriptionListItemProps,
+  DescriptionListTermProps,
+  DescriptionListDetailProps,
+} from './DescriptionList';
+
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 

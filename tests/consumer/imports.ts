@@ -2,6 +2,7 @@ import {
   Attachment,
   Button,
   Card,
+  DescriptionList as RootDescriptionList,
   ChatRichContent as RootChatRichContent,
   StatusBadge,
   Text,
@@ -114,6 +115,18 @@ import type {
 import { CodeLite } from '@langchain/macaw-components/Code/CodeLite';
 import type { CodeLanguageType } from '@langchain/macaw-components/Code/types';
 import {
+  DescriptionList,
+  DescriptionListItem,
+  DescriptionListTerm,
+  DescriptionListDetail,
+} from '@langchain/macaw-components/DescriptionList';
+import type {
+  DescriptionListProps,
+  DescriptionListItemProps,
+  DescriptionListTermProps,
+  DescriptionListDetailProps,
+} from '@langchain/macaw-components/DescriptionList';
+import {
   HeatmapChart,
   HeatmapBlock,
 } from '@langchain/macaw-components/HeatmapChart';
@@ -151,6 +164,15 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  RootDescriptionList,
+  DescriptionList,
+  DescriptionListItem,
+  DescriptionListTerm,
+  DescriptionListDetail,
+  { layout: 'responsive' } satisfies DescriptionListProps,
+  { className: 'custom-row' } satisfies DescriptionListItemProps,
+  { children: 'Region' } satisfies DescriptionListTermProps,
+  { children: 'US' } satisfies DescriptionListDetailProps,
   Breadcrumb,
   BreadcrumbLink,
   BreadcrumbPage,
