@@ -27,6 +27,10 @@ export type {
   ChatComposerAttachmentProps,
 } from './ChatComposerAttachments';
 export { ChatComposerModelSelect } from './ChatComposerModelSelect';
-export type { ChatComposerModelSelectProps } from './ChatComposerModelSelect';
+export type {
+  ChatComposerModelGroup,
+  ChatComposerModelOption,
+  ChatComposerModelSelectProps,
+} from './ChatComposerModelSelect';
 export { ChatComposerContext } from './ChatComposerContext';
 export type { ChatComposerContextValue } from './ChatComposerContext';

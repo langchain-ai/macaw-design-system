@@ -38,10 +38,14 @@ import {
   ChatComposer,
   ChatComposerContext,
   ChatComposerInput,
+  ChatComposerModelSelect,
   ChatComposerTextarea,
 } from '@langchain/macaw-components/ChatComposer';
 import type {
   ChatComposerInputProps,
+  ChatComposerModelGroup,
+  ChatComposerModelOption,
+  ChatComposerModelSelectProps,
   ChatComposerProps,
   ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
@@ -198,6 +202,31 @@ void [
   ChatComposerContext,
   ChatComposerInput,
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  ChatComposerModelSelect,
+  {
+    groups: [
+      {
+        heading: 'Anthropic',
+        options: [
+          {
+            value: 'sonnet',
+            label: 'Sonnet 5.5',
+            icon: null,
+            badge: 'Default',
+          },
+        ],
+      } satisfies ChatComposerModelGroup,
+    ],
+    defaultValue: 'sonnet',
+    footer: null,
+  } satisfies ChatComposerModelSelectProps,
+  {
+    value: 'balanced',
+    label: 'Balanced model',
+    description: 'For everyday tasks',
+  } satisfies ChatComposerModelOption,
+  // @ts-expect-error options and groups are exclusive.
+  { options: [], groups: [] } satisfies ChatComposerModelSelectProps,
   ChatComposerTextarea,
   {
     name: 'message',

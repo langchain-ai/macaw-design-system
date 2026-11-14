@@ -20,6 +20,30 @@ place, so the host only fetches and renders them. Both find messages by
 `data-chat-message-id`, which `ChatMessage` sets; give custom rows the same
 attribute.
 
+## Model selection
+
+`ChatComposerModelSelect` (from `@langchain/macaw-components/ChatComposer`)
+goes in `ChatComposerToolbar`'s `modelSelector` slot. The trigger has no border,
+so it reads as part of the composer. The host owns the model catalog,
+availability, credentials, and defaults, and maps them to options:
+
+- `label` names a concrete model ("Sonnet 5.5") or a tier ("Balanced model").
+- `icon` is the host's provider or tier mark, about 16px; the trigger shows it
+  too.
+- `badge` holds a short status such as "Default" or "Needs API key", and
+  `description` a one-line summary. Set `disabled` on models that can't be used
+  now, and say why in the badge or description.
+- `groups` groups models by provider or tier. Searching for a heading, or for
+  an option's `keywords`, finds its models.
+
+Use `value`/`onChange`, or `defaultValue` for an uncontrolled picker.
+`open`/`onOpenChange` let a shortcut or slash command open it. `footer` holds
+host actions such as **Manage models**. Search appears from eight models; for
+server-side search, set `hideSearch={false}`, `disableFilter`, and
+`onSearchChange`. Without search, the menu opens with the current model
+highlighted, so Enter keeps it. Outside `ChatComposer` it works on its own,
+without the narrow layout or the move to the message input.
+
 ## Tool calls and shared state
 
 Import `ChatState` from `@langchain/macaw-components/ChatState`. It owns the

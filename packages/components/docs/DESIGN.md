@@ -235,8 +235,12 @@ files. `accept` and `multiple` only configure the picker. Render accepted files
 with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
 `status="uploading"` while they upload.
 
-`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
-model moves focus to the message input.
+`ChatComposerModelSelect` is a borderless model picker for the toolbar. Give
+options an `icon` (the host's provider mark), `description`, `badge`, or
+`disabled`, and use `groups` to group them by provider or tier. Search appears
+from eight models; set `hideSearch` to override. In a narrow composer the
+trigger shows only the model's icon, or a "Model" label. Choosing a model moves
+focus to the message input. See [CHAT.md](./CHAT.md#model-selection).
 
 Use `drawer` for content above the editor, such as questions to answer before
 sending. Several items stack with dividers; put the one the input answers,

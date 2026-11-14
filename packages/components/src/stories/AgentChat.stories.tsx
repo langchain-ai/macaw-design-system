@@ -7,7 +7,9 @@ import { Button } from '../components/Button';
 import {
   ChatComposer,
   ChatComposerInput,
+  ChatComposerModelSelect,
   ChatComposerToolbar,
+  type ChatComposerModelOption,
 } from '../components/ChatComposer';
 import { ChatConversation } from '../components/ChatConversation';
 import { ChatMessage, type ChatMessageModel } from '../components/ChatMessage';
@@ -73,6 +75,20 @@ function plan(step: number): ChatPlanItem[] {
 
 const robot = <RobotIcon size={12} weight="regular" />;
 
+const MODELS: ChatComposerModelOption[] = [
+  { value: 'fast', label: 'Fast model', description: 'Quick lookups' },
+  {
+    value: 'balanced',
+    label: 'Balanced model',
+    description: 'For everyday research',
+  },
+  {
+    value: 'deep',
+    label: 'Deep research model',
+    description: 'Slower, reads more sources',
+  },
+];
+
 /**
  * One deep agent turn: it plans, searches, hands work to two subagents, asks
  * a question, writes a file, then answers. Public Macaw parts with scripted
@@ -84,6 +100,7 @@ function AgentChatExample() {
   const [choice, setChoice] = useState<string[]>([]);
   const [answered, setAnswered] = useState(false);
   const [draft, setDraft] = useState('');
+  const [model, setModel] = useState('balanced');
   const paragraphs = answer(choice[0] ?? 'exclude');
   const asking = step === ASK_STEP && !answered;
   const answerStep = step - STEPS;
@@ -331,6 +348,13 @@ function AgentChatExample() {
             aria-label="Message"
           />
           <ChatComposerToolbar
+            modelSelector={
+              <ChatComposerModelSelect
+                options={MODELS}
+                value={model}
+                onChange={setModel}
+              />
+            }
             actions={
               asking ? (
                 <Button type="submit" size="sm" disabled={choice.length === 0}>

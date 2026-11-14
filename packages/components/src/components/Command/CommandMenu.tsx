@@ -48,7 +48,7 @@ export interface CommandMenuGroup {
 interface CommandMenuBaseProps {
   /** Callback when an item is selected */
   onSelect: (value: string) => void;
-  /** The currently selected value. When set, a check icon is shown next to the selected item. */
+  /** The currently selected value. When set, a check icon is shown next to the selected item, and a menu without search opens with it highlighted. */
   value?: string;
   /** Placeholder text for the search input */
   placeholder?: string;
@@ -216,6 +216,7 @@ export function CommandMenu({
         className
       )}
       shouldFilter={disableFilter ? false : undefined}
+      defaultValue={hideSearch ? value : undefined}
       tabIndex={hideSearch ? 0 : -1}
     >
       {!hideSearch && (
@@ -238,7 +239,7 @@ export function CommandMenu({
         {items && renderItems(items)}
         {groups?.map((group, i) => (
           <Fragment key={group.heading ?? i}>
-            {i > 0 && <CommandSeparator />}
+            {i > 0 && <CommandSeparator aria-hidden />}
             <CommandGroup heading={group.heading}>
               {renderItems(group.items)}
             </CommandGroup>
