@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
-import { forwardRef } from 'react';
+import { createContext, forwardRef, useContext } from 'react';
 
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 
@@ -10,6 +10,20 @@ import zIndices from '../../utils/zIndices';
 import { useDialogContainer } from '../Dialog';
 import { popoverSurfaceClassName } from './constants';
 
+export type PopoverVariant = 'neutral' | 'info';
+
+const PopoverVariantContext = createContext<PopoverVariant>('neutral');
+
+const surfaceByVariant = {
+  neutral: 'bg-popover border-subtle',
+  info: 'bg-brand-subtle border-brand-subtle',
+};
+
+const arrowByVariant = {
+  neutral: 'fill-popover stroke-subtle',
+  info: 'fill-[var(--bg-brand-subtle)] stroke-[var(--border-brand-subtle)]',
+};
+
 export const Popover = PopoverPrimitive.Root;
 
 export const PopoverTrigger = PopoverPrimitive.Trigger;
@@ -18,32 +32,36 @@ export const PopoverAnchor = PopoverPrimitive.Anchor;
 export const PopoverArrow = forwardRef<
   ElementRef<typeof PopoverPrimitive.Arrow>,
   ComponentPropsWithoutRef<typeof PopoverPrimitive.Arrow>
->(({ className, asChild, children, ...props }, ref) => (
-  <PopoverPrimitive.Arrow
-    ref={ref}
-    className={cn(
-      'overflow-visible fill-popover stroke-subtle',
-      !asChild && '-translate-y-px',
-      className
-    )}
-    {...props}
-    asChild
-  >
-    {asChild ? (
-      children
-    ) : (
-      <svg>
-        <polygon points="0,0 30,0 15,10" stroke="none" />
-        <polyline
-          points="0,0 15,10 30,0"
-          fill="none"
-          strokeWidth={1}
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-    )}
-  </PopoverPrimitive.Arrow>
-));
+>(({ className, asChild, children, ...props }, ref) => {
+  const variant = useContext(PopoverVariantContext);
+  return (
+    <PopoverPrimitive.Arrow
+      ref={ref}
+      className={cn(
+        'overflow-visible',
+        arrowByVariant[variant],
+        !asChild && '-translate-y-px',
+        className
+      )}
+      {...props}
+      asChild
+    >
+      {asChild ? (
+        children
+      ) : (
+        <svg>
+          <polygon points="0,0 30,0 15,10" stroke="none" />
+          <polyline
+            points="0,0 15,10 30,0"
+            fill="none"
+            strokeWidth={1}
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      )}
+    </PopoverPrimitive.Arrow>
+  );
+});
 PopoverArrow.displayName = 'PopoverArrow';
 
 export const PopoverContent = forwardRef<
@@ -55,6 +73,7 @@ export const PopoverContent = forwardRef<
      * mouse-interactive, and falls back to `document.body` otherwise.
      */
     container?: HTMLElement | null;
+    variant?: PopoverVariant;
   }
 >(
   (
@@ -62,6 +81,7 @@ export const PopoverContent = forwardRef<
       className,
       align = 'center',
       sideOffset = 4,
+      variant = 'neutral',
       forceMount,
       container,
       children,
@@ -87,12 +107,18 @@ export const PopoverContent = forwardRef<
           align={align}
           sideOffset={sideOffset}
           forceMount={forceMount}
-          className={cn(popoverSurfaceClassName, className)}
+          className={cn(
+            popoverSurfaceClassName,
+            surfaceByVariant[variant],
+            className
+          )}
           collisionBoundary={dialogContainer ?? undefined}
           {...props}
           style={{ zIndex, ...props.style }}
         >
-          <ZIndexProvider value={zIndex}>{children}</ZIndexProvider>
+          <PopoverVariantContext.Provider value={variant}>
+            <ZIndexProvider value={zIndex}>{children}</ZIndexProvider>
+          </PopoverVariantContext.Provider>
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     );

@@ -1,3 +1,4 @@
+export type { PopoverVariant } from './Popover';
 export {
   Popover,
   PopoverAnchor,
