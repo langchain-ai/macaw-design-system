@@ -1,3 +1,14 @@
+## 1.7.14 (2026-11-16)
+
+### 🚀 Features
+
+- **Popover:** add neutral and info variants ([#118](https://github.com/langchain-ai/macaw-design-system/pull/118))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+- Robin @open-swe
+
 ## 1.7.13 (2026-11-13)
 
 ### 🩹 Fixes
