@@ -134,9 +134,10 @@ const VIEWBOX_WIDTH = 440;
 const VIEWBOX_HEIGHT = 340;
 const CENTER_X = VIEWBOX_WIDTH / 2;
 const CENTER_Y = VIEWBOX_HEIGHT / 2;
-// A 96-unit plot leaves room for a 20-unit gap and the two-line label boxes.
-const RADIUS = 96;
-const LABEL_RADIUS = RADIUS + 20;
+// A 108-unit plot leaves room for an 8-unit gap and the two-line label boxes;
+// the narrow gap keeps each label visibly tied to its spoke.
+const RADIUS = 108;
+const LABEL_RADIUS = RADIUS + 8;
 // Reserve 100 units for truncated names and 20 per text line: single-series
 // labels pair the name with its value; multi-series labels show the name.
 const LABEL_WIDTH = 100;
