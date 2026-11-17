@@ -136,6 +136,10 @@
       "types": "./dist/components/CopyButton/index.d.ts",
       "import": "./dist/components/CopyButton/index.js"
     },
+    "./DescriptionList": {
+      "types": "./dist/components/DescriptionList/index.d.ts",
+      "import": "./dist/components/DescriptionList/index.js"
+    },
     "./Dialog": {
       "types": "./dist/components/Dialog/index.d.ts",
       "import": "./dist/components/Dialog/index.js"
