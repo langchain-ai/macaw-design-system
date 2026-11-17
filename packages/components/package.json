@@ -84,9 +84,9 @@
       "types": "./dist/components/ChatComposer/index.d.ts",
       "import": "./dist/components/ChatComposer/index.js"
     },
-    "./ChatContextWindow": {
-      "types": "./dist/components/ChatContextWindow/index.d.ts",
-      "import": "./dist/components/ChatContextWindow/index.js"
+    "./ChatContextWindowPopover": {
+      "types": "./dist/components/ChatContextWindowPopover/index.d.ts",
+      "import": "./dist/components/ChatContextWindowPopover/index.js"
     },
     "./ChatConversation": {
       "types": "./dist/components/ChatConversation/index.d.ts",

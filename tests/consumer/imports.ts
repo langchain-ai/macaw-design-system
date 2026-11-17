@@ -45,8 +45,8 @@ import type {
   ChatComposerProps,
   ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
-import { ChatContextWindow } from '@langchain/macaw-components/ChatContextWindow';
-import type { ChatContextWindowProps } from '@langchain/macaw-components/ChatContextWindow';
+import { ChatContextWindowPopover } from '@langchain/macaw-components/ChatContextWindowPopover';
+import type { ChatContextWindowPopoverProps } from '@langchain/macaw-components/ChatContextWindowPopover';
 import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
 import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
@@ -211,16 +211,15 @@ void [
   { action: 'sending' } satisfies ChatComposerProps,
   // @ts-expect-error onStop belongs to action="stop".
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
-  ChatContextWindow,
+  ChatContextWindowPopover,
   {
     tokensUsed: 65_800,
     contextWindow: 200_000,
-    totalCost: '$0.25',
     warningThreshold: 0.9,
     description: 'Estimated from the latest request.',
     children: null,
     footer: null,
-  } satisfies ChatContextWindowProps,
+  } satisfies ChatContextWindowPopoverProps,
   ChatConversation,
   {
     children: null,

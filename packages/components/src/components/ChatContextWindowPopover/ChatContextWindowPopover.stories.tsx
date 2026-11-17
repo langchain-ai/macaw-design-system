@@ -4,7 +4,10 @@ import { expect, userEvent, within } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChatContextWindow, type ChatContextWindowProps } from '.';
+import {
+  ChatContextWindowPopover,
+  type ChatContextWindowPopoverProps,
+} from '.';
 import { Button } from '../Button';
 import {
   ChatComposer,
@@ -21,7 +24,7 @@ function ComposerExample({
   streaming = false,
   modelSelector,
   ...props
-}: ChatContextWindowProps & {
+}: ChatContextWindowPopoverProps & {
   narrow?: boolean;
   streaming?: boolean;
   modelSelector?: ReactNode;
@@ -62,7 +65,7 @@ function ComposerExample({
           }
           actions={
             <>
-              <ChatContextWindow {...props} />
+              <ChatContextWindowPopover {...props} />
               <ChatComposerAction />
             </>
           }
@@ -73,8 +76,8 @@ function ComposerExample({
 }
 
 const meta = {
-  title: 'Components/Chat/ChatContextWindow',
-  component: ChatContextWindow,
+  title: 'Components/Chat/ChatContextWindowPopover',
+  component: ChatContextWindowPopover,
   tags: [
     'autodocs',
     'a11y-test',
@@ -93,7 +96,6 @@ const meta = {
     tokensUsed: 65_800,
     contextWindow: 200_000,
     model: 'Claude Sonnet 4.5',
-    totalCost: '$0.25',
   },
   parameters: {
     layout: 'fullscreen',
@@ -101,7 +103,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Context usage beside Send/Stop. Hover or focus for a summary; click, tap, or Enter for details. Apps supply usage and compose breakdowns/actions with children and footer. Requires TooltipProvider. Examples use simulated data and compaction.',
+          'Context usage beside Send/Stop. Hover or focus for a summary; click, tap, or Enter for details. Macaw provides the shared look and interaction. Apps own usage data and product-specific content, layouts, and actions composed through children and footer. Requires TooltipProvider. Examples use simulated data and compaction.',
       },
     },
   },
@@ -122,7 +124,7 @@ const meta = {
       within(document.body).findByRole('dialog', { name: 'Context window' })
     ).resolves.toBeVisible();
   },
-} satisfies Meta<typeof ChatContextWindow>;
+} satisfies Meta<typeof ChatContextWindowPopover>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -163,7 +165,9 @@ export const WhileGenerating: Story = {
 function CompactionExample({
   initial = 'ready',
   ...props
-}: ChatContextWindowProps & { initial?: 'ready' | 'compacting' | 'failed' }) {
+}: ChatContextWindowPopoverProps & {
+  initial?: 'ready' | 'compacting' | 'failed';
+}) {
   const [phase, setPhase] = useState<
     'ready' | 'compacting' | 'failed' | 'done'
   >(initial);
@@ -253,12 +257,11 @@ export const Unavailable: Story = {
     tokensUsed: null,
     contextWindow: null,
     model: 'Custom provider',
-    totalCost: undefined,
     description: 'This provider does not report context usage.',
   },
 };
 export const NewConversation: Story = {
-  args: { tokensUsed: 0, totalCost: '$0.00' },
+  args: { tokensUsed: 0 },
 };
 export const Narrow: Story = {
   args: {
@@ -294,6 +297,28 @@ export const ContextBreakdown: Story = {
             </dd>
           </div>
         ))}
+      </dl>
+    </ComposerExample>
+  ),
+};
+
+/** Example app composition; session accounting and formatting stay in the app. */
+export const WithSessionCost: Story = {
+  render: (args) => (
+    <ComposerExample {...args}>
+      <dl className="border-t border-subtle pt-space-3">
+        <div className="flex items-baseline justify-between gap-space-4">
+          <dt>
+            <Text variant="xs" color="secondary">
+              Session Cost
+            </Text>
+          </dt>
+          <dd>
+            <Text variant="xs" className="tabular-nums">
+              $0.25
+            </Text>
+          </dd>
+        </div>
       </dl>
     </ComposerExample>
   ),

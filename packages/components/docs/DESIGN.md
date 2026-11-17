@@ -246,10 +246,15 @@ only fields outside the drawer get native validation.
 
 ## Chat context window
 
-Import `ChatContextWindow` from `@langchain/macaw-components/ChatContextWindow`
+Import `ChatContextWindowPopover` from `@langchain/macaw-components/ChatContextWindowPopover`
 and place it in the composer's `actions` slot. Requires `TooltipProvider`.
-Pass current context usage (not cumulative billing), model capacity, and formatted
-cost; the app owns accounting and compaction. Use `tokensUsed={null}` for unavailable
+Macaw provides the shared context-usage look and interaction as part of its chat
+components. Product-specific content and layouts belong in `children`; actions
+and status belong in `footer`. These slots support each product's patterns without
+standardizing its workflows. Session cost is app-composed content, not a component
+prop; apps own accounting, formatting, and compaction.
+
+Pass current context usage (not cumulative billing) and model capacity. Use `tokensUsed={null}` for unavailable
 usage and omit `contextWindow` for an unknown limit. `warningThreshold` defaults to 0.8.
 Compose guidance with `description`, breakdowns with `children`, and actions or
 `ThinkingState motion="subtle"` with `footer`.

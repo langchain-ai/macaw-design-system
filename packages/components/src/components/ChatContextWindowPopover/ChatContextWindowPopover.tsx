@@ -8,19 +8,17 @@ import { ProgressBar } from '../ProgressBar';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 
-export interface ChatContextWindowProps {
+export interface ChatContextWindowPopoverProps {
   /** Current context occupancy, not cumulative billed tokens. Null means unavailable. */
   tokensUsed: number | null;
   /** Effective model capacity; omit when the provider does not report it. */
   contextWindow?: number | null;
   model?: string;
-  /** Host-formatted session cost, including currency, such as "$0.25". */
-  totalCost?: string;
   /** Fraction at which to warn, from 0 to 1. Defaults to 0.8. */
   warningThreshold?: number;
   /** Replaces the default guidance, e.g. an estimate or automatic compaction policy. */
   description?: string;
-  /** Optional host-owned token breakdown or additional usage details. */
+  /** Product-owned details, such as token breakdowns or session cost. */
   children?: ReactNode;
   /** Optional actions or status, e.g. compact, retry, or ThinkingState. */
   footer?: ReactNode;
@@ -38,18 +36,18 @@ function validTokens(value: number | null | undefined) {
   return value != null && Number.isFinite(value) && value >= 0 ? value : null;
 }
 
-export function ChatContextWindow({
+/** Shared context-usage presentation; apps own data, additional content, and actions. */
+export function ChatContextWindowPopover({
   tokensUsed,
   contextWindow,
   model,
-  totalCost,
   warningThreshold = 0.8,
   description,
   children,
   footer,
   disabled = false,
   className,
-}: ChatContextWindowProps) {
+}: ChatContextWindowPopoverProps) {
   const [open, setOpen] = useState(false);
   const used = validTokens(tokensUsed);
   const limit = validTokens(contextWindow) || null;
@@ -165,35 +163,24 @@ export function ChatContextWindow({
           </div>
         </div>
         {children}
-        {(model || totalCost) && (
-          <dl className="flex flex-col gap-space-2 border-t border-subtle pt-space-3">
-            {[
-              ['Model', model],
-              ['Session Cost', totalCost],
-            ].map(
-              ([name, value]) =>
-                value && (
-                  <div
-                    key={name}
-                    className="flex items-baseline justify-between gap-space-4"
-                  >
-                    <dt className="shrink-0">
-                      <Text variant="xs" color="secondary">
-                        {name}
-                      </Text>
-                    </dt>
-                    <dd className="min-w-0 text-right">
-                      <Text
-                        variant="xs"
-                        as="div"
-                        className="leading-normal break-words tabular-nums [overflow-wrap:anywhere]"
-                      >
-                        {value}
-                      </Text>
-                    </dd>
-                  </div>
-                )
-            )}
+        {model && (
+          <dl className="border-t border-subtle pt-space-3">
+            <div className="flex items-baseline justify-between gap-space-4">
+              <dt className="shrink-0">
+                <Text variant="xs" color="secondary">
+                  Model
+                </Text>
+              </dt>
+              <dd className="min-w-0 text-right">
+                <Text
+                  variant="xs"
+                  as="div"
+                  className="leading-normal break-words tabular-nums [overflow-wrap:anywhere]"
+                >
+                  {model}
+                </Text>
+              </dd>
+            </div>
           </dl>
         )}
         {footer && (

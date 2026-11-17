@@ -1,4 +1,4 @@
-import { ChatContextWindow } from '..';
+import { ChatContextWindowPopover } from '..';
 import { render, screen } from '../../../test-utils';
 import {
   ChatComposer,
@@ -6,23 +6,23 @@ import {
   ChatComposerToolbar,
 } from '../../ChatComposer';
 
-describe('ChatContextWindow', () => {
+describe('ChatContextWindowPopover', () => {
   it('keeps counts truthful as capacity changes or becomes unavailable', async () => {
     const { user, rerender } = render(
-      <ChatContextWindow tokensUsed={999} contextWindow={1000} />
+      <ChatContextWindowPopover tokensUsed={999} contextWindow={1000} />
     );
     await user.click(screen.getByRole('button'));
     expect(screen.getByRole('dialog')).toHaveTextContent('99% used');
-    rerender(<ChatContextWindow tokensUsed={999} contextWindow={500} />);
+    rerender(<ChatContextWindowPopover tokensUsed={999} contextWindow={500} />);
     expect(screen.getByRole('dialog')).toHaveTextContent('200% used');
     expect(screen.getByRole('progressbar')).toHaveAttribute(
       'aria-valuenow',
       '1'
     );
-    rerender(<ChatContextWindow tokensUsed={999} contextWindow={0} />);
+    rerender(<ChatContextWindowPopover tokensUsed={999} contextWindow={0} />);
     expect(screen.getByRole('dialog')).not.toHaveTextContent('%');
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    rerender(<ChatContextWindow tokensUsed={null} />);
+    rerender(<ChatContextWindowPopover tokensUsed={null} />);
     expect(screen.getByRole('dialog')).toHaveTextContent(
       'Token usage is unavailable.'
     );
@@ -35,7 +35,7 @@ describe('ChatContextWindow', () => {
         <ChatComposerToolbar
           actions={
             <>
-              <ChatContextWindow tokensUsed={10} contextWindow={100} />
+              <ChatContextWindowPopover tokensUsed={10} contextWindow={100} />
               <ChatComposerAction />
             </>
           }
