@@ -101,7 +101,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A quiet context ring beside Send/Stop. Hover or focus for a summary; click, tap, or press Enter for details. Uses solid semantic colors, with no shimmer or gradient. The host supplies current context occupancy, effective capacity, and session cost. Compose token details with children and compaction controls/status in footer. Requires TooltipProvider. These examples use local data; compaction is simulated.',
+          'Context usage beside Send/Stop. Hover or focus for a summary; click, tap, or Enter for details. Apps supply usage and compose breakdowns/actions with children and footer. Requires TooltipProvider. Examples use simulated data and compaction.',
       },
     },
   },

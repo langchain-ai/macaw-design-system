@@ -246,26 +246,13 @@ only fields outside the drawer get native validation.
 
 ## Chat context window
 
-Import `ChatContextWindow` from `@langchain/macaw-components/ChatContextWindow`.
-Place it beside `ChatComposerAction` in `ChatComposerToolbar`'s `actions` slot.
-Hover or focus shows a summary; click, tap, or Enter opens a popover with keyboard-accessible
-content and actions. Requires the shared `TooltipProvider`.
-
-Pass current `tokensUsed`, effective `contextWindow`, optional `model`, and a
-host-formatted `totalCost`. Usage means current context occupancy, not cumulative
-billed tokens. The host owns provider limits, output reservations, estimates,
-pricing, and compaction. Update both usage and capacity when the model changes.
-
-The solid meter warns at `warningThreshold` (default 0.8), and reaches full at
-100%. Over-capacity counts remain visible; the fill caps at 100%. Missing or
-invalid data never implies zero usage: use `tokensUsed={null}` for unavailable
-usage and omit `contextWindow` for an unknown limit.
-
-Use `description` for estimates, stale data, or automatic compaction policy,
-`children` for a host-provided token breakdown, and `footer` for actions or status.
-Compose `ThinkingState motion="subtle"` while compacting and a `Button` to compact
-or retry; keep that workflow in the app. Context details can stay available while
-generating. Pass `disabled` only when inspecting them must be blocked.
+Import `ChatContextWindow` from `@langchain/macaw-components/ChatContextWindow`
+and place it in the composer's `actions` slot. Requires `TooltipProvider`.
+Pass current context usage (not cumulative billing), model capacity, and formatted
+cost; the app owns accounting and compaction. Use `tokensUsed={null}` for unavailable
+usage and omit `contextWindow` for an unknown limit. `warningThreshold` defaults to 0.8.
+Compose guidance with `description`, breakdowns with `children`, and actions or
+`ThinkingState motion="subtle"` with `footer`.
 
 ## Chat rich content
 
