@@ -1,3 +1,13 @@
+## 1.7.15 (2026-11-17)
+
+### 🚀 Features
+
+- **RadarChart:** tighten and even out axis label spacing ([#122](https://github.com/langchain-ai/macaw-design-system/pull/122))
+
+### ❤️ Thank You
+
+- elibrosen
+
 ## 1.7.14 (2026-11-16)
 
 ### 🚀 Features
