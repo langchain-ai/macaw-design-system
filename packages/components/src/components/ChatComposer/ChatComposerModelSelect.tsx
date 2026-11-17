@@ -4,14 +4,14 @@ import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
 import { Icon } from '../Icon';
 import { Select } from '../Select';
-import type { SelectOption, SelectProps } from '../Select';
+import type { SelectGroup, SelectOption, SelectProps } from '../Select';
 import { Text } from '../Text';
 import { ChatComposerContext } from './ChatComposerContext';
 
 export interface ChatComposerModelOption<
   T extends string = string,
 > extends SelectOption<T> {
-  /** Group heading; groups follow their first appearance in the options. */
+  /** Group's display label; groups follow their first appearance in the options. */
   group?: string;
   /** Host-supplied provider or tier mark, also shown in the trigger. */
   icon?: ReactNode;
@@ -19,32 +19,16 @@ export interface ChatComposerModelOption<
   badge?: ReactNode;
 }
 
-export interface ChatComposerModelGroup<T extends string = string> {
-  /** Provider or tier name. Searching for it finds the group's models. */
-  heading?: string;
-  options: ChatComposerModelOption<T>[];
-}
-
 export type ChatComposerModelSelectProps<T extends string = string> = Omit<
   SelectProps<T>,
-  | 'options'
-  | 'groups'
-  | 'renderValue'
-  | 'renderOption'
-  | 'selectedOptionFallback'
+  'options' | 'groups' | 'renderValue' | 'renderOption' | 'hideSearch'
 > & {
-  /** Display-only metadata for `value` when absent from options. Does not select a model. */
-  selectedOptionFallback?: ChatComposerModelOption<T>;
-  /** Replaces the selected model's label, preserving its icon. */
-  renderValue?: (option: ChatComposerModelOption<T>) => ReactNode;
-  /** Replaces the whole row. Keep interactive actions in the footer. */
-  renderOption?: (
-    option: ChatComposerModelOption<T>,
-    isSelected: boolean
-  ) => ReactNode;
+  /** Defaults to hidden below eight options, except for host-filtered lists.
+   * Set explicitly to override that policy, including a host-defined threshold. */
+  hideSearch?: boolean;
 } & (
     | { options: ChatComposerModelOption<T>[]; groups?: never }
-    | { groups: ChatComposerModelGroup<T>[]; options?: never }
+    | { groups: SelectGroup<T>[]; options?: never }
   );
 
 const SEARCH_MIN_OPTIONS = 8;
@@ -52,11 +36,9 @@ const SEARCH_MIN_OPTIONS = 8;
 function ModelOptionRow({
   option,
   selected,
-  textVariant,
 }: {
   option: ChatComposerModelOption;
   selected: boolean;
-  textVariant: 'xs' | 'sm' | 'md';
 }) {
   return (
     <>
@@ -70,11 +52,7 @@ function ModelOptionRow({
       )}
       <span className="flex min-w-0 flex-1 flex-col gap-space-1">
         <span className="flex min-w-0 flex-wrap items-center gap-space-2">
-          <Text
-            as="span"
-            variant={textVariant}
-            className="[overflow-wrap:anywhere]"
-          >
+          <Text as="span" variant="sm" className="[overflow-wrap:anywhere]">
             {option.label ?? option.value}
           </Text>
           {option.badge != null && (
@@ -111,7 +89,6 @@ export function ChatComposerModelSelect<T extends string>({
   options,
   groups,
   value,
-  selectedOptionFallback,
   onChange,
   open: controlledOpen,
   onOpenChange,
@@ -120,13 +97,9 @@ export function ChatComposerModelSelect<T extends string>({
   disableFilter,
   triggerClassName,
   contentClassName,
-  renderValue,
-  renderOption,
   placeholder = 'Select a model',
   searchPlaceholder = 'Search models…',
-  emptyText = 'No models found.',
   size = 'sm',
-  side = 'top',
   variant = 'plain',
   onCloseAutoFocus,
   'aria-label': ariaLabel = 'Model',
@@ -170,13 +143,12 @@ export function ChatComposerModelSelect<T extends string>({
       })),
     }));
   }, [groups, options]);
-  const allOptions = useMemo(
-    () => (groups ? groups.flatMap((group) => group.options) : (options ?? [])),
-    [groups, options]
+  const optionCount = searchGroups.reduce(
+    (count, group) => count + group.options.length,
+    0
   );
-  const textVariant = size === 'lg' ? 'md' : size;
   const hideAutomaticSearch =
-    !disableFilter && allOptions.length < SEARCH_MIN_OPTIONS;
+    !disableFilter && optionCount < SEARCH_MIN_OPTIONS;
   const transparentDisabledTrigger = isDisabled && variant === 'plain';
 
   return (
@@ -185,16 +157,13 @@ export function ChatComposerModelSelect<T extends string>({
         {...props}
         groups={searchGroups}
         value={value}
-        selectedOptionFallback={selectedOptionFallback}
         open={open && !isDisabled}
         onOpenChange={setOpen}
         variant={variant}
         size={size}
-        side={side}
         aria-label={ariaLabel}
         placeholder={placeholder}
         searchPlaceholder={searchPlaceholder}
-        emptyText={emptyText}
         hideSearch={hideSearch ?? hideAutomaticSearch}
         disableFilter={disableFilter}
         disabled={isDisabled}
@@ -224,28 +193,16 @@ export function ChatComposerModelSelect<T extends string>({
                   inComposer && 'max-w-32 @[440px]/composer:max-w-56'
                 )}
               >
-                {renderValue ? (
-                  renderValue(option)
-                ) : (
-                  <Text as="span" variant={textVariant} weight="normal">
-                    {option.label ?? option.value}
-                  </Text>
-                )}
+                <Text as="span" variant="sm" weight="normal">
+                  {option.label ?? option.value}
+                </Text>
               </span>
             </span>
           );
         }}
-        renderOption={(option: ChatComposerModelOption<T>, isSelected) => {
-          return renderOption ? (
-            renderOption(option, isSelected)
-          ) : (
-            <ModelOptionRow
-              option={option}
-              selected={isSelected}
-              textVariant={textVariant}
-            />
-          );
-        }}
+        renderOption={(option: ChatComposerModelOption<T>, isSelected) => (
+          <ModelOptionRow option={option} selected={isSelected} />
+        )}
         onChange={(next) => {
           if (isDisabled) return;
           choseModel.current = true;

@@ -136,6 +136,7 @@ export const CommandSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
+    aria-hidden
     className={cn('bg-border -mx-space-1 h-px', className)}
     {...props}
   />

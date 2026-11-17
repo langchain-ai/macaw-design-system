@@ -45,10 +45,8 @@ it.each(['max', 'missing'])(
   }
 );
 
-it('keeps remote search focused and selected metadata visible through empty and loading results', async () => {
+it('keeps host-filtered search focused through empty and loading results', async () => {
   const props = {
-    value: 'fast',
-    selectedOptionFallback: options[0],
     onChange: vi.fn(),
     disableFilter: true,
     onSearchChange: vi.fn(),
@@ -63,13 +61,8 @@ it('keeps remote search focused and selected metadata visible through empty and 
   rerender(<ChatComposerModelSelect {...props} options={[]} loading />);
   expect(search).toHaveFocus();
   expect(search).toHaveValue('missing');
-  expect(trigger).toHaveTextContent('Fast model');
   rerender(<ChatComposerModelSelect {...props} options={[]} />);
-  expect(screen.getByText('No models found.')).toBeVisible();
+  expect(screen.getByText('No results found.')).toBeVisible();
   await user.clear(search);
   expect(props.onSearchChange).toHaveBeenLastCalledWith('');
-  rerender(
-    <ChatComposerModelSelect {...props} value={undefined} options={[]} />
-  );
-  expect(trigger).toHaveTextContent('Select a model');
 });

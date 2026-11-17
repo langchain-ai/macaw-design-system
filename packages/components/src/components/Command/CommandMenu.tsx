@@ -250,7 +250,7 @@ export function CommandMenu({
         {items && renderItems(items)}
         {groups?.map((group, i) => (
           <Fragment key={group.heading ?? i}>
-            {i > 0 && <CommandSeparator aria-hidden />}
+            {i > 0 && <CommandSeparator />}
             <CommandGroup heading={group.heading}>
               {renderItems(group.items)}
             </CommandGroup>

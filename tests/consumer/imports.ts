@@ -43,7 +43,6 @@ import {
 } from '@langchain/macaw-components/ChatComposer';
 import type {
   ChatComposerInputProps,
-  ChatComposerModelGroup,
   ChatComposerModelOption,
   ChatComposerModelSelectProps,
   ChatComposerProps,
@@ -221,10 +220,8 @@ void [
       } satisfies ChatComposerModelOption,
     ],
     value: 'sonnet',
-    selectedOptionFallback: { value: 'sonnet', icon: null },
     onChange: () => {},
   } satisfies ChatComposerModelSelectProps,
-  { options: [] } satisfies ChatComposerModelGroup,
   {
     options: [],
     groups: [],

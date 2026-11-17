@@ -29,17 +29,18 @@ catalogs, availability, credentials, routing, and reasoning controls.
 
 - Control selection with `value`/`onChange`. `allowDeselect` clears to
   `undefined`; Auto must be an explicit app-owned option.
-- Pass `options` with optional `group`, `icon`, `badge`, and `description`.
+- Pass `options` with an optional `group` label, `icon`, `badge`, and `description`.
   Explain unavailable models alongside `disabled`. Search matches labels,
   keywords, and group headings.
 - Use `open`/`onOpenChange` for shortcuts. Put actions in `footer`, outside
   option rows, and close the picker when an action navigates or opens a dialog.
 
-Search appears at eight options; `hideSearch` overrides this. For remote
-results, use `disableFilter` to keep search visible, `onSearchChange` to fetch,
-`loading` while pending, and `selectedOptionFallback` for display metadata when
-`value` is absent from results. It never selects a model. Reset the host query
-when `onOpenChange(false)` fires.
+Search appears at eight options; `hideSearch` overrides this policy or lets the
+host set its own threshold. Use `disableFilter` when the host filters results
+(as Fleet and Polly do), `onSearchChange` to update the query, and `loading`
+while pending. Keep the selected model in `options` when paging or filtering:
+`value` alone determines selection and its display metadata. Reset the host
+query when `onOpenChange(false)` fires.
 
 Import `AnthropicLogo`, `OpenAILogo`, and `GeminiLogo` from
 `@langchain/macaw-components/ProviderLogo` for the marks used in LangSmith.
