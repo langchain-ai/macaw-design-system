@@ -99,8 +99,9 @@ export type LineChartYBand = {
   from?: number;
   /** Defaults to the upper edge of the axis domain. */
   to?: number;
-  /** Use a design-system CSS color token. */
-  color: string;
+  /** Use warning, error, or success for semantic backgrounds, or a custom CSS color. */
+  color: 'warning' | 'error' | 'success' | (string & Record<never, never>);
+  /** Defaults to 1 for semantic colors and 0.12 for custom CSS colors. */
   opacity?: number;
 };
 

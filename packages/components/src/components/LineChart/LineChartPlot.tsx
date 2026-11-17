@@ -285,14 +285,20 @@ export const LineChartPlot = ({
               if (from == null || to == null) return null;
               const fromY = axis.scale(from);
               const toY = axis.scale(to);
+              const isSemanticColor =
+                band.color === 'warning' ||
+                band.color === 'error' ||
+                band.color === 'success';
               return (
                 <rect
                   key={band.id}
                   width={innerWidth}
                   height={Math.abs(toY - fromY)}
                   y={Math.min(fromY, toY)}
-                  fill={band.color}
-                  fillOpacity={band.opacity ?? 0.12}
+                  fill={
+                    isSemanticColor ? `var(--bg-${band.color})` : band.color
+                  }
+                  fillOpacity={band.opacity ?? (isSemanticColor ? 1 : 0.12)}
                 />
               );
             })}

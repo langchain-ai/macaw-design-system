@@ -107,6 +107,35 @@ describe('LineChart', () => {
     resizeObserverDimensions.height = 320;
   });
 
+  it.each([
+    ['warning', undefined, 'var(--bg-warning)', '1'],
+    ['error', undefined, 'var(--bg-error)', '1'],
+    ['success', undefined, 'var(--bg-success)', '1'],
+    ['warning', 0.5, 'var(--bg-warning)', '0.5'],
+    ['error', 0, 'var(--bg-error)', '0'],
+    ['var(--bg-warning)', undefined, 'var(--bg-warning)', '0.12'],
+    ['#123456', undefined, '#123456', '0.12'],
+    ['red', 0.4, 'red', '0.4'],
+    ['rgba(10, 20, 30, 0.5)', 0, 'rgba(10, 20, 30, 0.5)', '0'],
+  ] as const)(
+    'renders a %s y band with opacity %s',
+    (color, opacity, expectedFill, expectedOpacity) => {
+      const { container } = render(
+        <LineChart
+          aria-label="Threshold chart"
+          series={series}
+          yBands={[{ id: 'threshold', from: 6, to: 8, color, opacity }]}
+          shouldAnimate={false}
+        />
+      );
+      const bands = container.querySelectorAll('rect[fill-opacity]');
+
+      expect(bands).toHaveLength(1);
+      expect(bands[0]).toHaveAttribute('fill', expectedFill);
+      expect(bands[0]).toHaveAttribute('fill-opacity', expectedOpacity);
+    }
+  );
+
   it('renders accessible series and a derived legend', () => {
     render(
       <>
