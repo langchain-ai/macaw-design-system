@@ -328,6 +328,9 @@ export const LineChart = ({
     return getLineSegments(item.points, connectNulls).some((segment) =>
       segment.some((point, index) => {
         const nextPoint = segment[index + 1];
+        if (segment.length === 1) {
+          return point.x >= domainMinimum && point.x <= domainMaximum;
+        }
         return (
           nextPoint != null &&
           point.x <= domainMaximum &&
