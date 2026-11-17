@@ -60,6 +60,28 @@ describe.each([
   });
 });
 
+it('shows the active option border for keyboard navigation, not hover', async () => {
+  const { user } = render(<SelectHarness />);
+  await user.click(screen.getByRole('combobox', { name: 'Environment' }));
+
+  const staging = screen.getByRole('option', { name: 'Staging' });
+  const production = screen.getByRole('option', { name: 'Production' });
+  const borderClass = 'aria-selected:after:border-2';
+
+  await user.hover(production);
+  expect(production).toHaveAttribute('aria-selected', 'true');
+  expect(production).not.toHaveClass(borderClass);
+
+  await user.keyboard('{ArrowUp}');
+  expect(staging).toHaveAttribute('aria-selected', 'true');
+  expect(staging).toHaveClass(borderClass);
+
+  await user.unhover(production);
+  await user.hover(production);
+  expect(production).toHaveAttribute('aria-selected', 'true');
+  expect(production).not.toHaveClass(borderClass);
+});
+
 it('keeps focus on an outside control clicked to dismiss Select', async () => {
   const { user } = render(
     <>

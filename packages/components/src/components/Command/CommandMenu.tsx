@@ -143,6 +143,7 @@ export function CommandMenu({
   onEndReached,
   endReachedThresholdPx = 50,
 }: CommandMenuProps) {
+  const [keyboardNavigation, setKeyboardNavigation] = useState(false);
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       if (!onEndReached) return;
@@ -171,6 +172,7 @@ export function CommandMenu({
           className={cn(
             'gap-space-2',
             hideSearch &&
+              keyboardNavigation &&
               'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] aria-selected:after:border-2 aria-selected:after:border-focus'
           )}
         >
@@ -217,6 +219,15 @@ export function CommandMenu({
       )}
       shouldFilter={disableFilter ? false : undefined}
       tabIndex={hideSearch ? 0 : -1}
+      onFocus={(event) => {
+        setKeyboardNavigation(event.target.matches(':focus-visible'));
+      }}
+      onKeyDownCapture={(event) => {
+        if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+          setKeyboardNavigation(true);
+        }
+      }}
+      onPointerMove={() => setKeyboardNavigation(false)}
     >
       {!hideSearch && (
         <CommandInput
