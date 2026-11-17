@@ -13,6 +13,7 @@ import {
   ChatToolCallGroup,
   ChatToolCallReasoning,
   type ChatToolCallProps,
+  useChatToolCallGroupRow,
 } from '..';
 import { render, screen, within } from '../../../test-utils';
 import { Button } from '../../Button';
@@ -994,5 +995,82 @@ describe('ChatToolCallGroup elapsed time', () => {
       </ChatToolCallGroup>
     );
     expect(within(header()).getByRole('timer')).toHaveTextContent('9s');
+  });
+});
+
+describe('Chat tool integration contracts', () => {
+  it('preserves an opted-in detail view without a display utility overriding hidden', async () => {
+    function StatefulDetails() {
+      const [count, setCount] = useState(0);
+      return <button onClick={() => setCount(count + 1)}>Count {count}</button>;
+    }
+    const { user } = render(
+      <ChatToolCall toolCall={call} keepMounted>
+        <StatefulDetails />
+      </ChatToolCall>,
+      renderOptions
+    );
+    const details = screen.getByText('Count 0');
+    const region = details.closest('[role="region"]');
+    expect(region).toHaveAttribute('hidden');
+    expect(region).toHaveAttribute('inert');
+    expect(region).not.toHaveClass('grid');
+    expect(details).not.toBeVisible();
+    await user.click(
+      screen.getByRole('button', { name: 'Details for ask_user' })
+    );
+    await user.click(screen.getByRole('button', { name: 'Count 0' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Details for ask_user' })
+    );
+    expect(screen.getByText('Count 1')).not.toBeVisible();
+    await user.click(
+      screen.getByRole('button', { name: 'Details for ask_user' })
+    );
+    expect(screen.getByRole('button', { name: 'Count 1' })).toBeVisible();
+  });
+
+  it('registers custom rows, deduplicates by integration identity, and removes stale reports', () => {
+    function Mark({ name }: { name: string }) {
+      return <svg data-testid={`mark-${name}`} />;
+    }
+    function CustomRow({ name, running }: { name: string; running: boolean }) {
+      const inGroup = useChatToolCallGroupRow({
+        status: running ? 'streaming' : 'completed',
+        icon: <Mark name={name} />,
+        iconKey: name,
+      });
+      return <span>{inGroup ? 'Grouped' : 'Standalone'}</span>;
+    }
+    const { rerender } = render(
+      <ChatToolCallGroup label="Work">
+        <CustomRow name="slack" running />
+        <CustomRow name="slack" running={false} />
+        <CustomRow name="notion" running={false} />
+      </ChatToolCallGroup>,
+      renderOptions
+    );
+    expect(screen.getAllByTestId('mark-slack')).toHaveLength(1);
+    expect(screen.getAllByTestId('mark-notion')).toHaveLength(1);
+    expect(screen.getByRole('status')).toHaveTextContent('Streaming');
+    rerender(
+      <ChatToolCallGroup label="Work">
+        <CustomRow name="notion" running={false} />
+      </ChatToolCallGroup>
+    );
+    expect(screen.queryByTestId('mark-slack')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Completed');
+  });
+
+  it('uses the supplied reasoning start time instead of restarting on mount', () => {
+    render(
+      <ChatToolCallReasoning status="streaming" startedAt={Date.now() - 65000}>
+        Summary
+      </ChatToolCallReasoning>,
+      renderOptions
+    );
+    expect(
+      screen.getByRole('timer', { name: 'Elapsed time' })
+    ).toHaveTextContent('65s');
   });
 });

@@ -1,4 +1,5 @@
 import {
+  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -31,7 +32,25 @@ const VIEWPORT_STYLE = {
   scrollPaddingTop: TOP_FADE,
 } as CSSProperties;
 
+export interface ChatConversationHandle {
+  /** Resume following the latest output. Focus stays where it is. */
+  jumpToLatest: () => void;
+  /** Bring a message to the top, reserving space for its reply. */
+  pinMessage: (id: string) => void;
+}
+
 export interface ChatConversationProps {
+  ref?: Ref<ChatConversationHandle>;
+  /** Shared message/footer column overrides, including maximum width and padding. */
+  columnClassName?: string;
+  /**
+   * Replace the jump control; returning null hides it. Rendered only away
+   * from the end. Its `jumpToLatest` also moves focus to the message log,
+   * since the control disappears.
+   */
+  renderJumpToLatest?: (
+    actions: Pick<ChatConversationHandle, 'jumpToLatest'>
+  ) => ReactNode;
   /** Messages, or a host-provided empty or loading state. */
   children: ReactNode;
   /** Fixed content above the scrolling messages; the host supplies its styling. */
@@ -73,6 +92,9 @@ type Follow = NonNullable<ChatConversationProps['follow']>;
  */
 export function ChatConversation({
   children,
+  ref,
+  columnClassName,
+  renderJumpToLatest,
   header,
   footer,
   label = 'Conversation',
@@ -119,6 +141,12 @@ export function ChatConversation({
     if (pinnedMessageId !== undefined) scrollRef.current?.pin(pinnedMessageId);
   }, [pinnedMessageId]);
 
+  // Host calls can come from the composer, so they leave focus alone.
+  useImperativeHandle(ref, () => ({
+    jumpToLatest: () => scrollRef.current?.jumpToLatest(),
+    pinMessage: (id) => scrollRef.current?.pin(id),
+  }));
+
   function jumpToLatest() {
     scrollRef.current?.jumpToLatest();
     // The jump button disappears; keep keyboard focus in the reading region.
@@ -150,7 +178,8 @@ export function ChatConversation({
             ref={contentRef}
             className={cn(
               COLUMN_CLASS_NAME,
-              'flex min-h-full flex-col gap-space-6 py-space-5 pb-space-9'
+              'flex min-h-full flex-col gap-space-6 py-space-5 pb-space-9',
+              columnClassName
             )}
           >
             {children}
@@ -163,22 +192,31 @@ export function ChatConversation({
           aria-hidden
           className="pointer-events-none absolute inset-0 ring-inset ring-focus peer-focus-visible:ring-2"
         />
-        {showJump && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-space-3">
-            <Button
-              color="secondary"
-              size="md"
-              leftDecorator={CaretDownIcon}
-              className="pointer-events-auto shadow-md hover:bg-elevated pointer-coarse:h-11"
-              onClick={jumpToLatest}
-            >
-              Jump to latest
-            </Button>
-          </div>
-        )}
+        {showJump &&
+          (renderJumpToLatest ? (
+            renderJumpToLatest({ jumpToLatest })
+          ) : (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-space-3">
+              <Button
+                color="secondary"
+                size="md"
+                leftDecorator={CaretDownIcon}
+                className="pointer-events-auto shadow-md hover:bg-elevated pointer-coarse:h-11"
+                onClick={jumpToLatest}
+              >
+                Jump to latest
+              </Button>
+            </div>
+          ))}
       </div>
       {footer != null && (
-        <div className={cn(COLUMN_CLASS_NAME, 'shrink-0 py-space-3')}>
+        <div
+          className={cn(
+            COLUMN_CLASS_NAME,
+            'shrink-0 py-space-3',
+            columnClassName
+          )}
+        >
           {footer}
         </div>
       )}

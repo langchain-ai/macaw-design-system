@@ -6,7 +6,7 @@ import { cn } from '../../utils/cn';
 import type { ChatStateStatus } from '../ChatState';
 import { Text } from '../Text';
 import { ChatToolCallAccordion } from './ChatToolCallAccordion';
-import { useReportToGroup } from './ChatToolCallGroupContext';
+import { useChatToolCallGroupRow } from './ChatToolCallGroupContext';
 import { ChatToolCallIcon } from './ChatToolCallIcon';
 import { ChatToolCallRowStatus } from './ChatToolCallRowStatus';
 import { ChatToolCallStatusRow } from './ChatToolCallStatusRow';
@@ -25,8 +25,12 @@ export interface ChatToolCallReasoningProps {
   label?: string;
   status?: ChatStateStatus;
   elapsedMs?: number;
+  /** Wall-clock start of the disclosed work; survives row remounts. */
+  startedAt?: Date | number;
   expanded?: boolean;
   defaultExpanded?: boolean;
+  /** Preserve detail state while closed; hidden details are inert. */
+  keepMounted?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
   /**
    * Open the details while `status` is `streaming` and close them when it
@@ -45,12 +49,14 @@ export function ChatToolCallReasoning({
   label = 'Reasoning summary',
   status = 'completed',
   elapsedMs,
+  startedAt,
   expanded,
   defaultExpanded = false,
+  keepMounted = false,
   onExpandedChange,
   expandWhileStreaming = false,
 }: ChatToolCallReasoningProps) {
-  const inGroup = useReportToGroup({ status });
+  const inGroup = useChatToolCallGroupRow({ status });
   const [readerChoice, setReaderChoice] = useState<boolean>();
   const followsStream = expandWhileStreaming && expanded === undefined;
   const heading = (
@@ -77,6 +83,7 @@ export function ChatToolCallReasoning({
     <ChatToolCallRowStatus
       status={status}
       elapsedMs={elapsedMs}
+      startedAt={startedAt}
       inGroup={inGroup}
     />
   );
@@ -104,6 +111,7 @@ export function ChatToolCallReasoning({
         followsStream ? (readerChoice ?? status === 'streaming') : expanded
       }
       defaultExpanded={defaultExpanded}
+      keepMounted={keepMounted}
       onExpandedChange={(next) => {
         if (followsStream) setReaderChoice(next);
         onExpandedChange?.(next);

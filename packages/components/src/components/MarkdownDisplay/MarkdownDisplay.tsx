@@ -9,7 +9,7 @@ import {
   useMemo,
 } from 'react';
 
-import type { Components, ExtraProps } from 'react-markdown';
+import type { Components, ExtraProps, Options } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remend from 'remend';
@@ -42,8 +42,26 @@ type ListItemProps = ComponentProps<'li'> & ExtraProps;
 type InputProps = ComponentProps<'input'> & ExtraProps;
 type ImageProps = ComponentProps<'img'> & ExtraProps;
 type SpanProps = ComponentProps<'span'> & ExtraProps;
+type HastElement = NonNullable<ExtraProps['node']>;
+
+const hastText = (
+  node: HastElement | HastElement['children'][number]
+): string =>
+  node.type === 'text'
+    ? node.value
+    : node.type === 'element'
+      ? node.children.map(hastText).join('')
+      : '';
+
+export interface MarkdownDisplayCodeBlock {
+  /** Fenced source, without the line ending before the closing fence. */
+  code: string;
+  language?: string;
+  codeOverflow: 'wrap' | 'scroll';
+}
 
 interface MarkdownDisplayContextValue {
+  renderCodeBlock?: (block: MarkdownDisplayCodeBlock) => ReactNode;
   loadImages: boolean;
   trailingContent: ReactNode;
   codeOverflow: 'wrap' | 'scroll';
@@ -214,8 +232,10 @@ const createHeading = (
   };
 
 const MARKDOWN_COMPONENTS: Components = {
-  pre: function MarkdownPre({ children }) {
-    const { codeOverflow } = useContext(MarkdownDisplayContext);
+  pre: function MarkdownPre({ children, node }) {
+    const { codeOverflow, renderCodeBlock } = useContext(
+      MarkdownDisplayContext
+    );
     const child = isValidElement<{
       children?: ReactNode;
       className?: string;
@@ -223,10 +243,19 @@ const MARKDOWN_COMPONENTS: Components = {
       ? children
       : undefined;
     const language = child?.props.className?.match(/language-([^\s]+)/)?.[1];
-    const code =
+    // A rehype plugin may have split the source into elements, such as
+    // highlighted spans, so fall back to the tree's text.
+    const source =
       typeof child?.props.children === 'string'
         ? child.props.children
-        : String(child?.props.children ?? '');
+        : node
+          ? hastText(node)
+          : '';
+    // The line ending before the closing fence isn't part of the code.
+    const code = source.replace(/\n$/, '');
+
+    const customBlock = renderCodeBlock?.({ code, language, codeOverflow });
+    if (customBlock === null) return null;
 
     return (
       <div
@@ -234,11 +263,16 @@ const MARKDOWN_COMPONENTS: Components = {
         data-search-code=""
         className={cn('w-full min-w-0', blockSpacing)}
       >
-        <MarkdownCodeBlock
-          code={code}
-          language={language}
-          codeOverflow={codeOverflow}
-        />
+        {/* `false` keeps the fallback, so `language === 'x' && <X />` works. */}
+        {customBlock === undefined || customBlock === false ? (
+          <MarkdownCodeBlock
+            code={code}
+            language={language}
+            codeOverflow={codeOverflow}
+          />
+        ) : (
+          customBlock
+        )}
       </div>
     );
   },
@@ -431,6 +465,18 @@ export interface MarkdownDisplayProps {
    */
   components?: Components;
   /**
+   * Render selected fenced languages. Return `undefined` or `false` to keep
+   * Macaw's code block, or `null` to omit the block.
+   */
+  renderCodeBlock?: (block: MarkdownDisplayCodeBlock) => ReactNode;
+  /**
+   * Trusted application plugins, run after GFM. Raw HTML stays disabled in
+   * the parser, so the tree they receive has no HTML from the content.
+   */
+  remarkPlugins?: Options['remarkPlugins'];
+  /** Trusted application transforms, run before Macaw trailing-content decoration. */
+  rehypePlugins?: Options['rehypePlugins'];
+  /**
    * Content that continues the rendered flow: inline after the final
    * paragraph's text, or after the last block when content ends otherwise.
    */
@@ -461,9 +507,24 @@ export function MarkdownDisplay({
   textColor = 'primary',
   loadImages = false,
   components,
+  renderCodeBlock,
+  remarkPlugins,
+  rehypePlugins,
   trailingContent,
   afterContent,
 }: MarkdownDisplayProps) {
+  const resolvedRemarkPlugins = useMemo(
+    () =>
+      remarkPlugins
+        ? [remarkGfm, ...remarkPlugins, remarkDisableRawHtml]
+        : REMARK_PLUGINS,
+    [remarkPlugins]
+  );
+  const resolvedRehypePlugins = useMemo(
+    () =>
+      rehypePlugins ? [...rehypePlugins, ...REHYPE_PLUGINS] : REHYPE_PLUGINS,
+    [rehypePlugins]
+  );
   const markdownComponents = useMemo(
     () =>
       components
@@ -472,8 +533,8 @@ export function MarkdownDisplay({
     [components]
   );
   const contextValue = useMemo(
-    () => ({ loadImages, trailingContent, codeOverflow }),
-    [loadImages, trailingContent, codeOverflow]
+    () => ({ loadImages, trailingContent, codeOverflow, renderCodeBlock }),
+    [loadImages, trailingContent, codeOverflow, renderCodeBlock]
   );
   const isPlainText = content.length > maxMarkdownLength;
   const markdown = useMemo(() => {
@@ -538,8 +599,8 @@ export function MarkdownDisplay({
           <ErrorBoundary resetKey={content} fallback={() => plainText}>
             <MarkdownDisplayContext.Provider value={contextValue}>
               <ReactMarkdown
-                remarkPlugins={REMARK_PLUGINS}
-                rehypePlugins={REHYPE_PLUGINS}
+                remarkPlugins={resolvedRemarkPlugins}
+                rehypePlugins={resolvedRehypePlugins}
                 components={markdownComponents}
               >
                 {markdown}

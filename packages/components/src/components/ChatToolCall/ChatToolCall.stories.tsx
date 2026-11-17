@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 
-import { fn } from 'storybook/test';
+import { expect, fn, waitFor } from 'storybook/test';
 
 import { GithubLogoIcon } from '@phosphor-icons/react/dist/ssr/GithubLogo';
 import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
@@ -17,6 +17,7 @@ import {
   ChatToolCallReasoning,
   type ChatToolCallModel,
   type ChatToolCallProps,
+  useChatToolCallGroupRow,
 } from '.';
 import { Button } from '../Button';
 import { formatChatDuration } from '../ChatState';
@@ -731,4 +732,82 @@ export const NarrowWidth: Story = {
       )}
     </ToolCallVariants>
   ),
+};
+
+function IntegrationRow({ integration }: { integration: 'slack' | 'notion' }) {
+  const inGroup = useChatToolCallGroupRow({
+    status: 'completed',
+    iconKey: integration,
+    icon:
+      integration === 'slack' ? (
+        <SlackLogoIcon size={12} weight="regular" />
+      ) : (
+        <NotionLogoIcon size={12} weight="regular" />
+      ),
+  });
+  return (
+    <Text variant="xs" color="secondary">
+      {integration === 'slack'
+        ? 'Read Slack messages'
+        : 'Read Notion documents'}
+      {!inGroup && ' · Completed'}
+    </Text>
+  );
+}
+
+function PersistentDetails() {
+  const [count, setCount] = useState(0);
+  return (
+    // One string child, which Button also uses as its accessible name.
+    <Button size="sm" color="secondary" onClick={() => setCount(count + 1)}>
+      {`Inspected ${count} times`}
+    </Button>
+  );
+}
+
+export const HostIntegration: Story = {
+  render: () => (
+    <div className="flex w-full min-w-0 flex-col gap-space-4">
+      <Text variant="xs" color="tertiary">
+        Custom rows register even while their group is closed.
+      </Text>
+      <ChatToolCallGroup label="Read 3 sources">
+        <IntegrationRow integration="slack" />
+        <IntegrationRow integration="slack" />
+        <IntegrationRow integration="notion" />
+      </ChatToolCallGroup>
+      <ChatToolCall
+        toolCall={exampleCall}
+        keepMounted
+        icon={<MagnifyingGlassIcon size={12} weight="regular" />}
+      >
+        <PersistentDetails />
+      </ChatToolCall>
+      <Text variant="xs" color="tertiary">
+        Open, increment, and close the tool: its count survives reopening.
+      </Text>
+    </div>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const toggle = canvas.getByRole('button', {
+      name: 'Details for search_documents',
+    });
+    await userEvent.click(toggle);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Inspected 0 times' })
+    );
+    await userEvent.click(toggle);
+    // Closed details stay mounted, out of view, and keep their state.
+    const details = canvas.getByRole('button', {
+      name: 'Inspected 1 times',
+      hidden: true,
+    });
+    await waitFor(() => expect(details).not.toBeVisible());
+    await userEvent.click(toggle);
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('button', { name: 'Inspected 1 times' })
+      ).toBeVisible()
+    );
+  },
 };

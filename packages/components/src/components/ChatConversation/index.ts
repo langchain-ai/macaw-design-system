@@ -1,2 +1,5 @@
 export { ChatConversation } from './ChatConversation';
-export type { ChatConversationProps } from './ChatConversation';
+export type {
+  ChatConversationHandle,
+  ChatConversationProps,
+} from './ChatConversation';

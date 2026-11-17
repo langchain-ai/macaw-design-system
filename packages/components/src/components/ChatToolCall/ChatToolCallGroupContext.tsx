@@ -12,14 +12,16 @@ import {
 
 import type { ChatStateStatus } from '../ChatState';
 
-interface RowReport {
+export interface ChatToolCallGroupRow {
   status: ChatStateStatus;
   /** Host-supplied icon; defaults like the wrench are not reported. */
   icon?: ReactNode;
+  /** Stable integration identity when several marks share one component type. */
+  iconKey?: string;
 }
 
 interface GroupRegistry {
-  update: (id: string, report: RowReport) => void;
+  update: (id: string, report: ChatToolCallGroupRow) => void;
   remove: (id: string) => void;
 }
 
@@ -33,18 +35,22 @@ const iconType = (icon: ReactNode) => isValidElement(icon) && icon.type;
  * Reports a row's status and icon to the enclosing group, which shows the
  * combined status on its header. Returns whether the row is inside a group.
  */
-export function useReportToGroup({ status, icon }: RowReport) {
+export function useChatToolCallGroupRow({
+  status,
+  icon,
+  iconKey,
+}: ChatToolCallGroupRow) {
   const registry = useContext(ChatToolCallGroupContext);
   const id = useId();
   useLayoutEffect(() => {
-    registry?.update(id, { status, icon });
-  }, [registry, id, status, icon]);
+    registry?.update(id, { status, icon, iconKey });
+  }, [registry, id, status, icon, iconKey]);
   useLayoutEffect(() => () => registry?.remove(id), [registry, id]);
   return registry !== null;
 }
 
 export function useGroupRows() {
-  const [rows, setRows] = useState<ReadonlyMap<string, RowReport>>(
+  const [rows, setRows] = useState<ReadonlyMap<string, ChatToolCallGroupRow>>(
     () => new Map()
   );
   const registry = useMemo<GroupRegistry>(
@@ -55,6 +61,7 @@ export function useGroupRows() {
           const current = previous.get(id);
           if (
             current?.status === report.status &&
+            current.iconKey === report.iconKey &&
             iconType(current.icon) === iconType(report.icon)
           ) {
             return previous;
@@ -77,10 +84,13 @@ export function useGroupRows() {
     reports.length > 0 &&
     reports.every((report) => report.status === 'completed');
   const icons: ReactElement[] = [];
-  const seen = new Set<ReactElement['type']>();
-  for (const { icon } of reports) {
-    if (!isValidElement(icon) || seen.has(icon.type)) continue;
-    seen.add(icon.type);
+  const seen = new Set<string | ReactElement['type']>();
+  for (const { icon, iconKey } of reports) {
+    if (!isValidElement(icon)) continue;
+    // Prefixed so a key can't match an intrinsic type such as `svg`.
+    const identity = iconKey === undefined ? icon.type : `key:${iconKey}`;
+    if (seen.has(identity)) continue;
+    seen.add(identity);
     icons.push(icon);
     if (icons.length === 3) break;
   }

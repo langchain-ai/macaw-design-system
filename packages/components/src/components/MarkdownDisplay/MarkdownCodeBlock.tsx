@@ -22,7 +22,7 @@ export function MarkdownCodeBlock({
 }: MarkdownCodeBlockProps) {
   return (
     <CodeLite
-      value={code.replace(/\n$/, '')}
+      value={code}
       language={getCodeLanguage(language)}
       variant="block"
       label={language || 'text'}

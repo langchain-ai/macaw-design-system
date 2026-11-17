@@ -37,6 +37,11 @@ export type ChatComposerProps = ComponentPropsWithRef<'form'> & {
    */
   drawerIntent?: ChatComposerDrawerIntent;
   /**
+   * Styles the input surface only, excluding the drawer and outer form.
+   * Disabled and file drop-target styles still apply over it.
+   */
+  inputSurfaceClassName?: string;
+  /**
    * Blocks writing and sending. Stop stays available while `action` is
    * `stop`, so host controls inside the composer must take `disabled`
    * themselves to stay disabled during a response.
@@ -88,6 +93,7 @@ export function ChatComposer({
   drawer,
   drawerIntent = 'neutral',
   className,
+  inputSurfaceClassName,
   ref,
   disabled = false,
   submitDisabled = false,
@@ -224,6 +230,7 @@ export function ChatComposer({
             // Toolbar menus portal out, so focus-within would flash as focus
             // moves from their trigger to the menu; only typing shows focus.
             'has-[:is(textarea,[contenteditable=true]):focus]:border-focus has-[:is(textarea,[contenteditable=true]):focus]:shadow-[0_0_0_1px_var(--border-focus)]',
+            inputSurfaceClassName,
             disabled && 'border-disabled bg-input-disabled',
             isDropTarget &&
               !disabled &&
