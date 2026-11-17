@@ -1,16 +1,76 @@
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { expect, userEvent, within } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChatContextWindow } from '.';
+import { ChatContextWindow, type ChatContextWindowProps } from '.';
+import { Button } from '../Button';
 import {
   ChatComposer,
   ChatComposerAction,
+  ChatComposerModelSelect,
   ChatComposerTextarea,
   ChatComposerToolbar,
 } from '../ChatComposer';
+import { Text } from '../Text';
+import { ThinkingState } from '../ThinkingState';
+
+function ComposerExample({
+  narrow = false,
+  streaming = false,
+  modelSelector,
+  ...props
+}: ChatContextWindowProps & {
+  narrow?: boolean;
+  streaming?: boolean;
+  modelSelector?: ReactNode;
+}) {
+  const [draft, setDraft] = useState('');
+  const [running, setRunning] = useState(streaming);
+  return (
+    <div className={narrow ? 'w-64 max-w-full' : 'w-full max-w-xl'}>
+      <ChatComposer
+        aria-label="Message"
+        {...(running
+          ? { action: 'stop', onStop: () => setRunning(false) }
+          : { action: 'send' })}
+        submitDisabled={!draft.trim()}
+        onSubmit={(event) => {
+          event.preventDefault();
+          setDraft('');
+          setRunning(true);
+        }}
+      >
+        <ChatComposerTextarea
+          value={draft}
+          onChange={setDraft}
+          aria-label="Message"
+          placeholder="Ask a follow-up…"
+        />
+        <ChatComposerToolbar
+          modelSelector={
+            modelSelector ?? (
+              <Text
+                variant="xs"
+                color="secondary"
+                className="block max-w-full truncate"
+              >
+                {props.model ?? 'Agent'}
+              </Text>
+            )
+          }
+          actions={
+            <>
+              <ChatContextWindow {...props} />
+              <ChatComposerAction />
+            </>
+          }
+        />
+      </ChatComposer>
+    </div>
+  );
+}
 
 const meta = {
   title: 'Components/Chat/ChatContextWindow',
@@ -26,89 +86,215 @@ const meta = {
     'capacity',
     'model',
     'cost',
-    'tooltip',
+    'compaction',
+    'popover',
   ],
   args: {
     tokensUsed: 65_800,
     contextWindow: 200_000,
-    model: 'Example model',
+    model: 'Claude Sonnet 4.5',
     totalCost: '$0.25',
   },
   parameters: {
-    layout: 'centered',
+    layout: 'fullscreen',
+    a11y: { test: 'error' },
     docs: {
       description: {
         component:
-          'A compact context-usage ring with details on hover, keyboard focus, or tap. Import from `@langchain/macaw-components/ChatContextWindow` and place beside `ChatComposerAction` in the toolbar actions slot. The host supplies usage, model capacity, and formatted cost. At 80% the indicator warns; at 100% it reports a full window. Unknown limits use an empty, non-animated ring rather than a guessed percentage. Requires the shared `TooltipProvider`.',
+          'A quiet context ring beside Send/Stop. Hover or focus for a summary; click, tap, or press Enter for details. Uses solid semantic colors, with no shimmer or gradient. The host supplies current context occupancy, effective capacity, and session cost. Compose token details with children and compaction controls/status in footer. Requires TooltipProvider. These examples use local data; compaction is simulated.',
       },
     },
   },
   decorators: [
     (Story) => (
-      <div className="flex min-h-80 items-end justify-end p-space-4">
+      <div className="flex min-h-[440px] w-full items-end justify-center p-space-6">
         <Story />
       </div>
     ),
   ],
+  render: (args) => <ComposerExample {...args} />,
+  play: async ({ canvasElement, args }) => {
+    if (args.disabled) return;
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: /Context window:/ })
+    );
+    await expect(
+      within(document.body).findByRole('dialog', { name: 'Context window' })
+    ).resolves.toBeVisible();
+  },
 } satisfies Meta<typeof ChatContextWindow>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.hover(
-      canvas.getByRole('button', { name: /Context window:/ })
+export const Default: Story = {};
+
+export const ModelCapacityChange: Story = {
+  render: function ModelCapacityChange(args) {
+    const [capacity, setCapacity] = useState('200000');
+    const options = [
+      { value: '200000', label: 'Standard model' },
+      { value: '1000000', label: 'Long-context model' },
+      { value: '128000', label: 'Smaller model' },
+    ];
+    return (
+      <ComposerExample
+        {...args}
+        tokensUsed={174_000}
+        contextWindow={Number(capacity)}
+        model={options.find((option) => option.value === capacity)?.label}
+        modelSelector={
+          <ChatComposerModelSelect
+            options={options}
+            value={capacity}
+            onChange={(value) => {
+              if (value) setCapacity(value);
+            }}
+          />
+        }
+      />
     );
-    await expect(
-      within(document.body).findByRole('tooltip')
-    ).resolves.toHaveTextContent('33% used');
   },
 };
-export const NearlyFull: Story = { args: { tokensUsed: 174_000 } };
-export const Full: Story = { args: { tokensUsed: 200_000 } };
-export const OverCapacity: Story = { args: { tokensUsed: 216_000 } };
+export const WhileGenerating: Story = {
+  render: (args) => <ComposerExample {...args} streaming />,
+};
+
+function CompactionExample({
+  initial = 'ready',
+  ...props
+}: ChatContextWindowProps & { initial?: 'ready' | 'compacting' | 'failed' }) {
+  const [phase, setPhase] = useState<
+    'ready' | 'compacting' | 'failed' | 'done'
+  >(initial);
+  useEffect(() => {
+    if (phase !== 'compacting' || initial === 'compacting') return;
+    const timer = setTimeout(() => setPhase('done'), 1800);
+    return () => clearTimeout(timer);
+  }, [phase, initial]);
+  const compacting = phase === 'compacting';
+  return (
+    <ComposerExample
+      {...props}
+      tokensUsed={phase === 'done' ? 42_000 : 174_000}
+      description={
+        phase === 'failed'
+          ? 'Compaction failed. Your conversation is unchanged.'
+          : phase === 'done'
+            ? 'Earlier messages summarized. Ready to continue.'
+            : 'Earlier messages can be summarized to free up context.'
+      }
+      footer={
+        compacting ? (
+          <ThinkingState
+            size="xs"
+            motion="subtle"
+            label="Compacting conversation…"
+          />
+        ) : (
+          <Button
+            type="button"
+            color="secondary"
+            variant="outlined"
+            size="sm"
+            onClick={() => setPhase('compacting')}
+          >
+            {phase === 'failed' ? 'Retry compaction' : 'Compact conversation'}
+          </Button>
+        )
+      }
+    />
+  );
+}
+
+export const CompactConversation: Story = {
+  render: (args) => <CompactionExample {...args} />,
+};
+export const Compacting: Story = {
+  render: (args) => <CompactionExample {...args} initial="compacting" />,
+};
+export const CompactionFailed: Story = {
+  render: (args) => <CompactionExample {...args} initial="failed" />,
+};
+export const AutomaticCompaction: Story = {
+  args: {
+    tokensUsed: 184_000,
+    warningThreshold: 0.9,
+    description:
+      'Older messages are summarized automatically when context fills up.',
+  },
+};
+export const OverCapacity: Story = {
+  args: {
+    tokensUsed: 216_000,
+    description:
+      'Context limit exceeded. Compact the conversation before continuing.',
+  },
+  render: (args) => (
+    <ComposerExample
+      {...args}
+      footer={
+        <Button
+          type="button"
+          color="secondary"
+          variant="outlined"
+          size="sm"
+          disabled
+        >
+          Compaction unavailable
+        </Button>
+      }
+    />
+  ),
+};
 export const UnknownLimit: Story = { args: { contextWindow: null } };
 export const Unavailable: Story = {
-  args: { tokensUsed: null, contextWindow: null },
+  args: {
+    tokensUsed: null,
+    contextWindow: null,
+    model: 'Custom provider',
+    totalCost: undefined,
+    description: 'This provider does not report context usage.',
+  },
 };
-export const Empty: Story = { args: { tokensUsed: 0, totalCost: '$0.00' } };
-export const Disabled: Story = { args: { disabled: true } };
-export const LongModelName: Story = {
+export const NewConversation: Story = {
+  args: { tokensUsed: 0, totalCost: '$0.00' },
+};
+export const Narrow: Story = {
   args: {
     model:
       'organization/custom-model-with-an-unusually-long-version-name-2026-11-11',
   },
+  render: (args) => <ComposerExample {...args} narrow />,
 };
-
-function ComposerExample({ narrow = false }: { narrow?: boolean }) {
-  const [value, setValue] = useState('');
-  return (
-    <div className={narrow ? 'w-60' : 'w-96 max-w-full'}>
-      <ChatComposer action="stop" onStop={() => {}} aria-label="Chat composer">
-        <ChatComposerTextarea
-          value={value}
-          onChange={setValue}
-          placeholder="Ask a follow-up…"
-        />
-        <ChatComposerToolbar
-          actions={
-            <>
-              <ChatContextWindow
-                tokensUsed={65_800}
-                contextWindow={200_000}
-                model="Example model"
-                totalCost="$0.25"
-              />
-              <ChatComposerAction />
-            </>
-          }
-        />
-      </ChatComposer>
-    </div>
-  );
-}
-
-export const InComposer: Story = { render: () => <ComposerExample /> };
-export const Narrow: Story = { render: () => <ComposerExample narrow /> };
+export const Disabled: Story = { args: { disabled: true }, play: undefined };
+export const ContextBreakdown: Story = {
+  args: {
+    description:
+      'Estimated from the latest request. Usage updates after each response.',
+  },
+  render: (args) => (
+    <ComposerExample {...args}>
+      <dl className="flex flex-col gap-space-2">
+        {[
+          ['Instructions', '5,000'],
+          ['Messages', '40,800'],
+          ['Tool Results', '20,000'],
+        ].map(([name, value]) => (
+          <div key={name} className="flex justify-between gap-space-4">
+            <dt>
+              <Text variant="xs" color="secondary">
+                {name}
+              </Text>
+            </dt>
+            <dd>
+              <Text variant="xs" className="tabular-nums">
+                {value}
+              </Text>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </ComposerExample>
+  ),
+};

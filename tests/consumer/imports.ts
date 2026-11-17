@@ -216,6 +216,10 @@ void [
     tokensUsed: 65_800,
     contextWindow: 200_000,
     totalCost: '$0.25',
+    warningThreshold: 0.9,
+    description: 'Estimated from the latest request.',
+    children: null,
+    footer: null,
   } satisfies ChatContextWindowProps,
   ChatConversation,
   {

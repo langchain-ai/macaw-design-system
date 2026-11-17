@@ -1,20 +1,29 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { CircularProgress } from '../CircularProgress';
+import { Popover, PopoverContent, PopoverTrigger } from '../Popover';
 import { ProgressBar } from '../ProgressBar';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 
 export interface ChatContextWindowProps {
-  /** Tokens currently in context; null means usage is unavailable. */
+  /** Current context occupancy, not cumulative billed tokens. Null means unavailable. */
   tokensUsed: number | null;
-  /** Model capacity in tokens; omit when the provider does not report it. */
+  /** Effective model capacity; omit when the provider does not report it. */
   contextWindow?: number | null;
   model?: string;
-  /** Host-formatted cost, including currency, such as "$0.25". */
+  /** Host-formatted session cost, including currency, such as "$0.25". */
   totalCost?: string;
+  /** Fraction at which to warn, from 0 to 1. Defaults to 0.8. */
+  warningThreshold?: number;
+  /** Replaces the default guidance, e.g. an estimate or automatic compaction policy. */
+  description?: string;
+  /** Optional host-owned token breakdown or additional usage details. */
+  children?: ReactNode;
+  /** Optional actions or status, e.g. compact, retry, or ThinkingState. */
+  footer?: ReactNode;
   disabled?: boolean;
   className?: string;
 }
@@ -25,46 +34,47 @@ const compact = new Intl.NumberFormat('en-US', {
 });
 const exact = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 
+function validTokens(value: number | null | undefined) {
+  return value != null && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 export function ChatContextWindow({
   tokensUsed,
   contextWindow,
   model,
   totalCost,
+  warningThreshold = 0.8,
+  description,
+  children,
+  footer,
   disabled = false,
   className,
 }: ChatContextWindowProps) {
   const [open, setOpen] = useState(false);
-  const used =
-    tokensUsed != null && Number.isFinite(tokensUsed) && tokensUsed >= 0
-      ? tokensUsed
-      : null;
-  const limit =
-    contextWindow != null && Number.isFinite(contextWindow) && contextWindow > 0
-      ? contextWindow
-      : null;
+  const used = validTokens(tokensUsed);
+  const limit = validTokens(contextWindow) || null;
   const ratio = used != null && limit != null ? used / limit : null;
+  const threshold = Number.isFinite(warningThreshold)
+    ? Math.min(1, Math.max(0, warningThreshold))
+    : 0.8;
+  const isFull = ratio != null && ratio >= 1;
+  const isNearLimit = ratio != null && ratio >= threshold;
+  const intent = isFull ? 'error' : isNearLimit ? 'warning' : 'neutral';
+  // Rounding must not claim the window is full before it is.
   const percentage =
     ratio == null
       ? null
-      : ratio < 1
-        ? Math.min(99, Math.round(ratio * 100))
-        : Math.round(ratio * 100);
-  const intent =
-    ratio != null && ratio >= 1
-      ? 'error'
-      : ratio != null && ratio >= 0.8
-        ? 'warning'
-        : 'brand';
+      : Math.min(isFull ? Infinity : 99, Math.round(ratio * 100));
   const status =
     used == null
       ? 'Token usage is unavailable.'
       : limit == null
-        ? 'The context limit was not reported for this model.'
-        : ratio! >= 1
-          ? 'Context window full'
-          : ratio! >= 0.8
-            ? 'Context window nearly full'
-            : 'Context window available';
+        ? 'The provider has not reported a context limit.'
+        : isFull
+          ? 'Context limit reached'
+          : isNearLimit
+            ? 'Context nearly full'
+            : `${compact.format(limit - used)} tokens remaining`;
   const label = `Context window: ${
     used == null
       ? 'usage unavailable'
@@ -72,17 +82,47 @@ export function ChatContextWindow({
   }`;
 
   return (
-    <Tooltip
-      open={open && !disabled}
-      onOpenChange={setOpen}
-      disabled={disabled}
-      align="end"
-      tooltipClassName="w-72 max-w-[calc(100vw-2rem)] p-space-3"
-      title={
-        <div className="flex min-w-0 flex-col gap-space-3 text-primary">
+    <Popover open={open && !disabled} onOpenChange={setOpen}>
+      <Tooltip
+        title={
+          percentage == null ? 'Context usage' : `Context: ${percentage}% used`
+        }
+        disabled={disabled}
+      >
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            size="sm"
+            color="secondary"
+            variant="plain"
+            disabled={disabled}
+            aria-label={label}
+            className={cn('w-6 shrink-0 px-0', className)}
+          >
+            <CircularProgress
+              size={16}
+              strokeWidth={2}
+              segments={
+                ratio == null
+                  ? []
+                  : [{ variant: intent, percentage: Math.min(ratio, 1) }]
+              }
+            />
+          </Button>
+        </PopoverTrigger>
+      </Tooltip>
+      <PopoverContent
+        side="top"
+        align="end"
+        sideOffset={8}
+        collisionPadding={12}
+        aria-label="Context window"
+        className="flex w-72 max-w-[calc(100vw-1.5rem)] flex-col gap-space-4 text-primary"
+      >
+        <div className="flex flex-col gap-space-3">
           <div className="flex items-center justify-between gap-space-3">
             <Text variant="sm" weight="medium">
-              Context window
+              Context Window
             </Text>
             {percentage != null && (
               <Text variant="xs" color="secondary" className="tabular-nums">
@@ -92,7 +132,7 @@ export function ChatContextWindow({
           </div>
           <div className="flex flex-col gap-space-2">
             <div className="flex flex-wrap items-baseline gap-space-1 tabular-nums">
-              <Text variant="h3" as="span">
+              <Text variant="h2" as="span">
                 {used == null ? '—' : compact.format(used)}
               </Text>
               <Text variant="xs" color="secondary">
@@ -107,6 +147,7 @@ export function ChatContextWindow({
                 max={1}
                 size="sm"
                 color={intent}
+                fill="solid"
                 aria-label="Context window usage"
                 aria-valuetext={label}
               />
@@ -114,65 +155,51 @@ export function ChatContextWindow({
             <Text
               variant="xs"
               className={cn(
-                'text-secondary',
-                intent === 'warning' && 'text-warning-secondary',
-                intent === 'error' && 'text-error-secondary'
+                'leading-normal text-secondary',
+                isNearLimit && 'text-warning-primary',
+                isFull && 'text-error-secondary'
               )}
             >
-              {status}
+              {description ?? status}
             </Text>
           </div>
-          {(model || totalCost) && (
-            <div className="flex flex-wrap items-center justify-between gap-space-2 border-t border-subtle pt-space-2">
-              {model && (
-                <Text
-                  variant="xs"
-                  color="secondary"
-                  className="min-w-0 break-all"
-                >
-                  {model}
-                </Text>
-              )}
-              {totalCost && (
-                <Text
-                  variant="xs"
-                  color="secondary"
-                  className="shrink-0 tabular-nums"
-                >
-                  {totalCost} total
-                </Text>
-              )}
-            </div>
-          )}
         </div>
-      }
-    >
-      <Button
-        type="button"
-        size="sm"
-        color="secondary"
-        variant="plain"
-        disabled={disabled}
-        aria-label={label}
-        onPointerDown={(event) => event.preventDefault()}
-        onClick={(event) => {
-          event.preventDefault();
-          setOpen(true);
-        }}
-        className={cn('w-6 shrink-0 rounded-full px-0', className)}
-      >
-        <span aria-hidden="true" className="flex items-center justify-center">
-          <CircularProgress
-            size={16}
-            strokeWidth={2}
-            segments={
-              ratio == null
-                ? []
-                : [{ variant: intent, percentage: Math.min(ratio, 1) }]
-            }
-          />
-        </span>
-      </Button>
-    </Tooltip>
+        {children}
+        {(model || totalCost) && (
+          <dl className="flex flex-col gap-space-2 border-t border-subtle pt-space-3">
+            {[
+              ['Model', model],
+              ['Session Cost', totalCost],
+            ].map(
+              ([name, value]) =>
+                value && (
+                  <div
+                    key={name}
+                    className="flex items-baseline justify-between gap-space-4"
+                  >
+                    <dt className="shrink-0">
+                      <Text variant="xs" color="secondary">
+                        {name}
+                      </Text>
+                    </dt>
+                    <dd className="min-w-0 text-right">
+                      <Text
+                        variant="xs"
+                        as="div"
+                        className="leading-normal break-words tabular-nums [overflow-wrap:anywhere]"
+                      >
+                        {value}
+                      </Text>
+                    </dd>
+                  </div>
+                )
+            )}
+          </dl>
+        )}
+        {footer && (
+          <div className="border-t border-subtle pt-space-3">{footer}</div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }

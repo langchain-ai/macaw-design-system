@@ -1,6 +1,11 @@
 import { cn } from '../../utils/cn';
 
-export type ProgressSegmentVariant = 'brand' | 'success' | 'error' | 'warning';
+export type ProgressSegmentVariant =
+  | 'brand'
+  | 'neutral'
+  | 'success'
+  | 'error'
+  | 'warning';
 
 export interface ProgressSegment {
   /** Semantic color applied to the segment. */
@@ -10,6 +15,7 @@ export interface ProgressSegment {
 
 const segmentVariantClasses: Record<ProgressSegmentVariant, string> = {
   brand: 'text-icon-brand',
+  neutral: 'text-icon-secondary',
   success: 'text-success-secondary',
   error: 'text-error-secondary',
   warning: 'text-warning-secondary',
