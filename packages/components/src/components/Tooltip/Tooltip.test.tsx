@@ -4,6 +4,7 @@ import { render, screen } from '../../test-utils';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
 import { IconButton } from '../IconButton';
+import { Popover, PopoverContent, PopoverTrigger } from '../Popover';
 import { Tooltip } from './Tooltip';
 
 describe('Tooltip layering', () => {
@@ -48,4 +49,30 @@ describe('Tooltip layering', () => {
       }
     }
   );
+});
+
+describe('Tooltip focus', () => {
+  it('opens for keyboard focus but not when a click moves focus to the trigger', async () => {
+    const { user } = render(
+      <Popover>
+        <PopoverTrigger>Notifications</PopoverTrigger>
+        <PopoverContent aria-label="Notifications">
+          <IconButton icon={MagnifyingGlassIcon} label="Close" />
+        </PopoverContent>
+      </Popover>
+    );
+    const trigger = screen.getByRole('button', { name: 'Notifications' });
+
+    await user.click(trigger);
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(trigger).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    expect(
+      await screen.findByRole('tooltip', { name: 'Close' })
+    ).toBeInTheDocument();
+  });
 });

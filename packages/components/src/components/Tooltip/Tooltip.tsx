@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
@@ -26,6 +26,30 @@ export type TooltipProps = {
   disableHoverableContent?: boolean;
 };
 
+let focusFromKeyboard = true;
+let trackingFocusSource = false;
+
+function trackFocusSource() {
+  if (trackingFocusSource) return;
+  trackingFocusSource = true;
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (!event.metaKey && !event.altKey && !event.ctrlKey) {
+        focusFromKeyboard = true;
+      }
+    },
+    true
+  );
+  document.addEventListener(
+    'pointerdown',
+    () => {
+      focusFromKeyboard = false;
+    },
+    true
+  );
+}
+
 // Tooltip sets two opinionated defaults — override with caution:
 // - delayDuration=300: prevents tooltips from blocking clicks
 // - disableHoverableContent=true: dismisses the tooltip when hovering off the trigger
@@ -47,6 +71,7 @@ export function Tooltip({
   disableHoverableContent = true,
 }: TooltipProps) {
   const zIndex = useZIndex(zIndices.tooltipOverlay);
+  useEffect(trackFocusSource, []);
 
   if ((!title && !description) || disabled) {
     return children;
@@ -61,6 +86,9 @@ export function Tooltip({
     >
       <TooltipPrimitive.Trigger
         asChild
+        onFocus={(e) => {
+          if (!focusFromKeyboard) e.preventDefault();
+        }}
         onPointerDown={(e) => {
           if (blockTriggerEvents) {
             e.preventDefault();
