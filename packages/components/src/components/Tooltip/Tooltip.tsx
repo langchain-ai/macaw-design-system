@@ -46,9 +46,7 @@ export function Tooltip({
   onOpenChange,
   disableHoverableContent = true,
 }: TooltipProps) {
-  // Tooltips have no fixed z-index floor — they always render one level above
-  // their parent caller so they naturally stack above whichever layer triggered them.
-  const zIndex = useZIndex(zIndices.tooltip);
+  const zIndex = useZIndex(zIndices.tooltipOverlay);
 
   if ((!title && !description) || disabled) {
     return children;

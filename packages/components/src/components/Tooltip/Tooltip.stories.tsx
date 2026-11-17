@@ -2,7 +2,9 @@ import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import zIndices from '../../utils/zIndices';
 import { Button } from '../Button/Button';
+import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from './Tooltip';
 
 const meta = {
@@ -170,6 +172,32 @@ export const MultipleTooltips: Story = {
       >
         <Button>Fourth</Button>
       </Tooltip>
+    </div>
+  ),
+};
+
+export const BesideFloatingPanel: Story = {
+  args: {
+    title: 'Connected to server',
+    children: <Button>Connection status</Button>,
+  },
+  render: () => (
+    <div className="relative flex h-64 w-[640px] items-start gap-space-2 bg-surface-level-1 p-space-6">
+      <Tooltip title="Connected to server" side="right">
+        <Button>Connection status</Button>
+      </Tooltip>
+      <IconButton
+        icon={InfoIcon}
+        label="Find in loaded content"
+        tooltipProps={{ side: 'right' }}
+      />
+      <aside
+        aria-label="Floating panel"
+        className="absolute inset-y-0 right-0 w-80 border-l border-default bg-surface-level-2 p-space-4 text-primary"
+        style={{ zIndex: zIndices.popover }}
+      >
+        Floating panel
+      </aside>
     </div>
   ),
 };
