@@ -100,7 +100,7 @@ function AgentChatExample() {
   const [choice, setChoice] = useState<string[]>([]);
   const [answered, setAnswered] = useState(false);
   const [draft, setDraft] = useState('');
-  const [model, setModel] = useState('balanced');
+  const [model, setModel] = useState<string | undefined>('balanced');
   const paragraphs = answer(choice[0] ?? 'exclude');
   const asking = step === ASK_STEP && !answered;
   const answerStep = step - STEPS;

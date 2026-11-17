@@ -53,45 +53,52 @@ const PROVIDERS: ChatComposerModelGroup[] = [
 ];
 
 describe('ChatComposerModelSelect', () => {
-  it('keeps its own selection from defaultValue and reports changes', async () => {
+  it('keeps selection controlled, including an explicitly empty value', async () => {
     const onChange = vi.fn();
-    const { user } = render(
+    const { user, rerender } = render(
       <ChatComposerModelSelect
         options={TIERS}
-        defaultValue="balanced"
+        value={undefined}
         onChange={onChange}
       />
     );
     const trigger = screen.getByRole('combobox', { name: 'Model' });
-    expect(trigger).toHaveTextContent('Balanced model');
-
     await user.click(trigger);
-    expect(screen.getByText('Quick answers')).toBeVisible();
     await user.click(screen.getByRole('option', { name: /Fast model/ }));
-
     expect(onChange).toHaveBeenCalledExactlyOnceWith('fast');
+    expect(trigger).toHaveTextContent('Select a model');
+
+    rerender(
+      <ChatComposerModelSelect
+        options={TIERS}
+        value="fast"
+        onChange={onChange}
+      />
+    );
     expect(trigger).toHaveTextContent('Fast model');
+    rerender(
+      <ChatComposerModelSelect
+        options={TIERS}
+        value={undefined}
+        onChange={onChange}
+      />
+    );
+    expect(trigger).toHaveTextContent('Select a model');
   });
 
-  it('follows a controlled value and ignores choosing the current model', async () => {
+  it('preserves the existing allowDeselect contract', async () => {
     const onChange = vi.fn();
     const { user } = render(
       <ChatComposerModelSelect
         options={TIERS}
         value="balanced"
         onChange={onChange}
+        allowDeselect
       />
     );
-    const trigger = screen.getByRole('combobox', { name: 'Model' });
-
-    await user.click(trigger);
+    await user.click(screen.getByRole('combobox', { name: 'Model' }));
     await user.click(screen.getByRole('option', { name: /Balanced model/ }));
-    expect(onChange).not.toHaveBeenCalled();
-
-    await user.click(trigger);
-    await user.click(screen.getByRole('option', { name: /Fast model/ }));
-    expect(onChange).toHaveBeenCalledExactlyOnceWith('fast');
-    expect(trigger).toHaveTextContent('Balanced model');
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(undefined);
   });
 
   it('shows badges and keeps disabled models from being chosen', async () => {
@@ -129,24 +136,27 @@ describe('ChatComposerModelSelect', () => {
     expect(onChange).toHaveBeenCalledExactlyOnceWith('fast');
   });
 
-  it('shows the selected provider mark in the trigger', () => {
-    render(<ChatComposerModelSelect groups={PROVIDERS} value="sonnet" />);
-
-    const trigger = screen.getByRole('combobox', { name: 'Model' });
-    expect(within(trigger).getByTestId('anthropic-mark')).toBeInTheDocument();
-    expect(trigger).toHaveTextContent('Sonnet 5.5');
-  });
-
-  it('hides search for short lists', async () => {
-    const { user } = render(<ChatComposerModelSelect options={TIERS} />);
-
-    await user.click(screen.getByRole('combobox', { name: 'Model' }));
-    expect(screen.getByRole('listbox')).toBeVisible();
-    expect(screen.queryByPlaceholderText('Search models…')).toBeNull();
-  });
+  it.each(['max', 'missing'])(
+    'starts on an enabled option when the selected value is %s',
+    async (value) => {
+      const onChange = vi.fn();
+      const { user } = render(
+        <ChatComposerModelSelect
+          options={TIERS}
+          value={value}
+          onChange={onChange}
+        />
+      );
+      await user.tab();
+      await user.keyboard('{Enter}{Enter}');
+      expect(onChange).toHaveBeenCalledExactlyOnceWith('fast');
+    }
+  );
 
   it('searches long lists by label, keyword, and group heading', async () => {
-    const { user } = render(<ChatComposerModelSelect groups={PROVIDERS} />);
+    const { user } = render(
+      <ChatComposerModelSelect groups={PROVIDERS} onChange={vi.fn()} />
+    );
 
     await user.click(screen.getByRole('combobox', { name: 'Model' }));
     const search = screen.getByPlaceholderText('Search models…');
@@ -168,11 +178,45 @@ describe('ChatComposerModelSelect', () => {
     expect(screen.getByText('No models found.')).toBeVisible();
   });
 
+  it('keeps remote search focused and the selected metadata visible through empty and loading results', async () => {
+    const onChange = vi.fn();
+    const onSearchChange = vi.fn();
+    const selectedOption = PROVIDERS[0].options[0];
+    const props = {
+      value: 'sonnet',
+      selectedOption,
+      onChange,
+      disableFilter: true,
+      onSearchChange,
+    };
+    const { user, rerender } = render(
+      <ChatComposerModelSelect {...props} groups={PROVIDERS} />
+    );
+    const trigger = screen.getByRole('combobox', { name: 'Model' });
+    await user.click(trigger);
+    const search = screen.getByPlaceholderText('Search models…');
+    await user.type(search, 'missing');
+    rerender(<ChatComposerModelSelect {...props} options={[]} loading />);
+    expect(search).toHaveFocus();
+    expect(search).toHaveValue('missing');
+    expect(trigger).toHaveTextContent('Sonnet 5.5');
+    expect(within(trigger).getByTestId('anthropic-mark')).toBeInTheDocument();
+    rerender(<ChatComposerModelSelect {...props} options={[]} />);
+    expect(screen.getByText('No models found.')).toBeVisible();
+    await user.clear(search);
+    expect(onSearchChange).toHaveBeenLastCalledWith('');
+    rerender(
+      <ChatComposerModelSelect {...props} value={undefined} options={[]} />
+    );
+    expect(trigger).toHaveTextContent('Select a model');
+  });
+
   it('supports a controlled open state and a footer', async () => {
     const onOpenChange = vi.fn();
     const { user } = render(
       <ChatComposerModelSelect
         options={TIERS}
+        onChange={vi.fn()}
         open
         onOpenChange={onOpenChange}
         footer={<button type="button">Manage models</button>}
@@ -188,12 +232,17 @@ describe('ChatComposerModelSelect', () => {
   it('follows a disabled composer and returns to the message after a choice', async () => {
     function Harness({ disabled }: { disabled?: boolean }) {
       const [draft, setDraft] = useState('');
+      const [model, setModel] = useState<string | undefined>('opus');
       return (
         <ChatComposer disabled={disabled}>
           <ChatComposerInput value={draft} onChange={setDraft} />
           <ChatComposerToolbar
             modelSelector={
-              <ChatComposerModelSelect groups={PROVIDERS} defaultValue="opus" />
+              <ChatComposerModelSelect
+                groups={PROVIDERS}
+                value={model}
+                onChange={setModel}
+              />
             }
           />
         </ChatComposer>

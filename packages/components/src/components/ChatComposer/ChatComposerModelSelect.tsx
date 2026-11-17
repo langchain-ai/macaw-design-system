@@ -2,19 +2,18 @@ import { useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
-import type { DataAttributes } from '../../utils/dataAttributes';
 import { Icon } from '../Icon';
 import { Select } from '../Select';
-import type { SelectGroup, SelectOption, SelectProps } from '../Select';
+import type { SelectOption, SelectProps } from '../Select';
 import { Text } from '../Text';
 import { ChatComposerContext } from './ChatComposerContext';
 
 export interface ChatComposerModelOption<
   T extends string = string,
 > extends SelectOption<T> {
-  /** Provider or model mark, about 16px. The trigger shows it too. */
+  /** Host-supplied provider or tier mark, also shown in the trigger. */
   icon?: ReactNode;
-  /** Short status after the label, such as a `Badge` reading "Default". */
+  /** Short status beside the label, such as a `Badge` reading "Default". */
   badge?: ReactNode;
 }
 
@@ -24,54 +23,23 @@ export interface ChatComposerModelGroup<T extends string = string> {
   options: ChatComposerModelOption<T>[];
 }
 
-type ChatComposerModelSelectBaseProps<T extends string> = Pick<
+export type ChatComposerModelSelectProps<T extends string = string> = Omit<
   SelectProps<T>,
-  | 'placeholder'
-  | 'searchPlaceholder'
-  | 'disabled'
-  | 'size'
-  | 'emptyText'
-  | 'hideSearch'
-  | 'disableFilter'
-  | 'onSearchChange'
-  | 'loading'
-  | 'loadingRows'
-  | 'onEndReached'
-  | 'endReachedThresholdPx'
-  | 'triggerClassName'
-  | 'contentClassName'
-  | 'footer'
-  | 'side'
-  | 'align'
-  | 'onCloseAutoFocus'
-  | 'aria-label'
-  | 'data-testid'
-> &
-  DataAttributes & {
-    /** Selected model. Omit it, and optionally pass `defaultValue`, to leave the selection to the component. */
-    value?: T;
-    /** Initial model when `value` is not controlled. */
-    defaultValue?: T;
-    /** Called with the newly chosen model. */
-    onChange?: (value: T) => void;
-    /** Controlled open state, for example to open the menu from a shortcut. */
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    /** Replaces the selected model's label in the trigger. */
-    renderValue?: (option: ChatComposerModelOption<T>) => ReactNode;
-    /** Replaces the default row: icon, label, badge, description, and check. */
-    renderOption?: (
-      option: ChatComposerModelOption<T>,
-      isSelected: boolean
-    ) => ReactNode;
-  };
-
-export type ChatComposerModelSelectProps<T extends string = string> =
-  ChatComposerModelSelectBaseProps<T> &
-    (
-      | { options: ChatComposerModelOption<T>[]; groups?: never }
-      | { groups: ChatComposerModelGroup<T>[]; options?: never }
-    );
+  'options' | 'groups' | 'renderValue' | 'renderOption' | 'selectedOption'
+> & {
+  /** Selected model metadata when it is absent from paginated or filtered options. */
+  selectedOption?: ChatComposerModelOption<T>;
+  /** Replaces the selected model's label, preserving its icon. */
+  renderValue?: (option: ChatComposerModelOption<T>) => ReactNode;
+  /** Replaces the whole row. Keep interactive actions in the footer. */
+  renderOption?: (
+    option: ChatComposerModelOption<T>,
+    isSelected: boolean
+  ) => ReactNode;
+} & (
+    | { options: ChatComposerModelOption<T>[]; groups?: never }
+    | { groups: ChatComposerModelGroup<T>[]; options?: never }
+  );
 
 const SEARCH_MIN_OPTIONS = 8;
 
@@ -94,9 +62,13 @@ function ModelOptionRow({
           {option.icon}
         </span>
       )}
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="flex min-w-0 items-center gap-space-2">
-          <Text as="span" variant={textVariant} className="truncate">
+      <span className="flex min-w-0 flex-1 flex-col gap-space-1">
+        <span className="flex min-w-0 flex-wrap items-center gap-space-2">
+          <Text
+            as="span"
+            variant={textVariant}
+            className="[overflow-wrap:anywhere]"
+          >
             {option.label ?? option.value}
           </Text>
           {option.badge != null && (
@@ -104,7 +76,11 @@ function ModelOptionRow({
           )}
         </span>
         {option.description && (
-          <Text as="span" variant="xs" className="truncate text-tertiary">
+          <Text
+            as="span"
+            variant="xs"
+            className="whitespace-normal text-tertiary [overflow-wrap:anywhere]"
+          >
             {option.description}
           </Text>
         )}
@@ -115,6 +91,7 @@ function ModelOptionRow({
         </span>
       )}
       <Icon
+        aria-hidden
         icon={CheckIcon}
         size="md"
         className={cn('shrink-0', selected ? 'opacity-100' : 'opacity-0')}
@@ -123,17 +100,18 @@ function ModelOptionRow({
   );
 }
 
-/** A borderless model picker for a chat composer toolbar, inside `ChatComposer` or on its own. */
+/** Shared model selection for composer toolbars and standalone controls. The host owns the selected value. */
 export function ChatComposerModelSelect<T extends string>({
   options,
   groups,
-  value: controlledValue,
-  defaultValue,
+  value,
+  selectedOption,
   onChange,
   open: controlledOpen,
   onOpenChange,
   disabled,
   hideSearch,
+  disableFilter,
   triggerClassName,
   contentClassName,
   renderValue,
@@ -143,6 +121,7 @@ export function ChatComposerModelSelect<T extends string>({
   emptyText = 'No models found.',
   size = 'sm',
   side = 'top',
+  variant = 'plain',
   onCloseAutoFocus,
   'aria-label': ariaLabel = 'Model',
   ...props
@@ -151,10 +130,6 @@ export function ChatComposerModelSelect<T extends string>({
   const inComposer = composer != null;
   const isDisabled = Boolean(composer?.disabled || disabled);
   const choseModel = useRef(false);
-
-  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
-  const value =
-    controlledValue !== undefined ? controlledValue : uncontrolledValue;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = (next: boolean) => {
@@ -162,27 +137,35 @@ export function ChatComposerModelSelect<T extends string>({
     onOpenChange?.(next);
   };
 
-  const searchGroups = useMemo<SelectGroup<T>[] | undefined>(
+  const searchGroups = useMemo(
     () =>
       groups?.map(({ heading, options: groupOptions }) => ({
         heading,
-        options: heading
-          ? groupOptions.map((option) => ({
-              ...option,
-              keywords: [...(option.keywords ?? []), heading],
-            }))
-          : groupOptions,
+        options: groupOptions.map((option) => ({
+          ...option,
+          keywords: heading
+            ? [...(option.keywords ?? []), heading]
+            : option.keywords,
+        })),
       })),
     [groups]
   );
-  const allOptions = useMemo<ChatComposerModelOption<T>[]>(
+  const allOptions = useMemo(
     () => (groups ? groups.flatMap((group) => group.options) : (options ?? [])),
     [groups, options]
   );
+  const optionByValue = useMemo(() => {
+    const entries = new Map<T, ChatComposerModelOption<T>>();
+    if (selectedOption) entries.set(selectedOption.value, selectedOption);
+    for (const option of allOptions) entries.set(option.value, option);
+    return entries;
+  }, [allOptions, selectedOption]);
   const findOption = (option: SelectOption<T>): ChatComposerModelOption<T> =>
-    allOptions.find((candidate) => candidate.value === option.value) ?? option;
-
+    optionByValue.get(option.value) ?? option;
   const textVariant = size === 'lg' ? 'md' : size;
+  const hideAutomaticSearch =
+    !disableFilter && allOptions.length < SEARCH_MIN_OPTIONS;
+  const transparentDisabledTrigger = isDisabled && variant === 'plain';
 
   return (
     <div className="flex min-w-0 max-w-full items-center">
@@ -190,27 +173,32 @@ export function ChatComposerModelSelect<T extends string>({
         {...props}
         {...(searchGroups ? { groups: searchGroups } : { options: allOptions })}
         value={value}
+        selectedOption={selectedOption}
         open={open && !isDisabled}
         onOpenChange={setOpen}
-        variant="plain"
+        variant={variant}
         size={size}
         side={side}
         aria-label={ariaLabel}
         placeholder={placeholder}
         searchPlaceholder={searchPlaceholder}
         emptyText={emptyText}
-        hideSearch={hideSearch ?? allOptions.length < SEARCH_MIN_OPTIONS}
+        hideSearch={hideSearch ?? hideAutomaticSearch}
+        disableFilter={disableFilter}
         disabled={isDisabled}
         contentClassName={cn('min-w-56', contentClassName)}
         triggerClassName={cn(
-          inComposer ? 'px-space-1 @[440px]/composer:px-space-2' : 'px-space-2',
-          isDisabled && 'bg-transparent dark:bg-transparent',
+          'px-space-2',
+          transparentDisabledTrigger && 'bg-transparent dark:bg-transparent',
           triggerClassName
         )}
-        renderValue={(selectedOption) => {
-          const option = findOption(selectedOption);
+        renderValue={(selected) => {
+          const option = findOption(selected);
           return (
-            <span className="flex min-w-0 items-center gap-space-2">
+            <span
+              className="flex min-w-0 items-center gap-space-2"
+              title={option.label ?? option.value}
+            >
               {option.icon != null && (
                 <span
                   aria-hidden
@@ -219,20 +207,10 @@ export function ChatComposerModelSelect<T extends string>({
                   {option.icon}
                 </span>
               )}
-              {inComposer && option.icon == null && (
-                <Text
-                  as="span"
-                  variant={textVariant}
-                  weight="normal"
-                  className="inline-block shrink-0 @[440px]/composer:hidden"
-                >
-                  {ariaLabel}
-                </Text>
-              )}
               <span
                 className={cn(
                   'min-w-0 truncate text-left',
-                  inComposer && 'hidden @[440px]/composer:block'
+                  inComposer && 'max-w-32 @[440px]/composer:max-w-56'
                 )}
               >
                 {renderValue ? (
@@ -259,22 +237,17 @@ export function ChatComposerModelSelect<T extends string>({
           );
         }}
         onChange={(next) => {
-          if (isDisabled || next === undefined) return;
+          if (isDisabled) return;
           choseModel.current = true;
-          if (next === value) return;
-          if (controlledValue === undefined) setUncontrolledValue(next);
-          onChange?.(next);
+          onChange(next);
         }}
-        // After a choice in a composer, continue in the message. Escape and
-        // outside clicks keep the default.
         onCloseAutoFocus={(event) => {
           const continueInInput = choseModel.current;
           choseModel.current = false;
           onCloseAutoFocus?.(event);
           if (event.defaultPrevented) return;
-          if (continueInInput && composer?.inputFocusRef?.current?.()) {
+          if (continueInInput && composer?.inputFocusRef?.current?.())
             event.preventDefault();
-          }
         }}
       />
     </div>

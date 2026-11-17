@@ -217,7 +217,11 @@ void [
         ],
       } satisfies ChatComposerModelGroup,
     ],
-    defaultValue: 'sonnet',
+    value: 'sonnet',
+    selectedOption: { value: 'sonnet', label: 'Sonnet 5.5', icon: null },
+    onChange: () => {},
+    allowDeselect: true,
+    variant: 'plain',
     footer: null,
   } satisfies ChatComposerModelSelectProps,
   {
@@ -225,8 +229,12 @@ void [
     label: 'Balanced model',
     description: 'For everyday tasks',
   } satisfies ChatComposerModelOption,
-  // @ts-expect-error options and groups are exclusive.
-  { options: [], groups: [] } satisfies ChatComposerModelSelectProps,
+  {
+    options: [],
+    groups: [],
+    onChange: () => {},
+    // @ts-expect-error options and groups are exclusive.
+  } satisfies ChatComposerModelSelectProps,
   ChatComposerTextarea,
   {
     name: 'message',

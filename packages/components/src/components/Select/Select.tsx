@@ -13,6 +13,7 @@ import {
   type DataAttributes,
   pickDataAttributes,
 } from '../../utils/dataAttributes';
+import { SPACE_SCALE_PX } from '../../utils/spacing';
 import { Button } from '../Button';
 import { CommandMenu } from '../Command/CommandMenu';
 import type { CommandMenuGroup, CommandMenuItem } from '../Command/CommandMenu';
@@ -47,6 +48,8 @@ export type SelectVariant = 'outlined' | 'plain';
 interface SelectBaseProps<T extends string = string> extends DataAttributes {
   /** The currently selected value */
   value?: T;
+  /** Fallback trigger metadata when the selected value is absent from the current options. */
+  selectedOption?: SelectOption<T>;
   /** Callback when selection changes. Receives undefined when deselected. */
   onChange: (value: T | undefined) => void;
   /** Placeholder text when no value is selected */
@@ -144,6 +147,7 @@ function optionToItem(opt: SelectOption): CommandMenuItem {
 
 function OptionSelect<T extends string = string>({
   value,
+  selectedOption: fallbackOption,
   onChange,
   options,
   groups,
@@ -186,14 +190,16 @@ function OptionSelect<T extends string = string>({
   );
 
   const selectedOption = useMemo(
-    () => allOptions.find((opt) => opt.value === value),
-    [allOptions, value]
+    () =>
+      allOptions.find((opt) => opt.value === value) ??
+      (fallbackOption?.value === value ? fallbackOption : undefined),
+    [allOptions, value, fallbackOption]
   );
 
   const handleSelect = useCallback(
     (optionValue: string) => {
       const match = allOptions.find((o) => o.value === optionValue);
-      if (!match) return;
+      if (!match || match.disabled || disabled) return;
       if (allowDeselect && match.value === value) {
         onChange(undefined);
       } else {
@@ -201,7 +207,7 @@ function OptionSelect<T extends string = string>({
       }
       setOpen(false);
     },
-    [allowDeselect, value, onChange, setOpen, allOptions]
+    [allowDeselect, value, onChange, setOpen, allOptions, disabled]
   );
 
   const items: CommandMenuItem[] = useMemo(
@@ -305,10 +311,11 @@ function OptionSelect<T extends string = string>({
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          'w-max min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-1rem))] p-0 text-primary',
+          'flex max-h-[var(--radix-popover-content-available-height)] w-max min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,var(--radix-popover-content-available-width),calc(100vw-1rem))] flex-col overflow-hidden p-0 text-primary',
           contentClassName
         )}
         aria-label={ariaLabel ?? placeholder}
+        collisionPadding={SPACE_SCALE_PX[2]}
         side={side}
         align={align}
         onCloseAutoFocus={onCloseAutoFocus}
@@ -319,7 +326,9 @@ function OptionSelect<T extends string = string>({
           <CommandMenu items={items} {...commandMenuSharedProps} />
         )}
         {footer != null && (
-          <div className="border-t border-subtle p-space-1">{footer}</div>
+          <div className="shrink-0 border-t border-subtle p-space-1">
+            {footer}
+          </div>
         )}
       </PopoverContent>
     </Popover>

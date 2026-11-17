@@ -143,6 +143,12 @@ export function CommandMenu({
   onEndReached,
   endReachedThresholdPx = 50,
 }: CommandMenuProps) {
+  // A disabled or missing selection must not prevent cmdk from choosing the first enabled row.
+  const menuItems = items ?? groups?.flatMap((group) => group.items) ?? [];
+  const canHighlightSelection =
+    hideSearch &&
+    menuItems.some((item) => item.value === value && !item.disabled);
+
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       if (!onEndReached) return;
@@ -212,11 +218,12 @@ export function CommandMenu({
   return (
     <Command
       className={cn(
-        'flex flex-col gap-1.5 p-space-1 outline-hidden',
+        'flex min-h-0 flex-col gap-1.5 p-space-1 outline-hidden',
         className
       )}
       shouldFilter={disableFilter ? false : undefined}
-      defaultValue={hideSearch ? value : undefined}
+      defaultValue={canHighlightSelection ? value : undefined}
+      label={placeholder}
       tabIndex={hideSearch ? 0 : -1}
     >
       {!hideSearch && (
@@ -230,12 +237,16 @@ export function CommandMenu({
           onValueChange={onSearchChange}
         />
       )}
-      <CommandList className="outline-hidden" onScroll={handleScroll}>
-        {!loading && (
-          <CommandEmpty>
-            <Text variant="sm">{emptyText}</Text>
-          </CommandEmpty>
-        )}
+      {!loading && (
+        <CommandEmpty role="status">
+          <Text variant="sm">{emptyText}</Text>
+        </CommandEmpty>
+      )}
+      <CommandList
+        className="outline-hidden"
+        onScroll={handleScroll}
+        aria-busy={loading || undefined}
+      >
         {items && renderItems(items)}
         {groups?.map((group, i) => (
           <Fragment key={group.heading ?? i}>
@@ -246,7 +257,10 @@ export function CommandMenu({
           </Fragment>
         ))}
         {loading && (
-          <div className="flex flex-col gap-space-1 px-space-2 py-space-1">
+          <div
+            aria-hidden
+            className="flex flex-col gap-space-1 px-space-2 py-space-1"
+          >
             {Array.from({ length: loadingRows }, (_, i) => (
               <div
                 key={i}
