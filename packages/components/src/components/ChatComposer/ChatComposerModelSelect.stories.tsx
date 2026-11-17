@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { expect, fn, within } from 'storybook/test';
 
 import { GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
-import { LightningIcon } from '@phosphor-icons/react/dist/ssr/Lightning';
-import { ScalesIcon } from '@phosphor-icons/react/dist/ssr/Scales';
 import { SparkleIcon } from '@phosphor-icons/react/dist/ssr/Sparkle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -86,25 +84,18 @@ const TIER_OPTIONS: ChatComposerModelOption[] = [
     value: 'auto',
     label: 'Auto',
     description: 'Picks a model for each message',
-    icon: <SparkleIcon size={16} weight="regular" />,
   },
   {
     value: 'fast',
     label: 'Fast model',
     description: 'Quick answers and small edits',
-    icon: <LightningIcon size={16} weight="regular" />,
   },
   {
     value: 'balanced',
     label: 'Balanced model',
     description: 'For everyday tasks',
-    icon: <ScalesIcon size={16} weight="regular" />,
   },
 ];
-
-const TIER_OPTIONS_TEXT_ONLY: ChatComposerModelOption[] = TIER_OPTIONS.map(
-  ({ icon: _icon, ...option }) => option
-);
 
 const meta = {
   title: 'Components/Chat/ChatComposerModelSelect',
@@ -127,11 +118,8 @@ const meta = {
     docs: {
       description: {
         component: [
-          'A borderless model picker for the composer toolbar. Import it from `@langchain/macaw-components/ChatComposer` and pass it to `ChatComposerToolbar`’s `modelSelector`.',
-          'Options take a provider `icon`, a `description`, a `badge`, and `disabled`. Use `groups` to group models by provider or tier; searching for a group heading finds its models. Search appears once there are eight or more models; set `hideSearch` to choose.',
-          'The host controls selection with `value`/`onChange`, including an empty `undefined` value. `allowDeselect` lets a second selection clear it. `open`/`onOpenChange` open the menu from a shortcut, and `footer` holds actions such as managing models.',
-          'Inside `ChatComposer` it follows the composer’s `disabled` state, keeps the selected model name visible in a narrow composer, and moves focus to the message after a choice. It also works outside a composer.',
-          'Provider marks here are placeholders; hosts pass their own logos.',
+          'Shared model picker for `ChatComposerToolbar`’s `modelSelector` slot or standalone use. Import from `@langchain/macaw-components/ChatComposer`.',
+          'The host controls `value`/`onChange` and supplies options or groups. Macaw shares model rows, search, and focus handling; products own catalogs, permissions, and routing. Provider marks here are placeholders.',
         ].join('\n\n'),
       },
     },
@@ -191,36 +179,6 @@ export const Providers: Story = {
       within(listbox).getByRole('option', { name: /Sonnet 5\.5/ })
     ).toHaveAttribute('aria-selected', 'true');
   },
-};
-
-function TiersDemo() {
-  const [tier, setTier] = useState<string | undefined>('balanced');
-  return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-space-6">
-      <div className="flex flex-col gap-space-3">
-        <Text variant="sm" weight="medium">
-          Text only
-        </Text>
-        <ComposerFrame
-          options={TIER_OPTIONS_TEXT_ONLY}
-          value={tier}
-          onChange={setTier}
-        />
-      </div>
-      <div className="flex flex-col gap-space-3">
-        <Text variant="sm" weight="medium">
-          With tier icons
-        </Text>
-        <ComposerFrame options={TIER_OPTIONS} value={tier} onChange={setTier} />
-      </div>
-    </div>
-  );
-}
-
-/** Tier aliases such as “Balanced model” instead of concrete model names, with descriptions. */
-export const Tiers: Story = {
-  tags: ['a11y-test'],
-  render: () => <TiersDemo />,
 };
 
 const MANY_MODELS: ChatComposerModelGroup[] = [
@@ -309,7 +267,7 @@ export const Narrow: Story = {
         </div>
         <div className="w-72 max-w-full">
           <ComposerFrame
-            options={TIER_OPTIONS_TEXT_ONLY}
+            options={TIER_OPTIONS}
             value={tier}
             onChange={setTier}
           />
@@ -332,17 +290,6 @@ export const Disabled: Story = {
       />
     </div>
   ),
-};
-
-/** Outside a composer, such as next to a custom input. */
-export const Standalone: Story = {
-  args: { side: 'bottom' },
-  render: function StandaloneDemo(args) {
-    const [model, setModel] = useState<string | undefined>('claude-opus-5');
-    return (
-      <ChatComposerModelSelect {...args} value={model} onChange={setModel} />
-    );
-  },
 };
 
 const WORKSPACE_MODEL_OPTIONS: ChatComposerModelOption[] = [

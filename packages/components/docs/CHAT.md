@@ -23,84 +23,27 @@ attribute.
 ## Model selection
 
 `ChatComposerModelSelect` (from `@langchain/macaw-components/ChatComposer`)
-goes in `ChatComposerToolbar`'s `modelSelector` slot. The trigger has no border,
-so it reads as part of the composer. The host owns the model catalog,
-availability, credentials, and defaults, and maps them to options:
+goes in `ChatComposerToolbar`'s `modelSelector` slot or works standalone. It
+shares model rows, search, and focus handling across products; the host owns
+catalogs, availability, credentials, routing, and reasoning controls.
 
-- `label` names a concrete model ("Sonnet 5.5") or a tier ("Balanced model").
-- `icon` is the host's provider or tier mark, about 16px; the trigger shows it
-  too.
-- `badge` holds a short status such as "Default" or "Needs API key", and
-  `description` supporting text. Set `disabled` on models that can't be used
-  now, and say why in the badge or description.
-- `groups` groups models by provider or tier. Searching for a heading, or for
-  an option's `keywords`, finds its models.
+- Control selection with `value`/`onChange`. `allowDeselect` clears to
+  `undefined`; Auto must be an explicit app-owned option.
+- Pass `options` or `groups`, with optional `icon`, `badge`, and `description`.
+  Explain unavailable models alongside `disabled`. Search matches labels,
+  keywords, and group headings.
+- Use `open`/`onOpenChange` for shortcuts. Put actions in `footer`, outside
+  option rows, and close the picker when an action navigates or opens a dialog.
 
-The host controls `value`/`onChange`, including `value={undefined}` for no
-selection. This preserves the existing `Select` contract: `onChange` receives
-`T | undefined`, reselecting the current value reports it again, and
-`allowDeselect` reports `undefined` when it is selected again. `variant` still
-accepts `outlined` for a field; the composer default is `plain`.
+Search appears at eight options; `hideSearch` overrides this. For remote
+results, use `disableFilter` to keep search visible, `onSearchChange` to fetch,
+`loading` while pending, and `selectedOption` to retain selected metadata when
+absent from results. Reset the host query when `onOpenChange(false)` fires.
 
-Search appears from eight models. `hideSearch` overrides this; `disableFilter`
-keeps search visible for server-filtered catalogs regardless of result count.
-Pass `onSearchChange` to request results, `loading` for pending results, and
-`selectedOption` to retain the selected label and icon when that model is not
-in the current page. Metadata is only used when its value matches `value`;
-it does not add an option to the search results. Reset the host's query when
-`onOpenChange(false)` fires, since the search input resets when the menu closes.
-
-`open`/`onOpenChange` let shortcuts and slash commands open the menu. Without
-search, it opens with the current enabled model highlighted; missing or
-disabled selections start on the first enabled option. Choosing a model inside
-`ChatComposer` moves focus back to its message input. Escape preserves normal
-trigger focus, and `onCloseAutoFocus` can override the behavior. Outside a
-composer it uses the ordinary `Select` focus behavior.
-
-The selected name remains visible in narrow composers, truncating only the
-trigger. Menu labels and descriptions wrap so workspace model names and
-unavailability explanations remain readable. Provider marks belong to the host.
-Use `footer` for buttons or links; keep interactive controls out of option rows.
-A footer action that navigates or opens a dialog should close the picker through
-the host's `open`/`onOpenChange` state.
-
-### Product adapters
-
-All three products can share the picker without moving their model catalogs,
-permissions, routing, or request payloads into Macaw. The **Product Adapters**
-story demonstrates these shapes; it is not a migration of the running products.
-
-| Consumer                   | Map into the shared picker                                                                                                                                          | Keep in the application                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Fleet `FleetModelSelect`   | Fast/Pro/Max as text-only `options`; mixed catalogs as `groups`; credential status in `rightDecorator`; configuration actions in `footer`.                          | Served-tier detection, catalog loading, availability, credentials, and persistence.                                                    |
-| Polly `UnifiedModelSelect` | Built-in/workspace/hosted `groups`; provider `icon`; status `badge`; hosted usage in `description` or `rightDecorator`; `allowDeselect` when clearing is supported. | Hosted quotas, permissions, provider credentials, settings navigation, and mapping `undefined` to `onClear`.                           |
-| Robin `ModelPicker`        | Catalog entries plus an explicit Auto option; image incompatibility as `disabled` with a reason; `open`/`onOpenChange` for `/model` and keyboard shortcuts.         | Auto routing, reasoning effort/defaults, context-window details, and conversion between a model ID and the product's selection object. |
-
-Robin's reasoning/context pane is not replaced by this model list. Compose a
-separate effort control (as the story does), or retain the current pane until
-its product workflow is migrated. An Auto option is an explicit app-owned ID;
-clearing a value does not automatically mean Auto.
-
-```tsx
-<ChatComposerModelSelect
-  groups={modelGroups}
-  value={modelId}
-  allowDeselect
-  onChange={(next) => (next === undefined ? onClear() : onModelChange(next))}
-  open={modelMenuOpen}
-  onOpenChange={setModelMenuOpen}
-  footer={
-    <Button
-      onClick={() => {
-        setModelMenuOpen(false);
-        openModelSettings();
-      }}
-    >
-      Configure models
-    </Button>
-  }
-/>
-```
+The [Product Adapters story](../src/components/ChatComposer/ChatComposerModelSelect.stories.tsx)
+shows Fleet tiers, Polly provider groups, and Robin model selection with a
+separate reasoning control. These are integration examples; product adoption
+and Robin's reasoning/context workflow remain application work.
 
 ## Tool calls and shared state
 
