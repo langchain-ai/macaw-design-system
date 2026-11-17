@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { expect, fn, within } from 'storybook/test';
 
-import { GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { SparkleIcon } from '@phosphor-icons/react/dist/ssr/Sparkle';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -13,71 +12,13 @@ import {
   ChatComposerModelSelect,
   ChatComposerToolbar,
 } from '.';
-import type {
-  ChatComposerModelGroup,
-  ChatComposerModelOption,
-  ChatComposerModelSelectProps,
-} from '.';
+import type { ChatComposerModelOption, ChatComposerModelSelectProps } from '.';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
+import { AnthropicLogo, OpenAILogo } from '../ProviderLogo';
 import { Select } from '../Select';
 import { Text } from '../Text';
-
-function ProviderMark({ letter }: { letter: string }) {
-  return (
-    <span className="flex size-4 items-center justify-center rounded-sm bg-tertiary text-[10px] font-semibold leading-none text-secondary">
-      {letter}
-    </span>
-  );
-}
-
-const anthropic = <ProviderMark letter="A" />;
-const openai = <ProviderMark letter="O" />;
-const google = <ProviderMark letter="G" />;
-
-const PROVIDER_GROUPS: ChatComposerModelGroup[] = [
-  {
-    heading: 'Anthropic',
-    options: [
-      {
-        value: 'claude-sonnet-5-5',
-        label: 'Sonnet 5.5',
-        icon: anthropic,
-        badge: (
-          <Badge color="special" size="sm">
-            Default
-          </Badge>
-        ),
-      },
-      { value: 'claude-opus-5', label: 'Opus 5', icon: anthropic },
-      { value: 'claude-haiku-5', label: 'Haiku 5', icon: anthropic },
-    ],
-  },
-  {
-    heading: 'OpenAI',
-    options: [
-      { value: 'gpt-6', label: 'GPT-6', icon: openai },
-      { value: 'gpt-6-mini', label: 'GPT-6 mini', icon: openai },
-    ],
-  },
-  {
-    heading: 'Google',
-    options: [
-      { value: 'gemini-4-pro', label: 'Gemini 4 Pro', icon: google },
-      {
-        value: 'gemini-4-flash',
-        label: 'Gemini 4 Flash',
-        icon: google,
-        disabled: true,
-        badge: (
-          <Badge color="secondary" size="sm" rounded="full">
-            Needs API key
-          </Badge>
-        ),
-      },
-    ],
-  },
-];
+import { MODEL_OPTIONS } from './stories/modelOptions';
 
 const TIER_OPTIONS: ChatComposerModelOption[] = [
   {
@@ -100,7 +41,7 @@ const TIER_OPTIONS: ChatComposerModelOption[] = [
 const meta = {
   title: 'Components/Chat/ChatComposerModelSelect',
   component: ChatComposerModelSelect,
-  args: { groups: PROVIDER_GROUPS, onChange: fn() },
+  args: { options: MODEL_OPTIONS, onChange: fn() },
   tags: [
     'autodocs',
     'chat',
@@ -119,7 +60,7 @@ const meta = {
       description: {
         component: [
           'Shared model picker for `ChatComposerToolbar`’s `modelSelector` slot or standalone use. Import from `@langchain/macaw-components/ChatComposer`.',
-          'The host controls `value`/`onChange` and supplies options or groups. Macaw shares model rows, search, and focus handling; products own catalogs, permissions, and routing. Provider marks here are placeholders.',
+          'The host controls `value`/`onChange` and supplies options with optional group headings. Macaw shares model rows, search, and focus handling; products own catalogs, permissions, and routing.',
         ].join('\n\n'),
       },
     },
@@ -157,99 +98,6 @@ function ComposerFrame({
   );
 }
 
-function ProvidersDemo() {
-  const [model, setModel] = useState<string | undefined>('claude-sonnet-5-5');
-  return (
-    <ComposerFrame groups={PROVIDER_GROUPS} value={model} onChange={setModel} />
-  );
-}
-
-/** Concrete models grouped by provider, with provider marks, a badge, and a disabled model. Seven models, so no search. */
-export const Providers: Story = {
-  tags: ['a11y-test'],
-  render: () => (
-    <div className="mx-auto w-full max-w-2xl">
-      <ProvidersDemo />
-    </div>
-  ),
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole('combobox', { name: 'Model' }));
-    const listbox = await within(document.body).findByRole('listbox');
-    await expect(
-      within(listbox).getByRole('option', { name: /Sonnet 5\.5/ })
-    ).toHaveAttribute('aria-selected', 'true');
-  },
-};
-
-const MANY_MODELS: ChatComposerModelGroup[] = [
-  ...PROVIDER_GROUPS,
-  {
-    heading: 'Workspace models',
-    options: [
-      {
-        value: 'support-finetune',
-        label: 'support-bot-finetune-2026-10',
-        description: 'Fine-tuned GPT-6 mini',
-        icon: openai,
-      },
-      {
-        value: 'eval-judge',
-        label: 'eval-judge',
-        description: 'Sonnet 5.5 with a judge prompt',
-        icon: anthropic,
-      },
-      {
-        value: 'self-hosted',
-        label: 'Self-hosted Llama 5 70B',
-        keywords: ['meta', 'llama'],
-      },
-    ],
-  },
-];
-
-function SearchDemo() {
-  const [model, setModel] = useState<string | undefined>('gpt-6');
-  const [open, setOpen] = useState(false);
-  return (
-    <ComposerFrame
-      open={open}
-      onOpenChange={setOpen}
-      groups={MANY_MODELS}
-      value={model}
-      onChange={setModel}
-      footer={
-        <Button
-          size="sm"
-          variant="plain"
-          color="secondary"
-          className="w-full justify-start gap-space-2"
-          aria-label="Manage models"
-          onClick={() => setOpen(false)}
-        >
-          <GearSixIcon size={16} weight="regular" aria-hidden />
-          Manage models
-        </Button>
-      }
-    />
-  );
-}
-
-/** Ten models: search appears and matches labels, keywords, and group headings (try “anthropic”). The footer holds a host action. */
-export const SearchAndFooter: Story = {
-  tags: ['a11y-test'],
-  render: () => (
-    <div className="mx-auto w-full max-w-2xl">
-      <SearchDemo />
-    </div>
-  ),
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole('combobox', { name: 'Model' }));
-    await userEvent.keyboard('anthropic');
-    const listbox = await within(document.body).findByRole('listbox');
-    await expect(within(listbox).getAllByRole('option')).toHaveLength(3);
-  },
-};
-
 /** The selected name stays visible on narrow screens; long names truncate in the trigger and wrap in the menu. */
 export const Narrow: Story = {
   tags: ['a11y-test'],
@@ -260,7 +108,7 @@ export const Narrow: Story = {
       <div className="flex flex-col gap-space-6">
         <div className="w-72 max-w-full">
           <ComposerFrame
-            groups={PROVIDER_GROUPS}
+            options={MODEL_OPTIONS}
             value={model}
             onChange={setModel}
           />
@@ -284,7 +132,7 @@ export const Disabled: Story = {
     <div className="mx-auto w-full max-w-2xl">
       <ComposerFrame
         disabled
-        groups={PROVIDER_GROUPS}
+        options={MODEL_OPTIONS}
         value="claude-sonnet-5-5"
         onChange={fn()}
       />
@@ -296,7 +144,8 @@ const WORKSPACE_MODEL_OPTIONS: ChatComposerModelOption[] = [
   {
     value: 'customer-support',
     label: 'customer-support-production-finetune-2026-11',
-    icon: openai,
+    icon: <OpenAILogo className="size-4" />,
+    group: 'Workspace Models',
     description:
       'Ask a workspace admin to connect the provider before using this model.',
     disabled: true,
@@ -308,23 +157,15 @@ const WORKSPACE_MODEL_OPTIONS: ChatComposerModelOption[] = [
   },
 ];
 
-const WORKSPACE_GROUPS: ChatComposerModelGroup[] = [
-  ...PROVIDER_GROUPS,
+const WORKSPACE_OPTIONS: ChatComposerModelOption[] = [
+  ...MODEL_OPTIONS,
+  ...WORKSPACE_MODEL_OPTIONS,
   {
-    heading: 'Workspace Models',
-    options: WORKSPACE_MODEL_OPTIONS,
-  },
-  {
-    heading: 'LangSmith Hosted',
-    options: [
-      {
-        value: 'auto',
-        label: 'Auto',
-        icon: <SparkleIcon size={16} weight="regular" />,
-        description:
-          'Chooses a model for each message · 24 of 100 messages used',
-      },
-    ],
+    value: 'auto',
+    label: 'Auto',
+    group: 'LangSmith Hosted',
+    icon: <SparkleIcon size={16} weight="regular" />,
+    description: 'Chooses a model for each message · 24 of 100 messages used',
   },
 ];
 
@@ -336,18 +177,14 @@ export const WorkspaceModels: Story = {
     return (
       <div className="w-80 max-w-full">
         <ComposerFrame
-          groups={[
+          options={[
             {
-              heading: 'Workspace Models',
-              options: [
-                {
-                  value: 'eval-judge',
-                  label: 'Evaluation judge',
-                  icon: anthropic,
-                },
-                ...WORKSPACE_MODEL_OPTIONS,
-              ],
+              value: 'eval-judge',
+              label: 'Evaluation judge',
+              group: 'Workspace Models',
+              icon: <AnthropicLogo className="size-4" />,
             },
+            ...WORKSPACE_MODEL_OPTIONS,
           ]}
           value={model}
           onChange={setModel}
@@ -385,7 +222,8 @@ export const ProductAdapters: Story = {
         <section className="flex flex-col gap-space-3">
           <Text weight="medium">Polly · Providers and Hosted Models</Text>
           <ComposerFrame
-            groups={WORKSPACE_GROUPS}
+            aria-label="Polly model"
+            options={WORKSPACE_OPTIONS}
             value={polly}
             onChange={setPolly}
             open={open}
@@ -416,7 +254,7 @@ export const ProductAdapters: Story = {
           <Text weight="medium">Robin · Model and Reasoning</Text>
           <div className="flex flex-wrap items-center gap-space-2">
             <ChatComposerModelSelect
-              groups={PROVIDER_GROUPS}
+              options={MODEL_OPTIONS}
               value={robin}
               onChange={setRobin}
               hideSearch={false}
@@ -441,45 +279,12 @@ export const ProductAdapters: Story = {
       </div>
     );
   },
-};
-
-/** Server-filtered results may omit the selected model. Its metadata keeps the trigger stable, and search stays available even with zero results. */
-export const RemoteSearch: Story = {
-  tags: ['a11y-test'],
-  render: function RemoteSearchDemo() {
-    const [model, setModel] = useState<string | undefined>('gpt-6');
-    const [query, setQuery] = useState('');
-    const catalog = MANY_MODELS.flatMap((group) => group.options);
-    return (
-      <div className="mx-auto w-full max-w-2xl">
-        <ComposerFrame
-          options={catalog.filter((option) =>
-            (option.label ?? option.value)
-              .toLowerCase()
-              .includes(query.toLowerCase())
-          )}
-          selectedOption={catalog.find((option) => option.value === model)}
-          value={model}
-          onChange={setModel}
-          disableFilter
-          onSearchChange={setQuery}
-          onOpenChange={(next) => {
-            if (!next) setQuery('');
-          }}
-        />
-      </div>
-    );
-  },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole('combobox', { name: 'Model' }));
-    const search = within(document.body).getByPlaceholderText('Search models…');
-    await userEvent.type(search, 'no matching model');
-    await expect(search).toHaveFocus();
-    await expect(
-      within(document.body).getByText('No models found.')
-    ).toBeVisible();
-    await expect(
-      canvas.getByRole('combobox', { name: 'Model' })
-    ).toHaveTextContent('GPT-6');
+    await userEvent.click(
+      canvas.getByRole('combobox', { name: 'Polly model' })
+    );
+    await userEvent.keyboard('anthropic');
+    const listbox = await within(document.body).findByRole('listbox');
+    await expect(within(listbox).getAllByRole('option')).toHaveLength(3);
   },
 };

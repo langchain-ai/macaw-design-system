@@ -11,6 +11,8 @@ import { ChatComposerContext } from './ChatComposerContext';
 export interface ChatComposerModelOption<
   T extends string = string,
 > extends SelectOption<T> {
+  /** Group heading; groups follow their first appearance in the options. */
+  group?: string;
   /** Host-supplied provider or tier mark, also shown in the trigger. */
   icon?: ReactNode;
   /** Short status beside the label, such as a `Badge` reading "Default". */
@@ -25,10 +27,14 @@ export interface ChatComposerModelGroup<T extends string = string> {
 
 export type ChatComposerModelSelectProps<T extends string = string> = Omit<
   SelectProps<T>,
-  'options' | 'groups' | 'renderValue' | 'renderOption' | 'selectedOption'
+  | 'options'
+  | 'groups'
+  | 'renderValue'
+  | 'renderOption'
+  | 'selectedOptionFallback'
 > & {
-  /** Selected model metadata when it is absent from paginated or filtered options. */
-  selectedOption?: ChatComposerModelOption<T>;
+  /** Display-only metadata for `value` when absent from options. Does not select a model. */
+  selectedOptionFallback?: ChatComposerModelOption<T>;
   /** Replaces the selected model's label, preserving its icon. */
   renderValue?: (option: ChatComposerModelOption<T>) => ReactNode;
   /** Replaces the whole row. Keep interactive actions in the footer. */
@@ -105,7 +111,7 @@ export function ChatComposerModelSelect<T extends string>({
   options,
   groups,
   value,
-  selectedOption,
+  selectedOptionFallback,
   onChange,
   open: controlledOpen,
   onOpenChange,
@@ -137,31 +143,37 @@ export function ChatComposerModelSelect<T extends string>({
     onOpenChange?.(next);
   };
 
-  const searchGroups = useMemo(
-    () =>
-      groups?.map(({ heading, options: groupOptions }) => ({
+  const searchGroups = useMemo(() => {
+    const optionsByGroup = new Map<
+      string | undefined,
+      ChatComposerModelOption<T>[]
+    >();
+    for (const option of options ?? []) {
+      const items = optionsByGroup.get(option.group) ?? [];
+      items.push(option);
+      optionsByGroup.set(option.group, items);
+    }
+    // Retain the existing Select `groups` input for current consumers.
+    const modelGroups =
+      groups ??
+      Array.from(optionsByGroup, ([heading, options]) => ({
         heading,
-        options: groupOptions.map((option) => ({
-          ...option,
-          keywords: heading
-            ? [...(option.keywords ?? []), heading]
-            : option.keywords,
-        })),
+        options,
+      }));
+    return modelGroups.map(({ heading, options: groupOptions }) => ({
+      heading,
+      options: groupOptions.map((option) => ({
+        ...option,
+        keywords: heading
+          ? [...(option.keywords ?? []), heading]
+          : option.keywords,
       })),
-    [groups]
-  );
+    }));
+  }, [groups, options]);
   const allOptions = useMemo(
     () => (groups ? groups.flatMap((group) => group.options) : (options ?? [])),
     [groups, options]
   );
-  const optionByValue = useMemo(() => {
-    const entries = new Map<T, ChatComposerModelOption<T>>();
-    if (selectedOption) entries.set(selectedOption.value, selectedOption);
-    for (const option of allOptions) entries.set(option.value, option);
-    return entries;
-  }, [allOptions, selectedOption]);
-  const findOption = (option: SelectOption<T>): ChatComposerModelOption<T> =>
-    optionByValue.get(option.value) ?? option;
   const textVariant = size === 'lg' ? 'md' : size;
   const hideAutomaticSearch =
     !disableFilter && allOptions.length < SEARCH_MIN_OPTIONS;
@@ -171,9 +183,9 @@ export function ChatComposerModelSelect<T extends string>({
     <div className="flex min-w-0 max-w-full items-center">
       <Select<T>
         {...props}
-        {...(searchGroups ? { groups: searchGroups } : { options: allOptions })}
+        groups={searchGroups}
         value={value}
-        selectedOption={selectedOption}
+        selectedOptionFallback={selectedOptionFallback}
         open={open && !isDisabled}
         onOpenChange={setOpen}
         variant={variant}
@@ -192,8 +204,7 @@ export function ChatComposerModelSelect<T extends string>({
           transparentDisabledTrigger && 'bg-transparent dark:bg-transparent',
           triggerClassName
         )}
-        renderValue={(selected) => {
-          const option = findOption(selected);
+        renderValue={(option: ChatComposerModelOption<T>) => {
           return (
             <span
               className="flex min-w-0 items-center gap-space-2"
@@ -224,8 +235,7 @@ export function ChatComposerModelSelect<T extends string>({
             </span>
           );
         }}
-        renderOption={(selectOption, isSelected) => {
-          const option = findOption(selectOption);
+        renderOption={(option: ChatComposerModelOption<T>, isSelected) => {
           return renderOption ? (
             renderOption(option, isSelected)
           ) : (

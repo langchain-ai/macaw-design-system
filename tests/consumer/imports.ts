@@ -135,6 +135,11 @@ import {
 } from '@langchain/macaw-components/MarkdownDisplay';
 import type { MarkdownDisplayProps } from '@langchain/macaw-components/MarkdownDisplay';
 import {
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
+} from '@langchain/macaw-components/ProviderLogo';
+import {
   RadarChart,
   type RadarChartProps,
 } from '@langchain/macaw-components/RadarChart';
@@ -155,6 +160,9 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
   Breadcrumb,
   BreadcrumbLink,
   BreadcrumbPage,
@@ -204,31 +212,19 @@ void [
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
   ChatComposerModelSelect,
   {
-    groups: [
+    options: [
       {
-        heading: 'Anthropic',
-        options: [
-          {
-            value: 'sonnet',
-            label: 'Sonnet 5.5',
-            icon: null,
-            badge: 'Default',
-          },
-        ],
-      } satisfies ChatComposerModelGroup,
+        value: 'sonnet',
+        group: 'Anthropic',
+        icon: null,
+        badge: 'Default',
+      } satisfies ChatComposerModelOption,
     ],
     value: 'sonnet',
-    selectedOption: { value: 'sonnet', label: 'Sonnet 5.5', icon: null },
+    selectedOptionFallback: { value: 'sonnet', icon: null },
     onChange: () => {},
-    allowDeselect: true,
-    variant: 'plain',
-    footer: null,
   } satisfies ChatComposerModelSelectProps,
-  {
-    value: 'balanced',
-    label: 'Balanced model',
-    description: 'For everyday tasks',
-  } satisfies ChatComposerModelOption,
+  { options: [] } satisfies ChatComposerModelGroup,
   {
     options: [],
     groups: [],

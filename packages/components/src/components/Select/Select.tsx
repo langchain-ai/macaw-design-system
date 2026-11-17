@@ -48,8 +48,8 @@ export type SelectVariant = 'outlined' | 'plain';
 interface SelectBaseProps<T extends string = string> extends DataAttributes {
   /** The currently selected value */
   value?: T;
-  /** Fallback trigger metadata when the selected value is absent from the current options. */
-  selectedOption?: SelectOption<T>;
+  /** Display-only metadata for `value` when absent from options. Does not select a value. */
+  selectedOptionFallback?: SelectOption<T>;
   /** Callback when selection changes. Receives undefined when deselected. */
   onChange: (value: T | undefined) => void;
   /** Placeholder text when no value is selected */
@@ -147,7 +147,7 @@ function optionToItem(opt: SelectOption): CommandMenuItem {
 
 function OptionSelect<T extends string = string>({
   value,
-  selectedOption: fallbackOption,
+  selectedOptionFallback: fallbackOption,
   onChange,
   options,
   groups,

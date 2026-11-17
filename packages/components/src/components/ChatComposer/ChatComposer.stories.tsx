@@ -34,6 +34,7 @@ import { IconButton } from '../IconButton';
 import { Text } from '../Text';
 import { ThinkingState } from '../ThinkingState';
 import { Tooltip } from '../Tooltip';
+import { MODEL_OPTIONS } from './stories/modelOptions';
 
 const meta = {
   title: 'Components/Chat/ChatComposer',
@@ -107,20 +108,6 @@ interface ComposerDemoProps {
   drawerIntent?: ChatComposerDrawerIntent;
 }
 
-const MODEL_OPTIONS = [
-  {
-    value: 'balanced',
-    label: 'Balanced model',
-    description: 'For everyday tasks',
-  },
-  {
-    value: 'reasoning',
-    label: 'Reasoning model',
-    description: 'For complex tasks',
-  },
-  { value: 'custom', label: 'Custom model with a longer display name' },
-];
-
 function ToolsToggle() {
   const [enabled, setEnabled] = useState(false);
   const label = enabled ? 'Tools enabled' : 'Tools';
@@ -165,7 +152,7 @@ function ComposerDemo({
   drawerIntent,
 }: ComposerDemoProps) {
   const [draft, setDraft] = useState(initialDraft);
-  const [model, setModel] = useState('balanced');
+  const [model, setModel] = useState<string | undefined>('claude-sonnet-5-5');
   const [attachments, setAttachments] = useState(initialAttachments);
   const [isResponding, setIsResponding] = useState(initialResponding);
   const [isSending, setIsSending] = useState(initialSending);
@@ -278,7 +265,7 @@ function ComposerDemo({
             <ChatComposerModelSelect
               options={MODEL_OPTIONS}
               value={model}
-              onChange={(next) => next && setModel(next)}
+              onChange={setModel}
             />
           }
           actions={

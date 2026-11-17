@@ -232,6 +232,10 @@
       "types": "./dist/components/Popover/index.d.ts",
       "import": "./dist/components/Popover/index.js"
     },
+    "./ProviderLogo": {
+      "types": "./dist/components/ProviderLogo/index.d.ts",
+      "import": "./dist/components/ProviderLogo/index.js"
+    },
     "./ProgressBar": {
       "types": "./dist/components/ProgressBar/index.d.ts",
       "import": "./dist/components/ProgressBar/index.js"

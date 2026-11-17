@@ -29,7 +29,7 @@ catalogs, availability, credentials, routing, and reasoning controls.
 
 - Control selection with `value`/`onChange`. `allowDeselect` clears to
   `undefined`; Auto must be an explicit app-owned option.
-- Pass `options` or `groups`, with optional `icon`, `badge`, and `description`.
+- Pass `options` with optional `group`, `icon`, `badge`, and `description`.
   Explain unavailable models alongside `disabled`. Search matches labels,
   keywords, and group headings.
 - Use `open`/`onOpenChange` for shortcuts. Put actions in `footer`, outside
@@ -37,8 +37,12 @@ catalogs, availability, credentials, routing, and reasoning controls.
 
 Search appears at eight options; `hideSearch` overrides this. For remote
 results, use `disableFilter` to keep search visible, `onSearchChange` to fetch,
-`loading` while pending, and `selectedOption` to retain selected metadata when
-absent from results. Reset the host query when `onOpenChange(false)` fires.
+`loading` while pending, and `selectedOptionFallback` for display metadata when
+`value` is absent from results. It never selects a model. Reset the host query
+when `onOpenChange(false)` fires.
+
+Import `AnthropicLogo`, `OpenAILogo`, and `GeminiLogo` from
+`@langchain/macaw-components/ProviderLogo` for the marks used in LangSmith.
 
 The [Product Adapters story](../src/components/ChatComposer/ChatComposerModelSelect.stories.tsx)
 shows Fleet tiers, Polly provider groups, and Robin model selection with a
