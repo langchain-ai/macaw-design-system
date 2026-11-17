@@ -30,6 +30,8 @@ interface ProgressBarBaseProps extends Omit<
   color?: ProgressBarColor;
   /** Solid for compact usage meters; gradient for the default visualization. */
   fill?: 'solid' | 'gradient';
+  /** Softer fill for secondary usage indicators. */
+  tone?: 'default' | 'subtle';
   /** Optional fixed-style label rendered above or beneath the bar. */
   label?: string;
   /** Vertical label placement. */
@@ -114,6 +116,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       size = 'md',
       color = 'brand',
       fill = 'gradient',
+      tone = 'default',
       label,
       labelPosition = 'bottom',
       className,
@@ -144,7 +147,8 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           aria-hidden="true"
           className={cn(
             'h-full rounded-xs transition-[width] duration-normal ease-out motion-reduce:transition-none',
-            fill === 'solid' && SOLID_COLORS[color]
+            fill === 'solid' && SOLID_COLORS[color],
+            tone === 'subtle' && 'opacity-60'
           )}
           style={{
             width: `${progressPercent}%`,

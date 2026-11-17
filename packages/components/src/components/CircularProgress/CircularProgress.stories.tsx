@@ -69,6 +69,7 @@ export const Compact: Story = {
 
 export const Neutral: Story = {
   args: {
+    tone: 'subtle',
     segments: [{ variant: 'neutral', percentage: 0.33 }],
     size: 16,
     strokeWidth: 2,

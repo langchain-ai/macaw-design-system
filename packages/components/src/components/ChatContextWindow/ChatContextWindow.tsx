@@ -102,6 +102,7 @@ export function ChatContextWindow({
             <CircularProgress
               size={16}
               strokeWidth={2}
+              tone="subtle"
               segments={
                 ratio == null
                   ? []
@@ -148,6 +149,7 @@ export function ChatContextWindow({
                 size="sm"
                 color={intent}
                 fill="solid"
+                tone="subtle"
                 aria-label="Context window usage"
                 aria-valuetext={label}
               />
