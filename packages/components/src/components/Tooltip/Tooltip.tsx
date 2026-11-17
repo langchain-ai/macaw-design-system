@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
@@ -27,11 +27,8 @@ export type TooltipProps = {
 };
 
 let focusFromKeyboard = true;
-let trackingFocusSource = false;
 
-function trackFocusSource() {
-  if (trackingFocusSource) return;
-  trackingFocusSource = true;
+if (typeof document !== 'undefined') {
   document.addEventListener(
     'keydown',
     (event) => {
@@ -71,7 +68,6 @@ export function Tooltip({
   disableHoverableContent = true,
 }: TooltipProps) {
   const zIndex = useZIndex(zIndices.tooltipOverlay);
-  useEffect(trackFocusSource, []);
 
   if ((!title && !description) || disabled) {
     return children;
