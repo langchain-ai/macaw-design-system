@@ -49,9 +49,6 @@ running (those rows show only elapsed seconds) and a single check once every
 row has succeeded. It also stacks up to three distinct host-supplied row icons
 beside its label.
 
-Tool labels stay fully visible and wrap within narrow rows; only the optional
-summary truncates.
-
 The default variant provides local expandable details. Groups preserve nested
 expansion state while collapsed. Controlled `expanded` props allow a host to
 coordinate disclosure without moving tool execution or event parsing into the

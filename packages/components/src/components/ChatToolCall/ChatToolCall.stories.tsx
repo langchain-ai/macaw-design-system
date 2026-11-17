@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 
-import { expect, fn } from 'storybook/test';
+import { fn } from 'storybook/test';
 
 import { GithubLogoIcon } from '@phosphor-icons/react/dist/ssr/GithubLogo';
 import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
@@ -696,19 +696,11 @@ export const WorkSummary: Story = {
 };
 
 export const NarrowWidth: Story = {
-  play: async ({ canvas }) => {
-    for (const label of canvas.getAllByText(
-      'search_documents_with_a_very_long_tool_name'
-    )) {
-      await expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
-      await expect(label).toHaveStyle({ overflow: 'visible' });
-    }
-  },
   parameters: {
     docs: {
       description: {
         story:
-          'Tool names stay fully visible and wrap when necessary; only summaries truncate. Each column is 16rem wide. Expand the default row to verify wrapped detail content.',
+          'Long names and summaries truncate without forcing the conversation wider. Each column is 16rem wide. Expand the default row to verify wrapped detail content.',
       },
     },
   },
