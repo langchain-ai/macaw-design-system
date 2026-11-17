@@ -225,9 +225,16 @@ void [
   } satisfies ChatComposerModelSelectProps,
   {
     options: [],
+    // @ts-expect-error Model groups are derived from options, not a separate input.
     groups: [],
     onChange: () => {},
-    // @ts-expect-error options and groups are exclusive.
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [{ value: 'sonnet', label: 'Sonnet' }],
+    value: 'sonnet',
+    onChange: () => {},
+    // @ts-expect-error Selection metadata comes from options via value.
+    selectedOption: { value: 'sonnet', label: 'Sonnet' },
   } satisfies ChatComposerModelSelectProps,
   ChatComposerTextarea,
   {

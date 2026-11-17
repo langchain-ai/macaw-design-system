@@ -27,11 +27,16 @@ goes in `ChatComposerToolbar`'s `modelSelector` slot or works standalone. It
 shares model rows, search, and focus handling across products; the host owns
 catalogs, availability, credentials, routing, and reasoning controls.
 
-- Control selection with `value`/`onChange`. `allowDeselect` clears to
-  `undefined`; Auto must be an explicit app-owned option.
-- Pass `options` with an optional `group` label, `icon`, `badge`, and `description`.
-  Explain unavailable models alongside `disabled`. Search matches labels,
-  keywords, and group headings.
+- Control selection with `value`/`onChange`, including the initial selection.
+  Initialize the app's state to preselect a model; there is no separate default
+  or selected-option prop. `allowDeselect` clears to `undefined`; Auto must be
+  an explicit app-owned option.
+- Pass a single `options` catalog with an optional `group` label, `icon`, `badge`,
+  and `description` on each model. Group headings and their order are derived
+  from the options; there is no separate `groups` input. Explain unavailable
+  models alongside `disabled`. Search matches labels, keywords, and group headings.
+- Trigger and row labels use the standard `sm` text, with `xs` descriptions.
+  Control size changes do not introduce alternate text variants.
 - Use `open`/`onOpenChange` for shortcuts. Put actions in `footer`, outside
   option rows, and close the picker when an action navigates or opens a dialog.
 

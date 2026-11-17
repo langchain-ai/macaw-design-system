@@ -4,7 +4,7 @@ import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
 import { Icon } from '../Icon';
 import { Select } from '../Select';
-import type { SelectGroup, SelectOption, SelectProps } from '../Select';
+import type { SelectOption, SelectProps } from '../Select';
 import { Text } from '../Text';
 import { ChatComposerContext } from './ChatComposerContext';
 
@@ -23,13 +23,12 @@ export type ChatComposerModelSelectProps<T extends string = string> = Omit<
   SelectProps<T>,
   'options' | 'groups' | 'renderValue' | 'renderOption' | 'hideSearch'
 > & {
+  /** The model catalog, including the selected model; group labels live on each option. */
+  options: ChatComposerModelOption<T>[];
   /** Minimum option count for search (default: 8). Use 0 to always show it.
    * Host-filtered lists always show search, even while results are empty. */
   searchThreshold?: number;
-} & (
-    | { options: ChatComposerModelOption<T>[]; groups?: never }
-    | { groups: SelectGroup<T>[]; options?: never }
-  );
+};
 
 function ModelOptionRow({
   option,
@@ -85,7 +84,6 @@ function ModelOptionRow({
 /** Shared model selection for composer toolbars and standalone controls. The host owns the selected value. */
 export function ChatComposerModelSelect<T extends string>({
   options,
-  groups,
   value,
   onChange,
   open: controlledOpen,
@@ -119,18 +117,15 @@ export function ChatComposerModelSelect<T extends string>({
       string | undefined,
       ChatComposerModelOption<T>[]
     >();
-    for (const option of options ?? []) {
+    for (const option of options) {
       const items = optionsByGroup.get(option.group) ?? [];
       items.push(option);
       optionsByGroup.set(option.group, items);
     }
-    // Retain the existing Select `groups` input for current consumers.
-    const modelGroups =
-      groups ??
-      Array.from(optionsByGroup, ([heading, options]) => ({
-        heading,
-        options,
-      }));
+    const modelGroups = Array.from(optionsByGroup, ([heading, options]) => ({
+      heading,
+      options,
+    }));
     return modelGroups.map(({ heading, options: groupOptions }) => ({
       heading,
       options: groupOptions.map((option) => ({
@@ -140,7 +135,7 @@ export function ChatComposerModelSelect<T extends string>({
           : option.keywords,
       })),
     }));
-  }, [groups, options]);
+  }, [options]);
   const optionCount = searchGroups.reduce(
     (count, group) => count + group.options.length,
     0
