@@ -52,8 +52,6 @@ function normalizePercentage(percentage: number, max: number) {
  * ```
  */
 interface CircularProgressBaseProps {
-  /** Softer fill for secondary usage indicators. */
-  tone?: 'default' | 'subtle';
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -84,7 +82,6 @@ export function CircularProgress({
   value,
   segments,
   size = 100,
-  tone = 'default',
   strokeWidth = 10,
   className,
   testId,
@@ -167,7 +164,6 @@ export function CircularProgress({
               strokeDashoffset={strokeDashoffset}
               className={cn(
                 segmentVariantClasses[segment.variant],
-                tone === 'subtle' && 'opacity-60',
                 'transition-[stroke-dashoffset,transform] duration-slower ease-in-out motion-reduce:transition-none'
               )}
               style={{

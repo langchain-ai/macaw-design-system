@@ -82,7 +82,7 @@ const POLICY_USAGE_ROWS = [
 export const Default: Story = {};
 
 export const Solid: Story = {
-  args: { fill: 'solid', color: 'neutral', tone: 'subtle' },
+  args: { fill: 'solid', color: 'neutral' },
 };
 
 export const WithLabel: Story = {
