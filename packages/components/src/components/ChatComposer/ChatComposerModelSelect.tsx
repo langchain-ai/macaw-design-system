@@ -23,15 +23,13 @@ export type ChatComposerModelSelectProps<T extends string = string> = Omit<
   SelectProps<T>,
   'options' | 'groups' | 'renderValue' | 'renderOption' | 'hideSearch'
 > & {
-  /** Defaults to hidden below eight options, except for host-filtered lists.
-   * Set explicitly to override that policy, including a host-defined threshold. */
-  hideSearch?: boolean;
+  /** Minimum option count for search (default: 8). Use 0 to always show it.
+   * Host-filtered lists always show search, even while results are empty. */
+  searchThreshold?: number;
 } & (
     | { options: ChatComposerModelOption<T>[]; groups?: never }
     | { groups: SelectGroup<T>[]; options?: never }
   );
-
-const SEARCH_MIN_OPTIONS = 8;
 
 function ModelOptionRow({
   option,
@@ -93,7 +91,7 @@ export function ChatComposerModelSelect<T extends string>({
   open: controlledOpen,
   onOpenChange,
   disabled,
-  hideSearch,
+  searchThreshold = 8,
   disableFilter,
   triggerClassName,
   contentClassName,
@@ -147,8 +145,7 @@ export function ChatComposerModelSelect<T extends string>({
     (count, group) => count + group.options.length,
     0
   );
-  const hideAutomaticSearch =
-    !disableFilter && optionCount < SEARCH_MIN_OPTIONS;
+  const hideSearch = !disableFilter && optionCount < searchThreshold;
   const transparentDisabledTrigger = isDisabled && variant === 'plain';
 
   return (
@@ -164,7 +161,7 @@ export function ChatComposerModelSelect<T extends string>({
         aria-label={ariaLabel}
         placeholder={placeholder}
         searchPlaceholder={searchPlaceholder}
-        hideSearch={hideSearch ?? hideAutomaticSearch}
+        hideSearch={hideSearch}
         disableFilter={disableFilter}
         disabled={isDisabled}
         contentClassName={cn('min-w-56', contentClassName)}

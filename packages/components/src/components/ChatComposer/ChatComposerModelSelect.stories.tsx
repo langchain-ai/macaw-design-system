@@ -254,10 +254,11 @@ export const ProductAdapters: Story = {
           <Text weight="medium">Robin · Model and Reasoning</Text>
           <div className="flex flex-wrap items-center gap-space-2">
             <ChatComposerModelSelect
+              aria-label="Robin model"
               options={MODEL_OPTIONS}
               value={robin}
               onChange={setRobin}
-              hideSearch={false}
+              searchThreshold={0}
             />
             <Select
               aria-label="Reasoning effort"
@@ -286,5 +287,12 @@ export const ProductAdapters: Story = {
     await userEvent.keyboard('anthropic');
     const listbox = await within(document.body).findByRole('listbox');
     await expect(within(listbox).getAllByRole('option')).toHaveLength(3);
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(
+      canvas.getByRole('combobox', { name: 'Robin model' })
+    );
+    await expect(
+      within(document.body).getByPlaceholderText('Search models…')
+    ).toBeVisible();
   },
 };

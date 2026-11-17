@@ -220,6 +220,7 @@ void [
       } satisfies ChatComposerModelOption,
     ],
     value: 'sonnet',
+    searchThreshold: 0,
     onChange: () => {},
   } satisfies ChatComposerModelSelectProps,
   {
