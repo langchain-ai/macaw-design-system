@@ -1,3 +1,14 @@
+## 1.7.17 (2026-11-18)
+
+### 🩹 Fixes
+
+- **Tooltip:** open on focus only after keyboard input ([#125](https://github.com/langchain-ai/macaw-design-system/pull/125))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+- Robin @open-swe
+
 ## 1.7.16 (2026-11-18)
 
 ### 🚀 Features
