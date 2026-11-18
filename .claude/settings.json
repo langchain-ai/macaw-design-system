@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.agents/hooks/design-system-context.sh\" SessionStart",
+            "timeout": 5,
+            "statusMessage": "Loading Macaw design-system guidance"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.agents/hooks/design-system-context.sh\" SubagentStart",
+            "timeout": 5,
+            "statusMessage": "Loading Macaw design-system guidance"
+          }
+        ]
+      }
+    ]
+  }
+}
