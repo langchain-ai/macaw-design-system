@@ -66,3 +66,12 @@ export const Compact: Story = {
     'aria-label': '42% sampling rate',
   },
 };
+
+export const Neutral: Story = {
+  args: {
+    segments: [{ variant: 'neutral', percentage: 0.33 }],
+    size: 16,
+    strokeWidth: 2,
+    'aria-label': '33% of context used',
+  },
+};
