@@ -244,8 +244,9 @@ files. `accept` and `multiple` only configure the picker. Render accepted files
 with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
 `status="uploading"` while they upload.
 
-`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
-model moves focus to the message input.
+`ChatComposerModelSelect` keeps the selected model name visible in narrow
+composers and moves focus to the message input after selection. See
+[CHAT.md](./CHAT.md#model-selection) for shared picker integration.
 
 Use `drawer` for content above the editor, such as questions to answer before
 sending. Several items stack with dividers; put the one the input answers,

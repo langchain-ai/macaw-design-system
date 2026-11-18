@@ -38,10 +38,13 @@ import {
   ChatComposer,
   ChatComposerContext,
   ChatComposerInput,
+  ChatComposerModelSelect,
   ChatComposerTextarea,
 } from '@langchain/macaw-components/ChatComposer';
 import type {
   ChatComposerInputProps,
+  ChatComposerModelOption,
+  ChatComposerModelSelectProps,
   ChatComposerProps,
   ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
@@ -131,6 +134,11 @@ import {
 } from '@langchain/macaw-components/MarkdownDisplay';
 import type { MarkdownDisplayProps } from '@langchain/macaw-components/MarkdownDisplay';
 import {
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
+} from '@langchain/macaw-components/ProviderLogo';
+import {
   RadarChart,
   type RadarChartProps,
 } from '@langchain/macaw-components/RadarChart';
@@ -151,6 +159,9 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
   Breadcrumb,
   BreadcrumbLink,
   BreadcrumbPage,
@@ -198,6 +209,33 @@ void [
   ChatComposerContext,
   ChatComposerInput,
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  ChatComposerModelSelect,
+  {
+    options: [
+      {
+        value: 'sonnet',
+        group: 'Anthropic',
+        icon: null,
+        badge: 'Default',
+      } satisfies ChatComposerModelOption,
+    ],
+    value: 'sonnet',
+    searchThreshold: 0,
+    onChange: () => {},
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [],
+    // @ts-expect-error Model groups are derived from options, not a separate input.
+    groups: [],
+    onChange: () => {},
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [{ value: 'sonnet', label: 'Sonnet' }],
+    value: 'sonnet',
+    onChange: () => {},
+    // @ts-expect-error Selection metadata comes from options via value.
+    selectedOption: { value: 'sonnet', label: 'Sonnet' },
+  } satisfies ChatComposerModelSelectProps,
   ChatComposerTextarea,
   {
     name: 'message',

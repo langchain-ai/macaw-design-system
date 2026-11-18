@@ -80,6 +80,7 @@ export type {
   ChatComposerDrawerIntent,
   ChatComposerInputHandle,
   ChatComposerInputProps,
+  ChatComposerModelOption,
   ChatComposerModelSelectProps,
   ChatComposerProps,
   ChatComposerTextareaProps,
