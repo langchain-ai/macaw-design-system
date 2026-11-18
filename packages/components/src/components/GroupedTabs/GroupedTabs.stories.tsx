@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import { ChartBarIcon } from '@phosphor-icons/react/dist/ssr/ChartBar';
 import { GearIcon } from '@phosphor-icons/react/dist/ssr/Gear';
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
@@ -303,4 +304,32 @@ export const LongTextTabs: Story = {
       />
     );
   },
+};
+
+/** GroupedTabs supplies the indicator; TabGroup owns selection, focus, and panel relationships. */
+export const WithTabPanels: Story = {
+  render: () => (
+    <TabGroup manual className="flex flex-col gap-space-4">
+      <TabList>
+        {({ selectedIndex }) => (
+          <GroupedTabs
+            buttonComponent={Tab}
+            value={selectedIndex}
+            onChange={() => {}}
+            size="md"
+            options={[
+              { value: 0, display: 'Overview' },
+              { value: 1, display: 'Activity' },
+              { value: 2, display: 'Unavailable', disabled: true },
+            ]}
+          />
+        )}
+      </TabList>
+      <TabPanels>
+        <TabPanel>Overview content</TabPanel>
+        <TabPanel>Activity content</TabPanel>
+        <TabPanel>Unavailable content</TabPanel>
+      </TabPanels>
+    </TabGroup>
+  ),
 };
