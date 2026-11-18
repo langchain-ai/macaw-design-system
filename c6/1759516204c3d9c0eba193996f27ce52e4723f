@@ -1,0 +1,19 @@
+packages/components/src/components/RadarChart/RadarChart.tsx
+  s_eecc247223f96e::t_57b4634a3dd39c 137-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c61759516204c3d9c0eba193996f27ce52e4723f",
+  "prompts": {},
+  "sessions": {
+    "s_eecc247223f96e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "98bcce4a-abb0-4631-b66b-93aece04e804",
+        "model": "unknown"
+      },
+      "human_author": "Eli Rosen <eli@langchain.dev>"
+    }
+  }
+}
