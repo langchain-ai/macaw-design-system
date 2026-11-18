@@ -2,6 +2,7 @@ import {
   Attachment,
   Button,
   Card,
+  PageHeader as RootPageHeader,
   ChatRichContent as RootChatRichContent,
   StatusBadge,
   Text,
@@ -130,6 +131,8 @@ import {
   prepareMarkdownXml,
 } from '@langchain/macaw-components/MarkdownDisplay';
 import type { MarkdownDisplayProps } from '@langchain/macaw-components/MarkdownDisplay';
+import { PageHeader } from '@langchain/macaw-components/PageHeader';
+import type { PageHeaderProps } from '@langchain/macaw-components/PageHeader';
 import {
   RadarChart,
   type RadarChartProps,
@@ -330,6 +333,16 @@ void [
   BarChart,
   Button,
   Card,
+  PageHeader,
+  RootPageHeader,
+  {
+    start: 'Projects',
+    end: 'Actions',
+    'aria-label': 'Project header',
+  } satisfies PageHeaderProps,
+  { start: 0 } satisfies PageHeaderProps,
+  // @ts-expect-error PageHeader content belongs in start and end.
+  { children: 'Projects' } satisfies PageHeaderProps,
   CheckIcon,
   Code,
   CodeLanguageSelect,
