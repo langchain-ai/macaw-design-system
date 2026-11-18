@@ -312,52 +312,65 @@ describe('LineChart', () => {
     );
   });
 
-  it('reserves measured gutters for wide value-axis tick labels', () => {
-    render(
-      <LineChart
-        aria-label="Wide line-chart axes"
-        showLegend={false}
-        series={[
-          { ...series[0], yAxisId: 'primary' },
-          { ...series[1], yAxisId: 'secondary' },
-        ]}
-        yAxes={[
-          {
-            id: 'primary',
-            tickValues: [1],
-            formatValue: () => 'Primary $123,456.78',
-          },
-          {
-            id: 'secondary',
-            tickValues: [1],
-            formatValue: () => 'Secondary $123,456.78',
-          },
-        ]}
-      />
-    );
+  it.each([
+    { primaryLabel: '30K', secondaryLabel: '8s' },
+    {
+      primaryLabel: 'Primary $123,456.78',
+      secondaryLabel: 'Secondary $123,456.78',
+    },
+  ])(
+    'fits value-axis gutters to $primaryLabel and $secondaryLabel',
+    ({ primaryLabel, secondaryLabel }) => {
+      render(
+        <LineChart
+          aria-label="Wide line-chart axes"
+          showLegend={false}
+          series={[
+            { ...series[0], yAxisId: 'primary' },
+            { ...series[1], yAxisId: 'secondary' },
+          ]}
+          yAxes={[
+            {
+              id: 'primary',
+              tickValues: [1],
+              formatValue: () => primaryLabel,
+            },
+            {
+              id: 'secondary',
+              tickValues: [1],
+              formatValue: () => secondaryLabel,
+            },
+          ]}
+        />
+      );
 
-    const primaryTick = getSvgTextElement(
-      screen.getByText('Primary $123,456.78')
-    );
-    const secondaryTick = getSvgTextElement(
-      screen.getByText('Secondary $123,456.78')
-    );
-    if (primaryTick == null || secondaryTick == null) {
-      throw new Error('Expected wide value-axis ticks to render');
+      const chart = screen.getByRole('graphics-document', {
+        name: 'Wide line-chart axes',
+      });
+      const primaryTick = getSvgTextElement(
+        within(chart).getByText(primaryLabel)
+      );
+      const secondaryTick = getSvgTextElement(
+        within(chart).getByText(secondaryLabel)
+      );
+      if (primaryTick == null || secondaryTick == null) {
+        throw new Error('Expected wide value-axis ticks to render');
+      }
+      const svgWidth = Number(
+        screen
+          .getByRole('graphics-document', { name: 'Wide line-chart axes' })
+          .getAttribute('width')
+      );
+
+      const primaryGap = getAbsoluteX(primaryTick) - primaryLabel.length * 7;
+      const secondaryGap =
+        svgWidth - getAbsoluteX(secondaryTick) - secondaryLabel.length * 7;
+      expect(primaryGap).toBeGreaterThanOrEqual(0);
+      expect(primaryGap).toBeLessThan(16);
+      expect(secondaryGap).toBeGreaterThanOrEqual(0);
+      expect(secondaryGap).toBeLessThan(24);
     }
-    const svgWidth = Number(
-      screen
-        .getByRole('graphics-document', { name: 'Wide line-chart axes' })
-        .getAttribute('width')
-    );
-
-    expect(
-      getAbsoluteX(primaryTick) - 'Primary $123,456.78'.length * 7
-    ).toBeGreaterThanOrEqual(0);
-    expect(
-      getAbsoluteX(secondaryTick) + 'Secondary $123,456.78'.length * 7
-    ).toBeLessThanOrEqual(svgWidth);
-  });
+  );
 
   it('keeps the accessible chart and legend while rendering is paused', () => {
     render(
@@ -526,14 +539,14 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 348, clientY: 40 },
+      coords: { clientX: 328.5, clientY: 40 },
     });
 
     expect(onDatumPointerMove).toHaveBeenCalled();
     expect(onDatumPointerMove.mock.calls[0]?.[0]).toEqual({
       x: 10,
       pointerX: 10,
-      xPosition: 348,
+      xPosition: 328.5,
       points: [
         {
           seriesId: 'requests',
@@ -573,11 +586,11 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 206, clientY: 40 },
+      coords: { clientX: 140.8, clientY: 40 },
     });
 
     expect(onDatumPointerMove.mock.calls[0]?.[0].x).toBe(0);
-    expect(onDatumPointerMove.mock.calls[0]?.[0].pointerX).toBeCloseTo(5);
+    expect(onDatumPointerMove.mock.calls[0]?.[0].pointerX).toBeCloseTo(4);
   });
 
   it('supports evenly spaced band buckets', async () => {
@@ -612,13 +625,13 @@ describe('LineChart', () => {
 
     await user.pointer({
       target: chart,
-      coords: { clientX: 348, clientY: 40 },
+      coords: { clientX: 332, clientY: 40 },
     });
 
     expect(onDatumPointerMove.mock.calls[0]?.[0]).toMatchObject({
       x: 10,
       pointerX: 10,
-      xPosition: 348,
+      xPosition: 332,
     });
   });
 
