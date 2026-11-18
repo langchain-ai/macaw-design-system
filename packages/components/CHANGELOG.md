@@ -1,3 +1,15 @@
+## 1.7.18 (2026-11-18)
+
+### 🚀 Features
+
+- **chat:** add context usage details for chat composers ([#114](https://github.com/langchain-ai/macaw-design-system/pull/114))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
 ## 1.7.17 (2026-11-18)
 
 ### 🩹 Fixes
