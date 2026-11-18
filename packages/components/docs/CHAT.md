@@ -95,7 +95,10 @@ matches deep agent `task` calls to subagent handles; anchors human-in-the-loop
 requests, in either casing, to the calls they gate; and reads deep agent todos
 and files. Pass selector hooks from your own `@langchain/react` import to turn
 on queued messages, edit and retry, and subagent details. Keep that object at
-module level so it never changes between renders.
+module level so it never changes between renders. If your graph uses a message
+state key other than `messages`, pass the same `messagesKey` to `useStream` and
+`LangGraphChat` (or `useChatThread`) so sends, edit/retry, and queue previews
+use that key. The adapter still reads the transcript from `stream.messages`.
 
 ```tsx
 import {

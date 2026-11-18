@@ -480,12 +480,14 @@ export function LangGraphChat({
   stream,
   selectors,
   hideMessage,
+  messagesKey,
   subagentTools,
   ...props
 }: LangGraphChatProps) {
   const thread = useChatThread(stream, {
     selectors,
     hideMessage,
+    messagesKey,
     subagentTools,
   });
   return <ChatThread thread={thread} {...props} />;

@@ -73,6 +73,8 @@ export interface ChatThreadSnapshot {
 }
 
 export interface ToChatThreadOptions {
+  /** Message state key, matching `useStream`. Defaults to `messages`. */
+  messagesKey?: string;
   /** Hide internal messages, such as ones with a reserved ID prefix. */
   hideMessage?: (message: unknown) => boolean;
   /** Tool calls that start a subagent. Defaults to deep agents' `task`. */

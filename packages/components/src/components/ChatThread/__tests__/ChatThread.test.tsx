@@ -45,9 +45,16 @@ describe('useChatThread actions', () => {
   it('sends a message, and queues it while a run is active, with stable actions', async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const { result, rerender } = renderHook(
-      ({ isLoading }) =>
-        useChatThread(staticStream({ ...emptyState, isLoading }, { submit })),
-      { initialProps: { isLoading: false } }
+      ({ isLoading, messagesKey }) =>
+        useChatThread(staticStream({ ...emptyState, isLoading }, { submit }), {
+          messagesKey,
+        }),
+      {
+        initialProps: {
+          isLoading: false,
+          messagesKey: undefined as string | undefined,
+        },
+      }
     );
     const { actions } = result.current;
 
@@ -57,11 +64,11 @@ describe('useChatThread actions', () => {
       undefined
     );
 
-    rerender({ isLoading: true });
+    rerender({ isLoading: true, messagesKey: 'chat_history' });
     expect(result.current.actions).toBe(actions);
     await act(() => actions.send('And then?'));
     expect(submit).toHaveBeenLastCalledWith(
-      { messages: [{ type: 'human', content: 'And then?' }] },
+      { chat_history: [{ type: 'human', content: 'And then?' }] },
       { multitaskStrategy: 'enqueue' }
     );
   });
@@ -93,13 +100,15 @@ describe('useChatThread actions', () => {
   it('forks from a checkpoint ID on 1.x and a checkpoint object on 0.3.x', async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const current = renderHook(() =>
-      useChatThread(staticStream(emptyState, { submit }))
+      useChatThread(staticStream(emptyState, { submit }), {
+        messagesKey: 'chat_history',
+      })
     );
     await act(() =>
       current.result.current.actions.fork('Edited', 'checkpoint-1')
     );
     expect(submit).toHaveBeenLastCalledWith(
-      { messages: [{ type: 'human', content: 'Edited' }] },
+      { chat_history: [{ type: 'human', content: 'Edited' }] },
       { forkFrom: 'checkpoint-1' }
     );
 
@@ -390,18 +399,19 @@ describe('LangGraphChat', () => {
     expect(stop).toHaveBeenCalledOnce();
   });
 
-  it('cancels a queued message through the submission queue', async () => {
+  it('shows and cancels a queued message under a custom message key', async () => {
     const cancel = vi.fn().mockResolvedValue(true);
     const { user } = render(
       <LangGraphChat
         stream={staticStream({ ...completedState, isLoading: true })}
+        messagesKey="chat_history"
         selectors={{
           useSubmissionQueue: () => ({
             entries: [
               {
                 id: 'queued-1',
                 values: {
-                  messages: [
+                  chat_history: [
                     { type: 'human', content: 'Then compare retrievers.' },
                   ],
                 },
@@ -412,6 +422,7 @@ describe('LangGraphChat', () => {
         }}
       />
     );
+    expect(screen.getByText('Then compare retrievers.')).toBeVisible();
     await user.click(
       screen.getByRole('button', { name: 'Cancel queued message' })
     );

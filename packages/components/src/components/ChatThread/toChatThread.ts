@@ -147,11 +147,15 @@ function filesFromValues(values: unknown): ChatThreadFile[] | undefined {
   return files.length ? files : undefined;
 }
 
-function queuedFromEntries(queue: readonly unknown[] | undefined) {
+function queuedFromEntries(
+  queue: readonly unknown[] | undefined,
+  messagesKey: string
+) {
   return (queue ?? []).flatMap((entry): ChatThreadQueuedMessage[] => {
     if (!isRecord(entry) || typeof entry.id !== 'string') return [];
     const values = isRecord(entry.values) ? entry.values : undefined;
-    const messages = Array.isArray(values?.messages) ? values.messages : [];
+    const input = values?.[messagesKey];
+    const messages = Array.isArray(input) ? input : [];
     const last = messages.at(-1);
     const text = last === undefined ? '' : normalizeMessage(last, 0).text;
     return [{ id: entry.id, text }];
@@ -232,6 +236,7 @@ export function toChatThread(
   snapshot: ChatThreadSnapshot,
   {
     hideMessage,
+    messagesKey = 'messages',
     subagentTools = DEFAULT_SUBAGENT_TOOLS,
   }: ToChatThreadOptions = {}
 ): ChatThreadModel {
@@ -399,7 +404,7 @@ export function toChatThread(
   return {
     turns,
     interrupts,
-    queued: queuedFromEntries(snapshot.queue),
+    queued: queuedFromEntries(snapshot.queue, messagesKey),
     plan: planFromValues(snapshot.values),
     files: filesFromValues(snapshot.values),
     status: runActive

@@ -17,8 +17,8 @@ function invoke(target: object, method: unknown, ...args: unknown[]) {
   return Promise.resolve((method as AnyFunction).apply(target, args));
 }
 
-function humanInput(text: string) {
-  return { messages: [{ type: 'human', content: text }] };
+function humanInput(text: string, messagesKey: string) {
+  return { [messagesKey]: [{ type: 'human', content: text }] };
 }
 
 export interface UseChatThreadOptions extends ToChatThreadOptions {
@@ -86,7 +86,12 @@ export interface ChatThreadState {
  */
 export function useChatThread(
   stream: ChatThreadStream,
-  { selectors, hideMessage, subagentTools }: UseChatThreadOptions = {}
+  {
+    selectors,
+    hideMessage,
+    messagesKey = 'messages',
+    subagentTools,
+  }: UseChatThreadOptions = {}
 ): ChatThreadState {
   // Selectors come from a stable module-level object, so these calls never
   // change between renders.
@@ -111,7 +116,7 @@ export function useChatThread(
           isLoading: stream.isLoading,
           error: stream.error,
         },
-        { hideMessage, subagentTools }
+        { hideMessage, messagesKey, subagentTools }
       ),
     [
       stream.messages,
@@ -123,6 +128,7 @@ export function useChatThread(
       stream.isLoading,
       stream.error,
       hideMessage,
+      messagesKey,
       subagentTools,
     ]
   );
@@ -184,9 +190,21 @@ export function useChatThread(
 
   // Actions read the latest render through a ref, so they keep one identity
   // and hosts can list them as effect dependencies.
-  const latest = useRef({ stream, model, queue, userTurnCount: 0 });
+  const latest = useRef({
+    stream,
+    model,
+    queue,
+    messagesKey,
+    userTurnCount: 0,
+  });
   useLayoutEffect(() => {
-    latest.current = { stream, model, queue, userTurnCount: userTurns.length };
+    latest.current = {
+      stream,
+      model,
+      queue,
+      messagesKey,
+      userTurnCount: userTurns.length,
+    };
   });
   const actions = useMemo<ChatThreadActions>(() => {
     function submit(input: unknown, options?: object) {
@@ -215,11 +233,11 @@ export function useChatThread(
 
     return {
       async send(text) {
-        const { stream, userTurnCount } = latest.current;
+        const { stream, messagesKey, userTurnCount } = latest.current;
         setUserTurnsAtSend(userTurnCount);
         try {
           await submit(
-            humanInput(text),
+            humanInput(text, messagesKey),
             stream.isLoading ? { multitaskStrategy: 'enqueue' } : undefined
           );
         } catch (error) {
@@ -267,7 +285,7 @@ export function useChatThread(
       async fork(text, forkPoint) {
         // 0.3.x forks from a checkpoint object; 1.x and 2.0 from its ID.
         await submit(
-          humanInput(text),
+          humanInput(text, latest.current.messagesKey),
           latest.current.stream.getMessagesMetadata
             ? { checkpoint: forkPoint }
             : { forkFrom: forkPoint }
