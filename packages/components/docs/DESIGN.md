@@ -69,6 +69,24 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Checklists
+
+Import `Checklist`, `ChecklistItem`, and `ChecklistSection` from
+`@langchain/macaw-components/Checklist`. Compose compact task rows directly inside
+`Checklist`, or group them in `ChecklistSection` with a boolean `steps` array in
+task order for segmented progress. Supply `completed` and `total` to the root for
+its circular summary. Completed labels remain readable without strikethrough.
+
+An item's `children` form its expandable body; without children it is informational.
+Use `status="locked"` for unavailable tasks, or `disabled` to temporarily prevent
+interaction. `trailingContent` is a noninteractive summary; put controls in the
+body or the root's `action` slot. Items and sections support controlled
+`expanded`/`onExpandedChange` or uncontrolled `defaultExpanded`. Collapsed bodies
+stay mounted and hidden, preserving local form state without leaving controls
+in the Tab order. The host owns task data, path selection, dismissal, automatic
+expansion, persistence, and loading/error/empty content (compose `Skeleton`,
+`Banner`, or `Text`). Keep supplied progress consistent with the visible tasks.
+
 ## Chat
 
 Import the tool-call presentation family from
