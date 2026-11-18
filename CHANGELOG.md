@@ -1,3 +1,15 @@
+## 1.7.16 (2026-11-18)
+
+### 🚀 Features
+
+- **chat:** share model picker UI across products ([#115](https://github.com/langchain-ai/macaw-design-system/pull/115))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
 ## 1.7.15 (2026-11-17)
 
 ### 🚀 Features
