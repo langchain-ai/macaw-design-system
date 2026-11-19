@@ -97,6 +97,19 @@ import type {
   ChatStateTimerPrecision,
 } from '@langchain/macaw-components/ChatState';
 import {
+  ChatThread,
+  deepAgentTools,
+  toChatThread,
+  toHumanInTheLoopResponse,
+  useLangGraphChatThread,
+} from '@langchain/macaw-components/ChatThread';
+import type {
+  ChatThreadController,
+  ChatThreadProps,
+  ChatThreadSelectors,
+  ChatThreadStream,
+} from '@langchain/macaw-components/ChatThread';
+import {
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,
@@ -307,6 +320,27 @@ void [
     variant: 'approval',
     edit: { content: null, onSubmit() {} },
   } satisfies ChatRichContentProps,
+  ChatThread,
+  useLangGraphChatThread,
+  deepAgentTools,
+  toChatThread({ messages: [{ type: 'human', content: 'Hi' }] }).turns,
+  toHumanInTheLoopResponse,
+  {
+    messages: [],
+    isLoading: false,
+    submit() {},
+    stop() {},
+  } satisfies ChatThreadStream,
+  {} satisfies ChatThreadSelectors,
+  {
+    stream: { messages: [], isLoading: false, submit() {}, stop() {} },
+  } satisfies ChatThreadProps,
+  {
+    thread: {
+      model: { turns: [], interrupts: [], queued: [], status: 'idle' },
+      actions: { async send() {} },
+    } satisfies ChatThreadController,
+  } satisfies ChatThreadProps,
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,

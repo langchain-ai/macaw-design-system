@@ -1,9 +1,11 @@
 # Chat components
 
 Macaw chat families provide presentation and local interaction. Applications
-own message and event parsing, network requests, streaming, persistence,
-authorization, analytics, tool execution, and product-specific tool or logo
-mapping.
+own network requests, authentication, persistence, analytics, tool execution,
+and product-specific tool or logo mapping. `ChatThread` composes these parts
+into an agent conversation view. By default it adapts a LangGraph `useStream`
+handle so apps don't each rebuild that mapping, and it also takes your own
+adapter's output; either way the app still owns the stream.
 
 ## Conversation scrolling
 
@@ -123,3 +125,107 @@ it, such as a human-in-the-loop `edit` decision. `edit.content` replaces the
 body with host-owned fields; `edit.onSubmit` saves them. `ChatMessageActions`
 shows `cancel` on queued messages, and `ChatComposer` takes
 `action="stopping"` while a stop is pending.
+
+## Agent threads
+
+Import from `@langchain/macaw-components/ChatThread`. A thread is one
+conversation and its state, such as a LangGraph thread: messages,
+checkpoints, interrupts, todos, and queued runs. `ChatThread` is a view, not
+an app: the app chooses which thread to show and keeps the client, auth,
+thread list, and routing. It renders from a `ChatThreadController` (the
+turns, interrupts, queue, plan, and actions) and takes it one of two ways:
+
+- **`stream` (default).** Pass a LangGraph `useStream` handle and `ChatThread`
+  adapts it with the built-in `useLangGraphChatThread` hook.
+- **`thread` (bring your own adapter).** `useLangGraphChatThread` is
+  optional. For your own stream logic, another agent framework, or recorded
+  data, build a `ChatThreadController` yourself and pass it as `thread`,
+  without committing a one-off case to Macaw. Only `model` and `actions.send` are
+  required: leave out `stop`, `cancelQueued`, or `fork` and Stop, cancelling
+  queued messages, or edit and retry are hidden. The built-in request cards
+  answer through `resume`. Optional hooks add edit/retry fork points
+  (`useForkPoint`) and subagent details (`useSubagentTranscript`,
+  `useSubagentStep`).
+
+Pick one for the life of the component. The pieces of the default adapter
+are public too: call `useLangGraphChatThread(stream, options)` yourself to
+read its state or wrap its actions and pass the result as `thread`, or use
+`toChatThread(snapshot)`, the pure mapping, to build part of your own model.
+
+### The default LangGraph adapter
+
+Macaw never imports the LangGraph SDK: it reads the `useStream` handle the app
+passes in, so it works with `@langchain/react` 1.x and 2.0 under any package
+alias, and with the 0.3.x hook.
+
+The mapping merges each tool call's status from its result message, the live
+tool stream, pending interrupts, and the run; groups messages into turns;
+matches deep agent `task` calls to subagent handles; anchors human-in-the-loop
+requests, in either casing, to the calls they gate; and reads deep agent todos
+and files. Pass selector hooks from your own `@langchain/react` import to turn
+on queued messages, edit and retry, and subagent details. Keep that object at
+module level so it never changes between renders. If your graph uses a message
+state key other than `messages`, pass the same `messagesKey` to `useStream` and
+`ChatThread` (or `useLangGraphChatThread`) so sends, edit/retry, and queue
+previews use that key. The adapter still reads the transcript from
+`stream.messages`.
+
+```tsx
+import {
+  useMessageMetadata,
+  useMessages,
+  useStream,
+  useSubmissionQueue,
+  useToolCalls,
+} from '@langchain/react';
+import { ChatThread } from '@langchain/macaw-components/ChatThread';
+
+const selectors = {
+  useMessageMetadata,
+  useMessages,
+  useSubmissionQueue,
+  useToolCalls,
+};
+
+export function AgentChat() {
+  const stream = useStream({ assistantId: 'agent', apiUrl: '/api/agent' });
+  return <ChatThread stream={stream} selectors={selectors} />;
+}
+```
+
+### Your own adapter
+
+```tsx
+import {
+  ChatThread,
+  type ChatThreadController,
+} from '@langchain/macaw-components/ChatThread';
+
+function useMyAgentThread(): ChatThreadController {
+  const { events, isRunning, sendMessage, cancel } = useMyAgent();
+  const model = useMemo(() => toModel(events, isRunning), [events, isRunning]);
+  return { model, actions: { send: sendMessage, stop: cancel } };
+}
+
+export function AgentChat() {
+  return <ChatThread thread={useMyAgentThread()} />;
+}
+```
+
+### Presentation
+
+Tool rows use `deepAgentTools` for the built-in deep agent tools. Pass `tools`
+to present others by name: return row props, your own element, or `null` to
+hide a call. A renderer's second argument holds the original AI message and
+tool result, for fields Macaw doesn't map, such as artifacts or
+provider-specific content; every part in `toChatThread` carries the same
+`source`. `renderInterrupt` takes over requests the app understands, such
+as sign-in; return undefined for the default approval, reply, or response
+card. Requests paused together resume together once each has a decision, and
+sending is paused until they do.
+
+`ChatThread` pins the message the reader sends (`pinnedMessageId` on
+`ChatConversation`) so the reply streams in below it. The app owns the
+composer's controls: pass `modelSelector` (such as `ChatComposerModelSelect`),
+`composerTools` (such as `ChatComposerAttachmentMenu`), and `composerActions`
+(such as `ChatContextWindowPopover`, shown before Send/Stop).
