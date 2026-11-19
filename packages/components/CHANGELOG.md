@@ -1,3 +1,16 @@
+## 1.7.20 (2026-11-19)
+
+### 🚀 Features
+
+- **chat:** add ChatThread, an agent chat view for LangGraph useStream or your own adapter ([#111](https://github.com/langchain-ai/macaw-design-system/pull/111))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
 ## 1.7.19 (2026-11-19)
 
 ### 🩹 Fixes
