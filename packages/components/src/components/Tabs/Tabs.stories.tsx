@@ -28,6 +28,38 @@ const meta: Meta<typeof TabList> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const FillHeight: Story = {
+  render: () => (
+    <div className="flex flex-col gap-space-4">
+      {(['default', 'fill'] as const).map((variant) => (
+        <TabGroup key={variant} className="h-12 bg-surface-level-2">
+          <TabList variant={variant}>
+            <TabLabel label="Overview" />
+            <div>
+              <TabLabel label="Activity" />
+            </div>
+          </TabList>
+        </TabGroup>
+      ))}
+    </div>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const [intrinsic, fill] = canvas.getAllByRole('tablist');
+    await expect(fill.getBoundingClientRect().height).toBeGreaterThan(
+      intrinsic.getBoundingClientRect().height
+    );
+    const innerHeight = fill.clientHeight;
+    for (const tab of fill.querySelectorAll('[role="tab"]')) {
+      await expect(tab.getBoundingClientRect().height).toBe(innerHeight);
+      await expect(getComputedStyle(tab).paddingBlock).toBe('8px');
+    }
+    await userEvent.click(canvas.getAllByRole('tab', { name: 'Activity' })[1]);
+    await expect(
+      canvas.getAllByRole('tab', { name: 'Activity' })[1]
+    ).toHaveAttribute('aria-selected', 'true');
+  },
+};
+
 export const RemountedTabGroup: Story = {
   parameters: {
     docs: {
