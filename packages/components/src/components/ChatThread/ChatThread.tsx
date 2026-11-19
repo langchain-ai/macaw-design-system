@@ -359,7 +359,10 @@ interface ChatThreadViewProps {
   className?: string;
 }
 
-/** The default: a LangGraph `useStream` handle, adapted by `useLangGraphChatThread`. */
+/**
+ * The default: a LangGraph `useStream` handle, adapted by
+ * `useLangGraphChatThread`.
+ */
 export interface ChatThreadStreamProps
   extends ChatThreadViewProps, UseLangGraphChatThreadOptions {
   /** A `useStream` handle from `@langchain/react` (1.x, 2.0) or the 0.3.x hook. */
@@ -370,8 +373,8 @@ export interface ChatThreadStreamProps
 /** Bring your own adapter: any stream or data mapped to a controller. */
 export interface ChatThreadControllerProps extends ChatThreadViewProps {
   /**
-   * The thread to render: from `useLangGraphChatThread`, or your own adapter for
-   * another stream or data source.
+   * The thread to render: from `useLangGraphChatThread`, or your own adapter
+   * for another stream or data source.
    */
   thread: ChatThreadController;
   stream?: never;
@@ -383,8 +386,8 @@ export type ChatThreadProps = ChatThreadStreamProps | ChatThreadControllerProps;
  * An agent conversation view built from Macaw chat parts: messages,
  * reasoning, tool calls, subagents, approvals, the plan, queued messages,
  * and the composer. Pass a LangGraph `stream` to use the built-in
- * `useLangGraphChatThread` adapter, or a `thread` from your own adapter. Pick one for
- * the life of the component.
+ * `useLangGraphChatThread` adapter, or a `thread` from your own adapter.
+ * Pick one for the life of the component.
  */
 export function ChatThread(props: ChatThreadProps) {
   if (props.thread) return <ChatThreadView {...props} thread={props.thread} />;
