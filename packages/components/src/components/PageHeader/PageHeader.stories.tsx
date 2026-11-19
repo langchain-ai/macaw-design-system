@@ -38,7 +38,7 @@ export const WithTabs: Story = {
       <PageHeader
         {...args}
         leftItems={
-          <TabList variant="fill">
+          <TabList responsiveHeight>
             <TabLabel label="Overview" />
             <TabLabel label="Activity" />
           </TabList>
