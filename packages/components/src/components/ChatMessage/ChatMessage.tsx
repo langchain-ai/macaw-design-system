@@ -87,7 +87,9 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
 /**
  * One message in a conversation. Renders a header and the message's content
  * blocks, or `children` in their place for custom layouts. The footer is
- * hidden, but keeps its space, while the message streams.
+ * hidden, but keeps its space, while the message streams. The root carries
+ * `data-chat-message-id`, which `ChatConversation` uses to pin a message and
+ * to hold the reader's place when earlier messages load.
  */
 export function ChatMessage({
   message,
@@ -113,6 +115,7 @@ export function ChatMessage({
       role="article"
       aria-label={`${typeof name === 'string' ? name : avatar?.label || roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
+      data-chat-message-id={message.id}
       className={cn(
         'group/chat-message flex w-full min-w-0 text-primary',
         alignment === 'end' && 'justify-end',

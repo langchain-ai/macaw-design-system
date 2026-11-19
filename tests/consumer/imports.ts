@@ -38,13 +38,18 @@ import {
   ChatComposer,
   ChatComposerContext,
   ChatComposerInput,
+  ChatComposerModelSelect,
   ChatComposerTextarea,
 } from '@langchain/macaw-components/ChatComposer';
 import type {
   ChatComposerInputProps,
+  ChatComposerModelOption,
+  ChatComposerModelSelectProps,
   ChatComposerProps,
   ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
+import { ChatContextWindowPopover } from '@langchain/macaw-components/ChatContextWindowPopover';
+import type { ChatContextWindowPopoverProps } from '@langchain/macaw-components/ChatContextWindowPopover';
 import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
 import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
@@ -144,6 +149,11 @@ import {
 } from '@langchain/macaw-components/MarkdownDisplay';
 import type { MarkdownDisplayProps } from '@langchain/macaw-components/MarkdownDisplay';
 import {
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
+} from '@langchain/macaw-components/ProviderLogo';
+import {
   RadarChart,
   type RadarChartProps,
 } from '@langchain/macaw-components/RadarChart';
@@ -164,6 +174,9 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
   Breadcrumb,
   BreadcrumbLink,
   BreadcrumbPage,
@@ -211,6 +224,33 @@ void [
   ChatComposerContext,
   ChatComposerInput,
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  ChatComposerModelSelect,
+  {
+    options: [
+      {
+        value: 'sonnet',
+        group: 'Anthropic',
+        icon: null,
+        badge: 'Default',
+      } satisfies ChatComposerModelOption,
+    ],
+    value: 'sonnet',
+    searchThreshold: 0,
+    onChange: () => {},
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [],
+    // @ts-expect-error Model groups are derived from options, not a separate input.
+    groups: [],
+    onChange: () => {},
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [{ value: 'sonnet', label: 'Sonnet' }],
+    value: 'sonnet',
+    onChange: () => {},
+    // @ts-expect-error Selection metadata comes from options via value.
+    selectedOption: { value: 'sonnet', label: 'Sonnet' },
+  } satisfies ChatComposerModelSelectProps,
   ChatComposerTextarea,
   {
     name: 'message',
@@ -222,10 +262,21 @@ void [
   { action: 'sending' } satisfies ChatComposerProps,
   // @ts-expect-error onStop belongs to action="stop".
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
+  ChatContextWindowPopover,
+  {
+    tokensUsed: 65_800,
+    contextWindow: 200_000,
+    warningThreshold: 0.9,
+    description: 'Estimated from the latest request.',
+    children: null,
+    footer: null,
+  } satisfies ChatContextWindowPopoverProps,
   ChatConversation,
   {
     children: null,
     label: 'Support chat',
+    follow: 'none',
+    pinnedMessageId: 'message-1',
     viewportRef: { current: null },
   } satisfies ChatConversationProps,
   ChatMessage,

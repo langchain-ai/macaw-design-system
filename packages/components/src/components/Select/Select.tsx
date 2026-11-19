@@ -13,6 +13,7 @@ import {
   type DataAttributes,
   pickDataAttributes,
 } from '../../utils/dataAttributes';
+import { SPACE_SCALE_PX } from '../../utils/spacing';
 import { Button } from '../Button';
 import { CommandMenu } from '../Command/CommandMenu';
 import type { CommandMenuGroup, CommandMenuItem } from '../Command/CommandMenu';
@@ -31,6 +32,8 @@ export interface SelectOption<T extends string = string> {
   rightDecorator?: ReactNode;
   /** Whether this option is disabled */
   disabled?: boolean;
+  /** Extra search terms, such as a provider name */
+  keywords?: string[];
 }
 
 export interface SelectGroup<T extends string = string> {
@@ -84,6 +87,8 @@ interface SelectBaseProps<T extends string = string> extends DataAttributes {
   variant?: SelectVariant;
   /** Additional class name for the popover content */
   contentClassName?: string;
+  /** Content below the list, such as a link to manage the options */
+  footer?: ReactNode;
   /** Custom render function for the selected value in the trigger */
   renderValue?: (option: SelectOption<T>) => ReactNode;
   /** Custom render function for each option in the list */
@@ -134,7 +139,7 @@ function optionToItem(opt: SelectOption): CommandMenuItem {
     description: opt.description,
     rightDecorator: opt.rightDecorator,
     disabled: opt.disabled,
-    keywords: opt.label ? [opt.label] : undefined,
+    keywords: opt.keywords,
   };
 }
 
@@ -161,6 +166,7 @@ function OptionSelect<T extends string = string>({
   triggerClassName,
   variant = 'outlined',
   contentClassName,
+  footer,
   renderValue,
   renderOption,
   side,
@@ -188,7 +194,7 @@ function OptionSelect<T extends string = string>({
   const handleSelect = useCallback(
     (optionValue: string) => {
       const match = allOptions.find((o) => o.value === optionValue);
-      if (!match) return;
+      if (!match || match.disabled || disabled) return;
       if (allowDeselect && match.value === value) {
         onChange(undefined);
       } else {
@@ -196,7 +202,7 @@ function OptionSelect<T extends string = string>({
       }
       setOpen(false);
     },
-    [allowDeselect, value, onChange, setOpen, allOptions]
+    [allowDeselect, value, onChange, setOpen, allOptions, disabled]
   );
 
   const items: CommandMenuItem[] = useMemo(
@@ -300,9 +306,11 @@ function OptionSelect<T extends string = string>({
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          'w-max min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-1rem))] p-0 text-primary',
+          'flex max-h-[var(--radix-popover-content-available-height)] w-max min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,var(--radix-popover-content-available-width),calc(100vw-1rem))] flex-col overflow-hidden p-0 text-primary',
           contentClassName
         )}
+        aria-label={ariaLabel ?? placeholder}
+        collisionPadding={SPACE_SCALE_PX[2]}
         side={side}
         align={align}
         onCloseAutoFocus={onCloseAutoFocus}
@@ -311,6 +319,11 @@ function OptionSelect<T extends string = string>({
           <CommandMenu groups={commandGroups} {...commandMenuSharedProps} />
         ) : (
           <CommandMenu items={items} {...commandMenuSharedProps} />
+        )}
+        {footer != null && (
+          <div className="shrink-0 border-t border-subtle p-space-1">
+            {footer}
+          </div>
         )}
       </PopoverContent>
     </Popover>

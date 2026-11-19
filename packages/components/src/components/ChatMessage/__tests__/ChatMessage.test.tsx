@@ -80,7 +80,7 @@ describe('ChatMessage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('forwards the message element ref and labels it with a string name', () => {
+  it('forwards the message element ref, labels it with a string name, and tags it with the message ID', () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <ChatMessage
@@ -95,6 +95,8 @@ describe('ChatMessage', () => {
     expect(ref.current).toBe(
       screen.getByRole('article', { name: 'Research assistant message' })
     );
+    // ChatConversation finds messages to pin and anchor by this attribute.
+    expect(ref.current).toHaveAttribute('data-chat-message-id', 'message');
   });
 
   it('hides the avatar from screen readers next to the name', () => {

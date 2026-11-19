@@ -1,82 +1,212 @@
-import { useRef } from 'react';
+import { useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
+import { CheckIcon } from '../../icons/PaddedPhosphorIcons';
 import { cn } from '../../utils/cn';
+import { Icon } from '../Icon';
 import { Select } from '../Select';
-import type { SelectProps } from '../Select';
+import type { SelectOption, SelectProps } from '../Select';
 import { Text } from '../Text';
-import { useChatComposerContext } from './ChatComposerContext';
+import { ChatComposerContext } from './ChatComposerContext';
 
-export type ChatComposerModelSelectProps<T extends string = string> =
-  SelectProps<T>;
+export interface ChatComposerModelOption<
+  T extends string = string,
+> extends SelectOption<T> {
+  /** Group's display label; groups follow their first appearance in the options. */
+  group?: string;
+  /** Host-supplied provider or tier mark, also shown in the trigger. */
+  icon?: ReactNode;
+  /** Short status beside the label, such as a `Badge` reading "Default". */
+  badge?: ReactNode;
+}
 
+export type ChatComposerModelSelectProps<T extends string = string> = Omit<
+  SelectProps<T>,
+  'options' | 'groups' | 'renderValue' | 'renderOption' | 'hideSearch'
+> & {
+  /** The model catalog, including the selected model; group labels live on each option. */
+  options: ChatComposerModelOption<T>[];
+  /** Minimum option count for search (default: 8). Use 0 to always show it.
+   * Host-filtered lists always show search, even while results are empty. */
+  searchThreshold?: number;
+};
+
+function ModelOptionRow({
+  option,
+  selected,
+}: {
+  option: ChatComposerModelOption;
+  selected: boolean;
+}) {
+  return (
+    <>
+      {option.icon != null && (
+        <span
+          aria-hidden
+          className="flex size-4 shrink-0 items-center justify-center"
+        >
+          {option.icon}
+        </span>
+      )}
+      <span className="flex min-w-0 flex-1 flex-col gap-space-1">
+        <span className="flex min-w-0 flex-wrap items-center gap-space-2">
+          <Text as="span" variant="sm" className="[overflow-wrap:anywhere]">
+            {option.label ?? option.value}
+          </Text>
+          {option.badge != null && (
+            <span className="flex shrink-0 items-center">{option.badge}</span>
+          )}
+        </span>
+        {option.description && (
+          <Text
+            as="span"
+            variant="xs"
+            className="whitespace-normal text-tertiary [overflow-wrap:anywhere]"
+          >
+            {option.description}
+          </Text>
+        )}
+      </span>
+      {option.rightDecorator != null && (
+        <span className="ml-auto flex shrink-0 items-center">
+          {option.rightDecorator}
+        </span>
+      )}
+      <Icon
+        aria-hidden
+        icon={CheckIcon}
+        size="md"
+        className={cn('shrink-0', selected ? 'opacity-100' : 'opacity-0')}
+      />
+    </>
+  );
+}
+
+/** Shared model selection for composer toolbars and standalone controls. The host owns the selected value. */
 export function ChatComposerModelSelect<T extends string>({
-  disabled,
-  triggerClassName,
-  renderValue,
-  placeholder = 'Select...',
-  size = 'sm',
+  options,
+  value,
   onChange,
+  open: controlledOpen,
+  onOpenChange,
+  disabled,
+  searchThreshold = 8,
+  disableFilter,
+  triggerClassName,
+  contentClassName,
+  placeholder = 'Select a model',
+  searchPlaceholder = 'Search models…',
+  size = 'sm',
+  variant = 'plain',
   onCloseAutoFocus,
+  'aria-label': ariaLabel = 'Model',
   ...props
 }: ChatComposerModelSelectProps<T>) {
-  const composer = useChatComposerContext();
+  const composer = useContext(ChatComposerContext);
+  const inComposer = composer != null;
+  const isDisabled = Boolean(composer?.disabled || disabled);
   const choseModel = useRef(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    if (controlledOpen === undefined) setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
+
+  const searchGroups = useMemo(() => {
+    const optionsByGroup = new Map<
+      string | undefined,
+      ChatComposerModelOption<T>[]
+    >();
+    for (const option of options) {
+      const items = optionsByGroup.get(option.group) ?? [];
+      items.push(option);
+      optionsByGroup.set(option.group, items);
+    }
+    const modelGroups = Array.from(optionsByGroup, ([heading, options]) => ({
+      heading,
+      options,
+    }));
+    return modelGroups.map(({ heading, options: groupOptions }) => ({
+      heading,
+      options: groupOptions.map((option) => ({
+        ...option,
+        keywords: heading
+          ? [...(option.keywords ?? []), heading]
+          : option.keywords,
+      })),
+    }));
+  }, [options]);
+  const optionCount = searchGroups.reduce(
+    (count, group) => count + group.options.length,
+    0
+  );
+  const hideSearch = !disableFilter && optionCount < searchThreshold;
+  const transparentDisabledTrigger = isDisabled && variant === 'plain';
 
   return (
     <div className="flex min-w-0 max-w-full items-center">
-      <Select
-        aria-label="Model"
-        size={size}
-        side="top"
-        hideSearch={false}
-        searchPlaceholder="Search models…"
+      <Select<T>
         {...props}
+        groups={searchGroups}
+        value={value}
+        open={open && !isDisabled}
+        onOpenChange={setOpen}
+        variant={variant}
+        size={size}
+        aria-label={ariaLabel}
         placeholder={placeholder}
-        renderValue={(option) => (
-          <>
-            <Text
-              as="span"
-              variant={size === 'lg' ? 'md' : size}
-              weight="normal"
-              className="inline-block shrink-0 @[440px]/composer:hidden"
-            >
-              Model
-            </Text>
-            <span className="hidden min-w-0 truncate text-left @[440px]/composer:block">
-              {renderValue ? (
-                renderValue(option)
-              ) : (
-                <Text
-                  as="span"
-                  variant={size === 'lg' ? 'md' : size}
-                  weight="normal"
-                >
-                  {option.label ?? option.value}
-                </Text>
-              )}
-            </span>
-          </>
-        )}
-        disabled={composer.disabled || disabled}
+        searchPlaceholder={searchPlaceholder}
+        hideSearch={hideSearch}
+        disableFilter={disableFilter}
+        disabled={isDisabled}
+        contentClassName={cn('min-w-56', contentClassName)}
         triggerClassName={cn(
-          'max-w-full gap-space-1 border-0 bg-transparent px-space-1 shadow-none @[440px]/composer:px-space-2',
+          'px-space-2',
+          transparentDisabledTrigger && 'bg-transparent dark:bg-transparent',
           triggerClassName
         )}
-        onChange={(value) => {
-          if (composer.disabled || disabled) return;
-          choseModel.current = true;
-          onChange(value);
+        renderValue={(option: ChatComposerModelOption<T>) => {
+          return (
+            <span
+              className="flex min-w-0 items-center gap-space-2"
+              title={option.label ?? option.value}
+            >
+              {option.icon != null && (
+                <span
+                  aria-hidden
+                  className="flex size-4 shrink-0 items-center justify-center"
+                >
+                  {option.icon}
+                </span>
+              )}
+              <span
+                className={cn(
+                  'min-w-0 truncate text-left',
+                  inComposer && 'max-w-32 @[440px]/composer:max-w-56'
+                )}
+              >
+                <Text as="span" variant="sm" weight="normal">
+                  {option.label ?? option.value}
+                </Text>
+              </span>
+            </span>
+          );
         }}
-        // After a choice, continue in the message. Escape and outside clicks
-        // keep the default.
+        renderOption={(option: ChatComposerModelOption<T>, isSelected) => (
+          <ModelOptionRow option={option} selected={isSelected} />
+        )}
+        onChange={(next) => {
+          if (isDisabled) return;
+          choseModel.current = true;
+          onChange(next);
+        }}
         onCloseAutoFocus={(event) => {
           const continueInInput = choseModel.current;
           choseModel.current = false;
           onCloseAutoFocus?.(event);
           if (event.defaultPrevented) return;
-          if (continueInInput && composer.inputFocusRef?.current?.()) {
+          if (continueInInput && composer?.inputFocusRef?.current?.())
             event.preventDefault();
-          }
         }}
       />
     </div>

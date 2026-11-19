@@ -26,6 +26,27 @@ export type TooltipProps = {
   disableHoverableContent?: boolean;
 };
 
+let focusFromKeyboard = true;
+
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (!event.metaKey && !event.altKey && !event.ctrlKey) {
+        focusFromKeyboard = true;
+      }
+    },
+    true
+  );
+  document.addEventListener(
+    'pointerdown',
+    () => {
+      focusFromKeyboard = false;
+    },
+    true
+  );
+}
+
 // Tooltip sets two opinionated defaults — override with caution:
 // - delayDuration=300: prevents tooltips from blocking clicks
 // - disableHoverableContent=true: dismisses the tooltip when hovering off the trigger
@@ -46,9 +67,7 @@ export function Tooltip({
   onOpenChange,
   disableHoverableContent = true,
 }: TooltipProps) {
-  // Tooltips have no fixed z-index floor — they always render one level above
-  // their parent caller so they naturally stack above whichever layer triggered them.
-  const zIndex = useZIndex(zIndices.tooltip);
+  const zIndex = useZIndex(zIndices.tooltipOverlay);
 
   if ((!title && !description) || disabled) {
     return children;
@@ -63,6 +82,9 @@ export function Tooltip({
     >
       <TooltipPrimitive.Trigger
         asChild
+        onFocus={(e) => {
+          if (!focusFromKeyboard) e.preventDefault();
+        }}
         onPointerDown={(e) => {
           if (blockTriggerEvents) {
             e.preventDefault();

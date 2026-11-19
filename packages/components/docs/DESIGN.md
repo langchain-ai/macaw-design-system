@@ -108,6 +108,15 @@ pass an explicit `collisionBoundary` to override it.
 The base backdrop uses 75% of the semantic overlay color. The foreground layer
 adds 50% of that color, giving a visible increase in dimming in both themes.
 
+## Popover variants
+
+Import the Popover family from `@langchain/macaw-components/Popover`. Set
+`variant` on `PopoverContent` to `neutral` (the default floating surface) or `info`.
+`info` uses a Toast-style tinted fill and semantic border; `neutral` preserves
+the standard popover surface and subtle border.
+`PopoverArrow` inherits the enclosing content's variant automatically. State the
+intent in the content too, rather than relying on color alone.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
@@ -237,14 +246,30 @@ files. `accept` and `multiple` only configure the picker. Render accepted files
 with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
 `status="uploading"` while they upload.
 
-`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
-model moves focus to the message input.
+`ChatComposerModelSelect` keeps the selected model name visible in narrow
+composers and moves focus to the message input after selection. See
+[CHAT.md](./CHAT.md#model-selection) for shared picker integration.
 
 Use `drawer` for content above the editor, such as questions to answer before
 sending. Several items stack with dividers; put the one the input answers,
 such as a question, last. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
+
+## Chat context window
+
+Import `ChatContextWindowPopover` from `@langchain/macaw-components/ChatContextWindowPopover`
+and place it in the composer's `actions` slot. Requires `TooltipProvider`.
+Macaw provides the shared context-usage look and interaction as part of its chat
+components. Product-specific content and layouts belong in `children`; actions
+and status belong in `footer`. These slots support each product's patterns without
+standardizing its workflows. Session cost is app-composed content, not a component
+prop; apps own accounting, formatting, and compaction.
+
+Pass current context usage (not cumulative billing) and model capacity. Use `tokensUsed={null}` for unavailable
+usage and omit `contextWindow` for an unknown limit. `warningThreshold` defaults to 0.8.
+Compose guidance with `description`, breakdowns with `children`, and actions or
+`ThinkingState motion="subtle"` with `footer`.
 
 ## Chat rich content
 

@@ -6,6 +6,56 @@ and product-specific tool or logo mapping. For LangGraph agents, the
 `ChatThread` family also maps a `useStream` handle's state to these parts, so
 apps don't each rebuild that mapping; the app still creates the stream.
 
+## Conversation scrolling
+
+`ChatConversation` follows new output while the reader is at the bottom;
+scrolling up pauses it and shows **Jump to latest**. `follow="none"` never
+scrolls on its own.
+
+Set `pinnedMessageId` to the message the reader just sent: it moves to the top,
+and the reply streams in below it. Following resumes when the reader scrolls
+to the end or uses **Jump to latest**.
+
+Earlier messages inserted above the reader keep the first visible message in
+place, so the host only fetches and renders them. Both find messages by
+`data-chat-message-id`, which `ChatMessage` sets; give custom rows the same
+attribute.
+
+## Model selection
+
+`ChatComposerModelSelect` (from `@langchain/macaw-components/ChatComposer`)
+goes in `ChatComposerToolbar`'s `modelSelector` slot or works standalone. It
+shares model rows, search, and focus handling across products; the host owns
+catalogs, availability, credentials, routing, and reasoning controls.
+
+- Control selection with `value`/`onChange`, including the initial selection.
+  Initialize the app's state to preselect a model; there is no separate default
+  or selected-option prop. `allowDeselect` clears to `undefined`; Auto must be
+  an explicit app-owned option.
+- Pass a single `options` catalog with an optional `group` label, `icon`, `badge`,
+  and `description` on each model. Group headings and their order are derived
+  from the options; there is no separate `groups` input. Explain unavailable
+  models alongside `disabled`. Search matches labels, keywords, and group headings.
+- Trigger and row labels use the standard `sm` text, with `xs` descriptions.
+  Control size changes do not introduce alternate text variants.
+- Use `open`/`onOpenChange` for shortcuts. Put actions in `footer`, outside
+  option rows, and close the picker when an action navigates or opens a dialog.
+
+Search appears at `searchThreshold` options (default `8`; `0` always shows it).
+For host filtering (Fleet and Polly), use `disableFilter` to keep search
+visible and `onSearchChange` to update the query; use `loading` while pending.
+Keep the selected model in `options` when paging or filtering:
+`value` alone determines selection and its display metadata. Reset the host
+query when `onOpenChange(false)` fires.
+
+Import `AnthropicLogo`, `OpenAILogo`, and `GeminiLogo` from
+`@langchain/macaw-components/ProviderLogo` for the marks used in LangSmith.
+
+The [Product Adapters story](../src/components/ChatComposer/ChatComposerModelSelect.stories.tsx)
+shows Fleet tiers, Polly provider groups, and Robin model selection with a
+separate reasoning control. These are integration examples; product adoption
+and Robin's reasoning/context workflow remain application work.
+
 ## Tool calls and shared state
 
 Import `ChatState` from `@langchain/macaw-components/ChatState`. It owns the

@@ -99,7 +99,7 @@ export function ChatToolCall({
   const resolvedIcon =
     icon === undefined ? <WrenchIcon size={12} weight="regular" /> : icon;
   const heading = (
-    <span className="inline-flex min-w-0 items-center gap-space-2">
+    <span className="inline-flex min-w-0 max-w-full shrink-0 items-center gap-space-2">
       {resolvedIcon != null && (
         <ChatToolCallIcon>{resolvedIcon}</ChatToolCallIcon>
       )}
@@ -108,7 +108,7 @@ export function ChatToolCall({
         variant="xs"
         weight="medium"
         color="secondary"
-        className="min-w-0 truncate"
+        className="min-w-0 whitespace-normal [overflow-wrap:anywhere]"
       >
         {name}
       </Text>

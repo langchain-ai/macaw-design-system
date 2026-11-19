@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.7.10",
+  "version": "1.7.18",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -83,6 +83,10 @@
     "./ChatComposer": {
       "types": "./dist/components/ChatComposer/index.d.ts",
       "import": "./dist/components/ChatComposer/index.js"
+    },
+    "./ChatContextWindowPopover": {
+      "types": "./dist/components/ChatContextWindowPopover/index.d.ts",
+      "import": "./dist/components/ChatContextWindowPopover/index.js"
     },
     "./ChatConversation": {
       "types": "./dist/components/ChatConversation/index.d.ts",
@@ -235,6 +239,10 @@
     "./Popover": {
       "types": "./dist/components/Popover/index.d.ts",
       "import": "./dist/components/Popover/index.js"
+    },
+    "./ProviderLogo": {
+      "types": "./dist/components/ProviderLogo/index.d.ts",
+      "import": "./dist/components/ProviderLogo/index.js"
     },
     "./ProgressBar": {
       "types": "./dist/components/ProgressBar/index.d.ts",

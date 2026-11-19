@@ -1,3 +1,89 @@
+## 1.7.18 (2026-11-18)
+
+### 🚀 Features
+
+- **chat:** add context usage details for chat composers ([#114](https://github.com/langchain-ai/macaw-design-system/pull/114))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.17 (2026-11-18)
+
+### 🩹 Fixes
+
+- **Tooltip:** open on focus only after keyboard input ([#125](https://github.com/langchain-ai/macaw-design-system/pull/125))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+- Robin @open-swe
+
+## 1.7.16 (2026-11-18)
+
+### 🚀 Features
+
+- **chat:** share model picker UI across products ([#115](https://github.com/langchain-ai/macaw-design-system/pull/115))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.15 (2026-11-17)
+
+### 🚀 Features
+
+- **RadarChart:** tighten and even out axis label spacing ([#122](https://github.com/langchain-ai/macaw-design-system/pull/122))
+
+### ❤️ Thank You
+
+- elibrosen
+
+## 1.7.14 (2026-11-16)
+
+### 🚀 Features
+
+- **Popover:** add neutral and info variants ([#118](https://github.com/langchain-ai/macaw-design-system/pull/118))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+- Robin @open-swe
+
+## 1.7.13 (2026-11-13)
+
+### 🩹 Fixes
+
+- **components:** render loading indicator pixels at equal sizes ([#92](https://github.com/langchain-ai/macaw-design-system/pull/92))
+
+### ❤️ Thank You
+
+- Johannes du Plessis @johannes117
+
+## 1.7.12 (2026-11-13)
+
+### 🩹 Fixes
+
+- keep button tooltips above floating panels ([#87](https://github.com/langchain-ai/macaw-design-system/pull/87))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+
+## 1.7.11 (2026-11-11)
+
+### 🚀 Features
+
+- **chat:** pin sent messages and keep the reading position in ChatConversation ([#110](https://github.com/langchain-ai/macaw-design-system/pull/110))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.7.10 (2026-11-11)
 
 ### 🚀 Features
