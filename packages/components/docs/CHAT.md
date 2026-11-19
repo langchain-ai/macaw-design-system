@@ -182,3 +182,9 @@ provider-specific content; every part in `toChatThread` carries the same
 as sign-in; return undefined for the default approval, reply, or response
 card. Requests paused together resume together once each has a decision, and
 sending is paused until they do.
+
+`ChatThread` pins the message the reader sends (`pinnedMessageId` on
+`ChatConversation`) so the reply streams in below it. The app owns the
+composer's controls: pass `modelSelector` (such as `ChatComposerModelSelect`),
+`composerTools` (such as `ChatComposerAttachmentMenu`), and `composerActions`
+(such as `ChatContextWindowPopover`, shown before Send/Stop).

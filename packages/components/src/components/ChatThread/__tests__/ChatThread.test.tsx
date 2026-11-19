@@ -206,6 +206,20 @@ describe('useChatThread actions', () => {
       },
     });
   });
+
+  it('reports the reader’s sent message once it appears in the thread', async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    const { result, rerender } = renderHook(
+      ({ messages }) =>
+        useChatThread(staticStream({ ...emptyState, messages }, { submit })),
+      { initialProps: { messages: [] as unknown[] } }
+    );
+
+    await act(() => result.current.actions.send('Hello'));
+    expect(result.current.sentMessageId).toBeUndefined();
+    rerender({ messages: [{ id: 'h1', type: 'human', content: 'Hello' }] });
+    expect(result.current.sentMessageId).toBe('h1');
+  });
 });
 
 describe('LangGraphChat', () => {
@@ -384,6 +398,20 @@ describe('LangGraphChat', () => {
       { decisions: [{ type: 'approve' }] },
       { interruptId: 'approval-1' }
     );
+  });
+
+  it('places host controls in the composer toolbar', () => {
+    render(
+      <LangGraphChat
+        stream={staticStream(completedState)}
+        modelSelector={<button type="button">Model</button>}
+        composerTools={<button type="button">Attach</button>}
+        composerActions={<button type="button">Context window</button>}
+      />
+    );
+    for (const name of ['Model', 'Attach', 'Context window', 'Send message']) {
+      expect(screen.getByRole('button', { name })).toBeInTheDocument();
+    }
   });
 
   it('stops a run from an empty composer', async () => {

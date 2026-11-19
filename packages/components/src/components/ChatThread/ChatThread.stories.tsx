@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { fn } from 'storybook/test';
 
@@ -14,6 +14,9 @@ import {
   useFakeAgentStream,
 } from '../../stories/fakeAgentStream';
 import { Button } from '../Button';
+import { ChatComposerModelSelect } from '../ChatComposer';
+import { MODEL_OPTIONS } from '../ChatComposer/stories/modelOptions';
+import { ChatContextWindowPopover } from '../ChatContextWindowPopover';
 import { ChatRichContent } from '../ChatRichContent';
 import { EmptyState } from '../EmptyState';
 import { Text } from '../Text';
@@ -60,12 +63,30 @@ function DeepAgentRunDemo() {
   const { stream, selectors } = useFakeAgentStream({
     autoStart: 'Research how RAG systems are evaluated and update my notes.',
   });
+  const [model, setModel] = useState<string | undefined>('claude-sonnet-5-5');
+  const modelLabel = MODEL_OPTIONS.find(
+    (option) => option.value === model
+  )?.label;
   return (
     <LangGraphChat
       stream={stream}
       selectors={selectors}
       agentName="Research agent"
       onOpenSubagent={fn()}
+      modelSelector={
+        <ChatComposerModelSelect
+          options={MODEL_OPTIONS}
+          value={model}
+          onChange={setModel}
+        />
+      }
+      composerActions={
+        <ChatContextWindowPopover
+          tokensUsed={18_400 + stream.messages.length * 6_200}
+          contextWindow={200_000}
+          model={modelLabel}
+        />
+      }
     />
   );
 }
@@ -76,7 +97,7 @@ export const DeepAgentRun: Story = {
     docs: {
       description: {
         story:
-          'A scripted deep agent run: reasoning, a plan above the composer, two subagents in parallel, then a file edit that waits for approval before the answer streams in. Send more messages while it works to queue them.',
+          'A scripted deep agent run: reasoning, a plan above the composer, two subagents in parallel, then a file edit that waits for approval before the answer streams in. Send more messages while it works to queue them; a sent message pins to the top while its reply streams in. `modelSelector` and `composerActions` place the app’s `ChatComposerModelSelect` and `ChatContextWindowPopover` in the composer.',
       },
     },
   },

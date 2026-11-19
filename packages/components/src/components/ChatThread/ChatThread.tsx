@@ -4,6 +4,7 @@ import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import {
   ChatComposer,
+  ChatComposerAction,
   ChatComposerInput,
   ChatComposerToolbar,
   type ChatComposerProps,
@@ -238,7 +239,17 @@ function AgentMessage({
   );
 }
 
-function ThreadComposer({ placeholder }: { placeholder?: string }) {
+type ComposerSlots = Pick<
+  ChatThreadProps,
+  'placeholder' | 'modelSelector' | 'composerTools' | 'composerActions'
+>;
+
+function ThreadComposer({
+  placeholder,
+  modelSelector,
+  composerTools,
+  composerActions,
+}: ComposerSlots) {
   const { thread } = useThread();
   const { model, actions, stopping } = thread;
   const [draft, setDraft] = useState('');
@@ -285,7 +296,17 @@ function ThreadComposer({ placeholder }: { placeholder?: string }) {
               : 'Message the agent')
         }
       />
-      <ChatComposerToolbar />
+      <ChatComposerToolbar
+        modelSelector={modelSelector}
+        actions={
+          <>
+            {composerActions}
+            <ChatComposerAction />
+          </>
+        }
+      >
+        {composerTools}
+      </ChatComposerToolbar>
     </ChatComposer>
   );
 }
@@ -330,6 +351,12 @@ export interface ChatThreadProps {
   emptyState?: ReactNode;
   /** Composer placeholder; defaults follow the run's state. */
   placeholder?: string;
+  /** The composer's model picker, such as `ChatComposerModelSelect`. */
+  modelSelector?: ReactNode;
+  /** Composer tools before the model picker, such as an attachment menu. */
+  composerTools?: ReactNode;
+  /** Shown before Send/Stop, such as `ChatContextWindowPopover`. */
+  composerActions?: ReactNode;
   /** Names the conversation region. */
   label?: string;
   className?: string;
@@ -349,6 +376,9 @@ export function ChatThread({
   header,
   emptyState,
   placeholder,
+  modelSelector,
+  composerTools,
+  composerActions,
   label = 'Agent conversation',
   className,
 }: ChatThreadProps) {
@@ -381,7 +411,15 @@ export function ChatThread({
       <ChatConversation
         label={label}
         header={header}
-        footer={<ThreadComposer placeholder={placeholder} />}
+        footer={
+          <ThreadComposer
+            placeholder={placeholder}
+            modelSelector={modelSelector}
+            composerTools={composerTools}
+            composerActions={composerActions}
+          />
+        }
+        pinnedMessageId={thread.sentMessageId}
         className={className}
       >
         {isThreadLoading ? (
