@@ -45,7 +45,10 @@ import {
   WorkSummary,
 } from './ChatThreadWork';
 import { deepAgentTools } from './deepAgentTools';
-import { useChatThread, type UseChatThreadOptions } from './useChatThread';
+import {
+  useLangGraphChatThread,
+  type UseLangGraphChatThreadOptions,
+} from './useLangGraphChatThread';
 
 /** Chat answers are bounded, so Markdown renders up to this many characters. */
 const MAX_ANSWER_MARKDOWN = 100_000;
@@ -356,9 +359,9 @@ interface ChatThreadViewProps {
   className?: string;
 }
 
-/** The default: a LangGraph `useStream` handle, adapted by `useChatThread`. */
+/** The default: a LangGraph `useStream` handle, adapted by `useLangGraphChatThread`. */
 export interface ChatThreadStreamProps
-  extends ChatThreadViewProps, UseChatThreadOptions {
+  extends ChatThreadViewProps, UseLangGraphChatThreadOptions {
   /** A `useStream` handle from `@langchain/react` (1.x, 2.0) or the 0.3.x hook. */
   stream: ChatThreadStream;
   thread?: never;
@@ -367,7 +370,7 @@ export interface ChatThreadStreamProps
 /** Bring your own adapter: any stream or data mapped to a controller. */
 export interface ChatThreadControllerProps extends ChatThreadViewProps {
   /**
-   * The thread to render: from `useChatThread`, or your own adapter for
+   * The thread to render: from `useLangGraphChatThread`, or your own adapter for
    * another stream or data source.
    */
   thread: ChatThreadController;
@@ -380,7 +383,7 @@ export type ChatThreadProps = ChatThreadStreamProps | ChatThreadControllerProps;
  * An agent conversation view built from Macaw chat parts: messages,
  * reasoning, tool calls, subagents, approvals, the plan, queued messages,
  * and the composer. Pass a LangGraph `stream` to use the built-in
- * `useChatThread` adapter, or a `thread` from your own adapter. Pick one for
+ * `useLangGraphChatThread` adapter, or a `thread` from your own adapter. Pick one for
  * the life of the component.
  */
 export function ChatThread(props: ChatThreadProps) {
@@ -396,7 +399,7 @@ function StreamChatThread({
   subagentTools,
   ...props
 }: ChatThreadStreamProps) {
-  const thread = useChatThread(stream, {
+  const thread = useLangGraphChatThread(stream, {
     selectors,
     hideMessage,
     messagesKey,

@@ -124,7 +124,7 @@ export type ChatThreadPart = (
       result?: string;
       /**
        * The adapter's handle for the run, passed to the controller's subagent
-       * hooks; `useChatThread` uses the stream's subagent handle.
+       * hooks; `useLangGraphChatThread` uses the stream's subagent handle.
        */
       handle?: unknown;
       interruptId?: string;
@@ -219,7 +219,7 @@ export type ChatThreadToolRenderer = (
   source?: ChatThreadPartSource
 ) => ChatThreadToolPresentation | ReactElement | null;
 
-/** What `ChatThread` can do on the reader's behalf; `useChatThread` provides all of them. */
+/** What `ChatThread` can do on the reader's behalf; `useLangGraphChatThread` provides all of them. */
 export interface ChatThreadActions {
   /** Sends a message, or queues it while a run is active. */
   send: (text: string) => Promise<void>;
@@ -251,7 +251,7 @@ export interface ChatThreadTiming {
 }
 
 /**
- * Everything `ChatThread` renders from and calls. `useChatThread` builds one
+ * Everything `ChatThread` renders from and calls. `useLangGraphChatThread` builds one
  * from a LangGraph `useStream` handle; an app with its own stream or data
  * builds one itself. Only `model` and `actions.send` are required: leave out
  * an action or hook and the control or detail that needs it is hidden.

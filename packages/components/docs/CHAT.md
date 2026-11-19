@@ -128,14 +128,17 @@ shows `cancel` on queued messages, and `ChatComposer` takes
 
 ## Agent threads
 
-Import from `@langchain/macaw-components/ChatThread`. `ChatThread` is a view,
-not an app: the app keeps the client, auth, thread list, and routing. It
+Import from `@langchain/macaw-components/ChatThread`. A thread is one
+conversation and its state, such as a LangGraph thread: messages,
+checkpoints, interrupts, todos, and queued runs. `ChatThread` is a view, not
+an app: the app chooses which thread to show and keeps the client, auth,
+thread list, and routing. It
 renders from a `ChatThreadController` (the turns, interrupts, queue, plan,
 and actions) and takes it one of two ways:
 
 - **`stream` (default).** Pass a LangGraph `useStream` handle and `ChatThread`
-  adapts it with the built-in `useChatThread` hook.
-- **`thread` (bring your own adapter).** `useChatThread` is optional. For your
+  adapts it with the built-in `useLangGraphChatThread` hook.
+- **`thread` (bring your own adapter).** `useLangGraphChatThread` is optional. For your
   own stream logic, another agent framework, or recorded data, build a
   `ChatThreadController` yourself and pass it as `thread`, without
   committing a one-off case to Macaw. Only `model` and `actions.send` are
@@ -146,7 +149,7 @@ and actions) and takes it one of two ways:
   `useSubagentStep`).
 
 Pick one for the life of the component. The pieces of the default adapter
-are public too: call `useChatThread(stream, options)` yourself to read its
+are public too: call `useLangGraphChatThread(stream, options)` yourself to read its
 state or wrap its actions and pass the result as `thread`, or use
 `toChatThread(snapshot)`, the pure mapping, to build part of your own model.
 
@@ -164,7 +167,7 @@ and files. Pass selector hooks from your own `@langchain/react` import to turn
 on queued messages, edit and retry, and subagent details. Keep that object at
 module level so it never changes between renders. If your graph uses a message
 state key other than `messages`, pass the same `messagesKey` to `useStream` and
-`ChatThread` (or `useChatThread`) so sends, edit/retry, and queue previews
+`ChatThread` (or `useLangGraphChatThread`) so sends, edit/retry, and queue previews
 use that key. The adapter still reads the transcript from `stream.messages`.
 
 ```tsx

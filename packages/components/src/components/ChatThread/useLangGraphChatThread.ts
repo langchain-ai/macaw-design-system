@@ -25,7 +25,7 @@ function humanInput(text: string, messagesKey: string) {
   return { [messagesKey]: [{ type: 'human', content: text }] };
 }
 
-export interface UseChatThreadOptions extends ToChatThreadOptions {
+export interface UseLangGraphChatThreadOptions extends ToChatThreadOptions {
   /**
    * Selector hooks from the app's own `@langchain/react` import. Each one
    * turns on a feature: queued messages, edit and retry, and subagent
@@ -40,7 +40,7 @@ interface TurnTiming extends ChatThreadTiming {
 }
 
 /** A `ChatThreadController` for a LangGraph stream, with every action. */
-export interface ChatThreadState extends ChatThreadController {
+export interface LangGraphChatThreadState extends ChatThreadController {
   model: ChatThreadModel;
   actions: ChatThreadActions;
   stream: ChatThreadStream;
@@ -57,15 +57,15 @@ export interface ChatThreadState extends ChatThreadController {
  * LangGraph `useStream` handle to Macaw chat. Reads the handle structurally, so it works with `@langchain/react` 1.x and 2.0 under any
  * package alias, and with the 0.3.x hook (without selectors).
  */
-export function useChatThread(
+export function useLangGraphChatThread(
   stream: ChatThreadStream,
   {
     selectors,
     hideMessage,
     messagesKey = 'messages',
     subagentTools,
-  }: UseChatThreadOptions = {}
-): ChatThreadState {
+  }: UseLangGraphChatThreadOptions = {}
+): LangGraphChatThreadState {
   // Selectors come from a stable module-level object, so these calls never
   // change between renders.
   const queue = selectors?.useSubmissionQueue
@@ -298,14 +298,14 @@ function streamHooks(
   stream: ChatThreadStream,
   selectors: ChatThreadSelectors | undefined
 ): Pick<
-  ChatThreadState,
+  LangGraphChatThreadState,
   'useForkPoint' | 'useSubagentTranscript' | 'useSubagentStep'
 > {
   const useMessages = selectors?.useMessages;
   const useToolCalls = selectors?.useToolCalls;
 
   function useForkPoint(turn: ChatThreadTurn) {
-    return useChatThreadForkPoint(
+    return useLangGraphForkPoint(
       { stream, selectors },
       turn.user ? { id: turn.user.message.id, raw: turn.user.raw } : undefined
     );
@@ -357,8 +357,8 @@ function streamHooks(
  * the stream can't fork. Uses `useMessageMetadata` when the app passes it
  * (1.x and 2.0), or the 0.3.x stream's own metadata.
  */
-export function useChatThreadForkPoint(
-  thread: Pick<ChatThreadState, 'stream' | 'selectors'>,
+export function useLangGraphForkPoint(
+  thread: Pick<LangGraphChatThreadState, 'stream' | 'selectors'>,
   message: { id: string; raw: unknown } | undefined
 ): unknown {
   const { stream, selectors } = thread;

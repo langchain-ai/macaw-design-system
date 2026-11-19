@@ -101,7 +101,7 @@ import {
   deepAgentTools,
   toChatThread,
   toHumanInTheLoopResponse,
-  useChatThread,
+  useLangGraphChatThread,
 } from '@langchain/macaw-components/ChatThread';
 import type {
   ChatThreadController,
@@ -321,7 +321,7 @@ void [
     edit: { content: null, onSubmit() {} },
   } satisfies ChatRichContentProps,
   ChatThread,
-  useChatThread,
+  useLangGraphChatThread,
   deepAgentTools,
   toChatThread({ messages: [{ type: 'human', content: 'Hi' }] }).turns,
   toHumanInTheLoopResponse,

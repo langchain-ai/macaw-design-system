@@ -4,8 +4,14 @@ export type {
   ChatThreadProps,
   ChatThreadStreamProps,
 } from './ChatThread';
-export { useChatThread, useChatThreadForkPoint } from './useChatThread';
-export type { ChatThreadState, UseChatThreadOptions } from './useChatThread';
+export {
+  useLangGraphChatThread,
+  useLangGraphForkPoint,
+} from './useLangGraphChatThread';
+export type {
+  LangGraphChatThreadState,
+  UseLangGraphChatThreadOptions,
+} from './useLangGraphChatThread';
 export { toChatThread } from './toChatThread';
 export { parseInterrupt, toHumanInTheLoopResponse } from './interrupts';
 export { deepAgentTools } from './deepAgentTools';

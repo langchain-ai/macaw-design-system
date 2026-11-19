@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import { ChatThread, useChatThread } from '..';
+import { ChatThread, useLangGraphChatThread } from '..';
 import type { ChatThreadController } from '..';
 import {
   awaitingApprovalState,
@@ -42,14 +42,17 @@ function approvalInterrupt(casing: 'camel' | 'snake', requests: number) {
       };
 }
 
-describe('useChatThread actions', () => {
+describe('useLangGraphChatThread actions', () => {
   it('sends a message, and queues it while a run is active, with stable actions', async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const { result, rerender } = renderHook(
       ({ isLoading, messagesKey }) =>
-        useChatThread(staticStream({ ...emptyState, isLoading }, { submit }), {
-          messagesKey,
-        }),
+        useLangGraphChatThread(
+          staticStream({ ...emptyState, isLoading }, { submit }),
+          {
+            messagesKey,
+          }
+        ),
       {
         initialProps: {
           isLoading: false,
@@ -83,7 +86,9 @@ describe('useChatThread actions', () => {
         })
     );
     const { result } = renderHook(() =>
-      useChatThread(staticStream({ ...emptyState, isLoading: true }, { stop }))
+      useLangGraphChatThread(
+        staticStream({ ...emptyState, isLoading: true }, { stop })
+      )
     );
 
     let stopping: Promise<void> = Promise.resolve();
@@ -101,7 +106,7 @@ describe('useChatThread actions', () => {
   it('forks from a checkpoint ID on 1.x and a checkpoint object on 0.3.x', async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const current = renderHook(() =>
-      useChatThread(staticStream(emptyState, { submit }), {
+      useLangGraphChatThread(staticStream(emptyState, { submit }), {
         messagesKey: 'chat_history',
       })
     );
@@ -117,7 +122,7 @@ describe('useChatThread actions', () => {
       ...staticStream(emptyState, { submit }),
       getMessagesMetadata: () => undefined,
     };
-    const legacy = renderHook(() => useChatThread(legacyStream));
+    const legacy = renderHook(() => useLangGraphChatThread(legacyStream));
     await act(() =>
       legacy.result.current.actions.fork('Edited', { checkpoint_id: 'c1' })
     );
@@ -130,7 +135,7 @@ describe('useChatThread actions', () => {
   it('resumes interrupts paused together in one command', async () => {
     const respondAll = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() =>
-      useChatThread(
+      useLangGraphChatThread(
         staticStream(
           {
             ...emptyState,
@@ -153,7 +158,7 @@ describe('useChatThread actions', () => {
       const messages = completedState.messages.slice(0, 2);
       const { result, rerender } = renderHook(
         ({ isLoading, interrupts }) =>
-          useChatThread(
+          useLangGraphChatThread(
             staticStream({ ...emptyState, messages, isLoading, interrupts })
           ),
         { initialProps: { isLoading: true, interrupts: [] as unknown[] } }
@@ -184,7 +189,7 @@ describe('useChatThread actions', () => {
       { submit }
     );
     delete (stream as { respond?: unknown }).respond;
-    const { result } = renderHook(() => useChatThread(stream));
+    const { result } = renderHook(() => useLangGraphChatThread(stream));
 
     await act(() =>
       result.current.actions.respond('approval-1', [
@@ -212,7 +217,9 @@ describe('useChatThread actions', () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     const { result, rerender } = renderHook(
       ({ messages }) =>
-        useChatThread(staticStream({ ...emptyState, messages }, { submit })),
+        useLangGraphChatThread(
+          staticStream({ ...emptyState, messages }, { submit })
+        ),
       { initialProps: { messages: [] as unknown[] } }
     );
 

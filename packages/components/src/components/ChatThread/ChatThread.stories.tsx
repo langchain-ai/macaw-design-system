@@ -5,7 +5,7 @@ import { fn } from 'storybook/test';
 import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChatThread, useChatThread } from '.';
+import { ChatThread, useLangGraphChatThread } from '.';
 import type {
   ChatThreadController,
   ChatThreadStreamProps,
@@ -33,9 +33,9 @@ const meta = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: `- An agent conversation view built from Macaw chat parts: messages, reasoning, tool calls, subagents, approvals, the plan, queued messages, and the composer. It's a view, not an app: your app keeps the client, auth, threads, and routing.
-- By default, pass a LangGraph \`useStream\` handle as \`stream\`; the built-in \`useChatThread\` adapter maps it. Macaw never imports the SDK. Pass selector hooks from your own \`@langchain/react\` import to turn on queued messages (\`useSubmissionQueue\`), edit and retry (\`useMessageMetadata\`), and subagent details (\`useMessages\`, \`useToolCalls\`).
-- \`useChatThread\` is optional. For your own stream logic or data, pass \`thread\` instead: a \`ChatThreadController\` from your own adapter. Only \`model\` and \`actions.send\` are required; controls without an action are hidden.
+        component: `- An agent conversation view built from Macaw chat parts: messages, reasoning, tool calls, subagents, approvals, the plan, queued messages, and the composer. A thread is one conversation and its state, such as a LangGraph thread. It's a view, not an app: your app chooses which thread to show and keeps the client, auth, and routing.
+- By default, pass a LangGraph \`useStream\` handle as \`stream\`; the built-in \`useLangGraphChatThread\` adapter maps it. Macaw never imports the SDK. Pass selector hooks from your own \`@langchain/react\` import to turn on queued messages (\`useSubmissionQueue\`), edit and retry (\`useMessageMetadata\`), and subagent details (\`useMessages\`, \`useToolCalls\`).
+- \`useLangGraphChatThread\` is optional. For your own stream logic or data, pass \`thread\` instead: a \`ChatThreadController\` from your own adapter. Only \`model\` and \`actions.send\` are required; controls without an action are hidden.
 - Deep agent tools, todos, subagents, and human-in-the-loop approvals work out of the box. Override tool rows with \`tools\` and requests with \`renderInterrupt\`.`,
       },
     },
@@ -264,7 +264,7 @@ export const Empty: Story = {
 
 function CustomLayoutDemo() {
   const stream = useMemo(() => staticStream(completedState), []);
-  const thread = useChatThread(stream);
+  const thread = useLangGraphChatThread(stream);
   return (
     <div className="flex h-full flex-col gap-space-3 p-space-4">
       <Text variant="sm" color="secondary">
@@ -295,7 +295,7 @@ export const InCustomLayout: Story = {
     docs: {
       description: {
         story:
-          'Call `useChatThread` yourself to read its state (turn count, plan) and pass the result to `ChatThread` as `thread`, in your own layout.',
+          'Call `useLangGraphChatThread` yourself to read its state (turn count, plan) and pass the result to `ChatThread` as `thread`, in your own layout.',
       },
     },
   },
@@ -434,7 +434,7 @@ export const CustomAdapter: Story = {
     docs: {
       description: {
         story:
-          'No `useStream` or `useChatThread`: the app maps its own messages to a `ChatThreadController` and passes it as `thread`. It only provides `send`, so there is no Stop, edit, or retry.',
+          'No `useStream` or `useLangGraphChatThread`: the app maps its own messages to a `ChatThreadController` and passes it as `thread`. It only provides `send`, so there is no Stop, edit, or retry.',
       },
     },
   },
