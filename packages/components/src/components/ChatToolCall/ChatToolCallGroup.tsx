@@ -82,7 +82,7 @@ export function ChatToolCallGroup({
           aria-expanded={isExpanded}
           onClick={() => setExpanded(!isExpanded)}
           // Stretched over the header so the whole row toggles the group.
-          className="static h-auto min-w-0 flex-1 justify-start gap-space-2 border-0 bg-transparent px-0 py-space-1 text-left shadow-none outline-none after:absolute after:inset-0 after:rounded-md hover:bg-transparent focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-focus"
+          className="static h-auto min-w-0 flex-1 justify-start gap-space-2 border-0 bg-transparent px-0 py-space-1 text-left shadow-none outline-none after:absolute after:inset-0 after:rounded-md hover:bg-transparent dark:hover:bg-transparent focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-focus"
         >
           {icons.length > 0 && (
             <span aria-hidden="true" className="flex shrink-0 items-center">
