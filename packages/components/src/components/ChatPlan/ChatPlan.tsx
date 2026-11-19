@@ -139,7 +139,7 @@ export function ChatPlan({
         aria-expanded={isExpanded}
         aria-controls={listId}
         onClick={() => setExpanded(!isExpanded)}
-        className="h-auto min-w-0 justify-start gap-space-2 border-0 bg-transparent px-0 py-space-1 text-left shadow-none hover:bg-transparent"
+        className="h-auto min-w-0 justify-start gap-space-2 border-0 bg-transparent px-0 py-space-1 text-left shadow-none hover:bg-transparent dark:hover:bg-transparent"
       >
         <CircularProgress
           size={14}

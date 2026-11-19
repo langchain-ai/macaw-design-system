@@ -73,7 +73,7 @@ export function ChatToolCallAccordion({
             aria-expanded={isExpanded}
             onClick={() => setExpanded(!isExpanded)}
             // Stretched over the row so the status and caret are clickable too.
-            className="static h-auto min-w-0 flex-1 border-0 justify-start gap-space-2 px-0 py-space-1 text-left shadow-none outline-none after:absolute after:inset-0 after:rounded-md hover:bg-transparent focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-focus"
+            className="static h-auto min-w-0 flex-1 border-0 justify-start gap-space-2 px-0 py-space-1 text-left shadow-none outline-none after:absolute after:inset-0 after:rounded-md hover:bg-transparent dark:hover:bg-transparent focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-focus"
           >
             {heading}
           </Button>
