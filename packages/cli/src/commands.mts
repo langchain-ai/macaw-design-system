@@ -20,7 +20,14 @@ Usage: macaw <command>
   inspect <name>             Show import, source files, and stories
 
 Options: --json, --no-pager, --limit <1–100> (search; default 10), --help (-h)
-For pipeable JSON: macaw <command> --json`;
+  --semantic                 Rank search results by meaning (needs a LangSmith key)
+For pipeable JSON: macaw <command> --json
+With LANGSMITH_GATEWAY_API_KEY or LANGSMITH_API_KEY set, a search with no word
+matches is also ranked by meaning. Set MACAW_SEMANTIC_SEARCH=off to disable.`;
+
+const SEMANTIC_MODEL = 'typesafe/jev-1.13.0';
+const SEMANTIC_INSTRUCTIONS =
+  "The state is a query a developer typed into the component search of the Macaw React design system. Pick the component that best provides the UI the query asks for; the query may be a component name, a capability keyword, a plain-language description of a UI need, a name from another design system (MUI, Chakra, shadcn, antd), or a misspelling. Choose 'none' only if no component fits.";
 
 export class CliError extends Error {
   readonly code: string;
@@ -125,6 +132,102 @@ function search(components: Component[], query: string, limit: number) {
     .slice(0, limit);
 }
 
+function semanticKey() {
+  return process.env.LANGSMITH_GATEWAY_API_KEY || process.env.LANGSMITH_API_KEY;
+}
+
+async function semanticSearch(
+  components: Component[],
+  query: string,
+  limit: number
+) {
+  const key = semanticKey();
+  if (!key) return undefined;
+  const families = new Map<string, Component[]>();
+  for (const component of components) {
+    families.set(component.family, [
+      ...(families.get(component.family) ?? []),
+      component,
+    ]);
+  }
+  const roots = new Map(
+    [...families].map(([family, members]) => {
+      const root = members.find(({ name }) => name === family) ?? members[0];
+      const exports =
+        members.length > 1
+          ? ` Exports: ${members.map(({ name }) => name).join(', ')}.`
+          : '';
+      return [
+        root.name,
+        { root, criteria: `Keywords: ${root.keywords || family}.${exports}` },
+      ];
+    })
+  );
+  const base = (
+    process.env.LANGSMITH_GATEWAY_BASE_URL ||
+    'https://gateway.smith.langchain.com'
+  ).replace(/\/+$/, '');
+  try {
+    const response = await fetch(`${base}/v1/systemone`, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${key}`,
+        'content-type': 'application/json',
+        'x-gateway-service': 'macaw-cli',
+      },
+      body: JSON.stringify({
+        model: SEMANTIC_MODEL,
+        state: query,
+        questions: {
+          component: {
+            type: 'choice',
+            instructions: SEMANTIC_INSTRUCTIONS,
+            criteria: {
+              ...Object.fromEntries(
+                [...roots].map(([name, { criteria }]) => [name, criteria])
+              ),
+              none: 'No design-system component provides this.',
+            },
+          },
+        },
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return undefined;
+    const answer = (await response.json())?.answers?.component;
+    if (!answer || typeof answer.probabilities !== 'object') return undefined;
+    if (answer.choice === 'none') return [];
+    return Object.entries(answer.probabilities as Record<string, unknown>)
+      .filter(
+        (entry): entry is [string, number] =>
+          roots.has(entry[0]) &&
+          typeof entry[1] === 'number' &&
+          entry[1] >= 0.05
+      )
+      .sort((left, right) => right[1] - left[1])
+      .slice(0, limit)
+      .map(([name, probability]) => ({
+        ...roots.get(name)!.root,
+        score: Math.round(probability * 100),
+      }));
+  } catch {
+    return undefined;
+  }
+}
+
+async function searchComponents(
+  components: Component[],
+  query: string,
+  limit: number,
+  semantic: boolean
+) {
+  const results = search(components, query, limit);
+  if (semantic ? (results[0]?.score ?? 0) >= 100 : results.length > 0)
+    return results;
+  if (!semantic && process.env.MACAW_SEMANTIC_SEARCH === 'off') return results;
+  return (await semanticSearch(components, query, limit)) ?? results;
+}
+
 function summary(component: Component) {
   return `${styleText('bold', component.name)}\n  ${component.keywords}\n  ${component.importStatement}`;
 }
@@ -170,7 +273,7 @@ function page(text: string) {
   }
 }
 
-export function run(
+export async function run(
   argv: string[],
   catalog: () => Component[],
   initialize?: () => string
@@ -183,6 +286,7 @@ export function run(
       help: { type: 'boolean', short: 'h' },
       limit: { type: 'string' },
       'no-pager': { type: 'boolean' },
+      semantic: { type: 'boolean' },
     },
   });
   const [requestedCommand, ...args] = positionals;
@@ -254,11 +358,22 @@ export function run(
       '--limit requires search and an integer from 1 to 100.'
     );
   }
+  if (values.semantic && (command !== 'search' || !semanticKey())) {
+    throw new CliError(
+      'ERR_INVALID_ARGUMENT',
+      '--semantic requires search and LANGSMITH_GATEWAY_API_KEY or LANGSMITH_API_KEY.'
+    );
+  }
   const components = catalog();
   if (command === 'list') {
     print(components, componentList(components), true);
   } else if (command === 'search') {
-    const results = search(components, query, limit);
+    const results = await searchComponents(
+      components,
+      query,
+      limit,
+      values.semantic === true
+    );
     print(
       results,
       results.map(summary).join('\n\n') || `No components matched "${query}".`,
@@ -282,13 +397,13 @@ export function run(
   }
 }
 
-export function main(
+export async function main(
   argv: string[],
   catalog: () => Component[],
   initialize?: () => string
 ) {
   try {
-    run(argv, catalog, initialize);
+    await run(argv, catalog, initialize);
   } catch (error) {
     const payload = {
       error:

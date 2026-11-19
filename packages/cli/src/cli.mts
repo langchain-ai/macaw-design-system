@@ -72,4 +72,4 @@ function initialize() {
   return relative(projectRoot, file);
 }
 
-main(process.argv.slice(2), catalog, initialize);
+await main(process.argv.slice(2), catalog, initialize);
