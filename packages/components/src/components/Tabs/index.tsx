@@ -32,10 +32,10 @@ export function TabList({
 }) {
   return (
     <HeadlessTabList
-      data-responsive-height={responsiveHeight || undefined}
       className={cn(
-        'group/tab-list flex gap-space-5 border-b border-secondary text-ls-black',
-        responsiveHeight && 'h-full',
+        'flex gap-space-5 border-b border-secondary text-ls-black',
+        responsiveHeight &&
+          'h-full [&_[role=tab]]:h-full [&_[role=tab]]:py-space-2',
         className
       )}
     >
@@ -73,7 +73,6 @@ export function TabLabel({
       onBlur={onBlur}
       className={cn(
         'group relative flex items-center gap-space-2 border-b-2 border-b-transparent pb-5 text-primary outline-hidden transition-[color] duration-normal',
-        'group-data-[responsive-height]/tab-list:h-full group-data-[responsive-height]/tab-list:py-space-2',
         'after:pointer-events-none after:invisible after:absolute after:inset-x-0 after:-bottom-0.5 after:mx-auto after:h-0.5 after:w-full after:rounded-full after:border-b-2 after:border-current',
         'data-[selected]:after:visible data-[selected]:after:animate-tab-indicator-expand motion-reduce:after:animate-none',
         'hover:text-brand-secondary data-[selected]:hover:after:border-b-brand-strong',

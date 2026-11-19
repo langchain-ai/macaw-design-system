@@ -77,19 +77,6 @@ from `@langchain/macaw-components/ChatState`, and agent task lists from
 `@langchain/macaw-components/ChatPlan`. They are intentionally omitted from the
 root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
 
-## Page headers
-
-Import `PageHeader` from `@langchain/macaw-components/PageHeader`. Pass the
-page heading as `title`, an optional icon component as `icon`, and an optional
-`backButton` with its accessible `label` and click handler. Use `leftItems`
-for navigation or controls next to the title and `rightItems` for supplementary
-content before the actions. A `TabList` with `responsiveHeight` can go directly
-in `leftItems` inside a surrounding `TabGroup`.
-
-Use `actions.secondary` and `actions.additional` for neutral outlined buttons
-and `actions.primary` for the filled primary button. All are optional and use
-the medium Macaw size. Consumers supply labels and behavior, not styles.
-
 ## Tabs
 
 Use `responsiveHeight` on `TabList` when its parent establishes a row height.

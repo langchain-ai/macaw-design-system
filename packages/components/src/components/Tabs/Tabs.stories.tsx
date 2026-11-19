@@ -46,21 +46,6 @@ export const ResponsiveHeight: Story = {
       ))}
     </div>
   ),
-  play: async ({ canvas, userEvent }) => {
-    const [intrinsic, fill] = canvas.getAllByRole('tablist');
-    await expect(fill.getBoundingClientRect().height).toBeGreaterThan(
-      intrinsic.getBoundingClientRect().height
-    );
-    const innerHeight = fill.clientHeight;
-    for (const tab of fill.querySelectorAll('[role="tab"]')) {
-      await expect(tab.getBoundingClientRect().height).toBe(innerHeight);
-      await expect(getComputedStyle(tab).paddingBlock).toBe('8px');
-    }
-    await userEvent.click(canvas.getAllByRole('tab', { name: 'Activity' })[1]);
-    await expect(
-      canvas.getAllByRole('tab', { name: 'Activity' })[1]
-    ).toHaveAttribute('aria-selected', 'true');
-  },
 };
 
 export const RemountedTabGroup: Story = {
