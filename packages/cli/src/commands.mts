@@ -230,7 +230,8 @@ async function searchComponents(
       process.env.MACAW_SEMANTIC_SEARCH === 'off')
   )
     return results;
-  return (await semanticSearch(components, query, limit)) ?? results;
+  const ranked = await semanticSearch(components, query, limit);
+  return ranked?.length ? ranked : results;
 }
 
 function summary(component: Component) {

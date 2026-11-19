@@ -137,6 +137,10 @@ test('returns no components when none fit', async () => {
   withKey();
   respond({ none: 0.9, Button: 0.1 });
   expect(await search('date picker')).toEqual([]);
+  expect(await search('busy', '--semantic')).toEqual([
+    'Spinner',
+    'SpinnerIcon',
+  ]);
 });
 
 test('falls back to word matches when semantic search is unavailable', async () => {
