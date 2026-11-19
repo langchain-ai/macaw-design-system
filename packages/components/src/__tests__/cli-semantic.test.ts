@@ -55,8 +55,8 @@ async function search(...args: string[]) {
 }
 
 function withKey() {
-  vi.stubEnv('LANGSMITH_GATEWAY_API_KEY', '');
-  vi.stubEnv('LANGSMITH_API_KEY', 'test-key');
+  vi.stubEnv('LANGSMITH_GATEWAY_API_KEY', 'test-key');
+  vi.stubEnv('LANGSMITH_API_KEY', '');
   vi.stubEnv('LANGSMITH_GATEWAY_BASE_URL', 'https://gateway.test/');
   vi.stubEnv('MACAW_SEMANTIC_SEARCH', '');
 }
@@ -76,6 +76,20 @@ test('keeps lexical search without a key', async () => {
   await expect(
     run(['search', 'busy', '--semantic'], catalog)
   ).rejects.toMatchObject({ code: 'ERR_INVALID_ARGUMENT' });
+});
+
+test('sends queries with only a LangSmith tracing key when asked', async () => {
+  vi.stubEnv('LANGSMITH_GATEWAY_API_KEY', '');
+  vi.stubEnv('LANGSMITH_API_KEY', 'tracing-key');
+  const fetch = respond({ Spinner: 1 });
+  expect(await search('show something while data loads')).toEqual([]);
+  expect(fetch).not.toHaveBeenCalled();
+  expect(await search('show something while data loads', '--semantic')).toEqual(
+    ['Spinner']
+  );
+  expect(fetch.mock.calls[0][1].headers.authorization).toBe(
+    'Bearer tracing-key'
+  );
 });
 
 test('ranks queries without word matches by meaning', async () => {

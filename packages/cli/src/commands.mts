@@ -22,8 +22,8 @@ Usage: macaw <command>
 Options: --json, --no-pager, --limit <1–100> (search; default 10), --help (-h)
   --semantic                 Rank search results by meaning (needs a LangSmith key)
 For pipeable JSON: macaw <command> --json
-With LANGSMITH_GATEWAY_API_KEY or LANGSMITH_API_KEY set, a search with no word
-matches is also ranked by meaning. Set MACAW_SEMANTIC_SEARCH=off to disable.`;
+With LANGSMITH_GATEWAY_API_KEY set, a search with no word matches is also
+ranked by meaning. Set MACAW_SEMANTIC_SEARCH=off to disable.`;
 
 const SEMANTIC_MODEL = 'typesafe/jev-1.13.0';
 const SEMANTIC_INSTRUCTIONS =
@@ -224,7 +224,12 @@ async function searchComponents(
   const results = search(components, query, limit);
   if (semantic ? (results[0]?.score ?? 0) >= 100 : results.length > 0)
     return results;
-  if (!semantic && process.env.MACAW_SEMANTIC_SEARCH === 'off') return results;
+  if (
+    !semantic &&
+    (!process.env.LANGSMITH_GATEWAY_API_KEY ||
+      process.env.MACAW_SEMANTIC_SEARCH === 'off')
+  )
+    return results;
   return (await semanticSearch(components, query, limit)) ?? results;
 }
 
