@@ -79,10 +79,10 @@ root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
 
 ## Tabs
 
-Use `variant="fill"` on `TabList` when its parent establishes a row height.
+Use `responsiveHeight` on `TabList` when its parent establishes a row height.
 The list fills that row, and each `TabLabel` centers its contents vertically
 with 8px block padding and keeps the selection indicator at the bottom edge.
-The default variant keeps its intrinsic height for standalone tab navigation.
+Without `responsiveHeight`, the list keeps its intrinsic height.
 
 ## Breadcrumbs
 
