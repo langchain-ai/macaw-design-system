@@ -99,15 +99,15 @@ import type {
 import {
   ChatThread,
   deepAgentTools,
-  LangGraphChat,
   toChatThread,
   toHumanInTheLoopResponse,
   useChatThread,
 } from '@langchain/macaw-components/ChatThread';
 import type {
+  ChatThreadController,
+  ChatThreadProps,
   ChatThreadSelectors,
   ChatThreadStream,
-  LangGraphChatProps,
 } from '@langchain/macaw-components/ChatThread';
 import {
   ChatToolCall,
@@ -321,7 +321,6 @@ void [
     edit: { content: null, onSubmit() {} },
   } satisfies ChatRichContentProps,
   ChatThread,
-  LangGraphChat,
   useChatThread,
   deepAgentTools,
   toChatThread({ messages: [{ type: 'human', content: 'Hi' }] }).turns,
@@ -335,7 +334,13 @@ void [
   {} satisfies ChatThreadSelectors,
   {
     stream: { messages: [], isLoading: false, submit() {}, stop() {} },
-  } satisfies LangGraphChatProps,
+  } satisfies ChatThreadProps,
+  {
+    thread: {
+      model: { turns: [], interrupts: [], queued: [], status: 'idle' },
+      actions: { async send() {} },
+    } satisfies ChatThreadController,
+  } satisfies ChatThreadProps,
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,

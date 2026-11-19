@@ -1,11 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { fn } from 'storybook/test';
 
 import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { ChatThread, LangGraphChat, useChatThread } from '.';
+import { ChatThread, useChatThread } from '.';
+import type {
+  ChatThreadController,
+  ChatThreadStreamProps,
+  ChatThreadTurn,
+} from '.';
 import {
   awaitingApprovalState,
   completedState,
@@ -22,16 +27,16 @@ import { EmptyState } from '../EmptyState';
 import { Text } from '../Text';
 
 const meta = {
-  title: 'Components/Chat/LangGraphChat',
-  component: LangGraphChat,
+  title: 'Components/Chat/ChatThread',
+  component: ChatThread,
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: `- A complete agent chat for a LangGraph \`useStream\` handle. The app creates the stream, so it keeps the client, auth, and thread selection; Macaw never imports the SDK.
-- Pass selector hooks from your own \`@langchain/react\` import to turn on queued messages (\`useSubmissionQueue\`), edit and retry (\`useMessageMetadata\`), and subagent details (\`useMessages\`, \`useToolCalls\`).
-- Deep agent tools, todos, subagents, and human-in-the-loop approvals work out of the box. Override tool rows with \`tools\` and requests with \`renderInterrupt\`.
-- For your own layout, use \`useChatThread\` with \`ChatThread\`, or \`toChatThread\` for plain data.`,
+        component: `- An agent conversation view built from Macaw chat parts: messages, reasoning, tool calls, subagents, approvals, the plan, queued messages, and the composer. It's a view, not an app: your app keeps the client, auth, threads, and routing.
+- By default, pass a LangGraph \`useStream\` handle as \`stream\`; the built-in \`useChatThread\` adapter maps it. Macaw never imports the SDK. Pass selector hooks from your own \`@langchain/react\` import to turn on queued messages (\`useSubmissionQueue\`), edit and retry (\`useMessageMetadata\`), and subagent details (\`useMessages\`, \`useToolCalls\`).
+- \`useChatThread\` is optional. For your own stream logic or data, pass \`thread\` instead: a \`ChatThreadController\` from your own adapter. Only \`model\` and \`actions.send\` are required; controls without an action are hidden.
+- Deep agent tools, todos, subagents, and human-in-the-loop approvals work out of the box. Override tool rows with \`tools\` and requests with \`renderInterrupt\`.`,
       },
     },
   },
@@ -54,7 +59,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof LangGraphChat>;
+} satisfies Meta<ChatThreadStreamProps>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -68,7 +73,7 @@ function DeepAgentRunDemo() {
     (option) => option.value === model
   )?.label;
   return (
-    <LangGraphChat
+    <ChatThread
       stream={stream}
       selectors={selectors}
       agentName="Research agent"
@@ -105,7 +110,7 @@ export const DeepAgentRun: Story = {
 
 export const AwaitingApproval: Story = {
   render: () => (
-    <LangGraphChat
+    <ChatThread
       stream={staticStream(awaitingApprovalState)}
       agentName="Research agent"
     />
@@ -122,7 +127,7 @@ export const AwaitingApproval: Story = {
 
 export const CompletedConversation: Story = {
   render: () => (
-    <LangGraphChat
+    <ChatThread
       stream={staticStream(completedState)}
       agentName="Research agent"
     />
@@ -131,7 +136,7 @@ export const CompletedConversation: Story = {
 
 export const QueuedFollowUps: Story = {
   render: () => (
-    <LangGraphChat
+    <ChatThread
       stream={staticStream({ ...completedState, isLoading: true })}
       selectors={{
         useSubmissionQueue: () => ({
@@ -154,7 +159,7 @@ export const QueuedFollowUps: Story = {
 
 export const FailedRun: Story = {
   render: () => (
-    <LangGraphChat
+    <ChatThread
       stream={staticStream({
         ...emptyState,
         messages: [
@@ -184,7 +189,7 @@ export const FailedRun: Story = {
 
 export const CustomToolsAndRequests: Story = {
   render: () => (
-    <LangGraphChat
+    <ChatThread
       stream={staticStream({
         ...emptyState,
         messages: [
@@ -245,7 +250,7 @@ export const CustomToolsAndRequests: Story = {
 
 export const Empty: Story = {
   render: () => (
-    <LangGraphChat
+    <ChatThread
       stream={staticStream(emptyState)}
       emptyState={
         <EmptyState
@@ -290,7 +295,146 @@ export const InCustomLayout: Story = {
     docs: {
       description: {
         story:
-          '`useChatThread` returns the model and actions, so the app can read state (turn count, plan) and place `ChatThread` in its own layout.',
+          'Call `useChatThread` yourself to read its state (turn count, plan) and pass the result to `ChatThread` as `thread`, in your own layout.',
+      },
+    },
+  },
+};
+
+/** An app's own message format, not LangGraph's. */
+interface SupportMessage {
+  id: string;
+  from: 'customer' | 'bot';
+  body: string;
+  lookups?: string[];
+}
+
+/** A custom adapter: maps the app's own messages to a `ChatThreadController`. */
+function useSupportBot(): ChatThreadController {
+  const [messages, setMessages] = useState<SupportMessage[]>([
+    { id: 'm1', from: 'customer', body: 'Where is my order #4512?' },
+    {
+      id: 'm2',
+      from: 'bot',
+      body: 'Order **#4512** shipped yesterday and arrives Friday.',
+      lookups: ['#4512'],
+    },
+  ]);
+  const [replying, setReplying] = useState(false);
+  const nextId = useRef(3);
+
+  const send = useCallback(async (text: string) => {
+    const id = `m${nextId.current++}`;
+    setMessages((current) => [
+      ...current,
+      { id, from: 'customer', body: text },
+    ]);
+    setReplying(true);
+    await new Promise((done) => setTimeout(done, 1200));
+    setMessages((current) => [
+      ...current,
+      {
+        id: `m${nextId.current++}`,
+        from: 'bot',
+        body: 'Thanks! A teammate will follow up by email.',
+      },
+    ]);
+    setReplying(false);
+  }, []);
+
+  return useMemo(() => {
+    const turns: ChatThreadTurn[] = [];
+    for (const message of messages) {
+      if (message.from === 'customer') {
+        turns.push({
+          id: message.id,
+          user: {
+            message: {
+              id: message.id,
+              role: 'user',
+              status: 'completed',
+              content: [
+                {
+                  id: 'text',
+                  type: 'text',
+                  text: message.body,
+                  appearance: 'bubble',
+                },
+              ],
+            },
+            text: message.body,
+            raw: message,
+          },
+          parts: [],
+          status: 'completed',
+          actionCount: 0,
+        });
+        continue;
+      }
+      const turn = turns.at(-1);
+      if (!turn) continue;
+      for (const order of message.lookups ?? []) {
+        turn.parts.push({
+          type: 'tool-call',
+          id: `${message.id}:${order}`,
+          toolCall: {
+            id: `${message.id}:${order}`,
+            name: 'lookup_order',
+            status: 'succeeded',
+            args: { order },
+          },
+          source: { message },
+        });
+        turn.actionCount += 1;
+      }
+      turn.parts.push({
+        type: 'text',
+        id: `${message.id}:text`,
+        text: message.body,
+        streaming: false,
+        source: { message },
+      });
+    }
+    const last = turns.at(-1);
+    if (replying && last) last.status = 'streaming';
+    return {
+      model: {
+        turns,
+        interrupts: [],
+        queued: [],
+        status: replying ? 'running' : 'idle',
+      },
+      actions: { send },
+      sentMessageId: messages
+        .filter((message) => message.from === 'customer')
+        .at(-1)?.id,
+    };
+  }, [messages, replying, send]);
+}
+
+function CustomAdapterDemo() {
+  const thread = useSupportBot();
+  return (
+    <ChatThread
+      thread={thread}
+      agentName="Support bot"
+      tools={{
+        lookup_order: ({ args }) => ({
+          label: 'Order lookup',
+          summary: (args as { order?: string } | undefined)?.order,
+        }),
+      }}
+    />
+  );
+}
+
+export const CustomAdapter: Story = {
+  render: () => <CustomAdapterDemo />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'No `useStream` or `useChatThread`: the app maps its own messages to a `ChatThreadController` and passes it as `thread`. It only provides `send`, so there is no Stop, edit, or retry.',
       },
     },
   },

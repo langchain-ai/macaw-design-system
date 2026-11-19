@@ -107,8 +107,8 @@ function DiffStat({ added, removed }: { added: number; removed: number }) {
 
 /**
  * Presentations for the built-in tools of LangChain deep agents: the virtual
- * filesystem, shell execution, and planning. `LangGraphChat` and `ChatThread`
- * use them by default; pass `tools` to add or override presentations.
+ * filesystem, shell execution, and planning. `ChatThread` uses them by
+ * default; pass `tools` to add or override presentations.
  */
 export const deepAgentTools: Record<string, ChatThreadToolRenderer> = {
   ls: ({ args: input }) => ({

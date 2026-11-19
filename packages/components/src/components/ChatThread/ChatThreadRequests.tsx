@@ -9,7 +9,7 @@ import type {
   ChatThreadDecision,
   ChatThreadInterrupt,
 } from './ChatThread.types';
-import { errorText, present, useThread } from './ChatThreadContext';
+import { errorText, present, resume, useThread } from './ChatThreadContext';
 import { toHumanInTheLoopResponse } from './interrupts';
 
 function argsText(args: Record<string, unknown>) {
@@ -220,7 +220,7 @@ function OtherInterrupt({
       onSubmit={async () => {
         setState('submitting');
         try {
-          await thread.actions.resume({ [interrupt.id]: response });
+          await resume(thread, { [interrupt.id]: response });
           setState('submitted');
         } catch (error) {
           setFailure(errorText(error));
@@ -317,7 +317,8 @@ export function InterruptRequests() {
     if (!complete) return;
     setSubmitting(true);
     try {
-      await thread.actions.resume(
+      await resume(
+        thread,
         Object.fromEntries(
           approvals.map((interrupt) => [
             interrupt.id,

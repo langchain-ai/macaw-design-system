@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareOut';
 import { RobotIcon } from '@phosphor-icons/react/dist/ssr/Robot';
@@ -21,7 +21,6 @@ import type {
 } from './ChatThread.types';
 import { plainText, present, useThread } from './ChatThreadContext';
 import { describeToolCall } from './deepAgentTools';
-import { toChatThread } from './toChatThread';
 
 function ToolCallPart({
   toolCall,
@@ -45,18 +44,10 @@ function SubagentTranscript({
   running: boolean;
 }) {
   const { thread, tools } = useThread();
-  const { stream, selectors } = thread;
-  const messages = selectors?.useMessages
-    ? selectors.useMessages(stream as never, handle as never)
+  // Only rendered when the controller has the hook.
+  const parts = thread.useSubagentTranscript
+    ? thread.useSubagentTranscript(handle, running)
     : [];
-  const toolCalls = selectors?.useToolCalls
-    ? selectors.useToolCalls(stream as never, handle as never)
-    : undefined;
-  const model = useMemo(
-    () => toChatThread({ messages, toolCalls, isLoading: running }),
-    [messages, toolCalls, running]
-  );
-  const parts = model.turns.flatMap((turn) => turn.parts);
   if (parts.length === 0) {
     return (
       <Text variant="xs" color="tertiary">
@@ -107,33 +98,16 @@ function SubagentPart({
   part: Extract<ChatThreadPart, { type: 'subagent' }>;
 }) {
   const { thread, tools, onOpenSubagent } = useThread();
-  const { stream, selectors } = thread;
   const { subagent } = part;
   const running = subagent.status === 'running';
-  // While running, follow the subagent's own tool calls for its current
-  // step. Without a target the selector returns the root calls without
-  // subscribing, so a finished subagent costs nothing.
-  const liveCalls = selectors?.useToolCalls
-    ? selectors.useToolCalls(
-        stream as never,
-        (running && part.handle ? part.handle : undefined) as never
-      )
+  // While running, follow the subagent's own tool calls for its current step.
+  const step = thread.useSubagentStep
+    ? thread.useSubagentStep(running ? part.handle : undefined)
     : undefined;
-  let activity: string | undefined;
-  if (running && part.handle && liveCalls?.length) {
-    const calls = liveCalls as {
-      name?: string;
-      args?: unknown;
-      status?: string;
-    }[];
-    const current =
-      [...calls].reverse().find((call) => call.status === 'running') ??
-      calls.at(-1);
-    if (current?.name)
-      activity = describeToolCall(current.name, current.args, tools);
-  }
+  const activity =
+    running && step ? describeToolCall(step.name, step.args, tools) : undefined;
   const result = part.result ? plainText(part.result) : undefined;
-  const canExpand = Boolean(selectors?.useMessages && part.handle);
+  const canExpand = Boolean(thread.useSubagentTranscript && part.handle);
   return (
     <ChatToolCall
       toolCall={{
@@ -272,7 +246,7 @@ export function WorkSummary({
   count: number;
 }) {
   const { thread } = useThread();
-  const timing = thread.timings[turn.id];
+  const timing = thread.timings?.[turn.id];
   const working = turn.status === 'streaming';
   const waiting = turn.status === 'interrupted';
   const [readerChoice, setReaderChoice] = useState<boolean>();

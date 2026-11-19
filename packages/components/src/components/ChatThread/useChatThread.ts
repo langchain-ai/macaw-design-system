@@ -1,10 +1,14 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import type {
-  ChatThreadDecision,
+  ChatThreadActions,
+  ChatThreadController,
   ChatThreadModel,
+  ChatThreadPart,
   ChatThreadSelectors,
   ChatThreadStream,
+  ChatThreadTiming,
+  ChatThreadTurn,
   ToChatThreadOptions,
 } from './ChatThread.types';
 import { toHumanInTheLoopResponse } from './interrupts';
@@ -30,43 +34,13 @@ export interface UseChatThreadOptions extends ToChatThreadOptions {
   selectors?: ChatThreadSelectors;
 }
 
-export interface ChatThreadActions {
-  /** Sends a message, or queues it while a run is active. */
-  send: (text: string) => Promise<void>;
-  /** Stops the active run; `stopping` is true until it settles. */
-  stop: () => Promise<void>;
-  /** Answers a human-in-the-loop request: one decision per action. */
-  respond: (
-    interruptId: string,
-    decisions: readonly ChatThreadDecision[]
-  ) => Promise<void>;
-  /** Resumes interrupts with raw values, together, keyed by interrupt ID. */
-  resume: (valuesById: Record<string, unknown>) => Promise<void>;
-  /** Removes a queued message before it sends. */
-  cancelQueued: (id: string) => Promise<void>;
-  /**
-   * Sends `text` from an earlier checkpoint, replacing what followed it: an
-   * edit, or a retry with the original text. Get the fork point for a message
-   * with `useChatThreadForkPoint`.
-   */
-  fork: (text: string, forkPoint: unknown) => Promise<void>;
-}
-
-export interface ChatThreadTiming {
-  /**
-   * When the turn started working, moved later by any time it spent paused
-   * on an interrupt, so `endedAt - startedAt` is the time spent working.
-   */
-  startedAt: number;
-  endedAt?: number;
-}
-
 interface TurnTiming extends ChatThreadTiming {
   /** The turn stopped on an interrupt, so it resumes when the run does. */
   paused?: boolean;
 }
 
-export interface ChatThreadState {
+/** A `ChatThreadController` for a LangGraph stream, with every action. */
+export interface ChatThreadState extends ChatThreadController {
   model: ChatThreadModel;
   actions: ChatThreadActions;
   stream: ChatThreadStream;
@@ -75,13 +49,12 @@ export interface ChatThreadState {
   stopping: boolean;
   /** When each turn's work started and ended, measured on this client. */
   timings: Readonly<Record<string, ChatThreadTiming>>;
-  /** The message this reader sent most recently, such as one to pin. */
-  sentMessageId?: string;
+  useForkPoint: (turn: ChatThreadTurn) => unknown;
 }
 
 /**
- * Connects a LangGraph `useStream` handle to Macaw chat. Reads the handle
- * structurally, so it works with `@langchain/react` 1.x and 2.0 under any
+ * The default adapter behind `ChatThread`'s `stream` prop: connects a
+ * LangGraph `useStream` handle to Macaw chat. Reads the handle structurally, so it works with `@langchain/react` 1.x and 2.0 under any
  * package alias, and with the 0.3.x hook (without selectors).
  */
 export function useChatThread(
@@ -294,6 +267,11 @@ export function useChatThread(
     };
   }, []);
 
+  const hooks = useMemo(
+    () => streamHooks(stream, selectors),
+    [stream, selectors]
+  );
+
   return useMemo(
     () => ({
       model,
@@ -304,9 +282,74 @@ export function useChatThread(
       stopping,
       timings,
       sentMessageId,
+      ...hooks,
     }),
-    [model, actions, stream, selectors, stopping, timings, sentMessageId]
+    [model, actions, stream, selectors, stopping, timings, sentMessageId, hooks]
   );
+}
+
+const EMPTY: readonly unknown[] = [];
+
+/**
+ * The controller's hooks for a stream. Which ones exist depends only on the
+ * selectors, a module-level object, so it never changes between renders.
+ */
+function streamHooks(
+  stream: ChatThreadStream,
+  selectors: ChatThreadSelectors | undefined
+): Pick<
+  ChatThreadState,
+  'useForkPoint' | 'useSubagentTranscript' | 'useSubagentStep'
+> {
+  const useMessages = selectors?.useMessages;
+  const useToolCalls = selectors?.useToolCalls;
+
+  function useForkPoint(turn: ChatThreadTurn) {
+    return useChatThreadForkPoint(
+      { stream, selectors },
+      turn.user ? { id: turn.user.message.id, raw: turn.user.raw } : undefined
+    );
+  }
+
+  function useSubagentTranscript(
+    handle: unknown,
+    running: boolean
+  ): ChatThreadPart[] {
+    const messages = useMessages
+      ? useMessages(stream as never, handle as never)
+      : EMPTY;
+    const toolCalls = useToolCalls
+      ? useToolCalls(stream as never, handle as never)
+      : undefined;
+    return useMemo(
+      () =>
+        toChatThread({ messages, toolCalls, isLoading: running }).turns.flatMap(
+          (turn) => turn.parts
+        ),
+      [messages, toolCalls, running]
+    );
+  }
+
+  function useSubagentStep(handle: unknown) {
+    // Without a target the selector returns the root calls without
+    // subscribing, so a finished subagent costs nothing.
+    const calls = useToolCalls?.(stream as never, handle as never) as
+      | { name?: string; args?: unknown; status?: string }[]
+      | undefined;
+    if (!handle || !calls?.length) return undefined;
+    const current =
+      [...calls].reverse().find((call) => call.status === 'running') ??
+      calls.at(-1);
+    return current?.name
+      ? { name: current.name, args: current.args }
+      : undefined;
+  }
+
+  return {
+    useForkPoint,
+    useSubagentTranscript: useMessages ? useSubagentTranscript : undefined,
+    useSubagentStep: useToolCalls ? useSubagentStep : undefined,
+  };
 }
 
 /**

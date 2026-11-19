@@ -2,9 +2,10 @@
 
 Macaw chat families provide presentation and local interaction. Applications
 own network requests, authentication, persistence, analytics, tool execution,
-and product-specific tool or logo mapping. For LangGraph agents, the
-`ChatThread` family also maps a `useStream` handle's state to these parts, so
-apps don't each rebuild that mapping; the app still creates the stream.
+and product-specific tool or logo mapping. `ChatThread` composes these parts
+into an agent conversation view. By default it adapts a LangGraph `useStream`
+handle so apps don't each rebuild that mapping, and it also takes your own
+adapter's output; either way the app still owns the stream.
 
 ## Conversation scrolling
 
@@ -125,19 +126,35 @@ body with host-owned fields; `edit.onSubmit` saves them. `ChatMessageActions`
 shows `cancel` on queued messages, and `ChatComposer` takes
 `action="stopping"` while a stop is pending.
 
-## LangGraph streams
+## Agent threads
 
-Import from `@langchain/macaw-components/ChatThread`. Macaw never imports the
-LangGraph SDK: it reads the `useStream` handle the app passes in, so it works
-with `@langchain/react` 1.x and 2.0 under any package alias, and with the 0.3.x
-hook.
+Import from `@langchain/macaw-components/ChatThread`. `ChatThread` is a view,
+not an app: the app keeps the client, auth, thread list, and routing. It
+renders from a `ChatThreadController` (the turns, interrupts, queue, plan,
+and actions) and takes it one of two ways:
 
-- `LangGraphChat` is the drop-in agent chat for a stream.
-- `useChatThread(stream, options)` returns the thread model and actions
-  (`send`, `stop`, `respond`, `resume`, `cancelQueued`, `fork`) for apps that
-  place `ChatThread` in their own layout or render their own rows.
-- `toChatThread(snapshot)` is the pure mapping, for plain data such as recorded
-  threads.
+- **`stream` (default).** Pass a LangGraph `useStream` handle and `ChatThread`
+  adapts it with the built-in `useChatThread` hook.
+- **`thread` (bring your own adapter).** `useChatThread` is optional. For your
+  own stream logic, another agent framework, or recorded data, build a
+  `ChatThreadController` yourself and pass it as `thread`, without
+  committing a one-off case to Macaw. Only `model` and `actions.send` are
+  required: leave out `stop`, `cancelQueued`, or `fork` and Stop, cancelling
+  queued messages, or edit and retry are hidden. The built-in request cards
+  answer through `resume`. Optional hooks add edit/retry fork points
+  (`useForkPoint`) and subagent details (`useSubagentTranscript`,
+  `useSubagentStep`).
+
+Pick one for the life of the component. The pieces of the default adapter
+are public too: call `useChatThread(stream, options)` yourself to read its
+state or wrap its actions and pass the result as `thread`, or use
+`toChatThread(snapshot)`, the pure mapping, to build part of your own model.
+
+### The default LangGraph adapter
+
+Macaw never imports the LangGraph SDK: it reads the `useStream` handle the app
+passes in, so it works with `@langchain/react` 1.x and 2.0 under any package
+alias, and with the 0.3.x hook.
 
 The mapping merges each tool call's status from its result message, the live
 tool stream, pending interrupts, and the run; groups messages into turns;
@@ -147,7 +164,7 @@ and files. Pass selector hooks from your own `@langchain/react` import to turn
 on queued messages, edit and retry, and subagent details. Keep that object at
 module level so it never changes between renders. If your graph uses a message
 state key other than `messages`, pass the same `messagesKey` to `useStream` and
-`LangGraphChat` (or `useChatThread`) so sends, edit/retry, and queue previews
+`ChatThread` (or `useChatThread`) so sends, edit/retry, and queue previews
 use that key. The adapter still reads the transcript from `stream.messages`.
 
 ```tsx
@@ -158,7 +175,7 @@ import {
   useSubmissionQueue,
   useToolCalls,
 } from '@langchain/react';
-import { LangGraphChat } from '@langchain/macaw-components/ChatThread';
+import { ChatThread } from '@langchain/macaw-components/ChatThread';
 
 const selectors = {
   useMessageMetadata,
@@ -169,9 +186,30 @@ const selectors = {
 
 export function AgentChat() {
   const stream = useStream({ assistantId: 'agent', apiUrl: '/api/agent' });
-  return <LangGraphChat stream={stream} selectors={selectors} />;
+  return <ChatThread stream={stream} selectors={selectors} />;
 }
 ```
+
+### Your own adapter
+
+```tsx
+import {
+  ChatThread,
+  type ChatThreadController,
+} from '@langchain/macaw-components/ChatThread';
+
+function useMyAgentThread(): ChatThreadController {
+  const { events, isRunning, sendMessage, cancel } = useMyAgent();
+  const model = useMemo(() => toModel(events, isRunning), [events, isRunning]);
+  return { model, actions: { send: sendMessage, stop: cancel } };
+}
+
+export function AgentChat() {
+  return <ChatThread thread={useMyAgentThread()} />;
+}
+```
+
+### Presentation
 
 Tool rows use `deepAgentTools` for the built-in deep agent tools. Pass `tools`
 to present others by name: return row props, your own element, or `null` to

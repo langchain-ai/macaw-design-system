@@ -1,17 +1,18 @@
-export { ChatThread, LangGraphChat } from './ChatThread';
-export type { ChatThreadProps, LangGraphChatProps } from './ChatThread';
-export { useChatThread, useChatThreadForkPoint } from './useChatThread';
+export { ChatThread } from './ChatThread';
 export type {
-  ChatThreadActions,
-  ChatThreadState,
-  ChatThreadTiming,
-  UseChatThreadOptions,
-} from './useChatThread';
+  ChatThreadControllerProps,
+  ChatThreadProps,
+  ChatThreadStreamProps,
+} from './ChatThread';
+export { useChatThread, useChatThreadForkPoint } from './useChatThread';
+export type { ChatThreadState, UseChatThreadOptions } from './useChatThread';
 export { toChatThread } from './toChatThread';
 export { parseInterrupt, toHumanInTheLoopResponse } from './interrupts';
 export { deepAgentTools } from './deepAgentTools';
 export type {
   ChatThreadActionRequest,
+  ChatThreadActions,
+  ChatThreadController,
   ChatThreadDecision,
   ChatThreadDecisionType,
   ChatThreadFile,
@@ -24,6 +25,7 @@ export type {
   ChatThreadSnapshot,
   ChatThreadStream,
   ChatThreadSubagent,
+  ChatThreadTiming,
   ChatThreadToolPresentation,
   ChatThreadToolRenderer,
   ChatThreadTurn,

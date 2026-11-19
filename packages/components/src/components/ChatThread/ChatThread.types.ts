@@ -122,7 +122,10 @@ export type ChatThreadPart = (
       subagent: ChatThreadSubagent;
       /** The subagent's final answer, once it returns. */
       result?: string;
-      /** The stream's subagent handle; selectors scope to it. */
+      /**
+       * The adapter's handle for the run, passed to the controller's subagent
+       * hooks; `useChatThread` uses the stream's subagent handle.
+       */
       handle?: unknown;
       interruptId?: string;
     }
@@ -215,3 +218,81 @@ export type ChatThreadToolRenderer = (
   toolCall: ChatToolCallModel,
   source?: ChatThreadPartSource
 ) => ChatThreadToolPresentation | ReactElement | null;
+
+/** What `ChatThread` can do on the reader's behalf; `useChatThread` provides all of them. */
+export interface ChatThreadActions {
+  /** Sends a message, or queues it while a run is active. */
+  send: (text: string) => Promise<void>;
+  /** Stops the active run; `stopping` is true until it settles. */
+  stop: () => Promise<void>;
+  /** Answers a human-in-the-loop request: one decision per action. */
+  respond: (
+    interruptId: string,
+    decisions: readonly ChatThreadDecision[]
+  ) => Promise<void>;
+  /** Resumes interrupts with raw values, together, keyed by interrupt ID. */
+  resume: (valuesById: Record<string, unknown>) => Promise<void>;
+  /** Removes a queued message before it sends. */
+  cancelQueued: (id: string) => Promise<void>;
+  /**
+   * Sends `text` from an earlier checkpoint, replacing what followed it: an
+   * edit, or a retry with the original text.
+   */
+  fork: (text: string, forkPoint: unknown) => Promise<void>;
+}
+
+export interface ChatThreadTiming {
+  /**
+   * When the turn started working, moved later by any time it spent paused
+   * on an interrupt, so `endedAt - startedAt` is the time spent working.
+   */
+  startedAt: number;
+  endedAt?: number;
+}
+
+/**
+ * Everything `ChatThread` renders from and calls. `useChatThread` builds one
+ * from a LangGraph `useStream` handle; an app with its own stream or data
+ * builds one itself. Only `model` and `actions.send` are required: leave out
+ * an action or hook and the control or detail that needs it is hidden.
+ */
+export interface ChatThreadController {
+  /** Render-ready turns, interrupts, queue, plan, and run status. */
+  model: ChatThreadModel;
+  /**
+   * `send` is required. Without `stop` there's no Stop button, without
+   * `cancelQueued` queued messages can't be cancelled, and without `fork`
+   * there's no edit or retry. The built-in request cards answer through
+   * `resume`.
+   */
+  actions: Pick<ChatThreadActions, 'send'> & Partial<ChatThreadActions>;
+  /** Shows a loading placeholder in place of the conversation. */
+  isThreadLoading?: boolean;
+  /** A stop is pending. */
+  stopping?: boolean;
+  /** When each turn's work started and ended, for "Worked for 12s". */
+  timings?: Readonly<Record<string, ChatThreadTiming>>;
+  /** The message the reader sent most recently; it pins to the top. */
+  sentMessageId?: string;
+  /**
+   * Hook returning the fork point for a turn's user message, or undefined
+   * when it can't be edited or retried. Called once per user message, so
+   * keep it present or absent for the life of the thread.
+   */
+  useForkPoint?: (turn: ChatThreadTurn) => unknown;
+  /**
+   * Hook returning a subagent's own parts, shown when its row is expanded.
+   * Without it, subagent rows don't expand.
+   */
+  useSubagentTranscript?: (
+    handle: unknown,
+    running: boolean
+  ) => ChatThreadPart[];
+  /**
+   * Hook returning the tool call a running subagent is on, for its row's
+   * summary. Receives undefined once the subagent stops.
+   */
+  useSubagentStep?: (
+    handle: unknown
+  ) => { name: string; args?: unknown } | undefined;
+}

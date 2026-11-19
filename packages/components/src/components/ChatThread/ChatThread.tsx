@@ -24,7 +24,9 @@ import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
 import { Textarea } from '../Textarea';
 import type {
+  ChatThreadController,
   ChatThreadInterrupt,
+  ChatThreadStream,
   ChatThreadSubagent,
   ChatThreadToolRenderer,
   ChatThreadTurn,
@@ -43,12 +45,7 @@ import {
   WorkSummary,
 } from './ChatThreadWork';
 import { deepAgentTools } from './deepAgentTools';
-import {
-  type ChatThreadState,
-  useChatThread,
-  useChatThreadForkPoint,
-  type UseChatThreadOptions,
-} from './useChatThread';
+import { useChatThread, type UseChatThreadOptions } from './useChatThread';
 
 /** Chat answers are bounded, so Markdown renders up to this many characters. */
 const MAX_ANSWER_MARKDOWN = 100_000;
@@ -56,21 +53,19 @@ const MAX_ANSWER_MARKDOWN = 100_000;
 function UserMessage({ turn }: { turn: ChatThreadTurn }) {
   const { thread } = useThread();
   const user = turn.user;
-  const forkPoint = useChatThreadForkPoint(
-    thread,
-    user ? { id: user.message.id, raw: user.raw } : undefined
-  );
+  const forkPoint = thread.useForkPoint ? thread.useForkPoint(turn) : undefined;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   if (!user) return null;
   const busy = thread.model.status === 'running';
+  const fork = forkPoint === undefined ? undefined : thread.actions.fork;
 
-  if (editing) {
+  if (editing && fork) {
     const save = () => {
       const text = draft.trim();
       if (!text) return;
       setEditing(false);
-      thread.actions.fork(text, forkPoint).catch(() => {
+      fork(text, forkPoint).catch(() => {
         // Reopen the edit so the reader can send it again.
         setDraft(text);
         setEditing(true);
@@ -110,7 +105,7 @@ function UserMessage({ turn }: { turn: ChatThreadTurn }) {
   const actions: ChatMessageActionCapabilities = {
     copy: { onClick: () => void copyToClipboard(user.text) },
   };
-  if (forkPoint !== undefined) {
+  if (fork) {
     actions.edit = {
       onClick: () => {
         setDraft(user.text);
@@ -118,7 +113,7 @@ function UserMessage({ turn }: { turn: ChatThreadTurn }) {
       },
     };
     actions.retry = {
-      onClick: () => void thread.actions.fork(user.text, forkPoint),
+      onClick: () => void fork(user.text, forkPoint),
     };
   }
   return (
@@ -255,10 +250,11 @@ function ThreadComposer({
   const [draft, setDraft] = useState('');
   const running = model.status === 'running';
   const waiting = model.status === 'interrupted';
+  const stop = actions.stop;
   const actionProps: Pick<ChatComposerProps, 'action' | 'onStop'> = stopping
     ? { action: 'stopping' }
-    : running && !draft.trim()
-      ? { action: 'stop', onStop: () => void actions.stop() }
+    : running && stop && !draft.trim()
+      ? { action: 'stop', onStop: () => void stop() }
       : { action: 'send' };
   const plan = model.plan;
   const showPlan =
@@ -328,9 +324,7 @@ function useStatusAnnouncement(status: keyof typeof ANNOUNCEMENTS) {
   return announcement;
 }
 
-export interface ChatThreadProps {
-  /** The state from `useChatThread`. */
-  thread: ChatThreadState;
+interface ChatThreadViewProps {
   /** Tool presentations by tool name, applied over `deepAgentTools`. */
   tools?: Record<string, ChatThreadToolRenderer>;
   /**
@@ -339,7 +333,7 @@ export interface ChatThreadProps {
    */
   renderInterrupt?: (
     interrupt: ChatThreadInterrupt,
-    thread: ChatThreadState
+    thread: ChatThreadController
   ) => ReactNode | undefined;
   /** Opens a subagent's full thread, such as in a side pane. */
   onOpenSubagent?: (subagent: ChatThreadSubagent) => void;
@@ -362,12 +356,56 @@ export interface ChatThreadProps {
   className?: string;
 }
 
+/** The default: a LangGraph `useStream` handle, adapted by `useChatThread`. */
+export interface ChatThreadStreamProps
+  extends ChatThreadViewProps, UseChatThreadOptions {
+  /** A `useStream` handle from `@langchain/react` (1.x, 2.0) or the 0.3.x hook. */
+  stream: ChatThreadStream;
+  thread?: never;
+}
+
+/** Bring your own adapter: any stream or data mapped to a controller. */
+export interface ChatThreadControllerProps extends ChatThreadViewProps {
+  /**
+   * The thread to render: from `useChatThread`, or your own adapter for
+   * another stream or data source.
+   */
+  thread: ChatThreadController;
+  stream?: never;
+}
+
+export type ChatThreadProps = ChatThreadStreamProps | ChatThreadControllerProps;
+
 /**
- * A complete agent conversation built from Macaw chat parts: messages,
+ * An agent conversation view built from Macaw chat parts: messages,
  * reasoning, tool calls, subagents, approvals, the plan, queued messages,
- * and the composer, all driven by `useChatThread`.
+ * and the composer. Pass a LangGraph `stream` to use the built-in
+ * `useChatThread` adapter, or a `thread` from your own adapter. Pick one for
+ * the life of the component.
  */
-export function ChatThread({
+export function ChatThread(props: ChatThreadProps) {
+  if (props.thread) return <ChatThreadView {...props} thread={props.thread} />;
+  return <StreamChatThread {...props} />;
+}
+
+function StreamChatThread({
+  stream,
+  selectors,
+  hideMessage,
+  messagesKey,
+  subagentTools,
+  ...props
+}: ChatThreadStreamProps) {
+  const thread = useChatThread(stream, {
+    selectors,
+    hideMessage,
+    messagesKey,
+    subagentTools,
+  });
+  return <ChatThreadView {...props} thread={thread} />;
+}
+
+function ChatThreadView({
   thread,
   tools,
   renderInterrupt,
@@ -381,12 +419,13 @@ export function ChatThread({
   composerActions,
   label = 'Agent conversation',
   className,
-}: ChatThreadProps) {
+}: ChatThreadViewProps & { thread: ChatThreadController }) {
   const toolPresentations = useMemo(
     () => ({ ...deepAgentTools, ...tools }),
     [tools]
   );
   const { model, isThreadLoading, actions } = thread;
+  const cancelQueued = actions.cancelQueued;
   const announcement = useStatusAnnouncement(model.status);
   const context = useMemo<ThreadContextValue>(
     () => ({
@@ -482,14 +521,16 @@ export function ChatThread({
                   ],
                 }}
                 footer={
-                  <ChatMessageActions
-                    status="queued"
-                    actions={{
-                      cancel: {
-                        onClick: () => void actions.cancelQueued(queued.id),
-                      },
-                    }}
-                  />
+                  cancelQueued ? (
+                    <ChatMessageActions
+                      status="queued"
+                      actions={{
+                        cancel: {
+                          onClick: () => void cancelQueued(queued.id),
+                        },
+                      }}
+                    />
+                  ) : undefined
                 }
               />
             ))}
@@ -501,32 +542,4 @@ export function ChatThread({
       </span>
     </ThreadContext.Provider>
   );
-}
-
-export interface LangGraphChatProps
-  extends Omit<ChatThreadProps, 'thread'>, UseChatThreadOptions {
-  /** A `useStream` handle from `@langchain/react` (1.x, 2.0) or the 0.3.x hook. */
-  stream: Parameters<typeof useChatThread>[0];
-}
-
-/**
- * A drop-in agent chat for a LangGraph `useStream` handle: `useChatThread`
- * and `ChatThread` together. The app creates the stream, so it keeps
- * ownership of the client, auth, and thread selection.
- */
-export function LangGraphChat({
-  stream,
-  selectors,
-  hideMessage,
-  messagesKey,
-  subagentTools,
-  ...props
-}: LangGraphChatProps) {
-  const thread = useChatThread(stream, {
-    selectors,
-    hideMessage,
-    messagesKey,
-    subagentTools,
-  });
-  return <ChatThread thread={thread} {...props} />;
 }

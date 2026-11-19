@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 
-import { LangGraphChat, useChatThread } from '..';
+import { ChatThread, useChatThread } from '..';
+import type { ChatThreadController } from '..';
 import {
   awaitingApprovalState,
   completedState,
@@ -222,10 +223,10 @@ describe('useChatThread actions', () => {
   });
 });
 
-describe('LangGraphChat', () => {
+describe('ChatThread with a stream', () => {
   it('keeps an answer with an image outside the work summary', () => {
     render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream({
           ...emptyState,
           messages: [
@@ -262,7 +263,7 @@ describe('LangGraphChat', () => {
 
   it('summarizes finished work and opens it on request', async () => {
     const { user } = render(
-      <LangGraphChat stream={staticStream(completedState)} />
+      <ChatThread stream={staticStream(completedState)} />
     );
     const summary = screen.getByRole('button', { name: '4 actions' });
 
@@ -278,9 +279,7 @@ describe('LangGraphChat', () => {
   it('approves a pending request with the interrupt ID', async () => {
     const respond = vi.fn().mockResolvedValue(undefined);
     const { user } = render(
-      <LangGraphChat
-        stream={staticStream(awaitingApprovalState, { respond })}
-      />
+      <ChatThread stream={staticStream(awaitingApprovalState, { respond })} />
     );
 
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
@@ -294,7 +293,7 @@ describe('LangGraphChat', () => {
   it('approves with edited arguments in the graph’s casing', async () => {
     const respond = vi.fn().mockResolvedValue(undefined);
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream(
           { ...emptyState, interrupts: [approvalInterrupt('camel', 1)] },
           { respond }
@@ -329,7 +328,7 @@ describe('LangGraphChat', () => {
   it('keeps invalid edited arguments in the card', async () => {
     const respond = vi.fn();
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream(
           { ...emptyState, interrupts: [approvalInterrupt('camel', 1)] },
           { respond }
@@ -353,7 +352,7 @@ describe('LangGraphChat', () => {
   it('waits for every request paused together before resuming', async () => {
     const respond = vi.fn().mockResolvedValue(undefined);
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream(
           { ...emptyState, interrupts: [approvalInterrupt('snake', 2)] },
           { respond }
@@ -378,7 +377,7 @@ describe('LangGraphChat', () => {
     const respond = vi.fn().mockResolvedValue(undefined);
     const hostApproval = { ...approvalInterrupt('snake', 1), id: 'host' };
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream(
           {
             ...emptyState,
@@ -402,7 +401,7 @@ describe('LangGraphChat', () => {
 
   it('places host controls in the composer toolbar', () => {
     render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream(completedState)}
         modelSelector={<button type="button">Model</button>}
         composerTools={<button type="button">Attach</button>}
@@ -417,7 +416,7 @@ describe('LangGraphChat', () => {
   it('stops a run from an empty composer', async () => {
     const stop = vi.fn().mockResolvedValue(undefined);
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream({ ...completedState, isLoading: true }, { stop })}
       />
     );
@@ -430,7 +429,7 @@ describe('LangGraphChat', () => {
   it('shows and cancels a queued message under a custom message key', async () => {
     const cancel = vi.fn().mockResolvedValue(true);
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream({ ...completedState, isLoading: true })}
         messagesKey="chat_history"
         selectors={{
@@ -459,7 +458,7 @@ describe('LangGraphChat', () => {
 
   it('presents tools by name from their original messages and hides the ones a host returns null for', async () => {
     const { user } = render(
-      <LangGraphChat
+      <ChatThread
         stream={staticStream({
           ...emptyState,
           messages: [
@@ -504,5 +503,86 @@ describe('LangGraphChat', () => {
     ).toBeVisible();
     expect(screen.getByText('3 hits')).toBeVisible();
     expect(screen.queryByText('log_metric')).toBeNull();
+  });
+});
+
+describe('ChatThread with a custom adapter', () => {
+  function customThread(
+    overrides: Partial<ChatThreadController> = {}
+  ): ChatThreadController {
+    return {
+      model: {
+        turns: [
+          {
+            id: 'turn-1',
+            user: {
+              message: {
+                id: 'turn-1',
+                role: 'user',
+                status: 'completed',
+                content: [
+                  {
+                    id: 'text',
+                    type: 'text',
+                    text: 'Find the docs',
+                    appearance: 'bubble',
+                  },
+                ],
+              },
+              text: 'Find the docs',
+              raw: null,
+            },
+            parts: [
+              {
+                type: 'text',
+                id: 'answer',
+                text: 'Here they are.',
+                streaming: false,
+                source: { message: null },
+              },
+            ],
+            status: 'completed',
+            actionCount: 0,
+          },
+        ],
+        interrupts: [],
+        queued: [{ id: 'queued-1', text: 'And the changelog?' }],
+        status: 'running',
+      },
+      actions: { send: vi.fn().mockResolvedValue(undefined) },
+      ...overrides,
+    };
+  }
+
+  it('renders without a stream, hiding controls it has no action for', () => {
+    render(<ChatThread thread={customThread()} />);
+
+    expect(screen.getByText('Here they are.')).toBeInTheDocument();
+    expect(screen.getByText('And the changelog?')).toBeInTheDocument();
+    // Running, but without `stop` the composer keeps Send.
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Stop response' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /cancel/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /edit/i })).toBeNull();
+  });
+
+  it('answers a request through the adapter’s resume', async () => {
+    const resume = vi.fn().mockResolvedValue(undefined);
+    const thread = customThread({
+      actions: { send: vi.fn(), resume },
+    });
+    thread.model = {
+      ...thread.model,
+      queued: [],
+      status: 'interrupted',
+      interrupts: [
+        { kind: 'other', id: 'ask', value: 'Which repo?', raw: null },
+      ],
+    };
+    const { user } = render(<ChatThread thread={thread} />);
+
+    await user.type(screen.getByRole('textbox', { name: 'Response' }), 'docs');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+    expect(resume).toHaveBeenCalledWith({ ask: 'docs' });
   });
 });

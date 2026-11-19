@@ -8,6 +8,7 @@ import {
 
 import type { ChatToolCallModel } from '../ChatToolCall';
 import type {
+  ChatThreadController,
   ChatThreadInterrupt,
   ChatThreadPart,
   ChatThreadPartSource,
@@ -15,15 +16,14 @@ import type {
   ChatThreadToolPresentation,
   ChatThreadToolRenderer,
 } from './ChatThread.types';
-import type { ChatThreadState } from './useChatThread';
 
 export interface ThreadContextValue {
-  thread: ChatThreadState;
+  thread: ChatThreadController;
   tools: Record<string, ChatThreadToolRenderer>;
   agentName?: string;
   renderInterrupt?: (
     interrupt: ChatThreadInterrupt,
-    thread: ChatThreadState
+    thread: ChatThreadController
   ) => ReactNode | undefined;
   onOpenSubagent?: (subagent: ChatThreadSubagent) => void;
 }
@@ -61,6 +61,17 @@ export function plainText(text: string) {
     .replace(/[*_`>]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/** Answers interrupts through the controller, which may not support it. */
+export function resume(
+  thread: ChatThreadController,
+  valuesById: Record<string, unknown>
+) {
+  if (!thread.actions.resume) {
+    return Promise.reject(new Error('This chat can’t answer requests.'));
+  }
+  return thread.actions.resume(valuesById);
 }
 
 export function errorText(error: unknown) {
