@@ -224,6 +224,10 @@
       "types": "./dist/components/MetricChart/index.d.ts",
       "import": "./dist/components/MetricChart/index.js"
     },
+    "./PageHeader": {
+      "types": "./dist/components/PageHeader/index.d.ts",
+      "import": "./dist/components/PageHeader/index.js"
+    },
     "./Pane": {
       "types": "./dist/components/Pane/index.d.ts",
       "import": "./dist/components/Pane/index.js"
@@ -544,6 +548,10 @@
     "./components/MetricChart": {
       "types": "./dist/components/MetricChart/index.d.ts",
       "import": "./dist/components/MetricChart/index.js"
+    },
+    "./components/PageHeader": {
+      "types": "./dist/components/PageHeader/index.d.ts",
+      "import": "./dist/components/PageHeader/index.js"
     },
     "./components/Pane": {
       "types": "./dist/components/Pane/index.d.ts",
