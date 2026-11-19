@@ -1,3 +1,14 @@
+## 1.7.19 (2026-11-19)
+
+### 🩹 Fixes
+
+- **components:** add dark:hover:bg-transparent on transparent plain buttons ([#132](https://github.com/langchain-ai/macaw-design-system/pull/132))
+
+### ❤️ Thank You
+
+- Johannes du Plessis @johannes117
+- Robin @open-swe
+
 ## 1.7.18 (2026-11-18)
 
 ### 🚀 Features
