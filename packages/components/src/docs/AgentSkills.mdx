@@ -1,0 +1,23 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+
+import { AgentSkillList } from './agentSkills';
+
+<Meta title="Agent Skills" parameters={{ docs: { toc: false } }} />
+
+# Agent Skills
+
+Skills are instructions a coding agent loads when a task matches them. They tell the agent which Macaw components to use and how to compose them, so agent-built UI follows the same decisions as hand-built UI.
+
+<Unstyled>
+  <AgentSkillList />
+</Unstyled>
+
+## Where a skill lives
+
+Each skill has one home. This page only lists what it's for and where to find it, so there's nothing to keep in sync.
+
+- **Useful in any app that uses Macaw**: ship it from the Macaw CLI so `pnpm exec macaw init` installs it with the package version.
+- **About changing Macaw itself**: `.agents/skills/` in this repository.
+- **About one product's pages or data**: the product's own repository, next to the code it describes. If it has a layout recipe, add the recipe here under Recipes, built from Macaw components.
+
+Then add an entry to `agentSkills` in `packages/components/src/docs/agentSkills.tsx`.
