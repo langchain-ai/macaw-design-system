@@ -1,3 +1,15 @@
+## 1.7.21 (2026-11-20)
+
+### 🩹 Fixes
+
+- **ChatComposer:** show focus outline only for keyboard focus ([#134](https://github.com/langchain-ai/macaw-design-system/pull/134))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
 ## 1.7.20 (2026-11-19)
 
 ### 🚀 Features
