@@ -1442,7 +1442,6 @@ export const CATALOG = [
     },
     render: ({ status }) => (
       <ErrorState
-        withoutOverlay
         status={Number(status)}
         title={status === '404' ? 'Project not found' : 'Something broke'}
         message={
