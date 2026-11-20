@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '../../utils/cn';
+import { getLastInputModality } from '../../utils/inputModality';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
@@ -25,27 +26,6 @@ export type TooltipProps = {
   onOpenChange?: (open: boolean) => void;
   disableHoverableContent?: boolean;
 };
-
-let focusFromKeyboard = true;
-
-if (typeof document !== 'undefined') {
-  document.addEventListener(
-    'keydown',
-    (event) => {
-      if (!event.metaKey && !event.altKey && !event.ctrlKey) {
-        focusFromKeyboard = true;
-      }
-    },
-    true
-  );
-  document.addEventListener(
-    'pointerdown',
-    () => {
-      focusFromKeyboard = false;
-    },
-    true
-  );
-}
 
 // Tooltip sets two opinionated defaults — override with caution:
 // - delayDuration=300: prevents tooltips from blocking clicks
@@ -83,7 +63,7 @@ export function Tooltip({
       <TooltipPrimitive.Trigger
         asChild
         onFocus={(e) => {
-          if (!focusFromKeyboard) e.preventDefault();
+          if (getLastInputModality() === 'pointer') e.preventDefault();
         }}
         onPointerDown={(e) => {
           if (blockTriggerEvents) {

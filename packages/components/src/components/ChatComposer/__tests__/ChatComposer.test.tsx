@@ -452,6 +452,26 @@ describe('ChatComposer', () => {
     expect(input).not.toHaveFocus();
   });
 
+  it('outlines the composer for keyboard focus but not for clicks', async () => {
+    const { user } = render(<ComposerHarness />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    const composer = input.closest('fieldset');
+    if (!composer) throw new Error('Composer fieldset not found');
+
+    await user.click(composer);
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(composer.className).not.toContain('border-focus');
+
+    await user.click(document.body);
+    await user.tab();
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(composer.className).toContain('border-focus');
+
+    await user.click(composer);
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(composer.className).not.toContain('border-focus');
+  });
+
   it('shows the attachment tooltip on hover but not around its open menu', async () => {
     const { user } = render(<ComposerHarness />);
     await screen.findByRole('textbox', { name: 'Message' });
