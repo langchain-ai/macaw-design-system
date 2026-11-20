@@ -119,6 +119,16 @@ import type {
   ChatToolCallProps,
 } from '@langchain/macaw-components/ChatToolCall';
 import {
+  Checklist,
+  ChecklistItem,
+  ChecklistSection,
+} from '@langchain/macaw-components/Checklist';
+import type {
+  ChecklistProps,
+  ChecklistItemProps,
+  ChecklistSectionProps,
+} from '@langchain/macaw-components/Checklist';
+import {
   Code,
   CodeLanguageSelect,
   CodeToolbar,
@@ -310,6 +320,20 @@ void [
   'input-required' satisfies ChatStateStatus,
   'tenths' satisfies ChatStateTimerPrecision,
   formatChatDuration(65_000) satisfies string,
+  Checklist,
+  ChecklistItem,
+  ChecklistSection,
+  { title: 'Setup', completed: 1, total: 2 } satisfies ChecklistProps,
+  {
+    title: 'Connect',
+    status: 'completed',
+    expanded: false,
+  } satisfies ChecklistItemProps,
+  {
+    title: 'Get Started',
+    steps: [true, false],
+    defaultExpanded: true,
+  } satisfies ChecklistSectionProps,
   ChatPlan,
   {
     items: [{ id: '1', label: 'Search', status: 'in-progress' }],
