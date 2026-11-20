@@ -6,6 +6,7 @@ import { ChartCard } from '../components/ChartCard';
 import { Checkbox } from '../components/Checkbox';
 import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
 import { Input } from '../components/Input/Input';
+import { Link } from '../components/Link';
 import { MetricChart } from '../components/MetricChart';
 import { Text } from '../components/Text/Text';
 import { Textarea } from '../components/Textarea/Textarea';
@@ -425,6 +426,16 @@ export const Examples: Story = {
         <p className="text-sm text-secondary">
           These examples show how to combine spacing tokens into consistent page
           headers, sections, forms, dialogs, and metric-card groups.
+        </p>
+        <p className="text-sm text-secondary">
+          Building a LangSmith settings page? Use{' '}
+          <Link
+            href="?path=/story/recipes-settings-pages--cta-table"
+            target="_top"
+          >
+            Recipes/Settings Pages
+          </Link>
+          , which mirrors the real settings primitives.
         </p>
       </div>
 
