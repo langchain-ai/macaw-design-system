@@ -174,11 +174,7 @@ export function CommandMenu({
           disabled={item.disabled}
           onSelect={() => onSelect(item.value)}
           size={itemRowSize}
-          className={cn(
-            'gap-space-2',
-            hideSearch &&
-              'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] aria-selected:after:border-2 aria-selected:after:border-focus'
-          )}
+          className="gap-space-2"
         >
           {renderItem ? (
             renderItem(item, isSelected)
