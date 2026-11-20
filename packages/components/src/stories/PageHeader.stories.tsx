@@ -55,7 +55,7 @@ function PageHeader({
             <IconButton
               {...backButton}
               icon={ArrowLeftIcon}
-              size="md"
+              size="sm"
               color="secondary"
               variant="plain"
             />
@@ -86,7 +86,7 @@ function PageHeader({
                 {...buttonProps}
                 color={key === 'primary' ? 'primary' : 'secondary'}
                 variant={key === 'primary' ? 'normal' : 'outlined'}
-                size="md"
+                size="sm"
               >
                 {label}
               </Button>
