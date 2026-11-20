@@ -8,10 +8,15 @@ import { expect, test } from 'vitest';
 const cli = path.resolve(__dirname, '../cli.mts');
 const root = path.resolve(path.dirname(cli), '..');
 
+const env = { ...process.env };
+delete env.LANGSMITH_API_KEY;
+delete env.LANGSMITH_GATEWAY_API_KEY;
+
 function invoke(...args: string[]) {
   return spawnSync(process.execPath, [cli, ...args], {
     cwd: os.tmpdir(),
     encoding: 'utf8',
+    env,
     timeout: 10_000,
   });
 }
