@@ -5,6 +5,7 @@ import { ArrowUpIcon } from '@phosphor-icons/react/dist/ssr/ArrowUp';
 import { StopIcon } from '@phosphor-icons/react/dist/ssr/Stop';
 
 import { cn } from '../../utils/cn';
+import { getLastInputModality } from '../../utils/inputModality';
 import { mergeRefs } from '../../utils/merge-refs';
 import { IconButton } from '../IconButton';
 import type { IconButtonProps } from '../IconButton';
@@ -63,6 +64,8 @@ function isAttachmentTargetBlocked(target: EventTarget) {
   );
 }
 
+const COMPOSER_INPUT_SELECTOR = 'textarea, [contenteditable=true]';
+
 // Clicks on the composer's own empty space go to the message input; clicks on
 // controls, fields, links, and the editor itself keep their behavior.
 const COMPOSER_CLICK_TARGET_SELECTOR =
@@ -104,6 +107,7 @@ export function ChatComposer({
 }: ChatComposerProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isDropTarget, setIsDropTarget] = useState(false);
+  const [showsFocusRing, setShowsFocusRing] = useState(false);
   const canSubmit =
     !disabled && !submitDisabled && action === 'send' && !!onSubmit;
   const hasDrawer = Boolean(drawer);
@@ -219,11 +223,19 @@ export function ChatComposer({
               return;
             inputFocusRef.current?.();
           }}
+          onPointerDown={() => setShowsFocusRing(false)}
+          onFocus={(event) => {
+            if (event.target.matches(COMPOSER_INPUT_SELECTOR)) {
+              setShowsFocusRing(getLastInputModality() === 'keyboard');
+            }
+          }}
           className={cn(
             'relative m-0 flex w-full min-w-0 flex-col gap-space-2 rounded-lg border border-subtle bg-elevated p-space-2 transition-[border-color,box-shadow,background-color] duration-normal motion-reduce:transition-none',
             // Toolbar menus portal out, so focus-within would flash as focus
-            // moves from their trigger to the menu; only typing shows focus.
-            'has-[:is(textarea,[contenteditable=true]):focus]:border-focus has-[:is(textarea,[contenteditable=true]):focus]:shadow-[0_0_0_1px_var(--border-focus)]',
+            // moves from their trigger to the menu; only the input shows focus,
+            // and only when it was reached by keyboard, like :focus-visible.
+            showsFocusRing &&
+              'has-[:is(textarea,[contenteditable=true]):focus]:border-focus has-[:is(textarea,[contenteditable=true]):focus]:shadow-[0_0_0_1px_var(--border-focus)]',
             disabled && 'border-disabled bg-input-disabled',
             isDropTarget &&
               !disabled &&
