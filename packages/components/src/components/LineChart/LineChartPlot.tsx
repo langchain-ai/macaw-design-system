@@ -25,7 +25,10 @@ import {
 } from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { Tooltip } from '../Tooltip';
-import { LINE_CHART_DEFAULT_TICK_COUNT } from './constants';
+import {
+  LINE_CHART_DEFAULT_TICK_COUNT,
+  LINE_CHART_ISOLATED_POINT_RADIUS,
+} from './constants';
 import type {
   LineChartDisplayAxis,
   LineChartDisplaySeries,
@@ -400,23 +403,36 @@ export const LineChartPlot = ({
                         aria-label={`${item['aria-label'] ?? item.id} series`}
                       >
                         {getLineSegments(item.points, connectNulls).map(
-                          (segment, index) => (
-                            <LinePath
-                              key={index}
-                              data={segment}
-                              curve={curveLinear}
-                              fill="none"
-                              stroke={item.color}
-                              strokeWidth={item.strokeWidth}
-                              strokeDasharray={item.strokeDasharray}
-                              opacity={getSeriesOpacity(item)}
-                              className="transition-opacity duration-fast motion-reduce:transition-none"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              x={(point) => getXPosition(point.x)}
-                              y={(point) => axis.scale(point.y ?? 0)}
-                            />
-                          )
+                          (segment, index) =>
+                            segment.length === 1 ? (
+                              showPoints ? null : (
+                                <circle
+                                  key={index}
+                                  cx={getXPosition(segment[0].x)}
+                                  cy={axis.scale(segment[0].y ?? 0)}
+                                  r={LINE_CHART_ISOLATED_POINT_RADIUS}
+                                  fill={item.color}
+                                  opacity={getSeriesOpacity(item)}
+                                  className="transition-opacity duration-fast motion-reduce:transition-none"
+                                />
+                              )
+                            ) : (
+                              <LinePath
+                                key={index}
+                                data={segment}
+                                curve={curveLinear}
+                                fill="none"
+                                stroke={item.color}
+                                strokeWidth={item.strokeWidth}
+                                strokeDasharray={item.strokeDasharray}
+                                opacity={getSeriesOpacity(item)}
+                                className="transition-opacity duration-fast motion-reduce:transition-none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                x={(point) => getXPosition(point.x)}
+                                y={(point) => axis.scale(point.y ?? 0)}
+                              />
+                            )
                         )}
                       </g>
                     );
