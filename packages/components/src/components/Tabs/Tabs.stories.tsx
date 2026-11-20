@@ -28,6 +28,26 @@ const meta: Meta<typeof TabList> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const ResponsiveHeight: Story = {
+  render: () => (
+    <div className="flex flex-col gap-space-4">
+      {[false, true].map((responsiveHeight) => (
+        <TabGroup
+          key={String(responsiveHeight)}
+          className="h-12 bg-surface-level-2"
+        >
+          <TabList responsiveHeight={responsiveHeight}>
+            <TabLabel label="Overview" />
+            <div>
+              <TabLabel label="Activity" />
+            </div>
+          </TabList>
+        </TabGroup>
+      ))}
+    </div>
+  ),
+};
+
 export const RemountedTabGroup: Story = {
   parameters: {
     docs: {
