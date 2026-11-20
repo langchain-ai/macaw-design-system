@@ -214,7 +214,7 @@ export function Pane({
       >
         <header
           className={cn(
-            'sticky top-0 flex items-center gap-space-1 border-b border-b-subtle bg-elevated py-1.5 pl-[10px] pr-space-4',
+            'sticky top-0 flex h-12 shrink-0 items-center gap-space-1 border-b border-b-subtle bg-elevated pl-[10px] pr-space-4',
             headerClassName
           )}
           data-testid={`pane-header-${title}`}
