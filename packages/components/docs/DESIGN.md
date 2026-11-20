@@ -87,6 +87,13 @@ The list fills that row, and each `TabLabel` centers its contents vertically
 with 8px block padding and keeps the selection indicator at the bottom edge.
 Without `responsiveHeight`, the list keeps its intrinsic height.
 
+## Tabs
+
+Use `responsiveHeight` on `TabList` when its parent establishes a row height.
+The list fills that row, and each `TabLabel` centers its contents vertically
+with 8px block padding and keeps the selection indicator at the bottom edge.
+Without `responsiveHeight`, the list keeps its intrinsic height.
+
 ## Breadcrumbs
 
 Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
