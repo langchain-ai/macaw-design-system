@@ -1,0 +1,46 @@
+#storybook-sidebar-region .sidebar-item[data-selected='true'] svg {
+  color: inherit;
+}
+
+#storybook-sidebar-region .sidebar-item[data-selected='true'] button,
+#storybook-sidebar-region .sidebar-item[data-selected='true'] button:hover,
+#storybook-sidebar-region .sidebar-item[data-selected='true'] button:focus {
+  background: #99D3FF;
+  color: inherit;
+  box-shadow: none;
+}
+
+#storybook-sidebar-region .sidebar-item[data-selected='true'],
+#storybook-sidebar-region .sidebar-item[data-selected='true']:hover,
+#storybook-sidebar-region .sidebar-item[data-selected='true']:focus {
+  background: #99D3FF;
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  #storybook-sidebar-region .sidebar-item[data-selected='true'],
+  #storybook-sidebar-region .sidebar-item[data-selected='true']:hover,
+  #storybook-sidebar-region .sidebar-item[data-selected='true']:focus {
+    color: black;
+  }
+}
+
+div:has(> [role='separator'][aria-label='Sidebar resize handle']) {
+  border-right-color: transparent;
+}
+
+.sidebar-header > div:first-of-type {
+  min-width: 0;
+}
+
+.sidebar-header > div:first-of-type > a {
+  width: 100%;
+  min-width: 0;
+}
+
+.sidebar-header > div:first-of-type > a > img {
+  width: 100%;
+  /* Override Storybook's built-in logo width limit. */
+  max-width: 16rem !important;
+  height: auto;
+}

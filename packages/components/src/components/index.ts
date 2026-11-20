@@ -14,6 +14,9 @@ export type { ButtonGroupProps } from './ButtonGroup';
 export { Card } from './Card';
 export type { CardIntent, CardProps } from './Card';
 
+export { PageHeader } from './PageHeader';
+export type { PageHeaderProps } from './PageHeader';
+
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 

@@ -80,6 +80,32 @@ agent conversation view that adapts a LangGraph `useStream` handle by default
 or takes your own adapter's output. See [CHAT.md](./CHAT.md) for the
 host/component boundary.
 
+## Page headers
+
+Import `PageHeader` from `@langchain/macaw-components/PageHeader` or the package
+root. It provides two optional slots: `start` for titles, descriptions,
+breadcrumbs, or tabs, and `end` for page actions, status, or filters. The start
+slot grows; the end slot aligns to the end and wraps below at narrow widths.
+Both slots accept React content. The component renders a native `header` and
+forwards its attributes and ref.
+
+```tsx
+<PageHeader
+  start={
+    <Text as="h1" variant="h2">
+      Projects
+    </Text>
+  }
+  end={<Button size="md">Create project</Button>}
+/>
+```
+
+Compose multiline start content in a `flex flex-col gap-space-1` wrapper.
+Consumers choose heading levels and supply navigation, actions, and loading or
+error content. Use `className` to adjust the outer spacing, surface, or border.
+See `Components/Layout/PageHeader` for slot examples and `Patterns/PageHeader`
+for the LangSmith inventory.
+
 ## Breadcrumbs
 
 Import `Breadcrumb`, `BreadcrumbLink`, and `BreadcrumbPage` from
