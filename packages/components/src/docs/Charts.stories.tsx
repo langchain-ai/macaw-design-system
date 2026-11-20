@@ -325,11 +325,11 @@ export const LegendHoverAndFocus: Story = {
           stays at full color while the other categories dim.
         </Text>
       </div>
-      <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 pl-px pt-px lg:grid-cols-2 xl:grid-cols-3">
         <ChartCard
           title="Line chart"
           description="Requests by environment"
-          className="h-96"
+          className="-ml-px -mt-px h-96"
           contentClassName="min-h-0"
         >
           <LineChart
@@ -344,7 +344,7 @@ export const LegendHoverAndFocus: Story = {
         <ChartCard
           title="Bar chart"
           description="Requests by environment"
-          className="h-96"
+          className="-ml-px -mt-px h-96"
           contentClassName="min-h-0"
         >
           <BarChart
@@ -356,7 +356,7 @@ export const LegendHoverAndFocus: Story = {
         <ChartCard
           title="Donut chart"
           description="Requests by environment"
-          className="h-96"
+          className="-ml-px -mt-px h-96"
           contentClassName="min-h-0"
         >
           <DonutChart
