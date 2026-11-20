@@ -1,3 +1,14 @@
+## 1.7.22 (2026-11-20)
+
+### 🩹 Fixes
+
+- **Select:** remove option hover border ([#137](https://github.com/langchain-ai/macaw-design-system/pull/137))
+
+### ❤️ Thank You
+
+- Robin @open-swe
+- Sreeram Sama @sreeramsama
+
 ## 1.7.21 (2026-11-20)
 
 ### 🩹 Fixes

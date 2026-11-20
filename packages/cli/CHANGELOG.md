@@ -1,3 +1,7 @@
+## 1.7.22 (2026-11-20)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
 ## 1.7.21 (2026-11-20)
 
 This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
