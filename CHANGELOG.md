@@ -1,3 +1,14 @@
+## 1.7.23 (2026-11-20)
+
+### 🚀 Features
+
+- **components:** [FEP-668] add responsiveHeight to TabList ([#128](https://github.com/langchain-ai/macaw-design-system/pull/128))
+
+### ❤️ Thank You
+
+- Ian SooHoo @capturetheworld
+- Robin @open-swe
+
 ## 1.7.22 (2026-11-20)
 
 ### 🩹 Fixes
