@@ -131,7 +131,7 @@ const ChartOverviewCard = ({
   <ChartCard
     title={title}
     description={description}
-    className="min-h-[22rem]"
+    className="-ml-px -mt-px min-h-[22rem]"
     contentClassName="min-h-0"
     headerActions={
       <Button
@@ -177,7 +177,7 @@ export const Overview: Story = {
           the design system.
         </Text>
       </div>
-      <div className="grid grid-cols-1 gap-space-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 pl-px pt-px xl:grid-cols-2">
         <ChartOverviewCard
           title="BarChart"
           description="Grouped or stacked categorical values."
