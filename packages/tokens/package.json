@@ -42,6 +42,14 @@
   "nx": {
     "targets": {
       "build": {
+        "inputs": [
+          "default",
+          "{workspaceRoot}/scripts/build-tokens.mjs",
+          "{workspaceRoot}/packages/components/src/cli-foundations.mts",
+          "{workspaceRoot}/packages/components/docs/DESIGN.md",
+          "{workspaceRoot}/packages/components/docs/STYLES.md",
+          "{workspaceRoot}/packages/components/package.json"
+        ],
         "outputs": [
           "{projectRoot}/dist"
         ]

@@ -9,6 +9,41 @@ export type Component = {
   importStatement: string;
   sourceFiles: string[];
   stories: string[];
+  packageVersion?: string;
+  guidance?: {
+    scope?: string;
+    useWhen?: string[];
+    avoidWhen?: string[];
+    relatedComponents?: string[];
+    composition?: string[];
+    providers?: string[];
+    accessibility?: string[];
+    guidanceLink?: string;
+    example?: string;
+    searchTerms?: string[];
+    apiSource?: string;
+    apiCoverage?: string;
+    supportedProps?: Record<
+      string,
+      { type: string; required: boolean; values?: string[]; default?: string }
+    >;
+  };
+};
+
+export type Foundations = {
+  schemaVersion: 1;
+  packageName: string;
+  version: string;
+  topics: Record<
+    string,
+    {
+      title: string;
+      source: string;
+      content: string;
+      roles?: { utility: string; token: string; purpose: string }[];
+      relationships?: { relationship: string; utilities: string[] }[];
+    }
+  >;
 };
 
 const HELP = `Discover design-system components.
@@ -17,7 +52,8 @@ Usage: macaw <command>
   init                       Set up agent guidance in this project
   list                       Browse components (↑/↓ scroll, q quit)
   search <query>             Find components by name or capability
-  inspect <name>             Show import, source files, and stories
+  inspect <name>             Show imports, guidance, supported props, and sources
+  foundations [topic]        List compact foundation topics or retrieve one
 
 Options: --json, --no-pager, --limit <1–100> (search; default 10), --help (-h)
 For pipeable JSON: macaw <command> --json`;
@@ -87,11 +123,14 @@ function search(components: Component[], query: string, limit: number) {
     )
   );
   const normalized = [...queryWords].join(' ');
+  const families = new Set<string>();
   return components
     .map((component) => {
       const name = component.name.toLowerCase();
       const terms = new Set(
-        words(`${component.name} ${component.family} ${component.keywords}`)
+        words(
+          `${component.name} ${component.family} ${component.keywords} ${component.guidance?.searchTerms?.join(' ') ?? ''}`
+        )
       );
       let score = [...queryWords].filter((word) => terms.has(word)).length * 8;
       if (score < queryWords.size * 8) score = 0;
@@ -122,11 +161,45 @@ function search(components: Component[], query: string, limit: number) {
           Number(left.name === left.family) ||
         left.name.localeCompare(right.name)
     )
+    .filter(({ family }) => {
+      if (families.has(family)) return false;
+      families.add(family);
+      return true;
+    })
     .slice(0, limit);
 }
 
 function summary(component: Component) {
   return `${styleText('bold', component.name)}\n  ${component.keywords}\n  ${component.importStatement}`;
+}
+
+function guidanceText(component: Component) {
+  const guidance = component.guidance;
+  if (!guidance)
+    return 'Guidance: not yet curated; inspect the linked source and stories.';
+  return [
+    `Guidance scope: ${guidance.scope ?? component.family}`,
+    ...(
+      [
+        'useWhen',
+        'avoidWhen',
+        'composition',
+        'providers',
+        'accessibility',
+        'relatedComponents',
+      ] as const
+    )
+      .filter((key) => guidance[key]?.length)
+      .map((key) => `${key}: ${guidance[key]!.join(' ')}`),
+    guidance.guidanceLink && `Guide: ${guidance.guidanceLink}`,
+    guidance.example && `Example: ${guidance.example}`,
+    guidance.supportedProps &&
+      `Selected props: ${JSON.stringify(guidance.supportedProps)}`,
+    guidance.apiCoverage,
+    guidance.apiSource && `API source: ${guidance.apiSource}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function componentList(components: Component[]) {
@@ -173,7 +246,8 @@ function page(text: string) {
 export function run(
   argv: string[],
   catalog: () => Component[],
-  initialize?: () => string
+  initialize?: () => string,
+  foundations?: () => Foundations
 ) {
   const { values, positionals } = parseArgs({
     args: argv,
@@ -218,11 +292,62 @@ export function run(
     print({ file }, `Created ${file}`);
     return;
   }
+  if (command === 'foundations') {
+    if (args.length > 1 || values.limit !== undefined)
+      throw new CliError(
+        'ERR_INVALID_ARGUMENT',
+        'foundations accepts one optional topic and no --limit.'
+      );
+    if (!foundations)
+      throw new CliError(
+        'ERR_FOUNDATIONS_UNAVAILABLE',
+        'This catalog has no foundations. Update @langchain/macaw-components for compact guidance.'
+      );
+    const data = foundations();
+    const topic = args[0]?.toLowerCase();
+    if (topic) {
+      const entry = Object.hasOwn(data.topics, topic)
+        ? data.topics[topic]
+        : undefined;
+      if (!entry)
+        throw new CliError(
+          'ERR_UNKNOWN_FOUNDATION',
+          `Unknown foundation topic "${topic}".`,
+          Object.keys(data.topics)
+        );
+      print(
+        {
+          packageName: data.packageName,
+          version: data.version,
+          topic,
+          ...entry,
+        },
+        `${entry.title} · ${data.version}\n${entry.source}\n\n${entry.content}`
+      );
+    } else {
+      const topics = Object.fromEntries(
+        Object.entries(data.topics).map(([key, { title, source }]) => [
+          key,
+          { title, source },
+        ])
+      );
+      print(
+        { packageName: data.packageName, version: data.version, topics },
+        `Foundations · ${data.version}\nRun macaw foundations <topic> for focused guidance.\n\n${Object.entries(
+          topics
+        )
+          .map(([key, { title, source }]) => `${key}: ${title}\n  ${source}`)
+          .join('\n')}`
+      );
+    }
+    return;
+  }
   if (!['list', 'search', 'inspect'].includes(command)) {
     throw new CliError('ERR_UNKNOWN_COMMAND', `Unknown command "${command}".`, [
       'list',
       'search',
       'inspect',
+      'foundations',
     ]);
   }
   if (
@@ -277,7 +402,7 @@ export function run(
     }
     print(
       component,
-      `${summary(component)}\n\nFamily: ${component.family}\nSource: ${component.sourceFiles.join(', ')}\nStories: ${component.stories.join(', ') || 'none'}`
+      `${summary(component)}\n\nFamily: ${component.family}\nSource: ${component.sourceFiles.join(', ')}\nStories: ${component.stories.join(', ') || 'none'}\nVersion: ${component.packageVersion ?? 'not recorded'}\n\n${guidanceText(component)}`
     );
   }
 }
@@ -285,10 +410,11 @@ export function run(
 export function main(
   argv: string[],
   catalog: () => Component[],
-  initialize?: () => string
+  initialize?: () => string,
+  foundations?: () => Foundations
 ) {
   try {
-    run(argv, catalog, initialize);
+    run(argv, catalog, initialize, foundations);
   } catch (error) {
     const payload = {
       error:

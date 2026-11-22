@@ -1,0 +1,452 @@
+[
+  {
+    "file": "packages/components/src/components/Avatar/Avatar.tsx",
+    "rule": "raw-color",
+    "value": "#aaaaaa",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Banner/Banner.tsx",
+    "rule": "primitive-token",
+    "value": "text-brand-100",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Banner/Banner.tsx",
+    "rule": "primitive-token",
+    "value": "text-brand-600",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Button/Button.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Button/constants.ts",
+    "rule": "primitive-token",
+    "value": "text-brand-400",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Button/constants.ts",
+    "rule": "primitive-token",
+    "value": "text-brand-700",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatPlan/ChatPlan.tsx",
+    "rule": "spacing-scale",
+    "value": "mt-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatThread/ChatThread.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatThread/ChatThreadWork.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatToolCall/ChatToolCallAccordion.tsx",
+    "rule": "z-index",
+    "value": "z-[1]",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatToolCall/ChatToolCallGroup.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Checkbox/constants.ts",
+    "rule": "primitive-token",
+    "value": "bg-brand-300",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Checkbox/constants.ts",
+    "rule": "primitive-token",
+    "value": "bg-brand-400",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Code/Code.utils.tsx",
+    "rule": "raw-color",
+    "value": "#587539",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/Code.utils.tsx",
+    "rule": "raw-color",
+    "value": "#9ece6a",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.tsx",
+    "rule": "spacing-scale",
+    "value": "pl-2.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.tsx",
+    "rule": "spacing-scale",
+    "value": "px-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#007197",
+    "count": 3
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#2ac3de",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#3760bf",
+    "count": 7
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#565f89",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#587539",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#7aa2f7",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#848cb5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#89ddff",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#9ece6a",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#b15c00",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#b4f9f8",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#bb9af7",
+    "count": 3
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#c0caf5",
+    "count": 4
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#f52a65",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#ff5370",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Code/CodeLite.utils.tsx",
+    "rule": "raw-color",
+    "value": "#ff9e64",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Command/CommandMenu.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/CopyButton/CopyButton.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-1",
+    "count": 3
+  },
+  {
+    "file": "packages/components/src/components/ErrorMessage/ErrorMessage.tsx",
+    "rule": "spacing-scale",
+    "value": "pl-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ErrorMessage/ErrorMessage.tsx",
+    "rule": "spacing-scale",
+    "value": "pl-2.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ErrorMessage/ErrorMessage.tsx",
+    "rule": "spacing-scale",
+    "value": "py-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ErrorState/ErrorState.tsx",
+    "rule": "spacing-scale",
+    "value": "pt-64",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/GroupedTabs/GroupedTabs.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/GroupedTabs/GroupedTabs.tsx",
+    "rule": "spacing-scale",
+    "value": "p-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Icon/Icon.tsx",
+    "rule": "spacing-scale",
+    "value": "p-[2px]",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Link/Link.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-[2px]",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/MarkdownDisplay/MarkdownDisplay.tsx",
+    "rule": "spacing-scale",
+    "value": "mr-[2px]",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Pane/Pane.tsx",
+    "rule": "spacing-scale",
+    "value": "pl-[10px]",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Pane/Pane.tsx",
+    "rule": "spacing-scale",
+    "value": "py-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/PlainTextEditor/index.tsx",
+    "rule": "spacing-scale",
+    "value": "pr-4",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-brand-200)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-brand-75)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-green-100)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-green-200)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-neutral-150)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-neutral-75)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-orange-150)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-orange-75)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-red-200)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ProgressBar/ProgressBar.tsx",
+    "rule": "primitive-token",
+    "value": "var(--viz-red-300)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Select/SelectPrimitive.tsx",
+    "rule": "spacing-scale",
+    "value": "p-1.5",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Select/SelectPrimitive.tsx",
+    "rule": "spacing-scale",
+    "value": "px-2.5",
+    "count": 2
+  },
+  {
+    "file": "packages/components/src/components/Select/SelectPrimitive.tsx",
+    "rule": "spacing-scale",
+    "value": "py-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Slider/Slider.tsx",
+    "rule": "primitive-token",
+    "value": "border-brand-300",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Slider/Slider.tsx",
+    "rule": "primitive-token",
+    "value": "border-brand-400",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Slider/Slider.tsx",
+    "rule": "primitive-token",
+    "value": "border-brand-500",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Slider/Slider.tsx",
+    "rule": "primitive-token",
+    "value": "border-brand-600",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Slider/Slider.tsx",
+    "rule": "spacing-scale",
+    "value": "mx-2",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Slider/Slider.tsx",
+    "rule": "spacing-scale",
+    "value": "pb-7",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/SplitViewPane/SplitViewPaneHeader.tsx",
+    "rule": "spacing-scale",
+    "value": "py-1.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Tabs/index.tsx",
+    "rule": "spacing-scale",
+    "value": "pb-5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Textarea/Textarea.tsx",
+    "rule": "spacing-scale",
+    "value": "mt-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Textarea/Textarea.tsx",
+    "rule": "spacing-scale",
+    "value": "py-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Toast/index.tsx",
+    "rule": "primitive-token",
+    "value": "border-brand-75",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Toast/index.tsx",
+    "rule": "raw-color",
+    "value": "hsl(206_22%_7%_/_35%)",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Toast/index.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-[10px]",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/Typeahead/TypeaheadView.tsx",
+    "rule": "spacing-scale",
+    "value": "py-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/UnsavedChangesDialog.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-2",
+    "count": 1
+  }
+]

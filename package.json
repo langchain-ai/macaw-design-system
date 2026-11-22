@@ -7,11 +7,12 @@
   "scripts": {
     "nx": "nx",
     "storybook": "nx run @langchain/macaw-components:storybook",
-    "build-all": "nx run-many -t build",
+    "build-all": "pnpm check:design && nx run-many -t build",
     "build-storybook": "storybook build -c packages/components/.storybook -o storybook-static",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "lint": "oxlint packages scripts vite.config.ts vitest.config.ts vitest.storybook.config.ts",
+    "lint": "oxlint packages scripts tests/visual playwright.design.config.mts vite.config.ts vitest.config.ts vitest.storybook.config.ts && pnpm check:design",
+    "check:design": "node --test scripts/design-rules.test.mjs && node scripts/check-design.mjs",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "verify:types:bundler": "tsc --noEmit -p tests/consumer/tsconfig.bundler.json",
@@ -25,7 +26,9 @@
     "release:publish": "nx release publish --tag latest",
     "design-system": "node packages/components/src/cli.mts",
     "macaw": "node packages/cli/dist/cli.mjs",
-    "test:a11y": "nx run @langchain/macaw-components:test:a11y"
+    "test:a11y": "nx run @langchain/macaw-components:test:a11y",
+    "test:visual": "playwright test --config playwright.design.config.mts",
+    "eval:retrieval": "node scripts/eval-retrieval.mjs"
   },
   "devDependencies": {
     "@langchain/macaw-cli": "workspace:*",

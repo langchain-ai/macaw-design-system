@@ -21,6 +21,13 @@ theme. Component-specific custom properties are implementation details.
 generated from the same CSS. Its `rules` contain `selector` and `tokens` fields.
 Values retain CSS `var()` references; dark rules contain overrides, so apply them
 over the root values rather than treating them as a complete independent theme.
+The additive `roles` field retains semantic intent: `roles.surfaces.entries`
+maps each surface utility and CSS token to its purpose, while
+`roles.spacing.relationships` maps layout relationships to spacing utilities.
+Both include version-pinned `source` links. These roles are extracted from the
+canonical component `STYLES.md` tables during the build, not inferred from color
+values; matching colors do not make input and popover roles interchangeable.
+The schema version remains 1 and existing `rules` consumers are unchanged.
 
 Applications using `@langchain/macaw-components/styles.css` already load these
 tokens and should not import the token stylesheet a second time.

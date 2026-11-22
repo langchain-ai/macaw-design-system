@@ -3,7 +3,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, relative, resolve } from 'node:path';
 
-import { CliError, main, type Component } from './commands.mts';
+import {
+  CliError,
+  main,
+  type Component,
+  type Foundations,
+} from './commands.mts';
 
 const projectRoot = process.cwd();
 const requireFromProject = createRequire(resolve(projectRoot, 'package.json'));
@@ -19,7 +24,7 @@ function installedFile(specifier: string) {
   }
 }
 
-function catalog(): Component[] {
+function catalogData() {
   const file = installedFile('@langchain/macaw-components/catalog.json');
   const data = JSON.parse(readFileSync(file, 'utf8'));
   if (
@@ -32,7 +37,31 @@ function catalog(): Component[] {
       'This component catalog is unsupported. Update @langchain/macaw-cli to a compatible version.'
     );
   }
-  return data.components;
+  return data;
+}
+
+function catalog(): Component[] {
+  const data = catalogData();
+  return data.components.map((component: Component) => ({
+    ...component,
+    ...(typeof data.version === 'string'
+      ? { packageVersion: data.version }
+      : {}),
+  }));
+}
+
+function foundations(): Foundations {
+  const data = catalogData();
+  if (
+    !data.foundations ||
+    data.foundations.schemaVersion !== 1 ||
+    !data.foundations.topics
+  )
+    throw new CliError(
+      'ERR_FOUNDATIONS_UNAVAILABLE',
+      'This catalog has no supported foundations. Update @langchain/macaw-components for compact guidance.'
+    );
+  return data.foundations;
 }
 
 function initialize() {
@@ -72,4 +101,4 @@ function initialize() {
   return relative(projectRoot, file);
 }
 
-main(process.argv.slice(2), catalog, initialize);
+main(process.argv.slice(2), catalog, initialize, foundations);

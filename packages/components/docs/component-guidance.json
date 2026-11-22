@@ -1,0 +1,201 @@
+{
+  "Banner": {
+    "useWhen": ["Persistent regional information, warnings, or announcements."],
+    "avoidWhen": [
+      "Use ToastProvider for action results and field hint/error APIs for validation."
+    ],
+    "relatedComponents": ["ToastProvider", "Input"],
+    "composition": [
+      "Compose an action when there is a specific next step; keep flush banners to one line."
+    ],
+    "accessibility": ["State the intent in text, not color alone."],
+    "guidanceLink": "docs/STYLES.md#banners",
+    "example": "<Banner intent=\"warning\">Your license expires soon.</Banner>",
+    "searchTerms": [
+      "persistent warning",
+      "page notice",
+      "regional information",
+      "announcement"
+    ],
+    "api": {
+      "source": "src/components/Banner/Banner.tsx",
+      "propsType": "BannerProps",
+      "props": ["intent", "dismissible", "flush", "shadow"]
+    }
+  },
+  "Button": {
+    "useWhen": ["An action changes application state."],
+    "avoidWhen": [
+      "Use Link for navigation and IconButton for icon-only actions."
+    ],
+    "relatedComponents": ["Link", "IconButton"],
+    "accessibility": [
+      "Give the action a clear text label; preserve disabled and loading behavior."
+    ],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "example": "<Button size=\"md\" onClick={save}>Save changes</Button>",
+    "api": {
+      "source": "src/components/Button/Button.tsx",
+      "propsType": "ButtonProps",
+      "props": ["variant", "color", "size", "disabled", "loading"]
+    }
+  },
+  "IconButton": {
+    "useWhen": ["An icon-only action."],
+    "avoidWhen": ["Use Button when the action needs a visible text label."],
+    "relatedComponents": ["Button"],
+    "providers": ["TooltipProvider for the label tooltip."],
+    "accessibility": [
+      "The label prop is required and supplies the tooltip and accessible name."
+    ],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "api": {
+      "source": "src/components/IconButton/IconButton.tsx",
+      "propsType": "IconButtonProps",
+      "props": ["label", "variant", "color", "size", "disabled", "loading"]
+    }
+  },
+  "Select": {
+    "useWhen": ["Choose one option from a known list."],
+    "avoidWhen": [
+      "Use RadioGroup for a short visible choice set or Typeahead to type and search or create options."
+    ],
+    "relatedComponents": ["RadioGroup", "Typeahead"],
+    "composition": [
+      "Supply options or groups, and onChange; controlled open also requires onOpenChange."
+    ],
+    "accessibility": ["Provide an accessible name using aria-label."],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "example": "<Select aria-label=\"Region\" options={[{ value: 'us', label: 'US' }]} value={region} onChange={setRegion} />",
+    "searchTerms": [
+      "choose an option",
+      "choose one option",
+      "option list",
+      "dropdown picker"
+    ],
+    "api": {
+      "source": "src/components/Select/Select.tsx",
+      "propsType": "SelectBaseProps",
+      "implementation": "OptionSelect",
+      "props": ["variant", "size", "hideSearch", "disabled", "allowDeselect"]
+    }
+  },
+  "RadioGroup": {
+    "useWhen": ["Choose one option from a short visible set."],
+    "avoidWhen": [
+      "Use Select for a known option list in a compact picker or RadioCard for supporting content."
+    ],
+    "relatedComponents": ["Select", "RadioButton", "RadioCard"],
+    "composition": [
+      "Compose labeled RadioButton options inside RadioGroup; own controlled value and onValueChange."
+    ],
+    "accessibility": [
+      "Give the group an accessible name and label every option."
+    ],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "example": "<RadioGroup aria-label=\"Region\" value={region} onValueChange={setRegion}><RadioButton value=\"us\" label=\"US\" /><RadioButton value=\"eu\" label=\"EU\" /></RadioGroup>",
+    "searchTerms": ["choose an option", "choose one option", "visible choices"]
+  },
+  "Dialog": {
+    "useWhen": ["A short blocking decision."],
+    "avoidWhen": ["Use Pane for substantial editing or detail work."],
+    "relatedComponents": [
+      "Pane",
+      "DialogContent",
+      "DialogTitle",
+      "DialogDescription",
+      "ModalProvider"
+    ],
+    "composition": [
+      "Compose DialogContent inside Dialog; own open and onOpenChange. The application owns validation and destructive-action authorization."
+    ],
+    "providers": [
+      "Wrap related nested modal workflows in ModalProvider to share the two-layer stack."
+    ],
+    "accessibility": [
+      "Supply a title on DialogContent, or compose DialogTitle for a custom heading; use DialogDescription for supporting copy."
+    ],
+    "searchTerms": ["confirmation", "confirm destructive action"],
+    "guidanceLink": "docs/DESIGN.md#nested-modals",
+    "example": "<Dialog open={open} onOpenChange={setOpen}><DialogContent title=\"Discard changes?\"><Button onClick={discard}>Discard changes</Button></DialogContent></Dialog>"
+  },
+  "Toast": {
+    "useWhen": ["Feedback about the result of an action."],
+    "avoidWhen": [
+      "Use Banner for persistent regional notices and field APIs for validation."
+    ],
+    "relatedComponents": ["Banner"],
+    "composition": [
+      "Call useToast().createToast(...) from inside ToastProvider; default duration is five seconds, Infinity permits manual dismissal."
+    ],
+    "providers": ["ToastProvider"],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "searchTerms": ["action result feedback"]
+  },
+  "Typeahead": {
+    "useWhen": ["Type to search or create options."],
+    "avoidWhen": ["Use Select for a known option list."],
+    "relatedComponents": ["Select", "Input"],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "searchTerms": ["search options", "create options"]
+  },
+  "ThinkingState": {
+    "useWhen": ["Active AI generation, reasoning, or tool use."],
+    "avoidWhen": [
+      "Use Spinner for routine saves, fetches, or refreshes, including chat history."
+    ],
+    "relatedComponents": [
+      "LoadingIndicator",
+      "Spinner",
+      "Skeleton",
+      "ProgressBar"
+    ],
+    "accessibility": [
+      "Name the work; show elapsed time only for longer waits."
+    ],
+    "guidanceLink": "docs/DESIGN.md#components",
+    "example": "<ThinkingState>Generating reply</ThinkingState>",
+    "searchTerms": ["AI reasoning", "generating reply", "tool work"]
+  },
+  "LoadingIndicator": {
+    "useWhen": ["The decorative AI animation alone."],
+    "avoidWhen": [
+      "Use ThinkingState for labeled AI work or Spinner for routine loading."
+    ],
+    "relatedComponents": ["ThinkingState", "Spinner"],
+    "accessibility": ["Announce status on the surrounding control or region."],
+    "guidanceLink": "docs/DESIGN.md#components"
+  },
+  "Spinner": {
+    "useWhen": ["Routine saves, fetches, and refreshes."],
+    "avoidWhen": [
+      "Use ThinkingState for AI work, Skeleton for known content shapes, or ProgressBar for measurable completion."
+    ],
+    "relatedComponents": ["ThinkingState", "Skeleton", "ProgressBar"],
+    "searchTerms": [
+      "routine loading",
+      "ordinary fetch",
+      "save in progress",
+      "refresh loading"
+    ],
+    "guidanceLink": "docs/DESIGN.md#components"
+  },
+  "ErrorState": {
+    "useWhen": [
+      "A page-level failure or not-found state needs an explanation and optional recovery action."
+    ],
+    "avoidWhen": [
+      "Use field APIs for validation, Banner for regional notices, or ErrorBoundary to catch rendering failures."
+    ],
+    "relatedComponents": ["Banner", "ErrorBoundary", "Button"],
+    "composition": [
+      "Supply title and message; pass action for a supported retry or backTo for navigation. The host owns retry behavior and loading state."
+    ],
+    "accessibility": [
+      "Explain what happened and what the user can do next; label recovery actions clearly."
+    ],
+    "guidanceLink": "docs/DESIGN.md#quality-bar",
+    "example": "<ErrorState title=\"Could not load results\" message=\"Try again to reload the page.\" action={<Button onClick={retry}>Try again</Button>} />",
+    "searchTerms": ["error recovery", "retry action", "failed page"]
+  }
+}

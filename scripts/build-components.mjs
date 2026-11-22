@@ -40,7 +40,7 @@ copyFileSync(
   resolve(directory, 'src/components/ThinkingState/NOTICE'),
   resolve(dist, 'components/ThinkingState/NOTICE')
 );
-const { buildCatalog } =
+const { buildCatalog, buildFoundations } =
   await import('../packages/components/src/cli-catalog.mts');
 const { version } = JSON.parse(
   readFileSync(resolve(directory, 'package.json'), 'utf8')
@@ -50,8 +50,24 @@ const components = buildCatalog(directory).map((component) => ({
   ...component,
   sourceFiles: component.sourceFiles.map((file) => `${sourceURL}${file}`),
   stories: component.stories.map((file) => `${sourceURL}${file}`),
+  ...(component.guidance
+    ? {
+        guidance: {
+          ...component.guidance,
+          ...(component.guidance.guidanceLink
+            ? { guidanceLink: `${sourceURL}${component.guidance.guidanceLink}` }
+            : {}),
+          ...(component.guidance.apiSource
+            ? { apiSource: `${sourceURL}${component.guidance.apiSource}` }
+            : {}),
+        },
+      }
+    : {}),
 }));
+const foundations = buildFoundations(directory);
+for (const topic of Object.values(foundations.topics))
+  topic.source = `${sourceURL}${topic.source}`;
 writeFileSync(
   resolve(dist, 'catalog.json'),
-  `${JSON.stringify({ schemaVersion: 1, packageName: '@langchain/macaw-components', version, components }, null, 2)}\n`
+  `${JSON.stringify({ schemaVersion: 1, packageName: '@langchain/macaw-components', version, components, foundations }, null, 2)}\n`
 );

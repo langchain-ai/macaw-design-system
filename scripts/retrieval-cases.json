@@ -1,0 +1,38 @@
+[
+  { "task": "settings-form", "query": "text field", "families": ["Input"] },
+  {
+    "task": "destructive-confirmation",
+    "query": "destructive confirmation",
+    "families": ["Dialog"]
+  },
+  {
+    "task": "single-choice",
+    "query": "choose an option",
+    "families": ["Select", "RadioGroup"]
+  },
+  {
+    "task": "searchable-picker",
+    "query": "searchable select",
+    "families": ["Select", "Typeahead"]
+  },
+  {
+    "task": "persistent-warning",
+    "query": "persistent warning",
+    "families": ["Banner"]
+  },
+  {
+    "task": "routine-loading",
+    "query": "routine loading",
+    "families": ["Spinner", "Skeleton"]
+  },
+  {
+    "task": "ai-loading",
+    "query": "AI thinking",
+    "families": ["ThinkingState"]
+  },
+  {
+    "task": "error-recovery",
+    "query": "error recovery",
+    "families": ["ErrorState", "ErrorMessage"]
+  }
+]

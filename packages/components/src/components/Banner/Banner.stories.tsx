@@ -57,6 +57,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Warning: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     intent: 'warning',
     title: 'Heads up',
