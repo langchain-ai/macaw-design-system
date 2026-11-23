@@ -36,7 +36,7 @@ export const agentSkills: AgentSkill[] = [
     loadsWhen: 'Loads when you build or change a LangSmith settings page.',
     getIt: 'Included in the LangSmith repository.',
     example: {
-      title: 'Recipes/Settings Pages',
+      title: 'Foundations/Settings Pages',
       name: 'CTA + table',
       label: 'See the recipes',
     },
