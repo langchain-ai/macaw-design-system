@@ -1,3 +1,37 @@
+## 1.8.0 (2026-11-23)
+
+### 🚀 Features
+
+- add agent-ready discovery and design checks ([#138](https://github.com/langchain-ai/macaw-design-system/pull/138))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.23 (2026-11-20)
+
+### 🚀 Features
+
+- **components:** [FEP-668] add responsiveHeight to TabList ([#128](https://github.com/langchain-ai/macaw-design-system/pull/128))
+
+### ❤️ Thank You
+
+- Ian SooHoo @capturetheworld
+- Robin @open-swe
+
+## 1.7.22 (2026-11-20)
+
+### 🩹 Fixes
+
+- **Select:** remove option hover border ([#137](https://github.com/langchain-ai/macaw-design-system/pull/137))
+
+### ❤️ Thank You
+
+- Robin @open-swe
+- Sreeram Sama @sreeramsama
+
 ## 1.7.21 (2026-11-20)
 
 ### 🩹 Fixes
