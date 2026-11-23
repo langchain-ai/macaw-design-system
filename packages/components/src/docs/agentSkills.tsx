@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { BirdIcon } from '@phosphor-icons/react/dist/ssr/Bird';
+import { AppWindowIcon } from '@phosphor-icons/react/dist/ssr/AppWindow';
 import { GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { SwatchesIcon } from '@phosphor-icons/react/dist/ssr/Swatches';
 
@@ -51,7 +51,7 @@ export const agentSkills: AgentSkill[] = [
   },
   {
     name: 'macaw',
-    icon: BirdIcon,
+    icon: AppWindowIcon,
     repo: `${MACAW_BLOB}/packages/cli/templates/SKILL.md`,
     loadsWhen:
       'Loads for UI work in an app that uses Macaw, outside LangSmith.',
