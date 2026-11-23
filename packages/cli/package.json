@@ -37,10 +37,6 @@
   "nx": {
     "targets": {
       "build": {
-        "inputs": [
-          "default",
-          "{workspaceRoot}/scripts/build-cli.mjs"
-        ],
         "outputs": [
           "{projectRoot}/dist"
         ]

@@ -14,7 +14,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs', 'loading', 'busy', 'indeterminate'],
+  tags: ['autodocs', 'loading', 'busy', 'indeterminate', 'routine loading'],
   argTypes: {
     size: {
       control: { type: 'select' },

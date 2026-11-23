@@ -80,6 +80,7 @@ component styles. Add `dark` to `html` to activate the dark theme.
 
 ```sh
 pnpm exec macaw init
+pnpm exec macaw foundations components
 pnpm exec macaw search "loading"
 pnpm exec macaw inspect Button --json
 ```

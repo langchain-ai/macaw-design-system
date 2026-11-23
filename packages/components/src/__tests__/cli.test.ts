@@ -5,9 +5,6 @@ import * as path from 'node:path';
 
 import { expect, test } from 'vitest';
 
-import { buildFoundations } from '../cli-foundations.mts';
-import { buildGuidance } from '../cli-guidance.mts';
-
 const cli = path.resolve(__dirname, '../cli.mts');
 const root = path.resolve(path.dirname(cli), '..');
 
@@ -45,12 +42,10 @@ test('handles missing sources and discovers components without keyword entries',
       path.join(path.dirname(cli), 'cli-story-tags.mts'),
       path.join(path.dirname(copy), 'cli-story-tags.mts')
     );
-    for (const file of ['cli-guidance.mts', 'cli-foundations.mts']) {
-      fs.copyFileSync(
-        path.join(path.dirname(cli), file),
-        path.join(path.dirname(copy), file)
-      );
-    }
+    fs.copyFileSync(
+      path.join(path.dirname(cli), 'cli-foundations.mts'),
+      path.join(path.dirname(copy), 'cli-foundations.mts')
+    );
     fs.symlinkSync(
       path.join(root, '../../node_modules'),
       path.join(directory, 'node_modules'),
@@ -224,6 +219,10 @@ test('handles missing sources and discovers components without keyword entries',
           name: 'NewControl',
           keywords: 'calendar, date picker',
           stories: ['src/stories/NewControl.stories.tsx'],
+        }),
+        expect.objectContaining({
+          name: 'NestedButton',
+          keywords: 'calendar, date picker',
         }),
       ])
     );
@@ -438,7 +437,9 @@ test.each([
   ['automatic links', 'TextWithLinks'],
   ['discard changes', 'UnsavedChangesDialog'],
   ['persistent warning', 'Banner'],
-  ['choose an option', 'RadioGroup'],
+  ['destructive confirmation', 'Dialog'],
+  ['routine loading', 'Spinner'],
+  ['error recovery', 'ErrorState'],
 ])('finds %s as %s', (query, expected) => {
   const result = invoke('search', query, '--limit', '1', '--json');
   expect(result.status, result.stderr).toBe(0);
@@ -523,143 +524,35 @@ test.each([
   });
 });
 
-test('deduplicates capability search by family while preserving exact subpart discovery', () => {
-  const result = invoke('search', 'choose an option', '--json');
-  expect(result.status, result.stderr).toBe(0);
-  const matches = JSON.parse(result.stdout);
-  expect(matches.map(({ name }: { name: string }) => name)).toEqual(
-    expect.arrayContaining(['RadioGroup', 'Select'])
-  );
-  expect(
-    new Set(matches.map(({ family }: { family: string }) => family)).size
-  ).toBe(matches.length);
-  const exact = invoke('search', 'RadioGroupItem', '--json');
-  expect(JSON.parse(exact.stdout)[0].name).toBe('RadioGroupItem');
-  const part = invoke('inspect', 'RadioGroupItem', '--json');
-  expect(JSON.parse(part.stdout)).toMatchObject({
-    name: 'RadioGroupItem',
-    guidance: { scope: 'RadioGroup' },
-  });
-});
-
-test('exposes curated decisions and verified prop variants without leaking root APIs into subparts', () => {
-  const result = invoke('inspect', 'Banner', '--json');
-  expect(result.status, result.stderr).toBe(0);
-  expect(JSON.parse(result.stdout)).toMatchObject({
-    packageVersion: expect.any(String),
-    guidance: {
-      scope: 'Banner',
-      useWhen: expect.any(Array),
-      guidanceLink: 'docs/STYLES.md#banners',
-      supportedProps: {
-        intent: {
-          values: ['warning', 'info', 'success', 'error', 'neutral'],
-          default: "'warning'",
-        },
-      },
-    },
-  });
-  const subpart = invoke('inspect', 'SelectTrigger', '--json');
-  expect(subpart.status, subpart.stderr).toBe(0);
-  const guidance = JSON.parse(subpart.stdout).guidance;
-  expect(guidance.scope).toBe('Select');
-  expect(guidance.supportedProps).toBeUndefined();
-  expect(guidance.apiSource).toBeUndefined();
-});
-
-test('derives selected props from source without executing components or duplicating defaults', () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'macaw-guidance-'));
-  try {
-    fs.mkdirSync(path.join(directory, 'docs'));
-    fs.writeFileSync(
-      path.join(directory, 'docs/component-guidance.json'),
-      JSON.stringify({
-        Control: {
-          useWhen: ['An action.'],
-          api: {
-            source: 'control.tsx',
-            propsType: 'ControlProps',
-            props: ['variant', 'disabled'],
-          },
-        },
-      })
-    );
-    const source = (value: string) =>
-      `throw new Error('Never execute component source'); type Variant = 'plain' | 'outlined'; interface ControlProps { variant?: Variant; disabled?: boolean } export const Control = ({ variant = '${value}', disabled = false }: ControlProps) => null;`;
-    fs.writeFileSync(path.join(directory, 'control.tsx'), source('plain'));
-    expect(buildGuidance(directory).Control).toMatchObject({
-      supportedProps: {
-        variant: {
-          type: 'Variant',
-          values: ['plain', 'outlined'],
-          default: "'plain'",
-        },
-        disabled: { type: 'boolean', default: 'false' },
-      },
-    });
-    fs.writeFileSync(path.join(directory, 'control.tsx'), source('outlined'));
-    expect(
-      buildGuidance(directory).Control.supportedProps?.variant.default
-    ).toBe("'outlined'");
-    fs.writeFileSync(
-      path.join(directory, 'control.tsx'),
-      'export const Control = () => null;'
-    );
-    expect(() => buildGuidance(directory)).toThrow(
-      'Missing documented prop Control.variant'
-    );
-  } finally {
-    fs.rmSync(directory, { recursive: true, force: true });
-  }
-});
-
-test('retrieves compact versioned foundations and preserves canonical semantic relationships', () => {
-  const foundations = buildFoundations(root);
-  expect(foundations.topics.surfaces.roles).toEqual(
-    expect.arrayContaining([
-      {
-        utility: 'bg-input',
-        token: '--bg-input',
-        purpose:
-          'Input and textarea fields, picker controls, filled popup triggers',
-      },
-      {
-        utility: 'bg-popover',
-        token: '--bg-popover',
-        purpose: 'Floating tooltips, popovers, and menu surfaces',
-      },
-    ])
-  );
-  expect(foundations.topics.spacing.relationships).toEqual(
-    expect.arrayContaining([
-      {
-        relationship: 'Modal header ↔ body ↔ footer',
-        utilities: ['gap-space-5'],
-      },
-      {
-        relationship: 'List or table row padding',
-        utilities: ['px-space-5', 'py-space-4'],
-      },
-    ])
-  );
+test('prints focused foundations sections from the canonical guides', () => {
   const index = invoke('foundations', '--json');
   expect(index.status, index.stderr).toBe(0);
-  expect(JSON.parse(index.stdout)).toMatchObject({
-    version: foundations.version,
-    topics: { spacing: { title: 'Spacing relationships' } },
-  });
-  expect(index.stdout.length).toBeLessThan(2500);
-  const topic = invoke('foundations', 'spacing', '--json');
-  expect(topic.status, topic.stderr).toBe(0);
-  expect(JSON.parse(topic.stdout)).toMatchObject({
-    version: foundations.version,
-    topic: 'spacing',
-    relationships: foundations.topics.spacing.relationships,
-  });
-  expect(JSON.parse(topic.stdout).content).not.toContain('## Components');
+  expect(JSON.parse(index.stdout)).toEqual(
+    expect.arrayContaining([
+      {
+        topic: 'components',
+        title: 'Choosing components',
+        source: 'docs/DESIGN.md#components',
+      },
+      {
+        topic: 'spacing',
+        title: 'Spacing scale and relationships',
+        source: 'docs/STYLES.md#spacing--space-',
+      },
+    ])
+  );
+  const spacing = invoke('foundations', 'Spacing', '--json');
+  expect(spacing.status, spacing.stderr).toBe(0);
+  const { content } = JSON.parse(spacing.stdout);
+  expect(content).toContain('#### Relationship defaults');
+  expect(content).not.toContain('Deprecated Aliases');
+  const text = invoke('foundations', 'components');
+  expect(text.status, text.stderr).toBe(0);
+  expect(text.stdout).toContain('Use `Button` for actions');
+  expect(text.stdout).not.toContain('## Chat');
 });
 
-test('installed CLI reads richer and legacy v1 catalogs without React or repository source', () => {
+test('installed CLI reads foundations from the catalog and reports older catalogs', () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'macaw-installed-'));
   try {
     const installed = path.join(
@@ -675,94 +568,39 @@ test('installed CLI reads richer and legacy v1 catalogs without React or reposit
         exports: { './catalog.json': './catalog.json' },
       })
     );
-    const component = {
-      name: 'Banner',
-      family: 'Banner',
-      keywords: 'warning',
-      importPath: '@langchain/macaw-components/Banner',
-      importStatement:
-        "import { Banner } from '@langchain/macaw-components/Banner';",
-      sourceFiles: [],
-      stories: [],
-    };
-    const data = {
-      schemaVersion: 1,
-      packageName: '@langchain/macaw-components',
-      version: '0.1.2',
-      components: [
-        {
-          ...component,
-          guidance: {
-            searchTerms: ['persistent warning'],
-            useWhen: ['A notice.'],
-            supportedProps: {
-              intent: {
-                type: 'BannerIntent',
-                values: ['warning'],
-                required: false,
-                default: "'warning'",
-              },
-            },
-          },
-        },
-      ],
-      foundations: {
-        schemaVersion: 1,
-        packageName: '@langchain/macaw-components',
-        version: '0.1.2',
-        topics: {
-          usage: {
-            title: 'Usage',
-            source: 'https://example.test/v0.1.2/docs/STYLES.md',
-            content: 'Use semantic tokens.',
-          },
-        },
-      },
-    };
+    const writeCatalog = (fields: object) =>
+      fs.writeFileSync(
+        path.join(installed, 'catalog.json'),
+        JSON.stringify({
+          schemaVersion: 1,
+          packageName: '@langchain/macaw-components',
+          version: '0.0.0',
+          components: [],
+          ...fields,
+        })
+      );
     const run = (...args: string[]) =>
       spawnSync(
         process.execPath,
         [path.join(root, '../cli/src/cli.mts'), ...args, '--json'],
         { cwd: directory, encoding: 'utf8' }
       );
-    fs.writeFileSync(
-      path.join(installed, 'catalog.json'),
-      JSON.stringify(data)
-    );
-    const rich = run('inspect', 'Banner');
-    expect(rich.status, rich.stderr).toBe(0);
-    expect(JSON.parse(rich.stdout)).toMatchObject({
-      packageVersion: '0.1.2',
-      guidance: data.components[0].guidance,
-    });
-    expect(JSON.parse(run('search', 'persistent warning').stdout)).toHaveLength(
-      1
-    );
-    expect(JSON.parse(run('foundations', 'usage').stdout)).toMatchObject({
-      version: '0.1.2',
+    const usage = {
+      title: 'Usage',
+      source: 'https://example.test/docs/STYLES.md#usage',
       content: 'Use semantic tokens.',
-    });
-    fs.writeFileSync(
-      path.join(installed, 'catalog.json'),
-      JSON.stringify({
-        ...data,
-        components: [component],
-        foundations: undefined,
-      })
-    );
-    expect(run('inspect', 'Banner').status).toBe(0);
-    expect(run('search', 'warning').status).toBe(0);
-    const unavailable = run('foundations');
-    expect(unavailable.status).toBe(1);
-    expect(JSON.parse(unavailable.stderr)).toMatchObject({
+    };
+    writeCatalog({ foundations: { usage } });
+    const topic = run('foundations', 'usage');
+    expect(topic.status, topic.stderr).toBe(0);
+    expect(JSON.parse(topic.stdout)).toEqual({ topic: 'usage', ...usage });
+
+    writeCatalog({});
+    expect(run('list').status).toBe(0);
+    const legacy = run('foundations');
+    expect(legacy.status).toBe(1);
+    expect(JSON.parse(legacy.stderr)).toMatchObject({
       code: 'ERR_FOUNDATIONS_UNAVAILABLE',
-    });
-    fs.writeFileSync(
-      path.join(installed, 'catalog.json'),
-      JSON.stringify({ ...data, schemaVersion: 999 })
-    );
-    expect(JSON.parse(run('list').stderr)).toMatchObject({
-      code: 'ERR_CATALOG_VERSION',
     });
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });

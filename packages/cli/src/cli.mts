@@ -24,7 +24,7 @@ function installedFile(specifier: string) {
   }
 }
 
-function catalogData() {
+function readCatalog() {
   const file = installedFile('@langchain/macaw-components/catalog.json');
   const data = JSON.parse(readFileSync(file, 'utf8'));
   if (
@@ -41,27 +41,19 @@ function catalogData() {
 }
 
 function catalog(): Component[] {
-  const data = catalogData();
-  return data.components.map((component: Component) => ({
-    ...component,
-    ...(typeof data.version === 'string'
-      ? { packageVersion: data.version }
-      : {}),
-  }));
+  return readCatalog().components;
 }
 
 function foundations(): Foundations {
-  const data = catalogData();
-  if (
-    !data.foundations ||
-    data.foundations.schemaVersion !== 1 ||
-    !data.foundations.topics
-  )
+  const topics = readCatalog().foundations;
+  // Catalogs published before foundations existed omit the field.
+  if (!topics || typeof topics !== 'object') {
     throw new CliError(
       'ERR_FOUNDATIONS_UNAVAILABLE',
-      'This catalog has no supported foundations. Update @langchain/macaw-components for compact guidance.'
+      'This component catalog has no foundations. Update @langchain/macaw-components.'
     );
-  return data.foundations;
+  }
+  return topics;
 }
 
 function initialize() {
@@ -101,4 +93,4 @@ function initialize() {
   return relative(projectRoot, file);
 }
 
-main(process.argv.slice(2), catalog, initialize, foundations);
+main(process.argv.slice(2), catalog, foundations, initialize);

@@ -744,13 +744,6 @@
   "nx": {
     "targets": {
       "build": {
-        "inputs": [
-          "default",
-          "^default",
-          "{workspaceRoot}/packages/cli/src/commands.mts",
-          "{workspaceRoot}/scripts/build-components.mjs",
-          "{workspaceRoot}/scripts/rewrite-declaration-specifiers.mjs"
-        ],
         "dependsOn": [
           "^build"
         ],

@@ -26,7 +26,15 @@ const meta = {
       </TooltipProvider>
     ),
   ],
-  tags: ['autodocs', 'alert', 'notice', 'callout', 'warning'],
+  tags: [
+    'autodocs',
+    'alert',
+    'notice',
+    'callout',
+    'warning',
+    'persistent notice',
+    'announcement',
+  ],
   argTypes: {
     intent: {
       control: { type: 'select' },

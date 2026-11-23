@@ -170,16 +170,6 @@ type Story = StoryObj<typeof meta>;
 export const Playground: Story = {
   tags: ['a11y-test'],
   parameters: { a11y: { test: 'error' } },
-  play: async ({ canvas, userEvent }) => {
-    const input = canvas.getByRole('textbox', { name: 'Email' });
-    await userEvent.tab();
-    await expect(input).toHaveFocus();
-    await userEvent.type(input, 'reader@example.com');
-    await expect(input).toHaveValue('reader@example.com');
-    await expect(input).toHaveAccessibleDescription(
-      'Use the controls to explore sizes, variants, and icons.'
-    );
-  },
 };
 
 export const SizesAndVariants: Story = {

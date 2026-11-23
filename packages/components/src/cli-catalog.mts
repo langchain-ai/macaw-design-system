@@ -5,19 +5,11 @@ import {
   componentExports,
   ComponentSourceError,
 } from './cli-component-exports.mts';
-import { buildGuidance } from './cli-guidance.mts';
 import { storyTags } from './cli-story-tags.mts';
-
-export { buildFoundations } from './cli-foundations.mts';
 
 export function buildCatalog(root: string) {
   const componentsRoot = path.join(root, 'src/components');
   const storiesRoot = path.join(root, 'src/stories');
-  const guidance = buildGuidance(root);
-  const manifest = path.join(root, 'package.json');
-  const packageVersion = fs.existsSync(manifest)
-    ? JSON.parse(fs.readFileSync(manifest, 'utf8')).version
-    : undefined;
   function relative(file: string) {
     return path.relative(root, file).split(path.sep).join('/');
   }
@@ -90,27 +82,9 @@ export function buildCatalog(root: string) {
             if (story && !keywordsByStory.has(story)) {
               keywordsByStory.set(story, storyTags(story).join(', '));
             }
-            const familyGuidance = guidance[family];
-            const {
-              supportedProps: _props,
-              apiSource: _source,
-              apiCoverage: _coverage,
-              ...sharedGuidance
-            } = familyGuidance ?? {};
-            const entryGuidance =
-              guidance[name] ?? (familyGuidance ? sharedGuidance : undefined);
             return {
               name,
               family,
-              ...(packageVersion ? { packageVersion } : {}),
-              ...(entryGuidance
-                ? {
-                    guidance: {
-                      ...entryGuidance,
-                      scope: guidance[name] ? name : family,
-                    },
-                  }
-                : {}),
               keywords: story ? (keywordsByStory.get(story) ?? '') : '',
               importPath,
               importStatement: `import ${exportName === 'default' ? name : `{ ${name} }`} from '${importPath}';`,

@@ -21,11 +21,6 @@ export default defineConfig({
     maxWorkers: 2,
     setupFiles: ['./vitest.setup.ts'],
     testTimeout: 30_000,
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/storybook-static/**',
-      '**/tests/visual/**',
-    ],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/storybook-static/**'],
   },
 });

@@ -24,8 +24,6 @@
   "include": [
     "packages",
     "scripts",
-    "tests/visual",
-    "playwright.design.config.mts",
     "vite.config.ts",
     "vitest.config.ts",
     "vitest.storybook.config.ts",
