@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { BirdIcon } from '@phosphor-icons/react/dist/ssr/Bird';
 import { GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { SwatchesIcon } from '@phosphor-icons/react/dist/ssr/Swatches';
@@ -11,8 +13,10 @@ type AgentSkill = {
   icon: IconComponent;
   /** The skill's SKILL.md on GitHub. */
   repo: string;
-  /** One short sentence. */
-  summary: string;
+  /** When an agent loads it, as one sentence. */
+  loadsWhen: string;
+  /** How a project gets the skill. */
+  getIt: ReactNode;
   /** A story that shows what the skill builds. */
   example?: { title: string; name: string; label: string };
 };
@@ -26,28 +30,36 @@ const MACAW_BLOB =
 
 export const agentSkills: AgentSkill[] = [
   {
-    name: 'macaw',
-    icon: BirdIcon,
-    repo: `${MACAW_BLOB}/packages/cli/templates/SKILL.md`,
-    summary:
-      'Points agents at the installed Macaw docs and the component search CLI.',
-  },
-  {
-    name: 'design-system',
-    icon: SwatchesIcon,
-    repo: `${MACAW_BLOB}/.agents/skills/design-system/SKILL.md`,
-    summary: 'Changes Macaw itself: components, tokens, stories, and docs.',
-  },
-  {
     name: 'macaw-create-settings',
     icon: GearSixIcon,
     repo: 'https://github.com/langchain-ai/langchainplus/blob/main/.agents/skills/macaw-create-settings/SKILL.md',
-    summary: 'Builds and polishes LangSmith settings pages.',
+    loadsWhen: 'Loads when you build or change a LangSmith settings page.',
+    getIt: 'Included in the LangSmith repository.',
     example: {
       title: 'Recipes/Settings Pages',
       name: 'CTA + table',
       label: 'See the recipes',
     },
+  },
+  {
+    name: 'design-system',
+    icon: SwatchesIcon,
+    repo: `${MACAW_BLOB}/.agents/skills/design-system/SKILL.md`,
+    loadsWhen:
+      'Loads when you change Macaw itself: components, tokens, stories, or docs.',
+    getIt: 'Included in this repository.',
+  },
+  {
+    name: 'macaw',
+    icon: BirdIcon,
+    repo: `${MACAW_BLOB}/packages/cli/templates/SKILL.md`,
+    loadsWhen:
+      'Loads for UI work in an app that uses Macaw, outside LangSmith.',
+    getIt: (
+      <>
+        Add it by running <code>pnpm exec macaw init</code> in that app.
+      </>
+    ),
   },
 ];
 
@@ -75,8 +87,9 @@ export function AgentSkillsPage() {
             Agent Skills
           </Text>
           <Text color="secondary">
-            Instructions a coding agent loads when a task matches, so
-            agent-built UI follows the same rules as hand-built UI.
+            An agent loads a skill on its own when a task matches it. In Claude
+            Code you can also run one by name, like{' '}
+            <code>/macaw-create-settings</code>.
           </Text>
         </header>
 
@@ -110,7 +123,10 @@ export function AgentSkillsPage() {
                   </a>
                 </Text>
                 <Text variant="sm" color="secondary">
-                  {skill.summary}
+                  {skill.loadsWhen}
+                </Text>
+                <Text variant="sm" color="tertiary">
+                  {skill.getIt}
                 </Text>
               </div>
               {skill.example && (
