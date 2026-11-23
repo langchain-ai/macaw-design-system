@@ -18,7 +18,7 @@ export function StoryLink({
   children,
 }: {
   title: string;
-  /** The story's display name; omit for a docs page. */
+  /** The story's display name. Leave it out for a docs page. */
   name?: string;
   docs?: boolean;
   variant?: LinkProps['variant'];

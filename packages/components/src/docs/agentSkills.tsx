@@ -23,7 +23,7 @@ type AgentSkill = {
 
 /**
  * Every agent skill that builds with Macaw, one entry per skill. Each skill's
- * text lives in one repository; this list only says what it's for.
+ * text lives in one repository, and this list only says what it's for.
  */
 const MACAW_BLOB =
   'https://github.com/langchain-ai/macaw-design-system/blob/main';
@@ -46,7 +46,7 @@ export const agentSkills: AgentSkill[] = [
     icon: SwatchesIcon,
     repo: `${MACAW_BLOB}/.agents/skills/design-system/SKILL.md`,
     loadsWhen:
-      'Loads when you change Macaw itself: components, tokens, stories, or docs.',
+      'Loads when you change Macaw itself, like its components, tokens, stories, or docs.',
     getIt: 'Included in this repository.',
   },
   {
@@ -137,10 +137,10 @@ export function AgentSkillsPage() {
             Adding a skill
           </Text>
           <Text variant="sm" color="secondary">
-            Put a skill next to the code it describes: a product’s pages in that
-            product’s repository, changes to Macaw in this one, and guidance for
-            every app in the Macaw CLI template. Then list it here in{' '}
-            <code>agentSkills.tsx</code>.
+            Put a skill next to the code it describes. Skills for a product’s
+            pages go in that product’s repository, skills for changing Macaw go
+            in this one, and guidance for every app goes in the Macaw CLI
+            template. Then list it here in <code>agentSkills.tsx</code>.
           </Text>
         </section>
       </div>

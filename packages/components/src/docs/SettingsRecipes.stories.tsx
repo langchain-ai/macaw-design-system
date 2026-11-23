@@ -53,7 +53,7 @@ import { cn } from '../utils/cn';
 
 /**
  * Recipes for LangSmith settings pages, one per layout. Each story shows the
- * settings modal by default; switch `frame` to see the same page full screen.
+ * settings modal by default. Switch `frame` to see the same page full screen.
  *
  * The `Settings*` components here are story-only copies of the app's settings
  * components (Macaw can't import app code). Their class names match the app,
@@ -66,9 +66,9 @@ const meta: Meta<RecipeArgs> = {
     layout: 'fullscreen',
     a11y: {
       test: 'error',
-      // Two contrast gaps come from tokens, not the recipes: Macaw Link's
+      // Two contrast gaps come from tokens, not the recipes. Macaw Link's
       // text-link (#0078f1) is 4.23:1 on white, and the app's quaternary nav
-      // headings are 4.3:1 on bg-sidebar. Skip only those; check the rest.
+      // headings are 4.3 to 1 on bg-sidebar. Skip only those and check the rest.
       config: {
         rules: [
           {
@@ -102,7 +102,7 @@ type Story = StoryObj<RecipeArgs>;
 const noop = () => {};
 
 // ---------------------------------------------------------------------------
-// Recipe note: when to use the layout, shown above every recipe
+// Recipe note, the one line above every recipe that says when to use it
 // ---------------------------------------------------------------------------
 
 function RecipeNote({ children }: { children: string }) {
@@ -147,7 +147,7 @@ const WORKSPACE_NAV: NavGroup[] = [
   { heading: 'Integrations', items: ['Webhooks', 'MCP Servers'] },
 ];
 
-/** Nav row: `OrgSettingsTabLink` with the app's `navItemClasses`. */
+/** A nav row, like `OrgSettingsTabLink` with the app's `navItemClasses`. */
 function NavItem({
   active,
   leading,
@@ -175,7 +175,7 @@ function NavItem({
   );
 }
 
-/** The settings modal sidebar: search, scope switch, org picker, links, profile. */
+/** The settings modal sidebar with search, scope switch, org picker, links, and profile. */
 function SettingsSidebar({ active }: { active: string }) {
   const inWorkspace = WORKSPACE_NAV.some((group) =>
     group.items.includes(active)
@@ -248,7 +248,7 @@ function SettingsSidebar({ active }: { active: string }) {
                   className="min-w-0 truncate"
                 >
                   <span className="sr-only">
-                    Select {scope.toLowerCase()}:{' '}
+                    Select {scope.toLowerCase()},{' '}
                   </span>
                   {scope === 'Organization' ? 'LangChain' : 'Production'}
                 </Text>
@@ -453,7 +453,7 @@ function SettingsPageLayout({
 
 /**
  * `SettingsPageHeader`. In the modal the title and description stack, and one
- * row under them leads with the page actions, then the toolbar; filter chips
+ * row under them leads with the page actions, then the toolbar. Filter chips
  * get their own row. On a full page the actions sit right of the title.
  */
 function SettingsPageHeader({
@@ -826,8 +826,8 @@ function filterRows(rows: KeyRow[], values: FilterValues, query: string) {
 }
 
 /**
- * The "Filter" popover (`SettingsFilterBar`): pick a field, then a value.
- * Picking applies the filter and closes the popover; there's no Apply button.
+ * The "Filter" popover (`SettingsFilterBar`). Pick a field, then a value.
+ * Picking applies the filter and closes the popover. There's no Apply button.
  */
 function FilterButton({
   values,
@@ -865,7 +865,7 @@ function FilterButton({
                 variant="outlined"
                 color="secondary"
                 rightDecorator={CaretDownIcon}
-                aria-label={`Field: ${field.label}`}
+                aria-label={`${field.label} field`}
                 className="shrink-0"
               >
                 {field.label}
@@ -926,7 +926,7 @@ function FilterButton({
 }
 
 /**
- * One chip per field: "Type is Service", or "Workspace is any of 2" with
+ * One chip per field, such as "Type is Service" or "Workspace is any of 2" with
  * several values. The chip opens a checklist of that field's values.
  */
 function FilterChips({
@@ -990,7 +990,7 @@ function FilterChips({
 }
 
 /**
- * Settings tables are DataGridV2 with the compact settings defaults: `xs` cell
+ * Settings tables are DataGridV2 with the compact settings defaults, meaning `xs` cell
  * text, `Badge size="sm" rounded="xs"`, plain icon-button row actions, a
  * sticky header, and a pagination footer on the pane's edge.
  */
@@ -1235,15 +1235,15 @@ export const CtaTable: Story = {
       control: 'inline-radio',
       options: ['Several fields', 'One small set'],
       description:
-        '2+ filter fields use the Filter popover; one small set uses segmented tabs.',
+        'Two or more filter fields use the Filter popover. One small set uses segmented tabs.',
     },
   },
   render: (args) => <CtaTableRecipe {...args} />,
 };
 
 /**
- * The explicit-save exception, as on the app's LLM Auth Proxy page: the mode
- * is a row that saves on change; custom patterns sit under the card, and
+ * The explicit-save exception, as on the app's LLM Auth Proxy page. The mode
+ * is a row that saves on change. Custom patterns sit under the card, and
  * Cancel / Save appear only after an edit.
  */
 function AllowedUrls() {
