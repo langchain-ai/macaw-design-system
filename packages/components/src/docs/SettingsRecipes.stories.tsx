@@ -1277,7 +1277,7 @@ function AllowedUrls() {
       {mode === 'custom' && (
         <div className="flex min-w-0 flex-col gap-space-2">
           <Textarea
-            aria-label="Allowed URL patterns"
+            aria-label="Allowed URL Patterns"
             value={draft}
             rows={4}
             hintText="One pattern per line. Use *.domain for subdomains."
@@ -1313,12 +1313,12 @@ function MaxExpiryRow() {
   const [value, setValue] = useState<string | undefined>('90');
   return (
     <SettingsRow
-      label="Maximum key expiry"
+      label="Maximum Key Expiry"
       description="New keys can't outlive this."
       control={
         <Select
           size="sm"
-          aria-label="Maximum key expiry"
+          aria-label="Maximum Key Expiry"
           hideSearch
           value={value}
           onChange={setValue}
@@ -1353,12 +1353,12 @@ export const FormRows: Story = {
           <SettingsSection title="Sharing">
             <SettingsRowList>
               <SettingsSwitchRow
-                label="Public sharing"
+                label="Public Sharing"
                 description="Members can share traces and datasets with a public link."
                 defaultChecked
               />
               <SettingsSwitchRow
-                label="Personal access tokens"
+                label="Personal Access Tokens"
                 description="Members can create keys tied to their own account."
                 disabledReason="Turned off by your SSO policy."
               />
@@ -1541,12 +1541,12 @@ export const Views: Story = {
             <div className="flex w-full min-w-0 max-w-2xl flex-col">
               <SettingsRowList>
                 <SettingsRow
-                  label="Default trace limit"
+                  label="Default Trace Limit"
                   description="Applies to workspaces without their own limit."
                   control={
                     <Input
                       size="sm"
-                      aria-label="Default trace limit"
+                      aria-label="Default Trace Limit"
                       value="1,000,000"
                       onChange={noop}
                       className="w-60 max-w-full"
@@ -1585,10 +1585,10 @@ function EditProviderDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        title="Edit identity provider"
+        title="Edit Identity Provider"
         description="Changes apply the next time members sign in."
       >
-        <Input label="SAML metadata URL" value={url} onChange={setUrl} />
+        <Input label="SAML Metadata URL" value={url} onChange={setUrl} />
         <div className="flex items-center gap-space-2">
           <Button variant="plain" color="error">
             Delete
@@ -1646,7 +1646,7 @@ export const RowDialog: Story = {
                   }
                 />
                 <SettingsSwitchRow
-                  label="Groups sync"
+                  label="Groups Sync"
                   description="Assign roles from identity provider groups."
                 />
               </SettingsRowList>
@@ -1738,7 +1738,7 @@ export const Stats: Story = {
             </div>
           </ChartCard>
           <ChartCard
-            title="Monthly Spend (thousands)"
+            title="Monthly Spend (Thousands)"
             className="rounded-none rounded-b-lg border-t-0"
           >
             <div className="h-56 min-h-0 w-full">
