@@ -63,21 +63,6 @@ export const agentSkills: AgentSkill[] = [
   },
 ];
 
-const skillHomes = [
-  {
-    usedBy: 'Any app using Macaw',
-    home: 'Ship it with the Macaw CLI, so macaw init installs it.',
-  },
-  {
-    usedBy: 'People changing Macaw',
-    home: 'Add it to this repository.',
-  },
-  {
-    usedBy: 'One product',
-    home: 'Keep it in that product’s repository, next to its code.',
-  },
-];
-
 export function AgentSkillsPage() {
   return (
     <main className="min-h-screen bg-surface-level-1 text-primary">
@@ -146,30 +131,16 @@ export function AgentSkillsPage() {
 
         <section
           aria-labelledby="adding-a-skill"
-          className="flex max-w-2xl flex-col gap-space-3"
+          className="flex max-w-2xl flex-col gap-space-1"
         >
           <Text as="h2" id="adding-a-skill" variant="h3">
             Adding a skill
           </Text>
-          <dl className="m-0 grid grid-cols-1 gap-x-space-5 gap-y-space-2 sm:grid-cols-[11rem_minmax(0,1fr)]">
-            {skillHomes.map((item) => (
-              <div key={item.usedBy} className="contents">
-                <dt>
-                  <Text as="span" variant="sm" weight="medium">
-                    {item.usedBy}
-                  </Text>
-                </dt>
-                <dd className="m-0">
-                  <Text as="span" variant="sm" color="secondary">
-                    {item.home}
-                  </Text>
-                </dd>
-              </div>
-            ))}
-          </dl>
           <Text variant="sm" color="secondary">
-            Then add it to the list on this page in <code>agentSkills.tsx</code>
-            .
+            Put a skill next to the code it describes: a product’s pages in that
+            product’s repository, changes to Macaw in this one, and guidance for
+            every app in the Macaw CLI template. Then list it here in{' '}
+            <code>agentSkills.tsx</code>.
           </Text>
         </section>
       </div>
