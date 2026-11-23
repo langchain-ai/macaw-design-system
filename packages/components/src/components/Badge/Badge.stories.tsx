@@ -34,10 +34,6 @@ const meta: Meta<typeof Badge> = {
       control: 'select',
       options: ['xxs', 'xs', 'sm', 'md'],
     },
-    rounded: {
-      control: 'select',
-      options: ['full', 'none', 'xs', 'sm'],
-    },
     leftDecorator: {
       control: 'select',
       options: ['None', 'PlusIcon', 'CheckCircleIcon'],
@@ -89,31 +85,6 @@ export const WithSvgOnly: Story = {
   ),
 };
 
-export const Rounded: Story = {
-  render: () => (
-    <div className="flex items-center gap-space-4">
-      <Badge size="md" rounded="none">
-        None
-      </Badge>
-      <Badge size="md" color="success" rounded="xs">
-        XS
-      </Badge>
-      <Badge size="md" color="success" rounded="sm">
-        SM
-      </Badge>
-      <Badge
-        size="md"
-        leftDecorator={CheckCircleIcon}
-        iconWeight="regular"
-        color="primary"
-        rounded="full"
-      >
-        Full
-      </Badge>
-    </div>
-  ),
-};
-
 export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-space-4">
@@ -127,8 +98,8 @@ export const Sizes: Story = {
         >
           Icon
         </Badge>
-        <Badge size="xxs" rounded="xs" color="success">
-          Less rounded
+        <Badge size="xxs" color="success">
+          Success
         </Badge>
       </div>
       <div className="flex flex-col items-center gap-space-2">
@@ -141,8 +112,8 @@ export const Sizes: Story = {
         >
           Icon
         </Badge>
-        <Badge size="xs" rounded="xs" color="success">
-          Less rounded
+        <Badge size="xs" color="success">
+          Success
         </Badge>
       </div>
       <div className="flex flex-col items-center gap-space-2">
@@ -155,8 +126,8 @@ export const Sizes: Story = {
         >
           Icon
         </Badge>
-        <Badge size="sm" rounded="xs" color="success">
-          Less rounded
+        <Badge size="sm" color="success">
+          Success
         </Badge>
       </div>
       <div className="flex flex-col items-center gap-space-2">
@@ -169,8 +140,8 @@ export const Sizes: Story = {
         >
           Icon
         </Badge>
-        <Badge size="md" rounded="xs" color="success">
-          Less rounded
+        <Badge size="md" color="success">
+          Success
         </Badge>
       </div>
     </div>

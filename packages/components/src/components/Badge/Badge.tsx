@@ -9,6 +9,7 @@ import { Text, type TextProps } from '../Text';
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   /** Badge style preset */
   variant?: 'default' | 'manifestPreview';
+  /** @deprecated Badges are always square (`rounded-xs`). Ignored; remove it from call sites. */
   rounded?: 'full' | 'none' | 'xs' | 'sm';
   /** Badge color scheme */
   color?:
@@ -80,7 +81,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       variant = 'default',
       color,
       size,
-      rounded = 'full',
+      rounded: _rounded,
       leftDecorator: LeftIcon,
       rightDecorator: RightIcon,
       iconWeight,
@@ -98,15 +99,9 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     const resolvedSize = size ?? (isManifestPreview ? 'sm' : 'md');
     const resolvedTextWeight = textWeight ?? SIZE_DEFAULT_WEIGHT[resolvedSize];
     const baseStyles = cn(
-      'box-border inline-flex items-center justify-center border border-transparent',
+      'box-border inline-flex items-center justify-center rounded-xs border border-transparent',
       SIZE_BOX_CLASSES[resolvedSize],
-      {
-        // TODO: we're only going to have 2 variants for the rounded prop. need to remove/rename the rounded prop
-        'rounded-xs':
-          rounded === 'xs' || rounded === 'sm' || rounded === 'none',
-        'rounded-full': rounded === 'full',
-        border: resolvedColor === 'plain',
-      }
+      { border: resolvedColor === 'plain' }
     );
 
     const getColorStyles = () => {

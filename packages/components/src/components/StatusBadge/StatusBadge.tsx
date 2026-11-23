@@ -60,7 +60,6 @@ export function StatusBadge({
     <Badge
       color={color}
       size={size}
-      rounded="xs"
       leftDecorator={icon === null ? undefined : (icon ?? variantIcon)}
       iconWeight="regular"
       className={className}

@@ -66,7 +66,6 @@ export function TypeaheadDefaultTag<TOption>({
     <Badge
       key={`${getValue(selected)}-${index}`}
       color="plain"
-      rounded="xs"
       size={size === 'xs' || size === 'sm' ? 'xs' : 'sm'}
       textWeight="normal"
       rightDecorator={!disabled ? XIcon : undefined}

@@ -302,9 +302,7 @@ const ChartLegendInline = ({
                     hiddenCount === 1 ? 'legend' : 'legends'
                   }`}
                 >
-                  <Badge size="xxs" rounded="xs">
-                    {`+${hiddenCount}`}
-                  </Badge>
+                  <Badge size="xxs">{`+${hiddenCount}`}</Badge>
                 </Button>
               </PopoverTrigger>
             </Tooltip>
@@ -336,9 +334,7 @@ const ChartLegendInline = ({
                   ref={(node) => setMeasurementBadgeRef(count, node)}
                   className="shrink-0"
                 >
-                  <Badge size="xxs" rounded="xs">
-                    {`+${count}`}
-                  </Badge>
+                  <Badge size="xxs">{`+${count}`}</Badge>
                 </div>
               );
             })}
