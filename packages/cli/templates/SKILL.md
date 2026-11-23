@@ -5,8 +5,12 @@ description: Use Macaw components and semantic tokens when building application 
 
 # Build with Macaw
 
-Read [component guidance]({{componentsDocs}}/DESIGN.md) and the relevant
-[styling guidance]({{componentsDocs}}/STYLES.md) before implementing UI.
+Before implementing UI, run `pnpm exec macaw foundations components` to choose
+components, and `pnpm exec macaw foundations` to list other topics such as
+`tokens`, `surfaces`, and `spacing`. Topics are sections of the installed
+[component guidance]({{componentsDocs}}/DESIGN.md) and
+[styling guidance]({{componentsDocs}}/STYLES.md); read those files for anything
+the topics do not cover.
 The token package also exports `@langchain/macaw-tokens/docs/TOKENS.md`.
 These files belong to the installed package versions.
 

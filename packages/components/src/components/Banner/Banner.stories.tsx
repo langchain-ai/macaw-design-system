@@ -26,7 +26,15 @@ const meta = {
       </TooltipProvider>
     ),
   ],
-  tags: ['autodocs', 'alert', 'notice', 'callout', 'warning'],
+  tags: [
+    'autodocs',
+    'alert',
+    'notice',
+    'callout',
+    'warning',
+    'persistent notice',
+    'announcement',
+  ],
   argTypes: {
     intent: {
       control: { type: 'select' },
@@ -57,6 +65,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Warning: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
   args: {
     intent: 'warning',
     title: 'Heads up',

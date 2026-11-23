@@ -41,7 +41,7 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs', 'modal', 'overlay', 'confirmation'],
+  tags: ['autodocs', 'modal', 'overlay', 'confirmation', 'destructive action'],
   args: {
     open: false,
     onOpenChange: () => {},
