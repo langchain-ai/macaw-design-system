@@ -9,7 +9,7 @@ import { StoryLink } from './StoryLink';
 type AgentSkill = {
   name: string;
   icon: IconComponent;
-  /** The GitHub repository the skill lives in. */
+  /** The skill's SKILL.md on GitHub. */
   repo: string;
   /** One short sentence. */
   summary: string;
@@ -21,26 +21,27 @@ type AgentSkill = {
  * Every agent skill that builds with Macaw, one entry per skill. Each skill's
  * text lives in one repository; this list only says what it's for.
  */
-const MACAW_REPO = 'https://github.com/langchain-ai/macaw-design-system';
+const MACAW_BLOB =
+  'https://github.com/langchain-ai/macaw-design-system/blob/main';
 
 export const agentSkills: AgentSkill[] = [
   {
     name: 'macaw',
     icon: BirdIcon,
-    repo: MACAW_REPO,
+    repo: `${MACAW_BLOB}/packages/cli/templates/SKILL.md`,
     summary:
       'Points agents at the installed Macaw docs and the component search CLI.',
   },
   {
     name: 'design-system',
     icon: SwatchesIcon,
-    repo: MACAW_REPO,
+    repo: `${MACAW_BLOB}/.agents/skills/design-system/SKILL.md`,
     summary: 'Changes Macaw itself: components, tokens, stories, and docs.',
   },
   {
     name: 'macaw-create-settings',
     icon: GearSixIcon,
-    repo: 'https://github.com/langchain-ai/langchainplus',
+    repo: 'https://github.com/langchain-ai/langchainplus/blob/main/.agents/skills/macaw-create-settings/SKILL.md',
     summary: 'Builds and polishes LangSmith settings pages.',
     example: {
       title: 'Recipes/Settings Pages',
@@ -98,7 +99,7 @@ export function AgentSkillsPage() {
               </span>
               <div className="flex flex-col gap-space-1">
                 <Text as="h2" variant="md" weight="semibold">
-                  {/* The link covers the card, so the whole card opens the repository. */}
+                  {/* The link covers the card, so the whole card opens the skill. */}
                   <a
                     href={skill.repo}
                     target="_blank"
