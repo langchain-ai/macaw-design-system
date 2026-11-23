@@ -6,13 +6,14 @@ import { SwatchesIcon } from '@phosphor-icons/react/dist/ssr/Swatches';
 
 import { Icon, type IconComponent } from '../components/Icon';
 import { Text } from '../components/Text';
+import { cn } from '../utils/cn';
 import { StoryLink } from './StoryLink';
 
 type AgentSkill = {
   name: string;
   icon: IconComponent;
-  /** The skill's SKILL.md on GitHub. */
-  repo: string;
+  /** The skill's SKILL.md on GitHub. Public repositories only, since this page is public. */
+  repo?: string;
   /** When an agent loads it, as one sentence. */
   loadsWhen: string;
   /** How a project gets the skill. */
@@ -32,7 +33,6 @@ export const agentSkills: AgentSkill[] = [
   {
     name: 'macaw-create-settings',
     icon: GearSixIcon,
-    repo: 'https://github.com/langchain-ai/langchainplus/blob/main/.agents/skills/macaw-create-settings/SKILL.md',
     loadsWhen: 'Loads when you build or change a LangSmith settings page.',
     getIt: 'Included in the LangSmith repository.',
     example: {
@@ -85,7 +85,11 @@ export function AgentSkillsPage() {
           {agentSkills.map((skill) => (
             <li
               key={skill.name}
-              className="relative flex min-w-0 flex-col gap-space-4 rounded-lg bg-surface-level-2 p-space-4 transition-colors duration-normal hover:bg-surface-level-2-hover motion-reduce:transition-none"
+              className={cn(
+                'relative flex min-w-0 flex-col gap-space-4 rounded-lg bg-surface-level-2 p-space-4',
+                skill.repo &&
+                  'transition-colors duration-normal hover:bg-surface-level-2-hover motion-reduce:transition-none'
+              )}
             >
               <span className="flex size-8 items-center justify-center rounded-md border border-subtle bg-surface-level-1">
                 <Icon
@@ -97,15 +101,19 @@ export function AgentSkillsPage() {
               </span>
               <div className="flex flex-col gap-space-1">
                 <Text as="h2" variant="md" weight="semibold">
-                  {/* The link covers the card, so the whole card opens the skill. */}
-                  <a
-                    href={skill.repo}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-focus"
-                  >
-                    {skill.name}
-                  </a>
+                  {skill.repo ? (
+                    // The link covers the card, so the whole card opens the skill.
+                    <a
+                      href={skill.repo}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-focus"
+                    >
+                      {skill.name}
+                    </a>
+                  ) : (
+                    skill.name
+                  )}
                 </Text>
                 <Text variant="sm" color="secondary">
                   {skill.loadsWhen}
