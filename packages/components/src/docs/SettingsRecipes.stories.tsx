@@ -21,6 +21,12 @@ import { Button } from '../components/Button/Button';
 import { ChartCard } from '../components/ChartCard';
 import { Checkbox } from '../components/Checkbox';
 import { Dialog, DialogContent } from '../components/Dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../components/DropdownMenu';
 import { EmptyState } from '../components/EmptyState';
 import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
 import { Icon } from '../components/Icon';
@@ -37,6 +43,7 @@ import { TabGroup, TabLabel, TabList } from '../components/Tabs';
 import { Text } from '../components/Text/Text';
 import { Textarea } from '../components/Textarea/Textarea';
 import {
+  CaretDownIcon,
   CaretLeftIcon,
   CaretRightIcon,
   PlusIcon,
@@ -877,44 +884,73 @@ function FilterButton({
           Filter
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto min-w-60">
+      <PopoverContent
+        align="start"
+        aria-label="Add filter"
+        className="w-auto min-w-60 max-w-[min(30rem,calc(100vw-2rem))]"
+      >
         <div className="flex items-center gap-x-space-2">
-          <Select<FilterKey>
-            size="sm"
-            aria-label="Field"
-            hideSearch
-            value={fieldKey}
-            onChange={(next) => next && setFieldKey(next)}
-            options={FILTER_FIELDS.map(({ key, label }) => ({
-              value: key,
-              label,
-            }))}
-          />
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="outlined"
+                color="secondary"
+                rightDecorator={CaretDownIcon}
+                aria-label={`Field: ${field.label}`}
+                className="shrink-0"
+              >
+                {field.label}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {FILTER_FIELDS.map(({ key, label }) => (
+                <DropdownMenuItem
+                  key={key}
+                  size="sm"
+                  onSelect={() => setFieldKey(key)}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Text as="span" variant="sm" color="secondary">
             is
           </Text>
-          <Select
-            key={field.key}
-            size="sm"
-            aria-label={`${field.label} value`}
-            placeholder="Select..."
-            hideSearch
-            onChange={(value) => {
-              if (!value) return;
-              const current = values[field.key] ?? [];
-              onChange({
-                ...values,
-                [field.key]: current.includes(value)
-                  ? current
-                  : [...current, value],
-              });
-              setOpen(false);
-            }}
-            options={field.options.map((option) => ({
-              value: option,
-              label: option,
-            }))}
-          />
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="outlined"
+                color="secondary"
+                aria-label={`${field.label} value`}
+                className="min-w-0 max-w-[12.5rem] text-tertiary"
+              >
+                Value
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {field.options.map((option) => (
+                <DropdownMenuItem
+                  key={option}
+                  size="sm"
+                  onSelect={() => {
+                    const current = values[field.key] ?? [];
+                    onChange({
+                      ...values,
+                      [field.key]: current.includes(option)
+                        ? current
+                        : [...current, option],
+                    });
+                    setOpen(false);
+                  }}
+                >
+                  {option}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </PopoverContent>
     </Popover>
@@ -953,6 +989,7 @@ function FilterChips({
           </PopoverTrigger>
           <PopoverContent
             align="start"
+            aria-label={`${field.label} values`}
             className="flex w-auto min-w-60 flex-col gap-space-2"
           >
             {field.options.map((option) => (
