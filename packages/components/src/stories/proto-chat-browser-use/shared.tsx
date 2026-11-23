@@ -16,8 +16,8 @@ import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import { HandIcon } from '@phosphor-icons/react/dist/ssr/Hand';
 import { KeyboardIcon } from '@phosphor-icons/react/dist/ssr/Keyboard';
 
-import { cn } from '../../utils/cn';
 import type { ChatToolCallStatus } from '../../components/ChatToolCall';
+import { cn } from '../../utils/cn';
 
 // ---------- scenario ----------
 
@@ -97,7 +97,8 @@ export const STEPS: StepDef[] = [
     target: 'Find flights',
     url: RESULTS,
     page: 'results',
-    title: 'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
+    title:
+      'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
     cursor: { x: 1086, y: 392 },
     ms: 1500,
     code: `await page.getByRole("button", { name: "Find flights" }).click()`,
@@ -110,7 +111,8 @@ export const STEPS: StepDef[] = [
     target: 'Refundable',
     url: RESULTS,
     page: 'results',
-    title: 'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
+    title:
+      'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
     cursor: { x: 150, y: 312 },
     ms: 1900,
     error:
@@ -125,7 +127,8 @@ export const STEPS: StepDef[] = [
     target: 'the results page',
     url: RESULTS,
     page: 'results',
-    title: 'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
+    title:
+      'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
     ms: 1100,
     code: `await browser.snapshot({ includeIframes: false })`,
   },
@@ -137,7 +140,8 @@ export const STEPS: StepDef[] = [
     target: 'Refundable fares only',
     url: RESULTS,
     page: 'results-refundable',
-    title: 'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
+    title:
+      'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
     cursor: { x: 66, y: 296 },
     ms: 1300,
     code: `await page.getByRole("checkbox", { name: "Refundable fares only" }).check()`,
@@ -150,7 +154,8 @@ export const STEPS: StepDef[] = [
     target: '3 refundable flights',
     url: RESULTS,
     page: 'results-refundable',
-    title: 'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
+    title:
+      'Choose flights: New York (JFK) to San Francisco (SFO) | Skyline Air',
     ms: 700,
     code: `await browser.screenshot({ type: "png" })`,
   },
@@ -219,7 +224,12 @@ export const ANSWER = [
 
 // ---------- session simulation ----------
 
-export type Controller = 'connecting' | 'agent' | 'needs-you' | 'user' | 'ended';
+export type Controller =
+  | 'connecting'
+  | 'agent'
+  | 'needs-you'
+  | 'user'
+  | 'ended';
 
 export interface StepState extends StepDef {
   index: number;
@@ -249,17 +259,77 @@ export interface Session {
 
 const CONNECT_MS = 900;
 
-export function useBrowserSession(): Session {
+/** Where a session starts. `live` plays the whole script; the rest freeze on one state. */
+export type Stage =
+  | 'live'
+  | 'connecting'
+  | 'agent'
+  | 'needs-you'
+  | 'user'
+  | 'handed-back'
+  | 'ended';
+
+export const STAGES: { value: Stage; label: string }[] = [
+  { value: 'live', label: 'Live' },
+  { value: 'connecting', label: 'Connecting' },
+  { value: 'agent', label: 'Agent' },
+  { value: 'needs-you', label: 'Needs you' },
+  { value: 'user', label: 'You' },
+  { value: 'handed-back', label: 'Handed back' },
+  { value: 'ended', label: 'Ended' },
+];
+
+type Phase = 'connecting' | 'running' | 'handoff' | 'user' | 'done';
+
+const HANDOFF = STEPS.findIndex((step) => step.action === 'handoff');
+const FROZEN_HANDOFF_MS = 72_000;
+
+function initial(stage: Stage): {
+  active: number;
+  phase: Phase;
+  handoffMs?: number;
+} {
+  switch (stage) {
+    case 'live':
+    case 'connecting':
+      return { active: -1, phase: 'connecting' };
+    // Past the failed step, so the frozen frame shows the retry too.
+    case 'agent':
+      return { active: HANDOFF - 2, phase: 'running' };
+    case 'needs-you':
+      return { active: HANDOFF, phase: 'handoff' };
+    case 'user':
+      return { active: HANDOFF, phase: 'user' };
+    case 'handed-back':
+      return {
+        active: HANDOFF + 1,
+        phase: 'running',
+        handoffMs: FROZEN_HANDOFF_MS,
+      };
+    case 'ended':
+      return {
+        active: STEPS.length - 1,
+        phase: 'done',
+        handoffMs: FROZEN_HANDOFF_MS,
+      };
+  }
+}
+
+export function useBrowserSession(stage: Stage = 'live'): Session {
+  const [start] = useState(() => initial(stage));
   const [startedAt] = useState(() => Date.now());
-  const [active, setActive] = useState(-1);
-  const [phase, setPhase] = useState<'connecting' | 'running' | 'handoff' | 'user' | 'done'>(
-    'connecting'
-  );
+  const [active, setActive] = useState(start.active);
+  const [phase, setPhase] = useState<Phase>(start.phase);
   const [signedIn, setSignedIn] = useState(false);
-  const [handoffMs, setHandoffMs] = useState<number>();
+  const [handoffMs, setHandoffMs] = useState<number | undefined>(
+    start.handoffMs
+  );
+  // A frozen stage holds still until the reader acts, then plays on from there.
+  const [playing, setPlaying] = useState(stage === 'live');
   const userStart = useRef(0);
 
   useEffect(() => {
+    if (!playing) return;
     if (phase === 'connecting') {
       const t = window.setTimeout(() => {
         setActive(0);
@@ -279,7 +349,7 @@ export function useBrowserSession(): Session {
       if (STEPS[next].action === 'handoff') setPhase('handoff');
     }, step.ms);
     return () => window.clearTimeout(t);
-  }, [phase, active]);
+  }, [playing, phase, active]);
 
   const takeControl = useCallback(() => {
     userStart.current = Date.now();
@@ -290,6 +360,7 @@ export function useBrowserSession(): Session {
     setHandoffMs(Date.now() - userStart.current);
     setActive((i) => i + 1);
     setPhase('running');
+    setPlaying(true);
   }, []);
 
   const signIn = useCallback(() => setSignedIn(true), []);
@@ -299,7 +370,8 @@ export function useBrowserSession(): Session {
     if (index < active || (phase === 'done' && index === active)) {
       status = step.error ? 'failed' : 'succeeded';
     } else if (index === active) {
-      status = phase === 'handoff' || phase === 'user' ? 'input-required' : 'running';
+      status =
+        phase === 'handoff' || phase === 'user' ? 'input-required' : 'running';
     }
     return {
       ...step,
@@ -371,7 +443,13 @@ export const ACTION_ICONS = {
   handoff: HandIcon,
 } satisfies Record<StepAction, unknown>;
 
-export function StepIcon({ action, size = 12 }: { action: StepAction; size?: number }) {
+export function StepIcon({
+  action,
+  size = 12,
+}: {
+  action: StepAction;
+  size?: number;
+}) {
   const Icon = ACTION_ICONS[action];
   return <Icon size={size} weight="regular" />;
 }
@@ -494,8 +572,15 @@ export function Viewport({
               pointerEvents: interactive ? 'auto' : 'none',
             }}
           >
-            <FakePage page={page} interactive={interactive} onSignIn={onSignIn} signedIn={signedIn} />
-            {cursor && <AgentCursor x={cursor.x} y={cursor.y} clickKey={clickKey} />}
+            <FakePage
+              page={page}
+              interactive={interactive}
+              onSignIn={onSignIn}
+              signedIn={signedIn}
+            />
+            {cursor && (
+              <AgentCursor x={cursor.x} y={cursor.y} clickKey={clickKey} />
+            )}
           </div>
         )
       )}
@@ -505,7 +590,15 @@ export function Viewport({
   );
 }
 
-function AgentCursor({ x, y, clickKey }: { x: number; y: number; clickKey?: number }) {
+function AgentCursor({
+  x,
+  y,
+  clickKey,
+}: {
+  x: number;
+  y: number;
+  clickKey?: number;
+}) {
   return (
     <div
       aria-hidden="true"
@@ -517,8 +610,19 @@ function AgentCursor({ x, y, clickKey }: { x: number; y: number; clickKey?: numb
         className="proto-ripple absolute -left-6 -top-6 size-12 rounded-full border-2"
         style={{ borderColor: '#2f6fed' }}
       />
-      <svg width="26" height="30" viewBox="0 0 18 21" className="relative drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
-        <path d="M1 1l15 8.5-6.6 1.6L6 18z" fill="#2f6fed" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
+      <svg
+        width="26"
+        height="30"
+        viewBox="0 0 18 21"
+        className="relative drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+      >
+        <path
+          d="M1 1l15 8.5-6.6 1.6L6 18z"
+          fill="#2f6fed"
+          stroke="#fff"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
       </svg>
     </div>
   );
@@ -557,13 +661,28 @@ const field: CSSProperties = {
 
 function SiteHeader({ signedIn }: { signedIn?: boolean }) {
   return (
-    <div style={{ height: 64, background: C.brand, color: '#fff', display: 'flex', alignItems: 'center', padding: '0 40px', gap: 36, fontSize: 15 }}>
-      <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: -0.4 }}>Skyline Air</span>
+    <div
+      style={{
+        height: 64,
+        background: C.brand,
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 40px',
+        gap: 36,
+        fontSize: 15,
+      }}
+    >
+      <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: -0.4 }}>
+        Skyline Air
+      </span>
       <span>Book</span>
       <span>My trips</span>
       <span>Travel info</span>
       <span>SkyMiles</span>
-      <span style={{ marginLeft: 'auto', opacity: 0.9 }}>{signedIn ? 'Hi, Alex · 48,210 mi' : 'Sign in'}</span>
+      <span style={{ marginLeft: 'auto', opacity: 0.9 }}>
+        {signedIn ? 'Hi, Alex · 48,210 mi' : 'Sign in'}
+      </span>
     </div>
   );
 }
@@ -572,11 +691,33 @@ function Home({ filled }: { filled: boolean }) {
   const v = (a: string, b: string) => (filled ? a : b);
   return (
     <>
-      <div style={{ height: 300, background: `linear-gradient(180deg, ${C.brandDark}, ${C.brand})`, color: '#fff', padding: '64px 40px 0' }}>
-        <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1 }}>Where to next?</div>
-        <div style={{ fontSize: 18, opacity: 0.85, marginTop: 8 }}>Refundable Main fares on every route this winter.</div>
+      <div
+        style={{
+          height: 300,
+          background: `linear-gradient(180deg, ${C.brandDark}, ${C.brand})`,
+          color: '#fff',
+          padding: '64px 40px 0',
+        }}
+      >
+        <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1 }}>
+          Where to next?
+        </div>
+        <div style={{ fontSize: 18, opacity: 0.85, marginTop: 8 }}>
+          Refundable Main fares on every route this winter.
+        </div>
       </div>
-      <div style={{ margin: '-60px 40px 0', background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.12)', display: 'flex', gap: 12, alignItems: 'stretch' }}>
+      <div
+        style={{
+          margin: '-60px 40px 0',
+          background: '#fff',
+          borderRadius: 12,
+          padding: 24,
+          boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+          display: 'flex',
+          gap: 12,
+          alignItems: 'stretch',
+        }}
+      >
         {[
           ['From', v('New York (JFK)', 'City or airport')],
           ['To', v('San Francisco (SFO)', 'City or airport')],
@@ -585,14 +726,56 @@ function Home({ filled }: { filled: boolean }) {
         ].map(([k, val]) => (
           <div key={k} style={field}>
             <span style={{ fontSize: 12, color: C.muted }}>{k}</span>
-            <span style={{ fontSize: 17, color: val.includes('City') || val === 'Add date' ? '#9aa6a2' : C.ink }}>{val}</span>
+            <span
+              style={{
+                fontSize: 17,
+                color:
+                  val.includes('City') || val === 'Add date'
+                    ? '#9aa6a2'
+                    : C.ink,
+              }}
+            >
+              {val}
+            </span>
           </div>
         ))}
-        <div style={{ background: C.accent, color: C.ink, fontWeight: 700, borderRadius: 8, padding: '0 28px', display: 'flex', alignItems: 'center', fontSize: 17 }}>Find flights</div>
+        <div
+          style={{
+            background: C.accent,
+            color: C.ink,
+            fontWeight: 700,
+            borderRadius: 8,
+            padding: '0 28px',
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: 17,
+          }}
+        >
+          Find flights
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 20, padding: '40px 40px 0' }}>
-        {['Hawaii from $289', 'Ski season deals', 'Earn 2x miles in December'].map((t) => (
-          <div key={t} style={{ flex: 1, height: 200, borderRadius: 12, background: C.bg, border: `1px solid ${C.line}`, padding: 20, fontSize: 18, fontWeight: 600, color: C.ink }}>{t}</div>
+        {[
+          'Hawaii from $289',
+          'Ski season deals',
+          'Earn 2x miles in December',
+        ].map((t) => (
+          <div
+            key={t}
+            style={{
+              flex: 1,
+              height: 200,
+              borderRadius: 12,
+              background: C.bg,
+              border: `1px solid ${C.line}`,
+              padding: 20,
+              fontSize: 18,
+              fontWeight: 600,
+              color: C.ink,
+            }}
+          >
+            {t}
+          </div>
         ))}
       </div>
     </>
@@ -600,11 +783,41 @@ function Home({ filled }: { filled: boolean }) {
 }
 
 const FLIGHTS = [
-  { no: 'SK 1824', dep: '7:05 AM', arr: '10:32 AM', price: 368, refundable: true },
-  { no: 'SK 602', dep: '8:40 AM', arr: '12:15 PM', price: 312, refundable: false },
-  { no: 'SK 1130', dep: '11:55 AM', arr: '3:20 PM', price: 341, refundable: true },
-  { no: 'SK 418', dep: '1:10 PM', arr: '4:41 PM', price: 329, refundable: true },
-  { no: 'SK 90', dep: '6:00 AM', arr: '9:31 AM', price: 289, refundable: false },
+  {
+    no: 'SK 1824',
+    dep: '7:05 AM',
+    arr: '10:32 AM',
+    price: 368,
+    refundable: true,
+  },
+  {
+    no: 'SK 602',
+    dep: '8:40 AM',
+    arr: '12:15 PM',
+    price: 312,
+    refundable: false,
+  },
+  {
+    no: 'SK 1130',
+    dep: '11:55 AM',
+    arr: '3:20 PM',
+    price: 341,
+    refundable: true,
+  },
+  {
+    no: 'SK 418',
+    dep: '1:10 PM',
+    arr: '4:41 PM',
+    price: 329,
+    refundable: true,
+  },
+  {
+    no: 'SK 90',
+    dep: '6:00 AM',
+    arr: '9:31 AM',
+    price: 289,
+    refundable: false,
+  },
 ];
 
 function Results({ refundableOnly }: { refundableOnly: boolean }) {
@@ -612,31 +825,103 @@ function Results({ refundableOnly }: { refundableOnly: boolean }) {
   return (
     <div style={{ display: 'flex', gap: 28, padding: '28px 40px' }}>
       <div style={{ width: 230, flexShrink: 0, fontSize: 14, color: C.ink }}>
-        <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 14 }}>Filters</div>
+        <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 14 }}>
+          Filters
+        </div>
         <div style={{ color: C.muted, marginBottom: 8 }}>Stops</div>
         <div style={{ marginBottom: 18 }}>☑ Nonstop</div>
         <div style={{ color: C.muted, marginBottom: 8 }}>Fare</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          <span style={{ width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${refundableOnly ? C.brand : '#9aa6a2'}`, background: refundableOnly ? C.brand : '#fff', color: '#fff', fontSize: 12, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{refundableOnly ? '✓' : ''}</span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 6,
+          }}
+        >
+          <span
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: 4,
+              border: `1.5px solid ${refundableOnly ? C.brand : '#9aa6a2'}`,
+              background: refundableOnly ? C.brand : '#fff',
+              color: '#fff',
+              fontSize: 12,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {refundableOnly ? '✓' : ''}
+          </span>
           Refundable fares only
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 16, height: 16, borderRadius: 4, border: '1.5px solid #9aa6a2' }} />
+          <span
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: 4,
+              border: '1.5px solid #9aa6a2',
+            }}
+          />
           Basic Economy
         </div>
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 24, fontWeight: 700, color: C.ink }}>New York (JFK) to San Francisco (SFO)</div>
-        <div style={{ fontSize: 14, color: C.muted, margin: '6px 0 18px' }}>Thu, Dec 18 · 1 adult · {rows.length} nonstop flights</div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: C.ink }}>
+          New York (JFK) to San Francisco (SFO)
+        </div>
+        <div style={{ fontSize: 14, color: C.muted, margin: '6px 0 18px' }}>
+          Thu, Dec 18 · 1 adult · {rows.length} nonstop flights
+        </div>
         {rows.map((f) => (
-          <div key={f.no} style={{ display: 'flex', alignItems: 'center', gap: 24, border: `1px solid ${C.line}`, borderRadius: 10, padding: '16px 20px', marginBottom: 10, background: '#fff' }}>
+          <div
+            key={f.no}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 24,
+              border: `1px solid ${C.line}`,
+              borderRadius: 10,
+              padding: '16px 20px',
+              marginBottom: 10,
+              background: '#fff',
+            }}
+          >
             <div style={{ width: 170 }}>
-              <div style={{ fontSize: 20, fontWeight: 600, color: C.ink }}>{f.dep} – {f.arr}</div>
-              <div style={{ fontSize: 13, color: C.muted }}>{f.no} · Nonstop · 6h 27m</div>
+              <div style={{ fontSize: 20, fontWeight: 600, color: C.ink }}>
+                {f.dep} – {f.arr}
+              </div>
+              <div style={{ fontSize: 13, color: C.muted }}>
+                {f.no} · Nonstop · 6h 27m
+              </div>
             </div>
-            <div style={{ flex: 1, fontSize: 13, color: f.refundable ? C.brand : C.muted }}>{f.refundable ? 'Refundable Main' : 'Basic Economy · no changes'}</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: C.ink }}>${f.price}</div>
-            <div style={{ background: C.brand, color: '#fff', borderRadius: 8, padding: '10px 18px', fontWeight: 600, fontSize: 14 }}>Select</div>
+            <div
+              style={{
+                flex: 1,
+                fontSize: 13,
+                color: f.refundable ? C.brand : C.muted,
+              }}
+            >
+              {f.refundable ? 'Refundable Main' : 'Basic Economy · no changes'}
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: C.ink }}>
+              ${f.price}
+            </div>
+            <div
+              style={{
+                background: C.brand,
+                color: '#fff',
+                borderRadius: 8,
+                padding: '10px 18px',
+                fontWeight: 600,
+                fontSize: 14,
+              }}
+            >
+              Select
+            </div>
           </div>
         ))}
       </div>
@@ -644,29 +929,72 @@ function Results({ refundableOnly }: { refundableOnly: boolean }) {
   );
 }
 
-const signInStyle: CSSProperties = { width: '100%', border: 0, background: C.brand, color: '#fff', borderRadius: 8, padding: '14px 0', fontWeight: 700, fontSize: 16, textAlign: 'center', cursor: 'pointer' };
+const signInStyle: CSSProperties = {
+  width: '100%',
+  border: 0,
+  background: C.brand,
+  color: '#fff',
+  borderRadius: 8,
+  padding: '14px 0',
+  fontWeight: 700,
+  fontSize: 16,
+  textAlign: 'center',
+  cursor: 'pointer',
+};
 
-function SignIn({ done, interactive, onSignIn }: { done: boolean; interactive: boolean; onSignIn?: () => void }) {
+function SignIn({
+  done,
+  interactive,
+  onSignIn,
+}: {
+  done: boolean;
+  interactive: boolean;
+  onSignIn?: () => void;
+}) {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 70 }}>
-      <div style={{ width: 420, background: '#fff', border: `1px solid ${C.line}`, borderRadius: 14, padding: 36, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', color: C.ink }}>
-        <div style={{ fontSize: 26, fontWeight: 700 }}>{done ? 'You’re signed in' : 'Sign in'}</div>
+      <div
+        style={{
+          width: 420,
+          background: '#fff',
+          border: `1px solid ${C.line}`,
+          borderRadius: 14,
+          padding: 36,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+          color: C.ink,
+        }}
+      >
+        <div style={{ fontSize: 26, fontWeight: 700 }}>
+          {done ? 'You’re signed in' : 'Sign in'}
+        </div>
         <div style={{ fontSize: 14, color: C.muted, margin: '8px 0 24px' }}>
-          {done ? 'Returning you to your booking…' : 'Sign in to continue booking SK 1824.'}
+          {done
+            ? 'Returning you to your booking…'
+            : 'Sign in to continue booking SK 1824.'}
         </div>
         {!done && (
           <>
             <div style={{ ...field, marginBottom: 12 }}>
-              <span style={{ fontSize: 12, color: C.muted }}>SkyMiles number or email</span>
-              <span style={{ fontSize: 16 }}>{interactive ? 'alex.rivera@fastmail.com' : '•••••••'}</span>
+              <span style={{ fontSize: 12, color: C.muted }}>
+                SkyMiles number or email
+              </span>
+              <span style={{ fontSize: 16 }}>
+                {interactive ? 'alex.rivera@fastmail.com' : '•••••••'}
+              </span>
             </div>
             <div style={{ ...field, marginBottom: 12 }}>
               <span style={{ fontSize: 12, color: C.muted }}>Password</span>
-              <span style={{ fontSize: 16, letterSpacing: 3 }}>{interactive ? '••••••••••••' : ''}</span>
+              <span style={{ fontSize: 16, letterSpacing: 3 }}>
+                {interactive ? '••••••••••••' : ''}
+              </span>
             </div>
             <div style={{ ...field, marginBottom: 24 }}>
-              <span style={{ fontSize: 12, color: C.muted }}>6-digit code sent to •••• 0142</span>
-              <span style={{ fontSize: 16, letterSpacing: 6 }}>{interactive ? '418 0' : ''}</span>
+              <span style={{ fontSize: 12, color: C.muted }}>
+                6-digit code sent to •••• 0142
+              </span>
+              <span style={{ fontSize: 16, letterSpacing: 6 }}>
+                {interactive ? '418 0' : ''}
+              </span>
             </div>
             {interactive ? (
               <button type="button" onClick={onSignIn} style={signInStyle}>
@@ -684,19 +1012,64 @@ function SignIn({ done, interactive, onSignIn }: { done: boolean; interactive: b
 
 function Held() {
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 56, color: C.ink }}>
-      <div style={{ width: 640, background: '#fff', border: `1px solid ${C.line}`, borderRadius: 14, padding: 40 }}>
-        <div style={{ fontSize: 14, color: C.brand, fontWeight: 700 }}>FARE ON HOLD</div>
-        <div style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 6px' }}>Your fare is held until Fri, Dec 19, 7:05 AM</div>
-        <div style={{ fontSize: 15, color: C.muted }}>Confirmation QX7K2M · Nothing is charged until you book.</div>
-        <div style={{ display: 'flex', gap: 24, border: `1px solid ${C.line}`, borderRadius: 10, padding: 20, margin: '28px 0' }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        paddingTop: 56,
+        color: C.ink,
+      }}
+    >
+      <div
+        style={{
+          width: 640,
+          background: '#fff',
+          border: `1px solid ${C.line}`,
+          borderRadius: 14,
+          padding: 40,
+        }}
+      >
+        <div style={{ fontSize: 14, color: C.brand, fontWeight: 700 }}>
+          FARE ON HOLD
+        </div>
+        <div style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 6px' }}>
+          Your fare is held until Fri, Dec 19, 7:05 AM
+        </div>
+        <div style={{ fontSize: 15, color: C.muted }}>
+          Confirmation QX7K2M · Nothing is charged until you book.
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: 24,
+            border: `1px solid ${C.line}`,
+            borderRadius: 10,
+            padding: 20,
+            margin: '28px 0',
+          }}
+        >
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600 }}>7:05 AM – 10:32 AM</div>
-            <div style={{ fontSize: 13, color: C.muted }}>SK 1824 · JFK → SFO · Nonstop</div>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>
+              7:05 AM – 10:32 AM
+            </div>
+            <div style={{ fontSize: 13, color: C.muted }}>
+              SK 1824 · JFK → SFO · Nonstop
+            </div>
           </div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>$368</div>
         </div>
-        <div style={{ background: C.accent, borderRadius: 8, padding: '14px 0', textAlign: 'center', fontWeight: 700, fontSize: 16 }}>Book now</div>
+        <div
+          style={{
+            background: C.accent,
+            borderRadius: 8,
+            padding: '14px 0',
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: 16,
+          }}
+        >
+          Book now
+        </div>
       </div>
     </div>
   );
@@ -718,18 +1091,27 @@ export function FakePage({
       style={{
         width: PAGE_W,
         height: PAGE_H,
-        background: page === 'signin' || page === 'signin-done' || page === 'held' ? C.bg : '#fff',
+        background:
+          page === 'signin' || page === 'signin-done' || page === 'held'
+            ? C.bg
+            : '#fff',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         overflow: 'hidden',
       }}
     >
-      <SiteHeader signedIn={page === 'held' || page === 'signin-done' || signedIn} />
+      <SiteHeader
+        signedIn={page === 'held' || page === 'signin-done' || signedIn}
+      />
       {page === 'home' && <Home filled={false} />}
       {page === 'home-filled' && <Home filled />}
       {page === 'results' && <Results refundableOnly={false} />}
       {page === 'results-refundable' && <Results refundableOnly />}
       {(page === 'signin' || page === 'signin-done') && (
-        <SignIn done={page === 'signin-done'} interactive={interactive} onSignIn={onSignIn} />
+        <SignIn
+          done={page === 'signin-done'}
+          interactive={interactive}
+          onSignIn={onSignIn}
+        />
       )}
       {page === 'held' && <Held />}
     </div>
