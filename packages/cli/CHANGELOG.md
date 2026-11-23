@@ -1,3 +1,15 @@
+## 1.8.0 (2026-11-23)
+
+### 🚀 Features
+
+- add agent-ready discovery and design checks ([#138](https://github.com/langchain-ai/macaw-design-system/pull/138))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
 ## 1.7.23 (2026-11-20)
 
 This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
