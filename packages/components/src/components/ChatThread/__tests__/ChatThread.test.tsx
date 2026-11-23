@@ -593,3 +593,116 @@ describe('ChatThread with a custom adapter', () => {
     expect(resume).toHaveBeenCalledWith({ ask: 'docs' });
   });
 });
+
+describe('ChatThread progress indicators', () => {
+  type Part = ChatThreadController['model']['turns'][number]['parts'][number];
+  const source = { message: null };
+  const reasoning = (streaming: boolean): Part => ({
+    type: 'reasoning',
+    id: 'reasoning',
+    text: 'Looking for the docs.',
+    streaming,
+    source,
+  });
+  const search = (status: 'running' | 'succeeded'): Part => ({
+    type: 'tool-call',
+    id: 'search',
+    toolCall: { id: 'search', name: 'web_search', status, args: {} },
+    source,
+  });
+  const answer = (streaming: boolean): Part => ({
+    type: 'text',
+    id: 'answer',
+    text: 'Here they are.',
+    streaming,
+    source,
+  });
+
+  function threadWith(
+    parts: Part[],
+    status: 'streaming' | 'completed' = 'streaming'
+  ): ChatThreadController {
+    return {
+      model: {
+        turns: [
+          {
+            id: 'turn-1',
+            user: {
+              message: {
+                id: 'turn-1',
+                role: 'user',
+                status: 'completed',
+                content: [{ id: 'text', type: 'text', text: 'Find the docs' }],
+              },
+              text: 'Find the docs',
+              raw: null,
+            },
+            parts,
+            status,
+            actionCount: parts.filter((part) => part.type === 'tool-call')
+              .length,
+          },
+        ],
+        interrupts: [],
+        queued: [],
+        status: status === 'streaming' ? 'running' : 'idle',
+      },
+      actions: { send: vi.fn() },
+    };
+  }
+
+  function indicators() {
+    return {
+      responding: screen.queryByText('Responding'),
+      working: screen.queryByRole('button', { name: 'Working' }),
+      thinking: screen.queryByText('Thinking'),
+    };
+  }
+
+  it('shows Responding before the agent produces output', () => {
+    render(<ChatThread thread={threadWith([])} />);
+    const { responding, working, thinking } = indicators();
+    expect(responding).toBeInTheDocument();
+    expect(working).toBeNull();
+    expect(thinking).toBeNull();
+  });
+
+  it('lets streaming reasoning own the progress when there are no actions', () => {
+    render(<ChatThread thread={threadWith([reasoning(true)])} />);
+    const { responding, working, thinking } = indicators();
+    expect(thinking).toBeInTheDocument();
+    expect(responding).toBeNull();
+    expect(working).toBeNull();
+  });
+
+  it('lets the work group own the progress while tools run', () => {
+    render(
+      <ChatThread thread={threadWith([reasoning(false), search('running')])} />
+    );
+    const { responding, working } = indicators();
+    expect(working).toBeInTheDocument();
+    expect(responding).toBeNull();
+  });
+
+  it('settles the work group once the answer streams', () => {
+    render(
+      <ChatThread thread={threadWith([search('succeeded'), answer(true)])} />
+    );
+    const { responding, working } = indicators();
+    expect(responding).toBeInTheDocument();
+    expect(working).toBeNull();
+    expect(screen.getByRole('button', { name: '1 action' })).toBeVisible();
+  });
+
+  it('shows no progress once the turn completes', () => {
+    render(
+      <ChatThread
+        thread={threadWith([search('succeeded'), answer(false)], 'completed')}
+      />
+    );
+    const { responding, working, thinking } = indicators();
+    expect(responding).toBeNull();
+    expect(working).toBeNull();
+    expect(thinking).toBeNull();
+  });
+});

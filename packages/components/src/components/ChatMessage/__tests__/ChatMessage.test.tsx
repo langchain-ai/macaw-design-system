@@ -118,6 +118,18 @@ describe('ChatMessage', () => {
     expect(screen.getByTestId('header')).toBeEmptyDOMElement();
   });
 
+  it('keeps the status line but hides its label when another part shows progress', () => {
+    render(
+      <ChatMessageHeader
+        status="streaming"
+        showStatus={false}
+        data-testid="header"
+      />
+    );
+    expect(screen.queryByText('Responding')).not.toBeInTheDocument();
+    expect(screen.getByTestId('header')).toBeEmptyDOMElement();
+  });
+
   it('renders no header for a completed message without an avatar or name', () => {
     render(<ChatMessageHeader status="completed" data-testid="header" />);
     expect(screen.queryByTestId('header')).not.toBeInTheDocument();

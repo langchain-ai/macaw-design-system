@@ -63,6 +63,7 @@ Use existing components for their interaction contracts, not just their appearan
 - Use `ErrorState` for a page-level failure or not-found state, with an `action` when the user can recover. Use `ErrorBoundary` to catch rendering failures.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
+- Show one progress indicator per chat message. While the agent's work is its latest output, the `ChatToolCallGroup` header owns progress (or a streaming `ChatToolCallReasoning` row when there are no actions); otherwise the message header's "Responding" does. Pass `showStatus={false}` to `ChatMessage` while a part shows its own progress.
 - Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
 - Set `speed="slow"` on `ThinkingState` or `LoadingIndicator` for a slower animation; reduced-motion preferences still take precedence.
 - Use `Spinner` for routine saves, fetches, or refreshes, even within AI screens (e.g. fetching chat history).

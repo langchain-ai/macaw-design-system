@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { fn } from 'storybook/test';
 
@@ -8,6 +8,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ChatThread, useLangGraphChatThread } from '.';
 import type {
   ChatThreadController,
+  ChatThreadPart,
   ChatThreadStreamProps,
   ChatThreadTurn,
 } from '.';
@@ -435,6 +436,148 @@ export const CustomAdapter: Story = {
       description: {
         story:
           'No `useStream` or `useLangGraphChatThread`: the app maps its own messages to a `ChatThreadController` and passes it as `thread`. It only provides `send`, so there is no Stop, edit, or retry.',
+      },
+    },
+  },
+};
+
+const PROGRESS_STEPS = [
+  { name: 'Waiting', owner: 'Message header: “Responding”' },
+  { name: 'Reasoning', owner: 'Reasoning row: “Thinking”' },
+  { name: 'Tool running', owner: 'Work group header: “Working”' },
+  { name: 'Answer streaming', owner: 'Message header: “Responding”' },
+  { name: 'Done', owner: 'None' },
+] as const;
+
+function progressTurn(step: number): ChatThreadTurn {
+  const source = { message: null };
+  const parts: ChatThreadPart[] = [];
+  if (step >= 1) {
+    parts.push({
+      type: 'reasoning',
+      id: 'reasoning',
+      text: 'The question is about evaluation, so I should check the docs first.',
+      streaming: step === 1,
+      source,
+    });
+  }
+  if (step >= 2) {
+    parts.push({
+      type: 'tool-call',
+      id: 'search',
+      toolCall: {
+        id: 'search',
+        name: 'web_search',
+        status: step === 2 ? 'running' : 'succeeded',
+        args: { query: 'RAG evaluation metrics' },
+      },
+      source,
+    });
+  }
+  if (step >= 3) {
+    parts.push({
+      type: 'text',
+      id: 'answer',
+      text:
+        step === 3
+          ? 'RAG systems are usually evaluated on'
+          : 'RAG systems are usually evaluated on retrieval quality and answer faithfulness.',
+      streaming: step === 3,
+      source,
+    });
+  }
+  return {
+    id: 'turn-1',
+    user: {
+      message: {
+        id: 'turn-1',
+        role: 'user',
+        status: 'completed',
+        content: [
+          {
+            id: 'text',
+            type: 'text',
+            text: 'How are RAG systems evaluated?',
+            appearance: 'bubble',
+          },
+        ],
+      },
+      text: 'How are RAG systems evaluated?',
+      raw: null,
+    },
+    parts,
+    status: step === 4 ? 'completed' : 'streaming',
+    actionCount: step >= 2 ? 1 : 0,
+  };
+}
+
+function ProgressIndicatorsDemo() {
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  useEffect(() => {
+    if (!playing) return;
+    const timer = setTimeout(
+      () => setStep((current) => (current + 1) % PROGRESS_STEPS.length),
+      2000
+    );
+    return () => clearTimeout(timer);
+  }, [playing, step]);
+  const thread = useMemo<ChatThreadController>(
+    () => ({
+      model: {
+        turns: [progressTurn(step)],
+        interrupts: [],
+        queued: [],
+        status: step === 4 ? 'idle' : 'running',
+      },
+      actions: { send: async () => {} },
+    }),
+    [step]
+  );
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex flex-wrap items-center gap-space-2 border-b border-subtle px-space-4 py-space-2">
+        {PROGRESS_STEPS.map((item, index) => (
+          <Button
+            key={item.name}
+            size="sm"
+            variant={index === step ? 'outlined' : 'plain'}
+            color="secondary"
+            aria-pressed={index === step}
+            onClick={() => {
+              setPlaying(false);
+              setStep(index);
+            }}
+          >
+            {item.name}
+          </Button>
+        ))}
+        <Button
+          size="sm"
+          variant="plain"
+          color="secondary"
+          onClick={() => setPlaying((current) => !current)}
+        >
+          {playing ? 'Pause' : 'Play'}
+        </Button>
+        <Text variant="xs" color="tertiary" className="ml-auto">
+          Indicator: {PROGRESS_STEPS[step].owner}
+        </Text>
+      </div>
+      <div className="min-h-0 flex-1">
+        <ChatThread thread={thread} agentName="Research agent" />
+      </div>
+    </div>
+  );
+}
+
+export const ProgressIndicators: Story = {
+  render: () => <ProgressIndicatorsDemo />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'One progress indicator per message. The message header shows “Responding” until the agent produces output. While the work is the latest output, the work group header owns progress when there are actions, and a streaming reasoning row owns it when there are none. Once the answer starts, the group settles and “Responding” returns.',
       },
     },
   },

@@ -53,6 +53,9 @@ export function ChatToolCallReasoning({
   const inGroup = useReportToGroup({ status });
   const [readerChoice, setReaderChoice] = useState<boolean>();
   const followsStream = expandWhileStreaming && expanded === undefined;
+  // In a group, the header carries the running indicator, so the label stays
+  // still like a running tool row's.
+  const shimmer = status === 'streaming' && !inGroup;
   const heading = (
     <span className="inline-flex min-w-0 items-center gap-space-2">
       <ChatToolCallIcon>
@@ -63,11 +66,8 @@ export function ChatToolCallReasoning({
         variant="xs"
         weight="medium"
         // Streaming reasoning shimmers like ThinkingState's active label.
-        color={status === 'streaming' ? undefined : 'secondary'}
-        className={cn(
-          'min-w-0 truncate',
-          status === 'streaming' && thinkingStyles.shimmer
-        )}
+        color={shimmer ? undefined : 'secondary'}
+        className={cn('min-w-0 truncate', shimmer && thinkingStyles.shimmer)}
       >
         {label}
       </Text>

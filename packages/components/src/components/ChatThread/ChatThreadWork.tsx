@@ -240,14 +240,16 @@ export function WorkSummary({
   turn,
   parts,
   count,
+  working,
 }: {
   turn: ChatThreadTurn;
   parts: ChatThreadPart[];
   count: number;
+  /** Whether the work is the turn's latest output; the answer settles it. */
+  working: boolean;
 }) {
   const { thread } = useThread();
   const timing = thread.timings?.[turn.id];
-  const working = turn.status === 'streaming';
   const waiting = turn.status === 'interrupted';
   const [readerChoice, setReaderChoice] = useState<boolean>();
   const actions = `${count} ${count === 1 ? 'action' : 'actions'}`;
