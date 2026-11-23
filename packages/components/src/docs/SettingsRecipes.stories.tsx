@@ -1,82 +1,352 @@
-import { createContext, useContext, useId, useState } from 'react';
+import { createContext, useContext, useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
+import { CopySimpleIcon } from '@phosphor-icons/react/dist/ssr/CopySimple';
+import { DatabaseIcon } from '@phosphor-icons/react/dist/ssr/Database';
 import { FunnelSimpleIcon } from '@phosphor-icons/react/dist/ssr/FunnelSimple';
+import { KeyIcon } from '@phosphor-icons/react/dist/ssr/Key';
 import { LockSimpleIcon } from '@phosphor-icons/react/dist/ssr/LockSimple';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { ProhibitIcon } from '@phosphor-icons/react/dist/ssr/Prohibit';
+import { SignOutIcon } from '@phosphor-icons/react/dist/ssr/SignOut';
 import { TrashIcon } from '@phosphor-icons/react/dist/ssr/Trash';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Avatar } from '../components/Avatar';
 import { Badge } from '../components/Badge';
+import { BarChart, type BarChartSeries } from '../components/BarChart';
 import { Button } from '../components/Button/Button';
 import { ChartCard } from '../components/ChartCard';
+import { Checkbox } from '../components/Checkbox';
 import { Dialog, DialogContent } from '../components/Dialog';
 import { EmptyState } from '../components/EmptyState';
 import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
+import { Icon } from '../components/Icon';
 import { IconButton } from '../components/IconButton';
 import { Input } from '../components/Input/Input';
 import { LinearProgress } from '../components/LinearProgress';
+import { LineChart, type LineChartSeries } from '../components/LineChart';
 import { Link } from '../components/Link';
 import { MetricChart } from '../components/MetricChart';
+import { Popover, PopoverContent, PopoverTrigger } from '../components/Popover';
 import { Select } from '../components/Select';
 import { Switch } from '../components/Switch';
 import { TabGroup, TabLabel, TabList } from '../components/Tabs';
 import { Text } from '../components/Text/Text';
-import { PlusIcon } from '../icons/PaddedPhosphorIcons';
+import { Textarea } from '../components/Textarea/Textarea';
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  PlusIcon,
+  XIcon,
+} from '../icons/PaddedPhosphorIcons';
 import { cn } from '../utils/cn';
+import { StoryLink } from './StoryLink';
 
 /**
- * Recipes for LangSmith settings pages, one per layout.
+ * Recipes for LangSmith settings pages, one per layout. Each story shows the
+ * settings modal by default; switch `frame` to see the same page full screen.
  *
- * The `Settings*` components below are story-only copies of the real
- * primitives in the LangSmith app (Macaw can't import app code). Their class names match the app so the spacing here is the
- * spacing there. When building a page, import the real primitive named in each
- * recipe, not these copies.
+ * The `Settings*` components here are story-only copies of the app's settings
+ * components (Macaw can't import app code). Their class names match the app,
+ * so the spacing here is the spacing there. Build pages with the real ones.
  */
 const meta: Meta<RecipeArgs> = {
   title: 'Recipes/Settings Pages',
   tags: ['a11y-test'],
-  parameters: { layout: 'fullscreen', a11y: { test: 'error' } },
+  parameters: {
+    layout: 'fullscreen',
+    a11y: {
+      test: 'error',
+      // Two contrast gaps come from tokens, not the recipes: Macaw Link's
+      // text-link (#0078f1) is 4.23:1 on white, and the app's quaternary nav
+      // headings are 4.3:1 on bg-sidebar. Skip only those; check the rest.
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            selector: '*:not(.text-link):not(.recipe-nav-heading)',
+          },
+        ],
+      },
+    },
+  },
   args: { frame: 'modal' },
   argTypes: {
     frame: {
       control: 'inline-radio',
       options: ['modal', 'page'],
-      description:
-        'Settings modal (the default home for settings) or a full app page.',
+      description: 'Settings modal (where settings live) or a full app page.',
     },
   },
 };
 
 export default meta;
 
-type RecipeArgs = { frame: 'modal' | 'page' };
+type RecipeArgs = {
+  frame: 'modal' | 'page';
+  filterFields?: 'Several fields' | 'One small set';
+  emptyKind?: 'First run' | 'No matches';
+  reason?: 'enterprise' | 'permission' | 'unavailable';
+};
 type Story = StoryObj<RecipeArgs>;
 
 const noop = () => {};
 
 // ---------------------------------------------------------------------------
-// Frames
+// Recipe note: when to use the layout, shown above every recipe
+// ---------------------------------------------------------------------------
+
+function RecipeNote({
+  use,
+  instead,
+  parts,
+}: {
+  use: ReactNode;
+  instead?: ReactNode;
+  parts: string;
+}) {
+  return (
+    <aside
+      aria-label="When to use this recipe"
+      className="flex shrink-0 flex-col gap-space-1 rounded-lg border border-subtle bg-surface-level-1 px-space-4 py-space-3"
+    >
+      <Text as="p" variant="sm">
+        <Text as="span" variant="sm" weight="medium">
+          Use when{' '}
+        </Text>
+        {use}
+        {instead && (
+          <>
+            {' '}
+            <Text as="span" variant="sm" color="tertiary">
+              {instead}
+            </Text>
+          </>
+        )}
+      </Text>
+      <Text as="p" variant="xs" color="tertiary">
+        Built from <code>{parts}</code>. Agents apply these recipes through the{' '}
+        <StoryLink title="Agent Skills" docs variant="xs">
+          macaw-create-settings skill
+        </StoryLink>
+        .
+      </Text>
+    </aside>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Settings modal frame (sidebar + content pane)
 // ---------------------------------------------------------------------------
 
 /** True inside the settings modal frame (the app's `useInSettingsFrame`). */
 const SettingsFrameContext = createContext(false);
 
-const NAV_GROUPS = [
+type NavGroup = { heading?: string; items: string[] };
+
+const ORGANIZATION_NAV: NavGroup[] = [
   {
-    heading: 'Organization',
-    items: ['General', 'Members', 'Roles', 'API Keys', 'Usage Limits'],
+    heading: 'Access and Security',
+    items: [
+      'API Keys',
+      'Members',
+      'Roles',
+      'Access Policies',
+      'Security Policies',
+      'SSO',
+    ],
   },
-  { heading: 'Workspace', items: ['Webhooks', 'Secrets', 'Data Planes'] },
+  { heading: 'Infrastructure', items: ['Data Planes'] },
+  { heading: 'Billing', items: ['Plans and Pricing', 'Credit Usage'] },
+  { heading: 'Usage', items: ['Usage Limits', 'Data Retention'] },
 ];
 
-/**
- * The settings modal: sidebar on the left, a padded content pane on the right.
- * `fill` pages bound themselves to the pane so only their table scrolls, and
- * drop the pane's bottom padding so pagination sits on the modal's edge.
- */
+const WORKSPACE_NAV: NavGroup[] = [
+  {
+    heading: 'Configuration',
+    items: ['General', 'Resource Tags', 'Shared Links'],
+  },
+  { heading: 'Integrations', items: ['Webhooks', 'MCP Servers'] },
+];
+
+/** Nav row: `OrgSettingsTabLink` with the app's `navItemClasses`. */
+function NavItem({
+  active,
+  leading,
+  children,
+}: {
+  active?: boolean;
+  leading?: ReactNode;
+  children: string;
+}) {
+  return (
+    <span
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        '-mx-space-2 flex h-[1.625rem] min-w-0 items-center gap-space-2 rounded-sm px-space-2',
+        active
+          ? 'bg-brand-subtle text-brand-primary'
+          : 'text-primary hover:bg-sidebar-hover dark:hover:bg-brand-muted dark:hover:text-brand-primary'
+      )}
+    >
+      {leading}
+      <Text as="span" variant="xs" weight="medium" className="min-w-0 truncate">
+        {children}
+      </Text>
+    </span>
+  );
+}
+
+/** The settings modal sidebar: search, scope switch, org picker, links, profile. */
+function SettingsSidebar({ active }: { active: string }) {
+  const inWorkspace = WORKSPACE_NAV.some((group) =>
+    group.items.includes(active)
+  );
+  const [scope, setScope] = useState<'Organization' | 'Workspace'>(
+    inWorkspace ? 'Workspace' : 'Organization'
+  );
+  const [query, setQuery] = useState('');
+  const groups = scope === 'Workspace' ? WORKSPACE_NAV : ORGANIZATION_NAV;
+  return (
+    <div className="flex min-h-0 w-64 shrink-0 flex-col overflow-hidden border-r border-subtle bg-sidebar max-md:w-48 dark:border-muted">
+      <nav
+        aria-label="Settings"
+        className="flex min-h-0 flex-1 flex-col items-stretch overflow-hidden text-xs"
+      >
+        <div className="shrink-0 px-space-4 pt-space-3">
+          <Input
+            size="sm"
+            aria-label="Search settings"
+            placeholder="Search..."
+            leftIcon={MagnifyingGlassIcon}
+            value={query}
+            onChange={setQuery}
+          />
+        </div>
+        <div
+          role="group"
+          aria-label="Settings scope"
+          className="shrink-0 px-space-4 pt-space-3"
+        >
+          <GroupedTabs<'Organization' | 'Workspace'>
+            size="sm"
+            className="w-full"
+            value={scope}
+            onChange={setScope}
+            options={[
+              {
+                value: 'Organization',
+                display: 'Organization',
+                className: 'min-w-0 flex-1 justify-center',
+              },
+              {
+                value: 'Workspace',
+                display: 'Workspace',
+                className: 'min-w-0 flex-1 justify-center',
+              },
+            ]}
+          />
+        </div>
+        <div className="shrink-0 px-space-4 pt-space-2">
+          <div className="-ml-space-2 flex min-w-0 items-center gap-space-2">
+            <button
+              type="button"
+              className="flex h-8 min-w-0 flex-1 items-center justify-between gap-space-2 rounded-sm px-space-2 hover:bg-sidebar-hover dark:hover:bg-brand-muted"
+            >
+              <span className="flex min-w-0 flex-1 items-center gap-space-2">
+                <span aria-hidden className="flex">
+                  <Avatar
+                    size="sm"
+                    shape="square"
+                    label={
+                      scope === 'Organization' ? 'LangChain' : 'Production'
+                    }
+                  />
+                </span>
+                <Text
+                  as="span"
+                  variant="sm"
+                  weight="semibold"
+                  className="min-w-0 truncate"
+                >
+                  <span className="sr-only">
+                    Select {scope.toLowerCase()}:{' '}
+                  </span>
+                  {scope === 'Organization' ? 'LangChain' : 'Production'}
+                </Text>
+              </span>
+              <Icon
+                icon={CaretUpDownIcon}
+                size="sm"
+                className="flex-none text-icon-tertiary"
+              />
+            </button>
+            <IconButton
+              icon={CopySimpleIcon}
+              label={`Copy ${scope.toLowerCase()} ID`}
+              variant="plain"
+              color="secondary"
+              size="sm"
+              onClick={noop}
+            />
+          </div>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-space-5 overflow-y-auto px-space-4 pb-space-4 pt-space-5">
+          {groups.map((group) => (
+            <div
+              key={group.heading}
+              role="group"
+              aria-label={group.heading}
+              className="flex flex-col items-stretch gap-space-1"
+            >
+              {group.heading && (
+                <Text
+                  as="h3"
+                  variant="xs"
+                  weight="normal"
+                  color="quaternary"
+                  className="recipe-nav-heading"
+                >
+                  {group.heading}
+                </Text>
+              )}
+              {group.items.map((item) => (
+                <NavItem key={item} active={item === active}>
+                  {item}
+                </NavItem>
+              ))}
+            </div>
+          ))}
+        </div>
+      </nav>
+      <nav
+        aria-label="Personal settings"
+        className="flex h-[2.5625rem] shrink-0 items-center gap-space-2 border-t border-subtle px-space-4"
+      >
+        <div className="min-w-0 flex-1">
+          <NavItem
+            active={active === 'My Account'}
+            leading={<Avatar size="sm" shape="circle" label="Ada Lovelace" />}
+          >
+            Ada Lovelace
+          </NavItem>
+        </div>
+        <IconButton
+          icon={SignOutIcon}
+          label="Log out"
+          variant="plain"
+          color="secondary"
+          size="sm"
+          onClick={noop}
+        />
+      </nav>
+    </div>
+  );
+}
+
 function SettingsModalFrame({
   active,
   fill,
@@ -89,69 +359,55 @@ function SettingsModalFrame({
   children: ReactNode;
 }) {
   return (
-    <div className="flex h-dvh min-h-[40rem] bg-primary p-space-5">
-      <div className="flex min-h-0 flex-1 overflow-hidden rounded-lg border border-default bg-surface-level-1 shadow-lg dark:border-subtle">
-        <nav
-          aria-label="Settings"
-          className="flex w-56 shrink-0 flex-col gap-space-4 overflow-y-auto border-r border-subtle bg-sidebar px-space-2 py-space-4 dark:border-muted"
-        >
-          {NAV_GROUPS.map((group) => (
-            <div key={group.heading} className="flex flex-col gap-space-1">
-              <Text
-                variant="xs"
-                color="tertiary"
-                weight="medium"
-                className="px-space-2"
-              >
-                {group.heading}
-              </Text>
-              {group.items.map((item) => (
-                <span
-                  key={item}
-                  aria-current={item === active ? 'page' : undefined}
-                  className={cn(
-                    'flex h-[26px] items-center rounded-md px-space-2 text-sm',
-                    item === active
-                      ? 'bg-brand-subtle text-primary'
-                      : 'text-secondary'
-                  )}
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          ))}
-        </nav>
-        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-          {loading && (
-            <div
-              role="status"
-              aria-label="Loading"
-              className="absolute inset-x-0 top-0"
-            >
-              <LinearProgress aria-label="Loading" />
-            </div>
-          )}
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto [scrollbar-gutter:stable]">
-            <div
-              className={cn(
-                'flex min-h-full min-w-0 flex-col px-space-4 pt-space-3 @container',
-                fill ? 'flex-1' : 'shrink-0 pb-space-7'
-              )}
-            >
-              {children}
-            </div>
+    <div className="flex min-h-0 flex-1 overflow-hidden rounded-lg border border-default bg-surface-level-1 shadow-lg dark:border-subtle">
+      <SettingsSidebar active={active} />
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+        {loading && (
+          <div className="absolute inset-x-0 top-0">
+            <LinearProgress aria-label="Loading" />
+          </div>
+        )}
+        <div className="mt-space-3 flex min-h-6 shrink-0 items-center gap-space-1 px-space-4">
+          <IconButton
+            icon={CaretLeftIcon}
+            label="Back"
+            variant="plain"
+            color="secondary"
+            size="xs"
+            onClick={noop}
+          />
+          <IconButton
+            icon={CaretRightIcon}
+            label="Forward"
+            variant="plain"
+            color="secondary"
+            size="xs"
+            disabled
+            onClick={noop}
+          />
+          <div className="flex-1" />
+          <div className="-mr-space-1 flex shrink-0">
+            <IconButton
+              icon={XIcon}
+              label="Close settings"
+              variant="plain"
+              color="secondary"
+              size="xs"
+              onClick={noop}
+            />
+          </div>
+        </div>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto [scrollbar-gutter:stable]">
+          <div
+            className={cn(
+              'flex min-h-full min-w-0 flex-col px-space-4 pt-space-3 @container',
+              fill ? 'flex-1' : 'shrink-0 pb-space-7'
+            )}
+          >
+            {children}
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function FullPageFrame({ children }: { children: ReactNode }) {
-  return (
-    <div className="min-h-dvh bg-primary p-space-6 @container">
-      <div className="mx-auto flex max-w-5xl flex-col">{children}</div>
     </div>
   );
 }
@@ -161,40 +417,44 @@ function Frame({
   active,
   fill,
   loading,
+  note,
   children,
-}: RecipeArgs & {
+}: Pick<RecipeArgs, 'frame'> & {
   active: string;
   fill?: boolean;
   loading?: boolean;
+  note: ReactNode;
   children: ReactNode;
 }) {
   if (frame === 'page')
     return (
       <SettingsFrameContext.Provider value={false}>
-        <FullPageFrame>
-          {loading && (
-            <div role="status" aria-label="Loading">
-              <LinearProgress aria-label="Loading" />
-            </div>
-          )}
-          {children}
-        </FullPageFrame>
+        <div className="flex min-h-dvh flex-col gap-space-5 bg-primary p-space-5">
+          {note}
+          <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col @container">
+            {loading && <LinearProgress aria-label="Loading" />}
+            {children}
+          </div>
+        </div>
       </SettingsFrameContext.Provider>
     );
   return (
     <SettingsFrameContext.Provider value>
-      <SettingsModalFrame active={active} fill={fill} loading={loading}>
-        {children}
-      </SettingsModalFrame>
+      <div className="flex h-dvh min-h-[44rem] flex-col gap-space-3 bg-primary p-space-5">
+        {note}
+        <SettingsModalFrame active={active} fill={fill} loading={loading}>
+          {children}
+        </SettingsModalFrame>
+      </div>
     </SettingsFrameContext.Provider>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Primitives (copies of the app's Settings components)
+// Page primitives (copies of the app's Settings components)
 // ---------------------------------------------------------------------------
 
-/** `SettingsPageLayout` in SettingsPage.tsx: header, then content. */
+/** `SettingsPageLayout`: header, then content. */
 function SettingsPageLayout({
   fill,
   children,
@@ -217,10 +477,9 @@ function SettingsPageLayout({
 }
 
 /**
- * `SettingsPageHeader` in SettingsPage.tsx. In the modal the title and
- * description stack, and one row under them leads with the page's actions,
- * then its toolbar (`SettingsToolbar`). On a full page the actions sit to the
- * right of the title.
+ * `SettingsPageHeader`. In the modal the title and description stack, and one
+ * row under them leads with the page actions, then the toolbar; filter chips
+ * get their own row. On a full page the actions sit right of the title.
  */
 function SettingsPageHeader({
   title,
@@ -230,7 +489,7 @@ function SettingsPageHeader({
   toolbar,
   chips,
 }: {
-  title: string;
+  title?: string;
   description?: string;
   docsHref?: string;
   actions?: ReactNode;
@@ -238,25 +497,30 @@ function SettingsPageHeader({
   chips?: ReactNode;
 }) {
   const inFrame = useContext(SettingsFrameContext);
+  const intro = (description || docsHref) && (
+    <Text as="p" variant="sm" color="tertiary">
+      {description}
+      {description && docsHref && ' '}
+      {docsHref && (
+        <Link href={docsHref} target="_blank" rel="noreferrer" variant="sm">
+          View docs
+        </Link>
+      )}
+    </Text>
+  );
   if (inFrame)
     return (
       <div className="flex min-w-0 flex-col gap-space-4">
-        <div className="flex min-w-0 flex-col gap-space-1">
-          <Text as="h2" variant="h2" className="min-w-0 truncate">
-            {title}
-          </Text>
-          {(description || docsHref) && (
-            <Text as="p" variant="sm" color="tertiary">
-              {description}
-              {description && docsHref && ' '}
-              {docsHref && (
-                <Link href={docsHref} target="_blank" rel="noreferrer">
-                  View docs
-                </Link>
-              )}
-            </Text>
-          )}
-        </div>
+        {(title || intro) && (
+          <div className="flex min-w-0 flex-col gap-space-1">
+            {title && (
+              <Text as="h2" variant="h2" className="min-w-0 truncate">
+                {title}
+              </Text>
+            )}
+            {intro}
+          </div>
+        )}
         {(actions || toolbar || chips) && (
           <div className="flex min-w-0 flex-col gap-space-1">
             <div className="flex min-h-7 min-w-0 flex-wrap items-start gap-space-2">
@@ -276,14 +540,12 @@ function SettingsPageHeader({
     <div className="flex min-w-0 flex-col gap-space-3">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-space-4 gap-y-space-3">
         <div className="flex min-w-0 flex-1 basis-80 flex-col gap-space-1">
-          <Text as="h2" variant="h2">
-            {title}
-          </Text>
-          {description && (
-            <Text as="p" variant="sm" color="tertiary">
-              {description}
+          {title && (
+            <Text as="h2" variant="h2">
+              {title}
             </Text>
           )}
+          {intro}
         </div>
         {actions && (
           <div className="flex shrink-0 flex-wrap items-center gap-space-2">
@@ -291,13 +553,9 @@ function SettingsPageHeader({
           </div>
         )}
       </div>
-      {toolbar && (
+      {(toolbar || chips) && (
         <div className="flex min-w-0 flex-wrap items-center gap-space-2">
           {toolbar}
-        </div>
-      )}
-      {chips && (
-        <div className="flex min-w-0 flex-wrap items-center gap-space-2">
           {chips}
         </div>
       )}
@@ -305,7 +563,7 @@ function SettingsPageHeader({
   );
 }
 
-/** `SettingsSection` in SettingsPage.tsx: a titled block, one level down. */
+/** `SettingsSection`: a titled block one heading level below the page. */
 function SettingsSection({
   title,
   description,
@@ -345,7 +603,7 @@ function SettingsSection({
   );
 }
 
-/** `SettingsRowList` in SettingsSwitchRow.tsx: one card of divided rows. */
+/** `SettingsRowList`: one card of divided rows. */
 function SettingsRowList({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col divide-y divide-subtle rounded-lg border border-subtle">
@@ -354,7 +612,7 @@ function SettingsRowList({ children }: { children: ReactNode }) {
   );
 }
 
-/** `SettingsRow` in SettingsSwitchRow.tsx: name left, control right. */
+/** `SettingsRow`: name and description left, controls right. */
 function SettingsRow({
   label,
   description,
@@ -393,7 +651,7 @@ function SettingsRow({
   );
 }
 
-/** `SettingsSwitchRow` in SettingsSwitchRow.tsx. Saves when toggled. */
+/** `SettingsSwitchRow`: saves when toggled. */
 function SettingsSwitchRow({
   label,
   description,
@@ -437,7 +695,7 @@ function SettingsSwitchRow({
   );
 }
 
-/** `SettingsPageTabList` in SettingsTabs.tsx: underlined tabs for sub-pages. */
+/** `SettingsPageTabList`: underlined tabs on their own row. */
 function SettingsPageTabList({
   tabs,
   actions,
@@ -476,30 +734,7 @@ function SettingsPageTabList({
   );
 }
 
-/** `SettingsUnavailable` in SettingsUnavailable.tsx. */
-function SettingsUnavailable({
-  reason,
-  title,
-  description,
-}: {
-  reason: 'enterprise' | 'permission' | 'unavailable';
-  title: string;
-  description?: ReactNode;
-}) {
-  return (
-    <EmptyState
-      icon={reason === 'unavailable' ? ProhibitIcon : LockSimpleIcon}
-      variant={reason === 'enterprise' ? 'brand' : 'neutral'}
-      title={title}
-      description={description}
-      action={
-        reason === 'enterprise' && <Button size="sm">Contact sales</Button>
-      }
-    />
-  );
-}
-
-/** `SettingsTermsList` in SettingsTermsList.tsx: long terms under labels. */
+/** `SettingsTermsList`: long terms under short labels, inside a card. */
 function SettingsTermsList({
   terms,
 }: {
@@ -528,13 +763,22 @@ function SettingsTermsList({
   );
 }
 
+/** Centers a single state in the page's remaining height. */
+function CenteredState({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-80 flex-1 items-center justify-center">
+      {children}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
-// Table (stands in for DataGridV2 with the settings compact defaults)
+// Table and filters
 // ---------------------------------------------------------------------------
 
 type KeyRow = {
   description: string;
-  type: 'Personal' | 'Service';
+  type: string;
   workspace: string;
   createdBy: string;
   created: string;
@@ -569,21 +813,181 @@ const KEY_ROWS: KeyRow[] = [
     createdBy: 'linus@example.com',
     created: 'Sep 30, 2026',
   },
+  {
+    description: 'Nightly backfill',
+    type: 'Service',
+    workspace: 'Production',
+    createdBy: 'grace@example.com',
+    created: 'Sep 12, 2026',
+  },
 ];
 
-const KEY_COLUMNS = [
-  'Description',
-  'Type',
-  'Workspace',
-  'Created by',
-  'Created',
+type FilterKey = 'type' | 'workspace' | 'createdBy';
+type FilterValues = Partial<Record<FilterKey, string[]>>;
+
+const FILTER_FIELDS: { key: FilterKey; label: string; options: string[] }[] = [
+  { key: 'type', label: 'Type', options: ['Personal', 'Service'] },
+  {
+    key: 'workspace',
+    label: 'Workspace',
+    options: ['Default', 'Production', 'Staging'],
+  },
+  {
+    key: 'createdBy',
+    label: 'Created by',
+    options: ['ada@example.com', 'grace@example.com', 'linus@example.com'],
+  },
 ];
+
+function filterRows(rows: KeyRow[], values: FilterValues, query: string) {
+  return rows.filter(
+    (row) =>
+      row.description.toLowerCase().includes(query.trim().toLowerCase()) &&
+      FILTER_FIELDS.every(({ key }) => {
+        const selected = values[key] ?? [];
+        return selected.length === 0 || selected.includes(row[key]);
+      })
+  );
+}
 
 /**
- * Settings tables are DataGridV2 with `DataGridBodyDefaults` compact: cell
- * text `xs`, badges `Badge size="sm" rounded="xs"`, row actions as plain icon
- * buttons, and `SettingsCell` so badges don't add row height. In a `fill`
- * page the header sticks and the pagination footer sits on the pane's edge.
+ * The "Filter" popover (`SettingsFilterBar`): pick a field, then a value.
+ * Picking applies the filter and closes the popover; there's no Apply button.
+ */
+function FilterButton({
+  values,
+  onChange,
+}: {
+  values: FilterValues;
+  onChange: (values: FilterValues) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [fieldKey, setFieldKey] = useState<FilterKey>('type');
+  const field =
+    FILTER_FIELDS.find(({ key }) => key === fieldKey) ?? FILTER_FIELDS[0];
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          size="sm"
+          variant="outlined"
+          color="secondary"
+          leftDecorator={FunnelSimpleIcon}
+        >
+          Filter
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto min-w-60">
+        <div className="flex items-center gap-x-space-2">
+          <Select<FilterKey>
+            size="sm"
+            aria-label="Field"
+            hideSearch
+            value={fieldKey}
+            onChange={(next) => next && setFieldKey(next)}
+            options={FILTER_FIELDS.map(({ key, label }) => ({
+              value: key,
+              label,
+            }))}
+          />
+          <Text as="span" variant="sm" color="secondary">
+            is
+          </Text>
+          <Select
+            key={field.key}
+            size="sm"
+            aria-label={`${field.label} value`}
+            placeholder="Select..."
+            hideSearch
+            onChange={(value) => {
+              if (!value) return;
+              const current = values[field.key] ?? [];
+              onChange({
+                ...values,
+                [field.key]: current.includes(value)
+                  ? current
+                  : [...current, value],
+              });
+              setOpen(false);
+            }}
+            options={field.options.map((option) => ({
+              value: option,
+              label: option,
+            }))}
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/**
+ * One chip per field: "Type is Service", or "Workspace is any of 2" with
+ * several values. The chip opens a checklist of that field's values.
+ */
+function FilterChips({
+  values,
+  onChange,
+}: {
+  values: FilterValues;
+  onChange: (values: FilterValues) => void;
+}) {
+  return FILTER_FIELDS.map((field) => {
+    const selected = values[field.key] ?? [];
+    if (selected.length === 0) return null;
+    const setSelected = (next: string[]) =>
+      onChange({ ...values, [field.key]: next });
+    return (
+      <span
+        key={field.key}
+        className="inline-flex h-6 items-center rounded-sm border border-default bg-surface-level-1"
+      >
+        <Popover>
+          <PopoverTrigger className="flex h-full items-center gap-space-1 rounded-l-sm pl-space-2 pr-space-1 hover:bg-surface-level-2">
+            <Text as="span" variant="sm" color="secondary">
+              {field.label} {selected.length > 1 ? 'is any of' : 'is'}
+            </Text>
+            <Text as="span" variant="sm" weight="medium">
+              {selected.length > 1 ? selected.length : selected[0]}
+            </Text>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            className="flex w-auto min-w-60 flex-col gap-space-2"
+          >
+            {field.options.map((option) => (
+              <Checkbox
+                key={option}
+                label={option}
+                checked={selected.includes(option)}
+                onCheckedChange={(checked) =>
+                  setSelected(
+                    checked
+                      ? [...selected, option]
+                      : selected.filter((value) => value !== option)
+                  )
+                }
+              />
+            ))}
+          </PopoverContent>
+        </Popover>
+        <IconButton
+          icon={XIcon}
+          label={`Remove ${field.label} filter`}
+          variant="plain"
+          color="secondary"
+          size="xs"
+          onClick={() => setSelected([])}
+        />
+      </span>
+    );
+  });
+}
+
+/**
+ * Settings tables are DataGridV2 with the compact settings defaults: `xs` cell
+ * text, `Badge size="sm" rounded="xs"`, plain icon-button row actions, a
+ * sticky header, and a pagination footer on the pane's edge.
  */
 function SettingsKeyTable({
   rows,
@@ -593,12 +997,22 @@ function SettingsKeyTable({
   empty?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-subtle">
-      <div className="min-h-0 flex-1 overflow-auto">
+    <div
+      role="region"
+      aria-label="API keys"
+      className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-subtle"
+    >
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto">
         <table className="w-full min-w-[40rem] border-collapse text-left">
           <thead className="sticky top-0 bg-surface-level-1">
             <tr className="border-b border-subtle">
-              {KEY_COLUMNS.map((column) => (
+              {[
+                'Description',
+                'Type',
+                'Workspace',
+                'Created by',
+                'Created',
+              ].map((column) => (
                 <th key={column} scope="col" className="h-8 px-space-2">
                   <Text as="span" variant="xs" color="tertiary">
                     {column}
@@ -637,7 +1051,7 @@ function SettingsKeyTable({
                   </Text>
                 </td>
                 <td className="px-space-2">
-                  <Text as="span" variant="xs" color="secondary">
+                  <Text as="span" variant="xs" color="tertiary">
                     {row.created}
                   </Text>
                 </td>
@@ -676,8 +1090,15 @@ function SettingsKeyTable({
   );
 }
 
-function SearchInput({ label }: { label: string }) {
-  const [value, setValue] = useState('');
+function SearchInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
     <Input
       size="sm"
@@ -685,18 +1106,34 @@ function SearchInput({ label }: { label: string }) {
       placeholder="Search"
       leftIcon={MagnifyingGlassIcon}
       value={value}
-      onChange={setValue}
+      onChange={onChange}
       className="w-48"
     />
   );
 }
 
-/** Chip for an active filter: one per field, opens that field's checklist. */
-function FilterChip({ children }: { children: string }) {
+const API_KEYS_DESCRIPTION =
+  'Keys are shown once, when created. Store them somewhere safe.';
+
+function NoMatchingKeys({ onClear }: { onClear: () => void }) {
   return (
-    <Button size="xs" variant="outlined" color="secondary">
-      {children}
-    </Button>
+    <CenteredState>
+      <EmptyState
+        icon={MagnifyingGlassIcon}
+        title="No matching API keys"
+        description="Try a different search or filter."
+        action={
+          <Button
+            size="sm"
+            variant="outlined"
+            color="secondary"
+            onClick={onClear}
+          >
+            Clear filters
+          </Button>
+        }
+      />
+    </CenteredState>
   );
 }
 
@@ -704,33 +1141,42 @@ function FilterChip({ children }: { children: string }) {
 // Recipes
 // ---------------------------------------------------------------------------
 
-/**
- * **CTA + table.** One primary action first in the header (`sm`, noun-only
- * label in Title Case with a plus icon: "API Key", not "Add API key"), then the toolbar:
- * search, then one Filter popover when the table has 2+ filter fields
- * (`SettingsFilterBar`). Active filters show as chips on their own row.
- * `SettingsPageLayout fill` so only the table scrolls.
- *
- * Real primitives: `SettingsPageLayout`, `SettingsPageHeader` (`actions`),
- * `SettingsToolbar`, `SettingsFilterBar`, DataGridV2 + `SettingsCell`.
- */
-export const CtaTable: Story = {
-  name: 'CTA + table',
-  parameters: {
-    // Macaw Link's text-link (#0078f1) is 4.23:1 on white at 14px, under
-    // 4.5:1. Token issue; skip only the link, keep the check everywhere else.
-    a11y: {
-      config: {
-        rules: [{ id: 'color-contrast', selector: '*:not(.text-link)' }],
-      },
-    },
-  },
-  render: ({ frame }) => (
-    <Frame frame={frame} active="API Keys" fill>
+function CtaTableRecipe({ frame, filterFields }: RecipeArgs) {
+  const [query, setQuery] = useState('');
+  const [values, setValues] = useState<FilterValues>({});
+  const [type, setType] = useState('all');
+  const rows = useMemo(
+    () =>
+      filterRows(
+        KEY_ROWS,
+        filterFields === 'One small set'
+          ? { type: type === 'all' ? [] : [type] }
+          : values,
+        query
+      ),
+    [filterFields, query, type, values]
+  );
+  const clear = () => {
+    setQuery('');
+    setValues({});
+    setType('all');
+  };
+  return (
+    <Frame
+      frame={frame}
+      active="API Keys"
+      fill
+      note={
+        <RecipeNote
+          use="people search, filter, or page through a list, or create items in it. One primary action (a plus button named by the noun) leads the header; search and filters follow. Use the Filter popover for 2+ filter fields and segmented tabs for one small set. Switch filterFields to compare."
+          parts="SettingsPageLayout fill, SettingsPageHeader, SettingsToolbar, SettingsFilterBar, DataGridV2, SettingsCell"
+        />
+      }
+    >
       <SettingsPageLayout fill>
         <SettingsPageHeader
           title="API Keys"
-          description="You can only see a key when you create it. If you lose one, create a new one."
+          description={API_KEYS_DESCRIPTION}
           docsHref="https://docs.langchain.com"
           actions={
             <Button size="sm" leftDecorator={PlusIcon}>
@@ -739,100 +1185,148 @@ export const CtaTable: Story = {
           }
           toolbar={
             <>
-              <SearchInput label="Search API keys" />
-              <Button
-                size="sm"
-                variant="outlined"
-                color="secondary"
-                leftDecorator={FunnelSimpleIcon}
-              >
-                Filter
-              </Button>
+              <SearchInput
+                label="Search API keys"
+                value={query}
+                onChange={setQuery}
+              />
+              {filterFields === 'One small set' ? (
+                <div role="group" aria-label="Filter by type">
+                  <GroupedTabs
+                    size="sm"
+                    value={type}
+                    onChange={setType}
+                    options={[
+                      { value: 'all', display: 'All' },
+                      { value: 'Personal', display: 'Personal' },
+                      { value: 'Service', display: 'Service' },
+                    ]}
+                  />
+                </div>
+              ) : (
+                <FilterButton values={values} onChange={setValues} />
+              )}
             </>
           }
-          chips={<FilterChip>Type is Service</FilterChip>}
+          chips={
+            filterFields === 'One small set' ? undefined : (
+              <FilterChips values={values} onChange={setValues} />
+            )
+          }
         />
-        <SettingsKeyTable rows={KEY_ROWS} />
+        <SettingsKeyTable
+          rows={rows}
+          empty={<NoMatchingKeys onClear={clear} />}
+        />
       </SettingsPageLayout>
     </Frame>
-  ),
-};
-
-const RETENTION_OPTIONS = [
-  { value: 'base', label: 'Base (default)' },
-  { value: 'extended', label: 'Extended' },
-];
-
-function WorkspaceNameRow() {
-  const id = useId();
-  const [name, setName] = useState('LangSmith');
-  return (
-    <SettingsRow
-      label="Organization name"
-      description="Shown to members and on invoices."
-      controlId={id}
-      control={
-        <Input
-          id={id}
-          size="sm"
-          value={name}
-          onChange={setName}
-          className="w-60"
-        />
-      }
-    />
   );
 }
 
-function RetentionRow() {
-  const [value, setValue] = useState<string | undefined>('base');
+export const CtaTable: Story = {
+  name: 'CTA + table',
+  args: { filterFields: 'Several fields' },
+  argTypes: {
+    filterFields: {
+      control: 'inline-radio',
+      options: ['Several fields', 'One small set'],
+      description:
+        '2+ filter fields use the Filter popover; one small set uses segmented tabs.',
+    },
+  },
+  render: (args) => <CtaTableRecipe {...args} />,
+};
+
+function AllowedUrlsCard() {
+  const id = useId();
+  const saved = 'https://*.example.com\nhttps://api.partner.dev';
+  const [draft, setDraft] = useState(saved);
+  const [value, setValue] = useState(saved);
+  const dirty = draft !== value;
+  return (
+    <SettingsRowList>
+      <div className="flex flex-col gap-space-2 p-space-4">
+        <label htmlFor={id}>
+          <Text as="span" variant="sm" weight="medium">
+            Allowed URLs
+          </Text>
+        </label>
+        <Text as="div" variant="sm" color="tertiary">
+          One pattern per line. Requests to other URLs are blocked.
+        </Text>
+        <Textarea
+          id={id}
+          value={draft}
+          onChange={setDraft}
+          className="font-mono"
+        />
+        {dirty && (
+          <div className="flex justify-end gap-space-2">
+            <Button
+              size="sm"
+              variant="outlined"
+              color="secondary"
+              onClick={() => setDraft(value)}
+            >
+              Cancel
+            </Button>
+            <Button size="sm" onClick={() => setValue(draft)}>
+              Save patterns
+            </Button>
+          </div>
+        )}
+      </div>
+    </SettingsRowList>
+  );
+}
+
+function MaxExpiryRow() {
+  const [value, setValue] = useState<string | undefined>('90');
   return (
     <SettingsRow
-      label="Default retention tier"
-      description="Applies to new traces in every workspace."
+      label="Maximum key expiry"
+      description="New keys can't outlive this."
       control={
         <Select
           size="sm"
-          aria-label="Default retention tier"
-          options={RETENTION_OPTIONS}
+          aria-label="Maximum key expiry"
+          hideSearch
           value={value}
           onChange={setValue}
-          hideSearch
-          triggerClassName="w-60"
+          triggerClassName="w-60 max-w-full"
+          options={[
+            { value: '30', label: '30 days' },
+            { value: '90', label: '90 days' },
+            { value: 'never', label: 'No limit' },
+          ]}
         />
       }
     />
   );
 }
 
-/**
- * **Form (rows).** Settings as divided cards, label and description on the
- * left, one `sm` control on the right (selects and inputs `w-60`). Every row
- * saves on its own: switches and selects on change, short inputs on Enter or
- * blur. No Save button. Groups get a `SettingsSection` heading and space, no
- * divider between groups (`gap-space-7`). The column is left-aligned at
- * `max-w-2xl`. Prefer a
- * dropdown over radios.
- *
- * Exception: sets of values and security- or cost-sensitive values use an
- * explicit Save inside the card, shown only when dirty.
- *
- * Real primitives: `SettingsSection`, `SettingsRowList`, `SettingsRow`,
- * `SettingsSwitchRow`, `SettingsTermsList`.
- */
 export const FormRows: Story = {
   name: 'Form (rows)',
   render: ({ frame }) => (
-    <Frame frame={frame} active="General">
+    <Frame
+      frame={frame}
+      active="Security Policies"
+      note={
+        <RecipeNote
+          use="the page is settings that each apply on their own. Switches and dropdowns save on change, short inputs on Enter or blur, so there's no Save button."
+          instead="Sets of values and security or cost limits are the exception: an explicit Save that appears only when edited (Allowed URLs)."
+          parts="SettingsSection, SettingsRowList, SettingsRow, SettingsSwitchRow, SettingsTermsList"
+        />
+      }
+    >
       <SettingsPageLayout>
         <SettingsPageHeader
-          title="General"
-          description="Organization details and defaults."
+          title="Security Policies"
+          description="Rules that apply to every member of this organization."
         />
         <div className="flex w-full min-w-0 max-w-2xl flex-col gap-space-7">
-          <SettingsSection title="Organization">
+          <SettingsSection title="Sharing">
             <SettingsRowList>
-              <WorkspaceNameRow />
               <SettingsSwitchRow
                 label="Public sharing"
                 description="Members can share traces and datasets with a public link."
@@ -845,20 +1339,24 @@ export const FormRows: Story = {
               />
             </SettingsRowList>
           </SettingsSection>
-          <SettingsSection title="Data Retention">
+          <SettingsSection title="API Keys">
             <SettingsRowList>
-              <RetentionRow />
+              <MaxExpiryRow />
               <SettingsTermsList
                 terms={[
-                  { label: 'Base', content: '14 days. Included in your plan.' },
                   {
-                    label: 'Extended',
-                    content:
-                      '400 days. Billed per trace. Upgrading existing traces asks for confirmation.',
+                    label: 'Existing',
+                    content: 'Keys created before a change keep their expiry.',
                   },
                 ]}
               />
             </SettingsRowList>
+          </SettingsSection>
+          <SettingsSection
+            title="LLM Auth Proxy"
+            description="Model requests from this organization go through the proxy."
+          >
+            <AllowedUrlsCard />
           </SettingsSection>
         </div>
       </SettingsPageLayout>
@@ -866,14 +1364,31 @@ export const FormRows: Story = {
   ),
 };
 
-/**
- * **Stacked sections.** A page made of independent blocks, each a
- * `SettingsSection` with its own heading, optional `sm` actions, and a card.
- * Sections are separated by space (`gap-space-7`), not dividers.
- */
-export const StackedSections: Story = {
+const DATA_PLANES = [
+  { name: 'us-east-1', provider: 'AWS', workspaces: 3, status: 'Active' },
+  { name: 'eu-west-1', provider: 'AWS', workspaces: 2, status: 'Active' },
+  {
+    name: 'westeurope',
+    provider: 'Azure',
+    workspaces: 0,
+    status: 'Provisioning',
+  },
+];
+
+export const ItemList: Story = {
+  name: 'Item list',
   render: ({ frame }) => (
-    <Frame frame={frame} active="Data Planes">
+    <Frame
+      frame={frame}
+      active="Data Planes"
+      note={
+        <RecipeNote
+          use="the page lists a handful of things (data planes, connected apps), each with a status and one or two actions. Each item is a row in one card; its settings open from the row."
+          instead="More than ~10 items, or people need to search? Use CTA + table."
+          parts="SettingsRowList, SettingsRow"
+        />
+      }
+    >
       <SettingsPageLayout>
         <SettingsPageHeader
           title="Data Planes"
@@ -884,126 +1399,155 @@ export const StackedSections: Story = {
             </Button>
           }
         />
-        <div className="flex w-full min-w-0 max-w-2xl flex-col gap-space-7">
-          <SettingsSection
-            title="Active"
-            description="Workspaces send new data here."
-          >
-            <SettingsRowList>
-              {['us-east-1', 'eu-west-1'].map((region) => (
-                <SettingsRow
-                  key={region}
-                  label={region}
-                  description="3 workspaces"
-                  control={
+        <div className="flex w-full min-w-0 max-w-2xl flex-col">
+          <SettingsRowList>
+            {DATA_PLANES.map((plane) => (
+              <SettingsRow
+                key={plane.name}
+                label={
+                  <span className="flex items-center gap-space-2">
+                    <Icon
+                      icon={DatabaseIcon}
+                      size="sm"
+                      className="text-icon-tertiary"
+                    />
+                    {plane.name}
+                    <Badge size="sm" rounded="xs" color="secondary">
+                      {plane.status}
+                    </Badge>
+                  </span>
+                }
+                description={`${plane.provider}, ${plane.workspaces} workspaces`}
+                control={
+                  <>
                     <Button size="sm" variant="outlined" color="secondary">
                       Settings
                     </Button>
-                  }
-                />
-              ))}
-            </SettingsRowList>
-          </SettingsSection>
-          <SettingsSection title="Time to Live">
-            <SettingsRowList>
-              <SettingsSwitchRow
-                label="Expire idle data planes"
-                description="Delete a data plane after 30 days without traffic."
+                    <IconButton
+                      icon={TrashIcon}
+                      label={`Delete ${plane.name}`}
+                      variant="plain"
+                      color="secondary"
+                      size="sm"
+                      onClick={noop}
+                    />
+                  </>
+                }
               />
-            </SettingsRowList>
-          </SettingsSection>
+            ))}
+          </SettingsRowList>
         </div>
       </SettingsPageLayout>
     </Frame>
   ),
 };
 
-/**
- * **Tabs (sub-pages).** A settings group whose pages share one title. The
- * group title sits above underlined tabs; each tab is its own page with its
- * own description and actions under the tab row. Tabs mean sub-pages: don't
- * put tabs inside a table page to filter it.
- *
- * Real primitives: `SettingsGroupedPage`, with
- * `SettingsPageTabList`.
- */
 export const GroupedTabsPage: Story = {
   name: 'Tabs (sub-pages)',
-  render: ({ frame }) => (
-    <Frame frame={frame} active="Webhooks" fill>
-      <SettingsPageLayout fill>
-        <TabGroup className="flex min-h-0 flex-1 flex-col gap-space-3">
-          <div className="flex min-w-0 flex-col gap-space-4">
-            <Text as="h2" variant="h2">
-              Webhooks
-            </Text>
-            <SettingsPageTabList tabs={['Destinations', 'Configurations']} />
-          </div>
-          <div className="flex min-w-0 flex-col gap-space-4">
-            <Text as="p" variant="sm" color="tertiary">
-              Endpoints that receive events from this workspace.
-            </Text>
-            <div className="flex flex-wrap items-start gap-space-2">
-              <Button size="sm" leftDecorator={PlusIcon}>
-                Webhook
-              </Button>
-              <SearchInput label="Search webhooks" />
+  render: function Render({ frame }) {
+    const [query, setQuery] = useState('');
+    return (
+      <Frame
+        frame={frame}
+        active="Webhooks"
+        fill
+        note={
+          <RecipeNote
+            use="several pages share one name and each deserves its own URL and nav search result. The group title sits above underlined tabs; each tab has its own description and actions."
+            instead="Never use tabs to filter a table; that's a filter."
+            parts="SettingsGroupedPage, SettingsPageTabList, useSettingsPageGroups"
+          />
+        }
+      >
+        <SettingsPageLayout fill>
+          <TabGroup className="flex min-h-0 flex-1 flex-col gap-space-3">
+            <div className="flex min-w-0 flex-col gap-space-4">
+              <Text as="h2" variant="h2">
+                Webhooks
+              </Text>
+              <SettingsPageTabList tabs={['Destinations', 'Configurations']} />
             </div>
-          </div>
-          <SettingsKeyTable rows={KEY_ROWS.slice(0, 2)} />
-        </TabGroup>
-      </SettingsPageLayout>
-    </Frame>
-  ),
+            <SettingsPageHeader
+              description="Endpoints that receive events from this workspace."
+              docsHref="https://docs.langchain.com"
+              actions={
+                <Button size="sm" leftDecorator={PlusIcon}>
+                  Webhook
+                </Button>
+              }
+              toolbar={
+                <SearchInput
+                  label="Search webhooks"
+                  value={query}
+                  onChange={setQuery}
+                />
+              }
+            />
+            <SettingsKeyTable
+              rows={filterRows(KEY_ROWS.slice(0, 2), {}, query)}
+            />
+          </TabGroup>
+        </SettingsPageLayout>
+      </Frame>
+    );
+  },
 };
 
-/**
- * **Views.** One page whose content splits into views of the same thing
- * (Usage Limits by Organization / Workspaces / Projects). Stored in `?view=`.
- * Segmented `GroupedTabs` when the page already sits under a tab list,
- * underlined tabs otherwise. A single filter with a small fixed set of values
- * also uses `GroupedTabs`; a single long list uses a labelled dropdown.
- *
- * Real primitives: `SettingsViewTabs`, `useSettingsView`.
- */
+const USAGE_VIEWS = ['Organization', 'Workspaces', 'Projects'];
+
 export const Views: Story = {
   render: function Render({ frame }) {
-    const [view, setView] = useState('organization');
+    const [index, setIndex] = useState(0);
     return (
-      <Frame frame={frame} active="Usage Limits">
+      <Frame
+        frame={frame}
+        active="Usage Limits"
+        note={
+          <RecipeNote
+            use="one page shows the same thing at different scopes. The title and description stay; the view is in the URL (?view=). Under another tab row, views become segmented tabs so tabs never nest."
+            parts="SettingsViewTabs, useSettingsView"
+          />
+        }
+      >
         <SettingsPageLayout>
           <SettingsPageHeader
             title="Monthly Usage Limits"
-            actions={
-              <GroupedTabs
-                size="sm"
-                value={view}
-                onChange={setView}
-                options={[
-                  { value: 'organization', display: 'Organization' },
-                  { value: 'workspaces', display: 'Workspaces' },
-                  { value: 'projects', display: 'Projects' },
-                ]}
-              />
-            }
+            description="Cap traces per month so usage can't run past your budget."
           />
-          <div className="flex w-full min-w-0 max-w-2xl flex-col gap-space-7">
-            <SettingsRowList>
-              <SettingsRow
-                label="Default trace limit"
-                description="Applies to workspaces without their own limit."
-                control={
-                  <Input
-                    size="sm"
-                    aria-label="Default trace limit"
-                    value="1,000,000"
-                    onChange={noop}
-                    className="w-60"
-                  />
+          <TabGroup selectedIndex={index} onChange={setIndex}>
+            <SettingsPageTabList tabs={USAGE_VIEWS} />
+          </TabGroup>
+          {index === 0 ? (
+            <div className="flex w-full min-w-0 max-w-2xl flex-col">
+              <SettingsRowList>
+                <SettingsRow
+                  label="Default trace limit"
+                  description="Applies to workspaces without their own limit."
+                  control={
+                    <Input
+                      size="sm"
+                      aria-label="Default trace limit"
+                      value="1,000,000"
+                      onChange={noop}
+                      className="w-60 max-w-full"
+                    />
+                  }
+                />
+              </SettingsRowList>
+            </div>
+          ) : (
+            <CenteredState>
+              <EmptyState
+                title={`No ${USAGE_VIEWS[index].toLowerCase()} limits yet`}
+                description="Add a limit to cap one of them below the default."
+                action={
+                  <Button size="sm" leftDecorator={PlusIcon}>
+                    Limit
+                  </Button>
                 }
               />
-            </SettingsRowList>
-          </div>
+            </CenteredState>
+          )}
         </SettingsPageLayout>
       </Frame>
     );
@@ -1024,52 +1568,46 @@ function EditProviderDialog({
         title="Edit identity provider"
         description="Changes apply the next time members sign in."
       >
-        <Input
-          size="sm"
-          label="SAML metadata URL"
-          value={url}
-          onChange={setUrl}
-        />
+        <Input label="SAML metadata URL" value={url} onChange={setUrl} />
         <div className="flex items-center gap-space-2">
-          <Button size="sm" variant="plain" color="error">
+          <Button variant="plain" color="error">
             Delete
           </Button>
           <div className="flex-1" />
           <Button
-            size="sm"
             variant="outlined"
             color="secondary"
             onClick={() => onOpenChange(false)}
           >
             Cancel
           </Button>
-          <Button size="sm" onClick={() => onOpenChange(false)}>
-            Save
-          </Button>
+          <Button onClick={() => onOpenChange(false)}>Save</Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-/**
- * **Row + dialog.** A multi-field object (an identity provider, a GitLab
- * connection) is one row in the card with an Edit or Set up button. The dialog
- * has one Save, sends only changed fields, and puts Delete on the left of the
- * footer. Inside a Dialog or Pane, show loading with `LinearProgress`, not
- * `SettingsPageLoading` (it portals to the page and lands behind the overlay).
- *
- * Real primitives: `SettingsRow` + Macaw `Dialog`; side panes use
- * `SettingsPane` / `SettingsDetailPane`.
- */
 export const RowDialog: Story = {
   name: 'Row + dialog',
   render: function Render({ frame }) {
     const [open, setOpen] = useState(false);
     return (
-      <Frame frame={frame} active="General">
+      <Frame
+        frame={frame}
+        active="SSO"
+        note={
+          <RecipeNote
+            use="a setting is an object with several fields (an identity provider, a Git connection). It's one row; Edit opens a dialog with a single Save and Delete on the left."
+            parts="SettingsRow + Dialog (bigger flows: SettingsPane)"
+          />
+        }
+      >
         <SettingsPageLayout>
-          <SettingsPageHeader title="SSO" />
+          <SettingsPageHeader
+            title="SSO"
+            description="Let members sign in with your identity provider."
+          />
           <div className="flex w-full min-w-0 max-w-2xl flex-col gap-space-7">
             <SettingsSection title="Identity Provider">
               <SettingsRowList>
@@ -1102,80 +1640,177 @@ export const RowDialog: Story = {
   },
 };
 
-/**
- * **Stats.** Several stats or charts form one continuous card: ChartCards edge
- * to edge, `border-l-0` on later cards in a row, `border-t-0` on a chart
- * below. Use Macaw `ChartCard` + `MetricChart`; don't build a stat primitive.
- * Don't add totals or claims the API doesn't return.
- */
+const MONTHS = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+
+const usageSeries: readonly LineChartSeries[] = [
+  {
+    id: 'traces',
+    label: 'Traces',
+    points: [620, 710, 680, 840, 960, 1248].map((y, x) => ({ x, y })),
+  },
+];
+
+const spendSeries: readonly BarChartSeries[] = [
+  {
+    id: 'traces',
+    label: 'Traces',
+    data: [1.8, 2.1, 2.0, 2.6, 3.1, 3.8].map((value, index) => ({
+      category: MONTHS[index],
+      value,
+    })),
+  },
+  {
+    id: 'deployments',
+    label: 'Deployments',
+    data: [0.4, 0.4, 0.5, 0.6, 0.6, 0.7].map((value, index) => ({
+      category: MONTHS[index],
+      value,
+    })),
+  },
+];
+
 export const Stats: Story = {
   render: ({ frame }) => (
-    <Frame frame={frame} active="Usage Limits">
+    <Frame
+      frame={frame}
+      active="Credit Usage"
+      note={
+        <RecipeNote
+          use="the page reports numbers. Stats and charts join into one continuous card: edge to edge, no left border on later cards, no top border on a chart below. Show only values the API returns."
+          parts="ChartCard, MetricChart, LineChart, BarChart"
+        />
+      }
+    >
       <SettingsPageLayout>
         <SettingsPageHeader
           title="Credit Usage"
-          description="Usage for the current billing period."
+          description="Usage and spend for the current contract."
+          actions={
+            <Button size="sm" variant="outlined" color="secondary">
+              Export
+            </Button>
+          }
         />
-        <div className="grid min-w-0 @xl:grid-cols-3">
-          {[
-            { title: 'Traces', value: '1,248,392' },
-            { title: 'Deployments', value: '12' },
-            { title: 'Sandboxes', value: '3,402' },
-          ].map((stat, index) => (
-            <ChartCard
-              key={stat.title}
-              title={stat.title}
-              className={cn(
-                'rounded-none first:rounded-l-lg last:rounded-r-lg',
-                index > 0 && '@xl:border-l-0'
-              )}
-            >
-              <MetricChart value={stat.value} className="flex-1" />
-            </ChartCard>
-          ))}
+        <div className="flex min-w-0 flex-col">
+          <div className="grid min-w-0 @xl:grid-cols-3">
+            {[
+              { title: 'Traces', value: '1,248,392' },
+              { title: 'Deployments', value: '12' },
+              { title: 'Spend', value: '$3,842' },
+            ].map((stat, index) => (
+              <ChartCard
+                key={stat.title}
+                title={stat.title}
+                className={cn(
+                  'rounded-none',
+                  index === 0 && 'rounded-tl-lg',
+                  index === 2 && 'rounded-tr-lg',
+                  index > 0 && '@xl:border-l-0'
+                )}
+              >
+                <MetricChart value={stat.value} className="flex-1" />
+              </ChartCard>
+            ))}
+          </div>
+          <ChartCard title="Monthly Traces" className="rounded-none border-t-0">
+            <div className="h-56 min-h-0 w-full">
+              <LineChart
+                aria-label="Monthly traces"
+                series={usageSeries}
+                showLegend={false}
+                xScale="band"
+                formatXValue={(value) => MONTHS[value] ?? ''}
+              />
+            </div>
+          </ChartCard>
+          <ChartCard
+            title="Monthly Spend (thousands)"
+            className="rounded-none rounded-b-lg border-t-0"
+          >
+            <div className="h-56 min-h-0 w-full">
+              <BarChart
+                aria-label="Monthly spend by product"
+                series={spendSeries}
+              />
+            </div>
+          </ChartCard>
         </div>
       </SettingsPageLayout>
     </Frame>
   ),
 };
 
-/**
- * **Empty.** The page keeps its header and CTA; the table area shows a
- * centered `EmptyState` (`SettingsPageLayout fill` centers it in the pane).
- * Name the thing: "No API keys yet".
- */
 export const Empty: Story = {
-  render: ({ frame }) => (
-    <Frame frame={frame} active="API Keys" fill>
+  args: { emptyKind: 'First run' },
+  argTypes: {
+    emptyKind: {
+      control: 'inline-radio',
+      options: ['First run', 'No matches'],
+      description:
+        'Nothing created yet, or a search/filter that matches nothing.',
+    },
+  },
+  render: ({ frame, emptyKind }) => (
+    <Frame
+      frame={frame}
+      active="API Keys"
+      fill
+      note={
+        <RecipeNote
+          use="the feature works but there's nothing to show. Keep the header and its action; center one empty state in the table area and name the thing (“No API keys yet”). A search with no results offers Clear filters."
+          instead="If the person can't use the feature at all, that's Unavailable."
+          parts="EmptyState in SettingsPageLayout fill"
+        />
+      }
+    >
       <SettingsPageLayout fill>
         <SettingsPageHeader
           title="API Keys"
-          description="You can only see a key when you create it. If you lose one, create a new one."
+          description={API_KEYS_DESCRIPTION}
           actions={
             <Button size="sm" leftDecorator={PlusIcon}>
               API Key
             </Button>
           }
+          toolbar={
+            emptyKind === 'No matches' ? (
+              <SearchInput
+                label="Search API keys"
+                value="prod"
+                onChange={noop}
+              />
+            ) : undefined
+          }
         />
-        <div className="flex flex-1 items-center justify-center">
-          <EmptyState
-            title="No API keys yet"
-            description="Create a key to send traces from your code."
-          />
-        </div>
+        {emptyKind === 'No matches' ? (
+          <NoMatchingKeys onClear={noop} />
+        ) : (
+          <CenteredState>
+            <EmptyState
+              icon={KeyIcon}
+              title="No API keys yet"
+              description="Create a key to send traces from your code."
+            />
+          </CenteredState>
+        )}
       </SettingsPageLayout>
     </Frame>
   ),
 };
 
-/**
- * **Loading.** `SettingsPageLoading` pins a `LinearProgress` to the top edge of
- * the modal's content pane, clear of the padding; on a full page it renders in
- * place. Keep the header visible while the body loads.
- */
 export const Loading: Story = {
   render: ({ frame }) => (
-    <Frame frame={frame} active="Members" loading>
+    <Frame
+      frame={frame}
+      active="Members"
+      loading
+      note={
+        <RecipeNote
+          use="the page's data is loading. The bar pins to the top edge of the pane and the header stays. Inside a dialog or pane, use LinearProgress there instead; the page loader would land behind the overlay."
+          parts="SettingsPageLoading"
+        />
+      }
+    >
       <SettingsPageLayout>
         <SettingsPageHeader
           title="Members"
@@ -1186,37 +1821,61 @@ export const Loading: Story = {
   ),
 };
 
-/**
- * **Unavailable.** `SettingsUnavailable` replaces the page's content under its
- * own header, so the title still says where the viewer is.
- * `enterprise`: plan doesn't include it (brand, Contact sales).
- * `permission`: role can't see it; say who can grant access.
- * `unavailable`: deployment doesn't support it, such as self-hosted.
- */
+const UNAVAILABLE_COPY = {
+  enterprise: {
+    title: 'Access policies are an Enterprise feature',
+    description: 'Control access with rules based on resource attributes.',
+  },
+  permission: {
+    title: "You can't view access policies",
+    description: 'Ask an organization admin to give you access.',
+  },
+  unavailable: {
+    title: "Access policies aren't available here",
+    description: 'This deployment doesn’t support attribute-based access.',
+  },
+} as const;
+
 export const Unavailable: Story = {
-  render: ({ frame }) => (
-    <Frame frame={frame} active="Roles">
-      <SettingsPageLayout>
-        <SettingsPageHeader
-          title="Roles"
-          description="Custom roles control what members can do in each workspace."
+  args: { reason: 'enterprise' },
+  argTypes: {
+    reason: {
+      control: 'inline-radio',
+      options: ['enterprise', 'permission', 'unavailable'],
+      description:
+        'Plan (offers Contact sales), role (says who can grant it), or deployment.',
+    },
+  },
+  render: ({ frame, reason = 'enterprise' }) => (
+    <Frame
+      frame={frame}
+      active="Access Policies"
+      fill
+      note={
+        <RecipeNote
+          use="the person can't use the feature: their plan doesn't include it, their role can't see it, or the deployment doesn't support it. The header stays so they know where they are; nothing else on the page renders."
+          parts="SettingsUnavailable"
         />
-        <div className="flex flex-col gap-space-6">
-          <SettingsUnavailable
-            reason="enterprise"
-            title="Custom roles are on Enterprise"
-            description="Create roles with exactly the permissions each team needs."
+      }
+    >
+      <SettingsPageLayout fill>
+        <SettingsPageHeader
+          title="Access Policies"
+          description="Rules that decide who can reach which resources."
+        />
+        <CenteredState>
+          <EmptyState
+            icon={reason === 'unavailable' ? ProhibitIcon : LockSimpleIcon}
+            variant={reason === 'enterprise' ? 'brand' : 'neutral'}
+            title={UNAVAILABLE_COPY[reason].title}
+            description={UNAVAILABLE_COPY[reason].description}
+            action={
+              reason === 'enterprise' && (
+                <Button size="sm">Contact sales</Button>
+              )
+            }
           />
-          <SettingsUnavailable
-            reason="permission"
-            title="You don't have access to roles"
-            description="Ask an organization admin for access."
-          />
-          <SettingsUnavailable
-            reason="unavailable"
-            title="Roles aren't available on this deployment"
-          />
-        </div>
+        </CenteredState>
       </SettingsPageLayout>
     </Frame>
   ),

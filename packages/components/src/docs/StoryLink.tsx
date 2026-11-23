@@ -6,41 +6,40 @@ import { Link } from '../components/Link';
 import type { LinkProps } from '../components/Link';
 
 /**
- * Links to another story from a docs page or story. A plain click navigates
- * with `linkTo`. The href is relative to the preview iframe's folder, so
- * opening it in a new tab lands on the Storybook UI, locally and under the
- * Pages subpath.
+ * Links to another story or docs page. A plain click navigates with `linkTo`.
+ * The href is relative to the preview iframe's folder, so opening it in a new
+ * tab lands on the Storybook UI, locally and under the Pages subpath.
  */
 export function StoryLink({
   title,
   name,
+  docs = false,
   variant,
   children,
 }: {
   title: string;
-  name: string;
+  /** The story's display name; omit for a docs page. */
+  name?: string;
+  docs?: boolean;
   variant?: LinkProps['variant'];
   children: ReactNode;
 }) {
+  const storyName = docs ? 'Docs' : (name ?? '');
   return (
     <Link
-      href={`./?path=/story/${storyId(title, name)}`}
+      href={`./?path=/${docs ? 'docs' : 'story'}/${slug(title)}--${slug(storyName)}`}
       target="_top"
       variant={variant}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
           return;
         event.preventDefault();
-        linkTo(title, name)();
+        linkTo(title, storyName)();
       }}
     >
       {children}
     </Link>
   );
-}
-
-function storyId(title: string, name: string) {
-  return `${slug(title)}--${slug(name)}`;
 }
 
 function slug(value: string) {
