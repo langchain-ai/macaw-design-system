@@ -1241,46 +1241,71 @@ export const CtaTable: Story = {
   render: (args) => <CtaTableRecipe {...args} />,
 };
 
-function AllowedUrlsCard() {
-  const id = useId();
-  const saved = 'https://*.example.com\nhttps://api.partner.dev';
+/**
+ * The explicit-save exception, as on the app's LLM Auth Proxy page: the mode
+ * is a row that saves on change; custom patterns sit under the card, and
+ * Cancel / Save appear only after an edit.
+ */
+function AllowedUrls() {
+  const saved = 'api.openai.com\n*.example.com';
+  const [mode, setMode] = useState<string | undefined>('custom');
   const [draft, setDraft] = useState(saved);
   const [value, setValue] = useState(saved);
   const dirty = draft !== value;
   return (
-    <SettingsRowList>
-      <div className="flex flex-col gap-space-2 p-space-4">
-        <label htmlFor={id}>
-          <Text as="span" variant="sm" weight="medium">
-            Allowed URLs
-          </Text>
-        </label>
-        <Text as="div" variant="sm" color="tertiary">
-          One pattern per line. Requests to other URLs are blocked.
-        </Text>
-        <Textarea
-          id={id}
-          value={draft}
-          onChange={setDraft}
-          className="font-mono"
-        />
-        {dirty && (
-          <div className="flex justify-end gap-space-2">
-            <Button
+    <>
+      <SettingsRowList>
+        <SettingsRow
+          label="Allowed URLs"
+          description="Where the proxy may send requests."
+          control={
+            <Select
               size="sm"
-              variant="outlined"
-              color="secondary"
-              onClick={() => setDraft(value)}
-            >
-              Cancel
-            </Button>
-            <Button size="sm" onClick={() => setValue(draft)}>
-              Save patterns
-            </Button>
-          </div>
-        )}
-      </div>
-    </SettingsRowList>
+              aria-label="Allowed URLs"
+              hideSearch
+              value={mode}
+              onChange={setMode}
+              triggerClassName="w-60 max-w-full"
+              options={[
+                { value: 'all', label: 'Allow all' },
+                { value: 'custom', label: 'Custom' },
+              ]}
+            />
+          }
+        />
+      </SettingsRowList>
+      {mode === 'custom' && (
+        <div className="flex min-w-0 flex-col gap-space-2">
+          <Textarea
+            aria-label="Allowed URL patterns"
+            value={draft}
+            rows={4}
+            hintText="One pattern per line. Use *.domain for subdomains."
+            onChange={setDraft}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setDraft(value);
+              if ((event.metaKey || event.ctrlKey) && event.key === 'Enter')
+                setValue(draft);
+            }}
+          />
+          {dirty && (
+            <div className="flex justify-end gap-space-2">
+              <Button
+                size="sm"
+                variant="plain"
+                color="secondary"
+                onClick={() => setDraft(value)}
+              >
+                Cancel
+              </Button>
+              <Button size="sm" onClick={() => setValue(draft)}>
+                Save patterns
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1356,7 +1381,7 @@ export const FormRows: Story = {
             title="LLM Auth Proxy"
             description="Model requests from this organization go through the proxy."
           >
-            <AllowedUrlsCard />
+            <AllowedUrls />
           </SettingsSection>
         </div>
       </SettingsPageLayout>
