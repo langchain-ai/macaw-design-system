@@ -29,6 +29,7 @@ import type {
 import sampleImage from '../../docs/assets/attachment-preview.png';
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
+import { ChatPlan, type ChatPlanItem } from '../ChatPlan';
 import { DropdownMenuItem, DropdownMenuSeparator } from '../DropdownMenu';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
@@ -715,6 +716,67 @@ export const DrawerIntents: Story = {
             }
           />
         )
+      )}
+    </div>
+  ),
+};
+
+const BACKGROUND_PLAN: ChatPlanItem[] = [
+  { id: 'read', label: 'Read the failing test', status: 'completed' },
+  { id: 'fix', label: 'Fix the date parser', status: 'in-progress' },
+  { id: 'verify', label: 'Run the suite again', status: 'pending' },
+];
+
+const CHAT_BACKGROUNDS = [
+  { className: 'bg-surface-level-1', label: 'bg-surface-level-1' },
+  { className: 'bg-surface-level-2', label: 'bg-surface-level-2 (grey)' },
+] as const;
+
+const THEMES = [
+  { name: 'Light', className: undefined },
+  { name: 'Dark', className: 'dark' },
+] as const;
+
+export const DrawerBackgrounds: Story = {
+  tags: ['a11y-test'],
+  // Both themes render side by side, so the toolbar background stays light.
+  globals: { backgrounds: { value: 'light' } },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Chat sits on `bg-surface-level-1` or `bg-surface-level-2`. The composer and its neutral drawer use `bg-elevated` with `border-subtle`, so the drawer stays distinct from both backgrounds in light and dark mode.',
+      },
+    },
+  },
+  render: () => (
+    <div className="grid gap-space-4 md:grid-cols-2">
+      {THEMES.map((theme) =>
+        CHAT_BACKGROUNDS.map((background) => (
+          <div
+            key={`${theme.name}-${background.label}`}
+            {...(theme.className && {
+              className: theme.className,
+              'data-theme-scope': '',
+            })}
+          >
+            <div
+              className={cn(
+                'flex flex-col gap-space-3 rounded-lg p-space-5',
+                background.className
+              )}
+            >
+              <Text variant="xs" color="secondary">
+                {theme.name}, <code>{background.label}</code>
+              </Text>
+              <ComposerDemo
+                drawer={
+                  <ChatPlan items={BACKGROUND_PLAN} presentation="drawer" />
+                }
+              />
+            </div>
+          </div>
+        ))
       )}
     </div>
   ),

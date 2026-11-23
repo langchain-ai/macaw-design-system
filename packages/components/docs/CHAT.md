@@ -101,8 +101,8 @@ button.
 todos with stable IDs. Put `presentation="drawer"` in `ChatComposer`'s `drawer`
 slot to keep it above the input while the agent works. It can share the drawer:
 the drawer stacks its items with dividers, so pass the plan first and a
-question last, next to the input that answers it. The plan keeps a neutral
-surface under any `drawerIntent`.
+question last, next to the input that answers it. The plan keeps the neutral
+`bg-elevated` drawer surface under any `drawerIntent`.
 
 Show a delegated subagent run, such as a deep agent's `task` call, as a
 `ChatToolCall` with the subagent's name as `label` and its task as `summary`.

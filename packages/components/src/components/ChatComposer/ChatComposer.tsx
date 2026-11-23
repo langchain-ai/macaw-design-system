@@ -18,8 +18,10 @@ import {
 export type ChatComposerDrawerIntent = 'neutral' | 'info' | 'warning' | 'error';
 
 // Dividers match the drawer border, so stacked drawer content reads as one surface.
+// The neutral drawer shares the composer's raised surface, so it stands out
+// from a grey `bg-surface-level-2` page as much as the composer does.
 const DRAWER_INTENT_CLASSES: Record<ChatComposerDrawerIntent, string> = {
-  neutral: 'border-subtle divide-subtle bg-surface-level-2',
+  neutral: 'border-subtle divide-subtle bg-elevated',
   info: 'border-brand-subtle divide-brand-subtle bg-brand-subtle',
   warning: 'border-warning divide-warning bg-warning',
   error: 'border-error divide-error bg-error',

@@ -272,6 +272,11 @@ such as a question, last. Set `drawerIntent` to `info`, `warning`, or `error`, a
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
 
+Place chat on `bg-surface-level-1` or the grey `bg-surface-level-2`. The
+composer and its neutral drawer both use `bg-elevated` with `border-subtle`, so
+they stand out from either background in light and dark mode. Don't give the
+drawer its own fill to match a page; intents are the only drawer colors.
+
 ## Chat context window
 
 Import `ChatContextWindowPopover` from `@langchain/macaw-components/ChatContextWindowPopover`
