@@ -16,7 +16,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "vite",
-                    "endsPattern": "localhost"
+                    "endsPattern": "http"
                 }
             },
             "options": {

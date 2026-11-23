@@ -1,6 +1,6 @@
 {
   "name": "@langchain/macaw-components",
-  "version": "1.6.0",
+  "version": "1.8.0",
   "description": "React components and usage guidance for the Macaw Design System.",
   "license": "MIT",
   "repository": {
@@ -84,6 +84,14 @@
       "types": "./dist/components/ChatComposer/index.d.ts",
       "import": "./dist/components/ChatComposer/index.js"
     },
+    "./ChatContextWindowPopover": {
+      "types": "./dist/components/ChatContextWindowPopover/index.d.ts",
+      "import": "./dist/components/ChatContextWindowPopover/index.js"
+    },
+    "./ChatConversation": {
+      "types": "./dist/components/ChatConversation/index.d.ts",
+      "import": "./dist/components/ChatConversation/index.js"
+    },
     "./ChatConversationList": {
       "types": "./dist/components/ChatConversationList/index.d.ts",
       "import": "./dist/components/ChatConversationList/index.js"
@@ -92,9 +100,21 @@
       "types": "./dist/components/ChatMessage/index.d.ts",
       "import": "./dist/components/ChatMessage/index.js"
     },
+    "./ChatPlan": {
+      "types": "./dist/components/ChatPlan/index.d.ts",
+      "import": "./dist/components/ChatPlan/index.js"
+    },
+    "./ChatRichContent": {
+      "types": "./dist/components/ChatRichContent/index.d.ts",
+      "import": "./dist/components/ChatRichContent/index.js"
+    },
     "./ChatState": {
       "types": "./dist/components/ChatState/index.d.ts",
       "import": "./dist/components/ChatState/index.js"
+    },
+    "./ChatThread": {
+      "types": "./dist/components/ChatThread/index.d.ts",
+      "import": "./dist/components/ChatThread/index.js"
     },
     "./ChatToolCall": {
       "types": "./dist/components/ChatToolCall/index.d.ts",
@@ -200,6 +220,10 @@
       "types": "./dist/components/Logo/index.d.ts",
       "import": "./dist/components/Logo/index.js"
     },
+    "./MarkdownDisplay": {
+      "types": "./dist/components/MarkdownDisplay/index.d.ts",
+      "import": "./dist/components/MarkdownDisplay/index.js"
+    },
     "./MetricChart": {
       "types": "./dist/components/MetricChart/index.d.ts",
       "import": "./dist/components/MetricChart/index.js"
@@ -215,6 +239,10 @@
     "./Popover": {
       "types": "./dist/components/Popover/index.d.ts",
       "import": "./dist/components/Popover/index.js"
+    },
+    "./ProviderLogo": {
+      "types": "./dist/components/ProviderLogo/index.d.ts",
+      "import": "./dist/components/ProviderLogo/index.js"
     },
     "./ProgressBar": {
       "types": "./dist/components/ProgressBar/index.d.ts",
@@ -513,6 +541,10 @@
       "types": "./dist/components/Logo/index.d.ts",
       "import": "./dist/components/Logo/index.js"
     },
+    "./components/MarkdownDisplay": {
+      "types": "./dist/components/MarkdownDisplay/index.d.ts",
+      "import": "./dist/components/MarkdownDisplay/index.js"
+    },
     "./components/MetricChart": {
       "types": "./dist/components/MetricChart/index.d.ts",
       "import": "./dist/components/MetricChart/index.js"
@@ -686,7 +718,10 @@
     "d3-scale-chromatic": "^3.0.0",
     "linkify-it": "^5.0.2",
     "react-hotkeys-hook": "^4.5.0",
+    "react-markdown": "^10.1.0",
     "react-virtuoso": "^4.18.6",
+    "remark-gfm": "^4.0.1",
+    "remend": "1.4.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
     "tiptap-markdown": "^0.9.0",

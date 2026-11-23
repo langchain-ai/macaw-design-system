@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createRef, useState } from 'react';
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +9,7 @@ import {
   ChatComposerAttachments,
   ChatComposerInput,
   ChatComposerModelSelect,
+  ChatComposerTextarea,
   ChatComposerToolbar,
 } from '..';
 import type { ChatComposerProps } from '..';
@@ -30,6 +31,7 @@ function ComposerHarness({
   submitDisabled = false,
   streaming = false,
   sending = false,
+  stopping = false,
   withSubmitHandler = true,
 }: {
   initialDraft?: string;
@@ -37,15 +39,18 @@ function ComposerHarness({
   submitDisabled?: boolean;
   streaming?: boolean;
   sending?: boolean;
+  stopping?: boolean;
   withSubmitHandler?: boolean;
 }) {
   const [draft, setDraft] = useState(initialDraft);
   const [files, setFiles] = useState<File[]>([]);
   const [result, setResult] = useState('Not submitted');
   const [model, setModel] = useState('balanced');
-  const actionProps: ChatComposerProps = streaming
-    ? { action: 'stop', onStop: () => setResult('Stopped') }
-    : { action: sending ? 'sending' : 'send' };
+  const actionProps: ChatComposerProps = stopping
+    ? { action: 'stopping' }
+    : streaming
+      ? { action: 'stop', onStop: () => setResult('Stopped') }
+      : { action: sending ? 'sending' : 'send' };
 
   return (
     <>
@@ -308,6 +313,21 @@ describe('ChatComposer', () => {
     }
   );
 
+  it('shows a pending stop and blocks sending until it settles', async () => {
+    const { user } = render(<ComposerHarness stopping />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+
+    expect(
+      screen.getByRole('button', { name: 'Stopping response' })
+    ).toBeDisabled();
+    await user.tab();
+    expect(input).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByLabelText('Submission result')).toHaveTextContent(
+      'Not submitted'
+    );
+  });
+
   it('keeps Stop available with an empty draft and submission disabled', async () => {
     const { user } = render(
       <ComposerHarness streaming submitDisabled initialDraft="" />
@@ -336,6 +356,22 @@ describe('ChatComposer', () => {
     fireEvent.pointerDown(attach, { button: 0, ctrlKey: false });
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Model' })).toBeDisabled();
+  });
+
+  it('keeps Stop available while the composer is disabled', async () => {
+    const { user } = render(<ComposerHarness streaming disabled />);
+
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    expect(input).toHaveAttribute('contenteditable', 'false');
+    expect(
+      screen.getByRole('button', { name: 'Add attachments' })
+    ).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Model' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Stop response' }));
+    expect(screen.getByLabelText('Submission result')).toHaveTextContent(
+      'Stopped'
+    );
   });
 
   it('supports attachment-only messages and selecting the same file again after removal', async () => {
@@ -395,6 +431,45 @@ describe('ChatComposer', () => {
       'Reasoning'
     );
     await waitFor(() => expect(input).toHaveFocus());
+  });
+
+  it('focuses the message from empty composer space but not from its controls', async () => {
+    const { user, rerender } = render(<ComposerHarness />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    const composer = input.closest('fieldset');
+    if (!composer) throw new Error('Composer fieldset not found');
+
+    await user.click(composer);
+    await waitFor(() => expect(input).toHaveFocus());
+
+    await user.click(document.body);
+    await user.click(screen.getByRole('button', { name: 'Add attachments' }));
+    expect(input).not.toHaveFocus();
+
+    rerender(<ComposerHarness disabled />);
+    await user.click(document.body);
+    await user.click(composer);
+    expect(input).not.toHaveFocus();
+  });
+
+  it('outlines the composer for keyboard focus but not for clicks', async () => {
+    const { user } = render(<ComposerHarness />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    const composer = input.closest('fieldset');
+    if (!composer) throw new Error('Composer fieldset not found');
+
+    await user.click(composer);
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(composer.className).not.toContain('border-focus');
+
+    await user.click(document.body);
+    await user.tab();
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(composer.className).toContain('border-focus');
+
+    await user.click(composer);
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(composer.className).not.toContain('border-focus');
   });
 
   it('shows the attachment tooltip on hover but not around its open menu', async () => {
@@ -577,6 +652,48 @@ describe('composer with a drawer', () => {
     rerender(composer(false));
     await user.click(screen.getByRole('button', { name: 'Send' }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ChatComposerTextarea', () => {
+  it('keeps native form data, ref, and host key handling', async () => {
+    const textareaRef = createRef<HTMLTextAreaElement>();
+    const submitted: string[] = [];
+    function Harness() {
+      const [draft, setDraft] = useState('');
+      return (
+        <ChatComposer
+          submitDisabled={!draft}
+          onSubmit={(event) => {
+            submitted.push(String(new FormData(event.currentTarget).get('q')));
+          }}
+        >
+          <ChatComposerTextarea
+            ref={textareaRef}
+            name="q"
+            value={draft}
+            onChange={setDraft}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowUp') setDraft('Earlier message');
+              // A host menu, such as slash commands, can take Enter first.
+              if (event.key === 'Enter' && draft.startsWith('/')) {
+                event.preventDefault();
+              }
+            }}
+          />
+        </ChatComposer>
+      );
+    }
+    const { user } = render(<Harness />);
+    const textarea = screen.getByRole('textbox', { name: 'Message' });
+    expect(textareaRef.current).toBe(textarea);
+
+    await user.type(textarea, '/help{Enter}');
+    expect(submitted).toEqual([]);
+
+    await user.clear(textarea);
+    await user.keyboard('{ArrowUp}{Shift>}{Enter}{/Shift}more{Enter}');
+    expect(submitted).toEqual(['Earlier message\nmore']);
   });
 });
 

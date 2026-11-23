@@ -2,7 +2,7 @@ import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/ssr/DownloadSimpl
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ImagePreviewBlock } from '.';
-import sampleImage from '../../stories/assets/attachment-preview.png';
+import sampleImage from '../../docs/assets/attachment-preview.png';
 import { sanitizeImageSrc } from '../../utils/sanitizeImageSrc';
 import { Button } from '../Button';
 import engineLogo from '../Logo/EngineLogoLight.svg';

@@ -51,14 +51,16 @@ Keep capability keywords in the static component-level `tags` array of the story
 Use existing components for their interaction contracts, not just their appearance. They own focus handling, keyboard behavior, accessible names, loading states, and responsive details that a styled native element may miss.
 
 - Use `Button` for actions and `Link` for navigation.
-- Use `IconButton` for an icon-only action and provide its `label`.
+- Use `IconButton` for an icon-only action and provide its `label`, which becomes its accessible name and tooltip. Requires `TooltipProvider`.
 - Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
 - Use `ChatComposer` for a chat message input; see [Chat composer](#chat-composer).
-- Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
-- Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
-- Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
+- Use `ChatRichContent` for a form or approval in chat; see [Chat rich content](#chat-rich-content).
+- Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options. Give each `Select` an `aria-label`.
+- Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content. Give the group an accessible name and label every option.
+- Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work. Give `DialogContent` a `title`, or compose `DialogTitle`, so the dialog has an accessible name.
 - Use the Tabs family for tabbed navigation, with routing handled by the app, and `GroupedTabs` for a local view switch.
-- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
+- Use `Banner` for persistent regional information, `useToast().createToast(...)` inside `ToastProvider` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
+- Use `ErrorState` for a page-level failure or not-found state, with an `action` when the user can recover. Use `ErrorBoundary` to catch rendering failures.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
 - Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
@@ -71,9 +73,27 @@ Custom components should compose primitives and keep feature data, permissions, 
 ## Chat
 
 Import the tool-call presentation family from
-`@langchain/macaw-components/ChatToolCall` and shared lifecycle presentation
-from `@langchain/macaw-components/ChatState`. They are intentionally omitted
-from the root barrel. See [CHAT.md](./CHAT.md) for the host/component boundary.
+`@langchain/macaw-components/ChatToolCall`, shared lifecycle presentation
+from `@langchain/macaw-components/ChatState`, and agent task lists from
+`@langchain/macaw-components/ChatPlan`. They are intentionally omitted from the
+root barrel. `@langchain/macaw-components/ChatThread` composes them into an
+agent conversation view that adapts a LangGraph `useStream` handle by default
+or takes your own adapter's output. See [CHAT.md](./CHAT.md) for the
+host/component boundary.
+
+## Tabs
+
+Use `responsiveHeight` on `TabList` when its parent establishes a row height.
+The list fills that row, and each `TabLabel` centers its contents vertically
+with 8px block padding and keeps the selection indicator at the bottom edge.
+Without `responsiveHeight`, the list keeps its intrinsic height.
+
+## Tabs
+
+Use `responsiveHeight` on `TabList` when its parent establishes a row height.
+The list fills that row, and each `TabLabel` centers its contents vertically
+with 8px block padding and keeps the selection indicator at the bottom edge.
+Without `responsiveHeight`, the list keeps its intrinsic height.
 
 ## Breadcrumbs
 
@@ -104,6 +124,15 @@ pass an explicit `collisionBoundary` to override it.
 The base backdrop uses 75% of the semantic overlay color. The foreground layer
 adds 50% of that color, giving a visible increase in dimming in both themes.
 
+## Popover variants
+
+Import the Popover family from `@langchain/macaw-components/Popover`. Set
+`variant` on `PopoverContent` to `neutral` (the default floating surface) or `info`.
+`info` uses a Toast-style tinted fill and semantic border; `neutral` preserves
+the standard popover surface and subtle border.
+`PopoverArrow` inherits the enclosing content's variant automatically. State the
+intent in the content too, rather than relying on color alone.
+
 ## Code editors
 
 Import `Code`, `CodeToolbar`, and `CodeLanguageSelect` from
@@ -125,6 +154,79 @@ unknown language labels, and reports supported `CodeLanguageType` values.
 `showFoldGutter={false}` hides folding controls. Use `onChange` for user edits and
 `onUpdate` when an integration also needs selection or programmatic updates.
 
+## Markdown display
+
+Import `MarkdownDisplay` from
+`@langchain/macaw-components/MarkdownDisplay` for untrusted CommonMark and
+GitHub Flavored Markdown. It is intentionally omitted from the root barrel so
+applications that do not display Markdown avoid loading the parser. The
+component uses Macaw typography, links, task checkboxes, and read-only code
+blocks. Raw HTML is never parsed, so tags display as text and the Markdown
+around them still renders. Images render as links unless `loadImages` is set,
+because loading a remote image from untrusted content sends a request without
+user action.
+
+Use `components` for feature-specific element overrides, `trailingContent` for
+content that continues the final paragraph, and `afterContent` for adjacent
+feature-owned UI. Content over 20,000 characters skips Markdown and renders as
+plain text: linkified and truncated behind Show more by default, in a
+virtualized viewport without linkification when `containerHeight` is set, or in
+full with `fullLength`. Markdown tables remain semantic, horizontally
+scrollable tables; use a feature-owned data-grid integration when sorting,
+selection, virtualization, copy, or export behavior is required.
+
+Fenced code wraps by default to fit narrow chat panes. Set
+`codeOverflow="scroll"` to preserve long lines with horizontal scrolling.
+Tables and code regions support keyboard scrolling with a visible focus ring.
+Task checkboxes are read-only indicators, retain their enabled appearance, and
+stay out of the Tab order.
+
+Set `isStreaming` while appending response content. Incomplete emphasis and
+inline code render with their intended formatting, unfinished links stay
+non-interactive, and the container exposes `aria-busy`. Pass `false` when the
+response settles so the original Markdown is rendered without repair. The
+host owns fetching, timing, cancellation, and status announcements. Compose
+this with a `ChatMessage` custom content block; the `StreamingInChat` story
+demonstrates incremental updates. Oversized content still uses the unchanged
+plain-text fallback.
+
+### Run Details XML compatibility
+
+Use `xmlTags="sections"` with raw content to render custom XML wrappers such
+as `<reasoning>` as bold labels inside nested blockquotes. This preserves the
+Run Details XML conventions: mixed-case closing tags, `<input>` wrappers,
+self-closing/void tags, inline labels, and literal fenced code. Inline code and
+native Markdown blockquotes retain their syntax in section mode. CDATA payloads
+keep their tags and entities literal, join split CDATA terminators, and still
+render Markdown. Raw HTML is never executed. The default `xmlTags="literal"`
+continues to display tags as text.
+
+```tsx
+<MarkdownDisplay content={rawRunContent} xmlTags="sections" />
+```
+
+Consumers that already call Run Details’ `prepareMarkdownText` can continue to
+pass `prepared.content` in the default mode and retain their plain-text branch.
+Do not apply both XML adapters. `prepareMarkdownXml` is also exported from
+`@langchain/macaw-components/MarkdownDisplay` so an application can share the
+XML transformation with its search index. The renderer checks the size limit
+before XML expansion or streaming repair and leaves oversized input unchanged.
+
+For a Run Details renderer migration, keep the application’s `ListItem` export
+used by other views, pass `toolCallsComponents` as `afterContent`, and retain
+feature-owned component overrides, trailing content, and text options. Code
+and table wrappers expose search block boundaries; code contents remain
+searchable without including the toolbar or language label. The application
+still owns its search index, including using the same Markdown parsing rules
+as the renderer for literal tags.
+
+The XML regression cases use the behavior of `prepareMarkdownText` at
+LangChainPlus revision `dec09b917fddc52c73c7cba750869d432adaff64` as a baseline,
+with additional cases for inline code and native blockquotes in section mode.
+`XmlCompatibility` groups raw sections, preprocessed Markdown, literal tags,
+and CDATA inputs. `CodeOverflow` compares the combined code/table/inline-code
+layout at 224px with both code overflow modes.
+
 ## Chat composer
 
 Import the parts from `@langchain/macaw-components/ChatComposer` and use them
@@ -135,10 +237,12 @@ only inside `ChatComposer`: `ChatComposerInput`, optional
 
 Control the draft with `value`/`onChange` on `ChatComposerInput` and send from
 `onSubmit`. Set `submitDisabled` when there is no text and no attachments, and
-`disabled` to lock the whole composer. Set `action="sending"` while a send is
-pending and `action="stop"` with `onStop` during generation. Both block sending
-and keep the input and attachments usable. Skip any state your app does not
-have.
+`disabled` to lock writing and sending. Set `action="sending"` while a send is
+pending, `action="stop"` with `onStop` during generation, and
+`action="stopping"` while a stop request is pending. All three block sending
+and keep the input and attachments usable. Stop stays available when the
+composer is also `disabled`, so pass `disabled` to your own controls inside it
+as well. Skip any state your app does not have.
 
 Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
 sends from any block. Without `onSubmit`, Enter only adds paragraphs. Three
@@ -148,18 +252,64 @@ load, the input switches to a plain textarea and reports the error to
 `ErrorReporterContext` from
 `@langchain/macaw-components/contexts/ErrorReporterContext`.
 
+Use `ChatComposerTextarea` in place of `ChatComposerInput` for plain text when
+the host relies on the native textarea: its ref and selection, a `name` in
+form data, or its own key handling such as message history. Enter sends unless
+the host's `onKeyDown` prevents it.
+
 Validate files in `onFilesSelected`, which receives picked, dropped, and pasted
 files. `accept` and `multiple` only configure the picker. Render accepted files
 with `ChatComposerAttachment` inside `ChatComposerAttachments`, and set
 `status="uploading"` while they upload.
 
-`ChatComposerModelSelect` shows a "Model" label in a narrow composer. Choosing a
-model moves focus to the message input.
+`ChatComposerModelSelect` keeps the selected model name visible in narrow
+composers and moves focus to the message input after selection. See
+[CHAT.md](./CHAT.md#model-selection) for shared picker integration.
 
 Use `drawer` for content above the editor, such as questions to answer before
-sending. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
+sending. Several items stack with dividers; put the one the input answers,
+such as a question, last. Set `drawerIntent` to `info`, `warning`, or `error`, and state the
 severity in the drawer's text or an icon too. Validate drawer fields yourself;
 only fields outside the drawer get native validation.
+
+## Chat context window
+
+Import `ChatContextWindowPopover` from `@langchain/macaw-components/ChatContextWindowPopover`
+and place it in the composer's `actions` slot. Requires `TooltipProvider`.
+Macaw provides the shared context-usage look and interaction as part of its chat
+components. Product-specific content and layouts belong in `children`; actions
+and status belong in `footer`. These slots support each product's patterns without
+standardizing its workflows. Session cost is app-composed content, not a component
+prop; apps own accounting, formatting, and compaction.
+
+Pass current context usage (not cumulative billing) and model capacity. Use `tokensUsed={null}` for unavailable
+usage and omit `contextWindow` for an unknown limit. `warningThreshold` defaults to 0.8.
+Compose guidance with `description`, breakdowns with `children`, and actions or
+`ThinkingState motion="subtle"` with `footer`.
+
+## Chat rich content
+
+Import the parts from `@langchain/macaw-components/ChatRichContent`. The host
+owns the controls, answers, validation, and persistence. Pass a render function
+as children to get `disabled`, `isError`, and `errorId` for custom controls,
+and focus the invalid field after validation fails. With
+`ChatRichContentChoices`, exclude deselected custom text from the response.
+
+For questions above a message input, put `presentation="drawer"` in
+`ChatComposer`'s `drawer` slot instead of nesting a block form. The composer
+owns submission, so keep its `disabled`, `submitDisabled`, `action`, and
+`drawerIntent` in sync with `state`. Set `customInput="external"` on choices to
+take custom text from the composer input, and focus it from `onCustomSelect`.
+
+Use `variant="approval"` for decisions, and `edit` when the reviewer may change
+the request before approving it. Set `submitted`, `approved`, or
+`rejected` only after saving. An action stays pending until `state` changes from
+where it started (ignoring `submitting`), so throw from the callback when a
+retry fails with the same error state. Key the card by request ID for a new
+request.
+
+Render `ChatRichContentFallback` for a payload the host can't render; pass
+`actions` only for recovery the host supports.
 
 ## Tokens
 
@@ -192,6 +342,8 @@ Choose color by meaning:
 - Pair state color with text, shape, or an icon.
 
 Chart SVG `fill` and `stroke` are the exception to Tailwind-only color usage. Import semantic values from `@langchain/macaw-components/utils/chartColors`; do not use raw visualization variables or literals.
+
+Import `ChartLegend` from `@langchain/macaw-components/ChartLegend` to label chart series and filter them. By default, clicking an item isolates it: wire `onItemClick` to the chart's `selectedIds`. When there are many series and most should stay visible, set `itemClickAction="exclude"` so a click leaves the item out instead, and wire `onItemClick` to the chart's `excludedIds`; clicking an excluded item includes it again.
 
 Import `RadarChart` from `@langchain/macaw-components/RadarChart` to compare values across three or more axes. Use a shared `maxValue` when comparing charts. Compose with `ChartCard` and `ChartLegend`, and supply `renderTooltip` with chart tooltip content. To overlay series that share axes, such as experiments scored by the same evaluators, pass `axes` and `series` instead of `data`, keep to about four series, and supply `renderAxisTooltip` with one `ChartTooltipRow` per series. Build the legend from the series, and wire its hover to `activeLegendItemId` and its selection to `selectedIds`.
 

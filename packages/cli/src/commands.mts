@@ -11,6 +11,11 @@ export type Component = {
   stories: string[];
 };
 
+export type Foundations = Record<
+  string,
+  { title: string; source: string; content: string }
+>;
+
 const HELP = `Discover design-system components.
 
 Usage: macaw <command>
@@ -18,6 +23,7 @@ Usage: macaw <command>
   list                       Browse components (↑/↓ scroll, q quit)
   search <query>             Find components by name or capability
   inspect <name>             Show import, source files, and stories
+  foundations [topic]        List design guidance topics or print one
 
 Options: --json, --no-pager, --limit <1–100> (search; default 10), --help (-h)
 For pipeable JSON: macaw <command> --json`;
@@ -173,6 +179,7 @@ function page(text: string) {
 export function run(
   argv: string[],
   catalog: () => Component[],
+  foundations: () => Foundations,
   initialize?: () => string
 ) {
   const { values, positionals } = parseArgs({
@@ -218,11 +225,53 @@ export function run(
     print({ file }, `Created ${file}`);
     return;
   }
+  if (command === 'foundations') {
+    if (args.length > 1 || values.limit !== undefined) {
+      throw new CliError(
+        'ERR_INVALID_ARGUMENT',
+        'foundations accepts one optional topic and does not accept --limit.'
+      );
+    }
+    const topics = foundations();
+    if (args.length === 0) {
+      const index = Object.entries(topics).map(
+        ([topic, { title, source }]) => ({ topic, title, source })
+      );
+      const width = Math.max(...index.map(({ topic }) => topic.length));
+      print(
+        index,
+        [
+          styleText('bold', 'Design guidance topics'),
+          'Run macaw foundations <topic> to print one.',
+          '',
+          ...index.map(
+            ({ topic, title }) => `${topic.padEnd(width)}  ${title}`
+          ),
+        ].join('\n')
+      );
+      return;
+    }
+    const topic = args[0].toLowerCase();
+    if (!Object.hasOwn(topics, topic)) {
+      throw new CliError(
+        'ERR_UNKNOWN_TOPIC',
+        `No foundations topic named "${args[0]}".`,
+        Object.keys(topics)
+      );
+    }
+    const { title, source, content } = topics[topic];
+    print(
+      { topic, title, source, content },
+      `${styleText('bold', title)}\n${source}\n\n${content}`
+    );
+    return;
+  }
   if (!['list', 'search', 'inspect'].includes(command)) {
     throw new CliError('ERR_UNKNOWN_COMMAND', `Unknown command "${command}".`, [
       'list',
       'search',
       'inspect',
+      'foundations',
     ]);
   }
   if (
@@ -285,10 +334,11 @@ export function run(
 export function main(
   argv: string[],
   catalog: () => Component[],
+  foundations: () => Foundations,
   initialize?: () => string
 ) {
   try {
-    run(argv, catalog, initialize);
+    run(argv, catalog, foundations, initialize);
   } catch (error) {
     const payload = {
       error:

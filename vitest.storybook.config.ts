@@ -8,6 +8,14 @@ import { playwright } from '@vitest/browser-playwright';
 export default defineConfig({
   test: {
     projects: ['light', 'dark'].map((theme) => ({
+      // ChatState's lazy stories discover these after tests start. Prebundle
+      // them so Vite does not reload active tests on a cold cache.
+      optimizeDeps: {
+        include: [
+          '@phosphor-icons/react/dist/ssr/PauseCircle',
+          '@phosphor-icons/react/dist/ssr/Prohibit',
+        ],
+      },
       plugins: [
         storybookTest({
           configDir: fileURLToPath(

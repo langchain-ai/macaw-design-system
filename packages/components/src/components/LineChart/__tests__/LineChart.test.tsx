@@ -249,6 +249,33 @@ describe('LineChart', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('leaves excluded series out, whatever the selection', () => {
+    render(
+      <LineChart
+        aria-label="Excluded request health"
+        series={series}
+        selectedIds={new Set(['requests', 'latency'])}
+        excludedIds={new Set(['latency'])}
+        legendProps={{
+          layout: 'list',
+          itemClickAction: 'exclude',
+          onItemClick: vi.fn(),
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole('group', { name: 'requests series' })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('group', { name: 'latency series' })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Latency/ })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+  });
+
   it('renders multiple labeled and formatted y axes with label tooltips', async () => {
     const { user } = render(
       <LineChart
@@ -858,6 +885,33 @@ describe('LineChart', () => {
     expect(screen.getByText('Bucket 20')).toBeVisible();
     expect(screen.queryByText('Bucket 10')).not.toBeInTheDocument();
   });
+
+  it.each(['linear', 'band'] as const)(
+    'keeps formatted x-axis labels within the SVG for %s spacing',
+    (xScale) => {
+      resizeObserverDimensions.width = 320;
+      render(
+        <LineChart
+          aria-label="Date labels"
+          series={[series[0]]}
+          xScale={xScale}
+          formatXValue={(value) => `November ${value + 1}, 2026`}
+          shouldAnimate={false}
+        />
+      );
+
+      for (const label of screen.getAllByText(/^November/)) {
+        const text = getSvgTextElement(label);
+        expect(text).not.toBeNull();
+        if (text == null) continue;
+        const center =
+          getAbsoluteX(text) + Number(text.parentElement?.getAttribute('x'));
+        const halfWidth = ((text.textContent?.length ?? 0) * 7) / 2;
+        expect(center - halfWidth).toBeGreaterThanOrEqual(0);
+        expect(center + halfWidth).toBeLessThanOrEqual(320);
+      }
+    }
+  );
 
   it.each([
     {

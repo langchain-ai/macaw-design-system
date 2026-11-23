@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Text } from '../Text';
 import type { ChatStateTimerPrecision } from './ChatState';
+import { formatChatDuration } from './formatChatDuration';
 
 interface ChatStateTimerProps {
   visible: boolean;
   elapsedMs?: number;
+  /** Wall-clock start (epoch milliseconds) that replaces the mount-time clock. */
+  startedAt?: number;
   precision: ChatStateTimerPrecision;
   format?: 'duration' | 'seconds';
   running: boolean;
@@ -15,18 +18,23 @@ interface ChatStateTimerProps {
 export function ChatStateTimer({
   visible,
   elapsedMs,
+  startedAt: hostStartedAt,
   precision,
   format = 'duration',
   running,
 }: ChatStateTimerProps) {
   const startedAt = useRef<number | null>(null);
   const stoppedAt = useRef<number | null>(null);
+  const wallStoppedAt = useRef<number | null>(null);
+  const hasRun = useRef(false);
   const [measuredMs, setMeasuredMs] = useState(0);
   const controlled = elapsedMs !== undefined;
   const intervalMs = precision === 'tenths' ? 100 : 1_000;
 
   useEffect(() => {
     if (running) {
+      hasRun.current = true;
+      wallStoppedAt.current = null;
       const now = performance.now();
       if (startedAt.current === null) {
         startedAt.current = now;
@@ -34,16 +42,26 @@ export function ChatStateTimer({
         startedAt.current += now - stoppedAt.current;
       }
       stoppedAt.current = null;
-    } else if (startedAt.current !== null) {
-      stoppedAt.current ??= performance.now();
+    } else {
+      if (startedAt.current !== null) stoppedAt.current ??= performance.now();
+      if (hasRun.current) wallStoppedAt.current ??= Date.now();
     }
     if (controlled) return;
-    const start = startedAt.current;
-    if (start === null) return;
 
-    // Measure wall time so delayed callbacks and hidden tabs do not lose elapsed time.
-    const tick = () =>
-      setMeasuredMs((stoppedAt.current ?? performance.now()) - start);
+    let tick: () => void;
+    if (hostStartedAt !== undefined) {
+      // A host start time counts the whole operation, including time spent
+      // before this timer mounted, such as across a page or thread handover.
+      if (!hasRun.current) return;
+      tick = () =>
+        setMeasuredMs((wallStoppedAt.current ?? Date.now()) - hostStartedAt);
+    } else {
+      const start = startedAt.current;
+      if (start === null) return;
+      // Measure wall time so delayed callbacks and hidden tabs do not lose elapsed time.
+      tick = () =>
+        setMeasuredMs((stoppedAt.current ?? performance.now()) - start);
+    }
     if (!running) {
       tick();
       return;
@@ -52,18 +70,9 @@ export function ChatStateTimer({
     tick();
     const interval = window.setInterval(tick, intervalMs);
     return () => window.clearInterval(interval);
-  }, [controlled, intervalMs, running, visible]);
+  }, [controlled, hostStartedAt, intervalMs, running, visible]);
 
   if (!visible) return null;
-
-  const value = elapsedMs ?? measuredMs;
-  const safeMs = Number.isFinite(value) ? Math.max(0, value) : 0;
-  const tenths = Math.floor(safeMs / 100);
-  const minutes = Math.floor(tenths / 600);
-  const seconds =
-    precision === 'tenths'
-      ? ((tenths % 600) / 10).toFixed(1)
-      : String(Math.floor((tenths % 600) / 10));
 
   return (
     <Text
@@ -75,11 +84,7 @@ export function ChatStateTimer({
       aria-live="off"
       className="inline-flex shrink-0 items-center whitespace-nowrap tabular-nums leading-4 tracking-normal"
     >
-      {format === 'seconds'
-        ? `${Math.floor(safeMs / 1_000)}s`
-        : minutes > 0
-          ? `${minutes}m ${seconds}s`
-          : `${seconds}s`}
+      {formatChatDuration(elapsedMs ?? measuredMs, { precision, format })}
     </Text>
   );
 }

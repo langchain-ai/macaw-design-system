@@ -279,6 +279,22 @@ describe('RadarChart', () => {
     );
   });
 
+  it('leaves excluded series out, whatever the selection', async () => {
+    const { user } = render(
+      <RadarChart
+        axes={axes}
+        series={series}
+        selectedIds={new Set(['b', 'c'])}
+        excludedIds={new Set(['b'])}
+        renderAxisTooltip={renderAxisTooltip}
+      />
+    );
+    await user.tab();
+    expect(
+      screen.getByRole('img', { name: 'Code Review: Rerank 1' })
+    ).toHaveFocus();
+  });
+
   it('draws the active legend series above the others and dims the rest', () => {
     const { container } = render(
       <RadarChart axes={axes} series={series} activeLegendItemId="a" />

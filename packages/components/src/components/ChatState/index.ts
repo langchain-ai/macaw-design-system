@@ -4,3 +4,5 @@ export type {
   ChatStateStatus,
   ChatStateTimerPrecision,
 } from './ChatState';
+export { formatChatDuration } from './formatChatDuration';
+export type { FormatChatDurationOptions } from './formatChatDuration';

@@ -1,3 +1,119 @@
+## 1.8.0 (2026-11-23)
+
+### 🚀 Features
+
+- add agent-ready discovery and design checks ([#138](https://github.com/langchain-ai/macaw-design-system/pull/138))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.23 (2026-11-20)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.22 (2026-11-20)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.21 (2026-11-20)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.20 (2026-11-19)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.19 (2026-11-19)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.18 (2026-11-18)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.17 (2026-11-18)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.16 (2026-11-18)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.15 (2026-11-17)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.14 (2026-11-16)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.13 (2026-11-13)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.12 (2026-11-13)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.11 (2026-11-11)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.10 (2026-11-11)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.9 (2026-11-10)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.8 (2026-11-10)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.7 (2026-11-09)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.6 (2026-11-09)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.5 (2026-11-06)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.4 (2026-11-06)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.3 (2026-11-06)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.2 (2026-11-05)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.1 (2026-11-05)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.7.0 (2026-11-05)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.6.2 (2026-11-04)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
+## 1.6.1 (2026-11-04)
+
+This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.
+
 ## 1.6.0 (2026-11-04)
 
 This was a version bump only for @langchain/macaw-cli to align it with other projects, there were no code changes.

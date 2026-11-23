@@ -80,7 +80,7 @@ describe('ChatMessage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('forwards the message element ref and labels it with a string name', () => {
+  it('forwards the message element ref, labels it with a string name, and tags it with the message ID', () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <ChatMessage
@@ -95,6 +95,8 @@ describe('ChatMessage', () => {
     expect(ref.current).toBe(
       screen.getByRole('article', { name: 'Research assistant message' })
     );
+    // ChatConversation finds messages to pin and anchor by this attribute.
+    expect(ref.current).toHaveAttribute('data-chat-message-id', 'message');
   });
 
   it('hides the avatar from screen readers next to the name', () => {
@@ -203,6 +205,35 @@ describe('ChatMessage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('offers cancel only while a message is queued', async () => {
+    const onCancel = vi.fn();
+    const actions = {
+      copy: { onClick: () => {} },
+      edit: { onClick: () => {} },
+      cancel: { onClick: onCancel },
+    };
+    const { rerender, user } = render(
+      <ChatMessageActions status="queued" actions={actions} />
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Edit message' })
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel queued message' })
+    );
+    expect(onCancel).toHaveBeenCalledOnce();
+
+    rerender(<ChatMessageActions status="completed" actions={actions} />);
+    expect(
+      screen.queryByRole('button', { name: 'Cancel queued message' })
+    ).not.toBeInTheDocument();
+    rerender(<ChatMessageActions status="queued" readOnly actions={actions} />);
+    expect(
+      screen.queryByRole('button', { name: 'Cancel queued message' })
+    ).not.toBeInTheDocument();
+  });
+
   it('renders no action group when every action is unavailable', () => {
     render(
       <ChatMessageActions readOnly actions={{ edit: { onClick: () => {} } }} />
@@ -284,6 +315,24 @@ describe('ChatMessage', () => {
     rerender(<ChatMessage message={userMessage} name="Ada" />);
     expect(screen.getByText('Ada')).toBeVisible();
     expect(screen.queryByText('A')).not.toBeInTheDocument();
+  });
+
+  it('end-aligns a host-supplied body in a user message', () => {
+    const blocks = [{ id: 'q', type: 'text' as const, text: 'Short question' }];
+    const { rerender } = render(
+      <ChatMessage message={{ ...message, role: 'user' }}>
+        <ChatMessageBody blocks={blocks} />
+      </ChatMessage>
+    );
+    const body = () => screen.getByText('Short question').parentElement;
+    expect(body()).toHaveClass('items-end');
+
+    rerender(
+      <ChatMessage message={message}>
+        <ChatMessageBody blocks={blocks} />
+      </ChatMessage>
+    );
+    expect(body()).not.toHaveClass('items-end');
   });
 
   it('labels a message with a rich name by its role', () => {

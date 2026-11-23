@@ -68,6 +68,7 @@ export {
   ChatComposerContext,
   ChatComposerInput,
   ChatComposerModelSelect,
+  ChatComposerTextarea,
   ChatComposerToolbar,
 } from './ChatComposer';
 export type {
@@ -79,10 +80,31 @@ export type {
   ChatComposerDrawerIntent,
   ChatComposerInputHandle,
   ChatComposerInputProps,
+  ChatComposerModelOption,
   ChatComposerModelSelectProps,
   ChatComposerProps,
+  ChatComposerTextareaProps,
   ChatComposerToolbarProps,
 } from './ChatComposer';
+
+export { ChatConversation } from './ChatConversation';
+export type { ChatConversationProps } from './ChatConversation';
+
+export {
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+} from './ChatRichContent';
+export type {
+  ChatRichContentChoicesProps,
+  ChatRichContentChoicesValue,
+  ChatRichContentFallbackProps,
+  ChatRichContentNavigation,
+  ChatRichContentProps,
+  ChatRichContentRenderer,
+  ChatRichContentRendererContext,
+  ChatRichContentState,
+} from './ChatRichContent';
 
 export {
   ChatMessage,

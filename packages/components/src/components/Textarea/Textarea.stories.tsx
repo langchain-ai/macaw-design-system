@@ -11,7 +11,7 @@ import { useDebouncedCommit } from '../../hooks/useDebouncedCommit';
 import {
   ControlSizeMatrix,
   ControlVariantGrid,
-} from '../../stories/ControlSizeMatrix';
+} from '../../docs/ControlSizeMatrix';
 import { Button } from '../Button';
 import { Icon } from '../Icon/Icon';
 import { Text } from '../Text/Text';
@@ -49,7 +49,7 @@ const meta: Meta<typeof Textarea> = {
     disabled: false,
     isError: false,
     required: false,
-    onChange: () => {},
+    onChange: () => { },
     rows: 3,
   },
   render: (args) => (

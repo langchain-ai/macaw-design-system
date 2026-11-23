@@ -135,7 +135,7 @@ export const Banner = ({
       variant="plain"
       icon={XIcon}
       label="Close"
-      className="shrink-0 self-center text-secondary hover:bg-transparent"
+      className="shrink-0 self-center text-secondary hover:bg-transparent dark:hover:bg-transparent"
       onClick={() => {
         setShow(false);
         onDismiss?.();

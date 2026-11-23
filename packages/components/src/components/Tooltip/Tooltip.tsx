@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '../../utils/cn';
+import { getLastInputModality } from '../../utils/inputModality';
 import { useZIndex } from '../../utils/useZIndex';
 import { ZIndexProvider } from '../../utils/ZIndexContext';
 import zIndices from '../../utils/zIndices';
@@ -46,9 +47,7 @@ export function Tooltip({
   onOpenChange,
   disableHoverableContent = true,
 }: TooltipProps) {
-  // Tooltips have no fixed z-index floor — they always render one level above
-  // their parent caller so they naturally stack above whichever layer triggered them.
-  const zIndex = useZIndex(zIndices.tooltip);
+  const zIndex = useZIndex(zIndices.tooltipOverlay);
 
   if ((!title && !description) || disabled) {
     return children;
@@ -63,6 +62,9 @@ export function Tooltip({
     >
       <TooltipPrimitive.Trigger
         asChild
+        onFocus={(e) => {
+          if (getLastInputModality() === 'pointer') e.preventDefault();
+        }}
         onPointerDown={(e) => {
           if (blockTriggerEvents) {
             e.preventDefault();

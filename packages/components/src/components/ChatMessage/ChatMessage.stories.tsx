@@ -8,6 +8,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   ChatMessage,
   ChatMessageActions,
+  ChatMessageBody,
   ChatTurnDivider,
   type ChatMessageContentBlock,
   type ChatMessageModel,
@@ -16,6 +17,7 @@ import {
 import { Button } from '../Button';
 import { CopyIconButton } from '../CopyButton';
 import { IconButton } from '../IconButton';
+import { ImagePreviewBlock } from '../ImagePreviewBlock';
 import { Text } from '../Text';
 
 interface DemoMessage extends ChatMessageModel {
@@ -113,6 +115,7 @@ const exampleActions = {
   copy: { onClick: fn() },
   edit: { onClick: fn() },
   retry: { onClick: fn() },
+  cancel: { onClick: fn() },
 };
 
 function ConversationExample() {
@@ -253,7 +256,12 @@ export const WithMetadata: Story = {
   },
 };
 
-const statuses: ChatMessageStatus[] = ['streaming', 'failed', 'completed'];
+const statuses: ChatMessageStatus[] = [
+  'queued',
+  'streaming',
+  'failed',
+  'completed',
+];
 
 const revealParagraphs: ChatMessageContentBlock[] = [
   {
@@ -368,9 +376,11 @@ function ActionsExample({
                   type: 'text',
                   text: readOnly
                     ? 'This is a read-only message. The readOnly prop is separate from status.'
-                    : status === 'failed'
-                      ? 'This is a failed message.'
-                      : 'This message completed successfully.',
+                    : status === 'queued'
+                      ? 'This message is queued; it can be canceled before it sends.'
+                      : status === 'failed'
+                        ? 'This is a failed message.'
+                        : 'This message completed successfully.',
                 },
               ],
       }}
@@ -453,5 +463,53 @@ export const NarrowWidth: Story = {
         footer={<ChatMessageActions actions={exampleActions} />}
       />
     </div>
+  ),
+};
+
+const previewImage = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="#4f7cff"/><rect x="24" y="24" width="160" height="16" rx="4" fill="#fff" opacity=".7"/><rect x="24" y="52" width="240" height="10" rx="4" fill="#fff" opacity=".4"/></svg>'
+)}`;
+
+export const CustomBody: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '- A host-supplied `ChatMessageBody` aligns with its message, so a short bubble stays on the right under a wider block.',
+      },
+    },
+  },
+  render: () => (
+    <ChatMessage
+      message={{
+        id: 'custom-body',
+        role: 'user',
+        status: 'completed',
+        content: [],
+      }}
+    >
+      <ChatMessageBody
+        blocks={[
+          {
+            id: 'custom-body-image',
+            type: 'custom',
+            content: (
+              <ImagePreviewBlock
+                src={previewImage}
+                altText="Dashboard screenshot"
+                caption="dashboard.png"
+                className="w-72 max-w-full"
+              />
+            ),
+          },
+          {
+            id: 'custom-body-text',
+            type: 'text',
+            appearance: 'bubble',
+            text: 'What does this show?',
+          },
+        ]}
+      />
+    </ChatMessage>
   ),
 };

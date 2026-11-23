@@ -14,6 +14,8 @@ export type {
   ChatComposerInputHandle,
   ChatComposerInputProps,
 } from './ChatComposerInput';
+export { ChatComposerTextarea } from './ChatComposerTextarea';
+export type { ChatComposerTextareaProps } from './ChatComposerTextarea';
 export {
   ChatComposerAttachmentMenu,
   ChatComposerAttachments,
@@ -25,6 +27,9 @@ export type {
   ChatComposerAttachmentProps,
 } from './ChatComposerAttachments';
 export { ChatComposerModelSelect } from './ChatComposerModelSelect';
-export type { ChatComposerModelSelectProps } from './ChatComposerModelSelect';
+export type {
+  ChatComposerModelOption,
+  ChatComposerModelSelectProps,
+} from './ChatComposerModelSelect';
 export { ChatComposerContext } from './ChatComposerContext';
 export type { ChatComposerContextValue } from './ChatComposerContext';

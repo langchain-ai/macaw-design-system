@@ -82,6 +82,7 @@ export type RadarChartSingleSeriesProps = RadarChartBaseProps & {
   series?: never;
   renderAxisTooltip?: never;
   selectedIds?: never;
+  excludedIds?: never;
   activeLegendItemId?: never;
 };
 
@@ -100,6 +101,8 @@ export type RadarChartMultiSeriesProps = RadarChartBaseProps & {
   renderAxisTooltip?: (axis: RadarChartAxisValues) => ReactNode;
   /** When non-empty, only these series are drawn. Colors keep their series order. */
   selectedIds?: ReadonlySet<string>;
+  /** Series left out, whatever `selectedIds` holds. */
+  excludedIds?: ReadonlySet<string>;
   /** Emphasizes one series from an external legend and dims the rest. */
   activeLegendItemId?: string | null;
   data?: never;
@@ -117,6 +120,8 @@ type AxisLayout = {
   labelX: number;
   labelY: number;
   align: 'text-left' | 'text-center' | 'text-right';
+  /** Labels above or below the plot sit against the box edge facing it. */
+  justify: 'justify-start' | 'justify-center' | 'justify-end';
   tooltipSide: 'top' | 'right' | 'bottom' | 'left';
   tooltipAlign: 'start' | 'center' | 'end';
 };
@@ -131,9 +136,10 @@ const VIEWBOX_WIDTH = 440;
 const VIEWBOX_HEIGHT = 340;
 const CENTER_X = VIEWBOX_WIDTH / 2;
 const CENTER_Y = VIEWBOX_HEIGHT / 2;
-// A 96-unit plot leaves room for a 20-unit gap and the two-line label boxes.
-const RADIUS = 96;
-const LABEL_RADIUS = RADIUS + 20;
+// A 106-unit plot leaves room for a 10-unit gap and the two-line label boxes;
+// the narrow gap keeps each label visibly tied to its spoke.
+const RADIUS = 106;
+const LABEL_RADIUS = RADIUS + 10;
 // Reserve 100 units for truncated names and 20 per text line: single-series
 // labels pair the name with its value; multi-series labels show the name.
 const LABEL_WIDTH = 100;
@@ -183,6 +189,11 @@ const getAxisLayouts = (
         unitY * LABEL_RADIUS -
         (isAbove ? labelHeight : isBelow ? 0 : labelHeight / 2),
       align: side.align,
+      justify: isAbove
+        ? 'justify-end'
+        : isBelow
+          ? 'justify-start'
+          : 'justify-center',
       // Open outward, past the label and away from the plot.
       tooltipSide: isAbove
         ? 'top'
@@ -223,6 +234,7 @@ export const RadarChart = (props: RadarChartProps) => {
     renderTooltip: _renderTooltip,
     renderAxisTooltip: _renderAxisTooltip,
     selectedIds,
+    excludedIds,
     activeLegendItemId,
     maxValue,
     formatValue = formatNumber,
@@ -314,7 +326,7 @@ export const RadarChart = (props: RadarChartProps) => {
       height={height}
     >
       <div
-        className={cn('flex h-full flex-col justify-center', layout.align)}
+        className={cn('flex h-full flex-col', layout.justify, layout.align)}
         title={isInteractive ? undefined : summary}
       >
         {lines}
@@ -376,13 +388,15 @@ export const RadarChart = (props: RadarChartProps) => {
                 tabIndex={isInteractive ? 0 : undefined}
               >
                 {/* A 24-unit hit target surrounds the 8-unit point; the
-                    16-unit ring shows hover in the axis color and keyboard
-                    focus in the shared focus color without changing layout. */}
+                    12-unit ring shows hover in the axis color and keyboard
+                    focus in the shared focus color without changing layout.
+                    The ring stays inside the label gap, so a point at the
+                    maximum doesn't draw it over its label. */}
                 <circle cx={pointX} cy={pointY} r={12} fill="transparent" />
                 <circle
                   cx={pointX}
                   cy={pointY}
-                  r={8}
+                  r={6}
                   fill="none"
                   stroke={datum.color}
                   strokeWidth={1.5}
@@ -402,13 +416,13 @@ export const RadarChart = (props: RadarChartProps) => {
                   labelHeight,
                   summary,
                   <>
-                    <Text variant="xs" className="truncate">
+                    <Text variant="xs" className="truncate leading-tight">
                       {datum.label}
                     </Text>
                     <Text
                       variant="xs"
                       color="secondary"
-                      className="truncate tabular-nums"
+                      className="truncate leading-tight tabular-nums"
                     >
                       {formattedValue}
                     </Text>
@@ -442,10 +456,13 @@ export const RadarChart = (props: RadarChartProps) => {
         values: axes.map(({ id }) => sanitize(item.values[id])),
       };
     });
-    const visibleSeries =
-      selectedIds === undefined || selectedIds.size === 0
-        ? resolvedSeries
-        : resolvedSeries.filter(({ id }) => selectedIds.has(id));
+    const visibleSeries = resolvedSeries.filter(
+      ({ id }) =>
+        (selectedIds === undefined ||
+          selectedIds.size === 0 ||
+          selectedIds.has(id)) &&
+        !excludedIds?.has(id)
+    );
     const maximum = getMaximum(
       visibleSeries.flatMap(({ values }) => values),
       maxValue
@@ -578,7 +595,7 @@ export const RadarChart = (props: RadarChartProps) => {
                   layout,
                   LABEL_LINE_HEIGHT,
                   summary,
-                  <Text variant="xs" className="truncate">
+                  <Text variant="xs" className="truncate leading-tight">
                     {axis.label}
                   </Text>
                 )}

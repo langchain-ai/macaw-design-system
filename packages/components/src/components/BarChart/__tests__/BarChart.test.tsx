@@ -955,6 +955,41 @@ describe('BarChart', () => {
     ).toBeVisible();
   });
 
+  it('leaves excluded series out, whatever the selection, keeping their legend items', async () => {
+    const onItemClick = vi.fn();
+    const { user } = render(
+      <BarChart
+        aria-label="Excluded"
+        series={series}
+        selectedIds={new Set(['requests', 'errors'])}
+        excludedIds={new Set(['errors'])}
+        legendProps={{
+          layout: 'list',
+          itemClickAction: 'exclude',
+          onItemClick,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole('group', { name: 'Requests series' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('group', { name: 'Errors series' })
+    ).not.toBeInTheDocument();
+    // Pressed reads as "shown" when legend clicks exclude.
+    const errors = screen.getByRole('button', { name: /^Errors/ });
+    expect(errors).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /^Requests/ })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    await user.click(errors);
+    expect(onItemClick).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'errors', excluded: true })
+    );
+  });
+
   it('draws no bars for a series whose values are all gaps', () => {
     const { container } = render(
       <BarChart

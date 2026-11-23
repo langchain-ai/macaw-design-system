@@ -1,3 +1,294 @@
+## 1.8.0 (2026-11-23)
+
+### 🚀 Features
+
+- add agent-ready discovery and design checks ([#138](https://github.com/langchain-ai/macaw-design-system/pull/138))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.23 (2026-11-20)
+
+### 🚀 Features
+
+- **components:** [FEP-668] add responsiveHeight to TabList ([#128](https://github.com/langchain-ai/macaw-design-system/pull/128))
+
+### ❤️ Thank You
+
+- Ian SooHoo @capturetheworld
+- Robin @open-swe
+
+## 1.7.22 (2026-11-20)
+
+### 🩹 Fixes
+
+- **Select:** remove option hover border ([#137](https://github.com/langchain-ai/macaw-design-system/pull/137))
+
+### ❤️ Thank You
+
+- Robin @open-swe
+- Sreeram Sama @sreeramsama
+
+## 1.7.21 (2026-11-20)
+
+### 🩹 Fixes
+
+- **ChatComposer:** show focus outline only for keyboard focus ([#134](https://github.com/langchain-ai/macaw-design-system/pull/134))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.20 (2026-11-19)
+
+### 🚀 Features
+
+- **chat:** add ChatThread, an agent chat view for LangGraph useStream or your own adapter ([#111](https://github.com/langchain-ai/macaw-design-system/pull/111))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.19 (2026-11-19)
+
+### 🩹 Fixes
+
+- **components:** add dark:hover:bg-transparent on transparent plain buttons ([#132](https://github.com/langchain-ai/macaw-design-system/pull/132))
+
+### ❤️ Thank You
+
+- Johannes du Plessis @johannes117
+- Robin @open-swe
+
+## 1.7.18 (2026-11-18)
+
+### 🚀 Features
+
+- **chat:** add context usage details for chat composers ([#114](https://github.com/langchain-ai/macaw-design-system/pull/114))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.17 (2026-11-18)
+
+### 🩹 Fixes
+
+- **Tooltip:** open on focus only after keyboard input ([#125](https://github.com/langchain-ai/macaw-design-system/pull/125))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+- Robin @open-swe
+
+## 1.7.16 (2026-11-18)
+
+### 🚀 Features
+
+- **chat:** share model picker UI across products ([#115](https://github.com/langchain-ai/macaw-design-system/pull/115))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.15 (2026-11-17)
+
+### 🚀 Features
+
+- **RadarChart:** tighten and even out axis label spacing ([#122](https://github.com/langchain-ai/macaw-design-system/pull/122))
+
+### ❤️ Thank You
+
+- elibrosen
+
+## 1.7.14 (2026-11-16)
+
+### 🚀 Features
+
+- **Popover:** add neutral and info variants ([#118](https://github.com/langchain-ai/macaw-design-system/pull/118))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+- Robin @open-swe
+
+## 1.7.13 (2026-11-13)
+
+### 🩹 Fixes
+
+- **components:** render loading indicator pixels at equal sizes ([#92](https://github.com/langchain-ai/macaw-design-system/pull/92))
+
+### ❤️ Thank You
+
+- Johannes du Plessis @johannes117
+
+## 1.7.12 (2026-11-13)
+
+### 🩹 Fixes
+
+- keep button tooltips above floating panels ([#87](https://github.com/langchain-ai/macaw-design-system/pull/87))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+
+## 1.7.11 (2026-11-11)
+
+### 🚀 Features
+
+- **chat:** pin sent messages and keep the reading position in ChatConversation ([#110](https://github.com/langchain-ai/macaw-design-system/pull/110))
+
+### ❤️ Thank You
+
+- Nick
+
+## 1.7.10 (2026-11-11)
+
+### 🚀 Features
+
+- **chat:** add ChatPlan and close agent chat gaps ([#109](https://github.com/langchain-ai/macaw-design-system/pull/109))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun
+- Nick
+
+## 1.7.9 (2026-11-10)
+
+### 🩹 Fixes
+
+- icons for tool call children, update design/add animation [FEP-579] ([#107](https://github.com/langchain-ai/macaw-design-system/pull/107))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.7.8 (2026-11-10)
+
+### 🚀 Features
+
+- **components:** add ChatComposerTextarea and fix chat Stop and row-action focus ([#108](https://github.com/langchain-ai/macaw-design-system/pull/108))
+
+### ❤️ Thank You
+
+- Nick
+
+## 1.7.7 (2026-11-09)
+
+### 🩹 Fixes
+
+- keep line chart date labels inside the viewport ([#105](https://github.com/langchain-ai/macaw-design-system/pull/105))
+
+### ❤️ Thank You
+
+- Eli Verdun @eli-verdun
+- Robin @open-swe
+
+## 1.7.6 (2026-11-09)
+
+### 🩹 Fixes
+
+- let avatars inherit their parent cursor ([#106](https://github.com/langchain-ai/macaw-design-system/pull/106))
+
+### ❤️ Thank You
+
+- Nick
+- Nick Kim @nick-kim-langchain
+- Robin @open-swe
+
+## 1.7.5 (2026-11-06)
+
+### 🩹 Fixes
+
+- tighten chat radii, align custom message bodies, size the streaming indicator, and add a markdown length prop ([#104](https://github.com/langchain-ai/macaw-design-system/pull/104))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.7.4 (2026-11-06)
+
+### 🚀 Features
+
+- **components:** [FEP-606] Add MarkdownDisplay Component ([#97](https://github.com/langchain-ai/macaw-design-system/pull/97))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+- nick-kim-langchain
+
+## 1.7.3 (2026-11-06)
+
+### 🚀 Features
+
+- **tokens:** separate light sidebar fill from surface levels ([#102](https://github.com/langchain-ai/macaw-design-system/pull/102))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.7.2 (2026-11-05)
+
+### 🩹 Fixes
+
+- **components:** apply CodeLite highlighting under StrictMode ([#101](https://github.com/langchain-ai/macaw-design-system/pull/101))
+
+### ❤️ Thank You
+
+- Nick
+
+## 1.7.1 (2026-11-05)
+
+### 🚀 Features
+
+- **components:** exclude series from chart legends ([#94](https://github.com/langchain-ai/macaw-design-system/pull/94))
+
+### ❤️ Thank You
+
+- Jacob Lee
+
+## 1.7.0 (2026-11-05)
+
+### 🚀 Features
+
+- add ChatConversation [FEP-586] ([#77](https://github.com/langchain-ai/macaw-design-system/pull/77))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
+## 1.6.2 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** [FEP-606] Add Changelog To Storybook, Organize Folders ([#96](https://github.com/langchain-ai/macaw-design-system/pull/96))
+
+### ❤️ Thank You
+
+- Ian SooHoo
+
+## 1.6.1 (2026-11-04)
+
+### 🚀 Features
+
+- **components:** add ChatRichContent [FEP-589] ([#93](https://github.com/langchain-ai/macaw-design-system/pull/93))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.6.0 (2026-11-04)
 
 ### 🚀 Features

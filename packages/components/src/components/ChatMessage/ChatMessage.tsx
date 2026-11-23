@@ -1,5 +1,7 @@
 import {
+  createContext,
   Fragment,
+  useContext,
   useState,
   type ComponentPropsWithRef,
   type ReactNode,
@@ -9,6 +11,7 @@ import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr/ArrowClockwis
 import { CopySimpleIcon } from '@phosphor-icons/react/dist/ssr/CopySimple';
 import { PencilSimpleIcon } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
+import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
 import type { IconComponent } from '../../utils/icon-types';
@@ -25,6 +28,12 @@ import type {
   ChatMessageRole,
   ChatMessageStatus,
 } from './ChatMessage.types';
+
+/**
+ * The message's alignment, so a host-supplied `ChatMessageBody` lines up its
+ * blocks the same way the default body does.
+ */
+const ChatMessageAlignmentContext = createContext<'start' | 'end'>('start');
 
 const roleLabels: Record<ChatMessageRole, string> = {
   user: 'User',
@@ -78,7 +87,9 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
 /**
  * One message in a conversation. Renders a header and the message's content
  * blocks, or `children` in their place for custom layouts. The footer is
- * hidden, but keeps its space, while the message streams.
+ * hidden, but keeps its space, while the message streams. The root carries
+ * `data-chat-message-id`, which `ChatConversation` uses to pin a message and
+ * to hold the reader's place when earlier messages load.
  */
 export function ChatMessage({
   message,
@@ -104,6 +115,7 @@ export function ChatMessage({
       role="article"
       aria-label={`${typeof name === 'string' ? name : avatar?.label || roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
+      data-chat-message-id={message.id}
       className={cn(
         'group/chat-message flex w-full min-w-0 text-primary',
         alignment === 'end' && 'justify-end',
@@ -118,20 +130,21 @@ export function ChatMessage({
           contentClassName
         )}
       >
-        {children ?? (
-          <>
-            <ChatMessageHeader
-              avatar={avatar}
-              name={name}
-              status={message.status}
-            />
-            <ChatMessageBody
-              blocks={message.content}
-              animateParagraphs={animateParagraphs && !isHistory}
-              className={alignment === 'end' ? 'items-end' : undefined}
-            />
-          </>
-        )}
+        <ChatMessageAlignmentContext.Provider value={alignment}>
+          {children ?? (
+            <>
+              <ChatMessageHeader
+                avatar={avatar}
+                name={name}
+                status={message.status}
+              />
+              <ChatMessageBody
+                blocks={message.content}
+                animateParagraphs={animateParagraphs && !isHistory}
+              />
+            </>
+          )}
+        </ChatMessageAlignmentContext.Provider>
         {footer != null && (
           <div
             // Reserve the footer's space while streaming so it doesn't pop in.
@@ -246,14 +259,18 @@ export function ChatMessageBody({
   className,
   ...props
 }: ChatMessageBodyProps) {
+  const alignment = useContext(ChatMessageAlignmentContext);
   if (blocks.length === 0) return null;
 
   return (
     <div
       className={cn(
         'flex w-full min-w-0 max-w-full flex-col gap-space-3 [overflow-wrap:anywhere]',
-        // Keep wide host content from stretching the message.
-        '[&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto',
+        alignment === 'end' && 'items-end',
+        // Keep wide host content from stretching the message. Tables that
+        // already sit in a scrolling region, such as MarkdownDisplay's, keep
+        // table layout so they can fill the message width.
+        '[&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table:not([role=region]>table)]:block [&_table:not([role=region]>table)]:max-w-full [&_table:not([role=region]>table)]:overflow-x-auto',
         className
       )}
       {...props}
@@ -280,7 +297,7 @@ export function ChatMessageBody({
         return block.appearance === 'bubble' ? (
           <div
             key={block.id}
-            className="w-fit min-w-0 max-w-full rounded-xl bg-surface-level-2 px-space-3 py-space-2"
+            className="w-fit min-w-0 max-w-full rounded-lg bg-surface-level-2 px-space-3 py-space-2"
           >
             {content}
           </div>
@@ -300,6 +317,7 @@ const actionDefinitions: {
   { name: 'copy', label: 'Copy message', icon: CopySimpleIcon },
   { name: 'edit', label: 'Edit message', icon: PencilSimpleIcon },
   { name: 'retry', label: 'Retry message', icon: ArrowClockwiseIcon },
+  { name: 'cancel', label: 'Cancel queued message', icon: XIcon },
 ];
 
 function canChangeMessage(status: ChatMessageStatus, readOnly: boolean) {
@@ -311,6 +329,16 @@ function canChangeMessage(status: ChatMessageStatus, readOnly: boolean) {
   );
 }
 
+function isActionAvailable(
+  name: keyof ChatMessageActionCapabilities,
+  status: ChatMessageStatus,
+  readOnly: boolean
+) {
+  if (name === 'copy') return true;
+  if (name === 'cancel') return !readOnly && status === 'queued';
+  return canChangeMessage(status, readOnly);
+}
+
 export interface ChatMessageActionsProps extends ComponentPropsWithRef<'div'> {
   actions?: ChatMessageActionCapabilities;
   status?: ChatMessageStatus;
@@ -318,9 +346,10 @@ export interface ChatMessageActionsProps extends ComponentPropsWithRef<'div'> {
 }
 
 /**
- * Copy, edit, and retry buttons, plus any host actions in `children`. Edit
- * and retry are hidden while the message is pending or read-only; copy stays
- * available. Renders nothing when no actions remain.
+ * Copy, edit, retry, and cancel buttons, plus any host actions in `children`.
+ * Edit and retry are hidden while the message is pending or read-only; cancel
+ * appears only on a queued message; copy stays available. Renders nothing
+ * when no actions remain.
  */
 export function ChatMessageActions({
   actions,
@@ -330,10 +359,9 @@ export function ChatMessageActions({
   className,
   ...props
 }: ChatMessageActionsProps) {
-  const canChange = canChangeMessage(status, readOnly);
   const visibleActions = actionDefinitions.flatMap((definition) => {
     const action = actions?.[definition.name];
-    return action && (definition.name === 'copy' || canChange)
+    return action && isActionAvailable(definition.name, status, readOnly)
       ? [{ ...definition, action }]
       : [];
   });

@@ -42,6 +42,10 @@ test('handles missing sources and discovers components without keyword entries',
       path.join(path.dirname(cli), 'cli-story-tags.mts'),
       path.join(path.dirname(copy), 'cli-story-tags.mts')
     );
+    fs.copyFileSync(
+      path.join(path.dirname(cli), 'cli-foundations.mts'),
+      path.join(path.dirname(copy), 'cli-foundations.mts')
+    );
     fs.symlinkSync(
       path.join(root, '../../node_modules'),
       path.join(directory, 'node_modules'),
@@ -432,6 +436,10 @@ test.each([
   ['virtual scrolling', 'TextVirtualizer'],
   ['automatic links', 'TextWithLinks'],
   ['discard changes', 'UnsavedChangesDialog'],
+  ['persistent warning', 'Banner'],
+  ['destructive confirmation', 'Dialog'],
+  ['routine loading', 'Spinner'],
+  ['error recovery', 'ErrorState'],
 ])('finds %s as %s', (query, expected) => {
   const result = invoke('search', query, '--limit', '1', '--json');
   expect(result.status, result.stderr).toBe(0);
@@ -494,6 +502,10 @@ test.each([
   ['inspect'],
   ['inspect', 'Button', 'extra'],
   ['list', 'extra'],
+  ['foundations', 'spacing', 'extra'],
+  ['foundations', '--limit', '1'],
+  ['foundations', 'unknown-topic'],
+  ['foundations', '__proto__'],
   ['list', '--limit', '2'],
   ['search', 'button', '--limit', '0'],
   ['search', 'button', '--limit', '101'],
@@ -510,4 +522,87 @@ test.each([
     error: expect.any(String),
     code: expect.stringMatching(/^ERR_/),
   });
+});
+
+test('prints focused foundations sections from the canonical guides', () => {
+  const index = invoke('foundations', '--json');
+  expect(index.status, index.stderr).toBe(0);
+  expect(JSON.parse(index.stdout)).toEqual(
+    expect.arrayContaining([
+      {
+        topic: 'components',
+        title: 'Choosing components',
+        source: 'docs/DESIGN.md#components',
+      },
+      {
+        topic: 'spacing',
+        title: 'Spacing scale and relationships',
+        source: 'docs/STYLES.md#spacing--space-',
+      },
+    ])
+  );
+  const spacing = invoke('foundations', 'Spacing', '--json');
+  expect(spacing.status, spacing.stderr).toBe(0);
+  const { content } = JSON.parse(spacing.stdout);
+  expect(content).toContain('#### Relationship defaults');
+  expect(content).not.toContain('Deprecated Aliases');
+  const text = invoke('foundations', 'components');
+  expect(text.status, text.stderr).toBe(0);
+  expect(text.stdout).toContain('Use `Button` for actions');
+  expect(text.stdout).not.toContain('## Chat');
+});
+
+test('installed CLI reads foundations from the catalog and reports older catalogs', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'macaw-installed-'));
+  try {
+    const installed = path.join(
+      directory,
+      'node_modules/@langchain/macaw-components'
+    );
+    fs.mkdirSync(installed, { recursive: true });
+    fs.writeFileSync(path.join(directory, 'package.json'), '{}');
+    fs.writeFileSync(
+      path.join(installed, 'package.json'),
+      JSON.stringify({
+        name: '@langchain/macaw-components',
+        exports: { './catalog.json': './catalog.json' },
+      })
+    );
+    const writeCatalog = (fields: object) =>
+      fs.writeFileSync(
+        path.join(installed, 'catalog.json'),
+        JSON.stringify({
+          schemaVersion: 1,
+          packageName: '@langchain/macaw-components',
+          version: '0.0.0',
+          components: [],
+          ...fields,
+        })
+      );
+    const run = (...args: string[]) =>
+      spawnSync(
+        process.execPath,
+        [path.join(root, '../cli/src/cli.mts'), ...args, '--json'],
+        { cwd: directory, encoding: 'utf8' }
+      );
+    const usage = {
+      title: 'Usage',
+      source: 'https://example.test/docs/STYLES.md#usage',
+      content: 'Use semantic tokens.',
+    };
+    writeCatalog({ foundations: { usage } });
+    const topic = run('foundations', 'usage');
+    expect(topic.status, topic.stderr).toBe(0);
+    expect(JSON.parse(topic.stdout)).toEqual({ topic: 'usage', ...usage });
+
+    writeCatalog({});
+    expect(run('list').status).toBe(0);
+    const legacy = run('foundations');
+    expect(legacy.status).toBe(1);
+    expect(JSON.parse(legacy.stderr)).toMatchObject({
+      code: 'ERR_FOUNDATIONS_UNAVAILABLE',
+    });
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 });

@@ -503,6 +503,7 @@ export const StackedAreas: Story = {
           aria-label="Requests by environment"
           variant={variant}
           series={requestSeries}
+          xDomain={[START, START + 6 * DAY]}
           formatXValue={formatDate}
           grid={{ columns: false }}
           selectedIds={selectedIds}

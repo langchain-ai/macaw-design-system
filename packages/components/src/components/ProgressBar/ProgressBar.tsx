@@ -28,6 +28,8 @@ interface ProgressBarBaseProps extends Omit<
   size?: ProgressBarSize;
   /** Semantic color for the completed portion of the bar. */
   color?: ProgressBarColor;
+  /** Solid for compact usage meters; gradient for the default visualization. */
+  fill?: 'solid' | 'gradient';
   /** Optional fixed-style label rendered above or beneath the bar. */
   label?: string;
   /** Vertical label placement. */
@@ -73,6 +75,14 @@ const COLOR_GRADIENTS: Record<ProgressBarColor, string> = {
   error: 'linear-gradient(to left, var(--viz-red-300), var(--viz-red-200))',
 };
 
+const SOLID_COLORS: Record<ProgressBarColor, string> = {
+  brand: 'bg-brand',
+  neutral: 'bg-current text-icon-secondary',
+  success: 'bg-success-strong',
+  warning: 'bg-warning-strong',
+  error: 'bg-error-strong',
+};
+
 function getFiniteValue(value: number, fallback: number) {
   return Number.isFinite(value) ? value : fallback;
 }
@@ -103,6 +113,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       max = 100,
       size = 'md',
       color = 'brand',
+      fill = 'gradient',
       label,
       labelPosition = 'bottom',
       className,
@@ -131,10 +142,14 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       >
         <div
           aria-hidden="true"
-          className="h-full rounded-xs transition-[width] duration-normal ease-out motion-reduce:transition-none"
+          className={cn(
+            'h-full rounded-xs transition-[width] duration-normal ease-out motion-reduce:transition-none',
+            fill === 'solid' && SOLID_COLORS[color]
+          )}
           style={{
             width: `${progressPercent}%`,
-            backgroundImage: COLOR_GRADIENTS[color],
+            backgroundImage:
+              fill === 'gradient' ? COLOR_GRADIENTS[color] : undefined,
           }}
         />
       </div>

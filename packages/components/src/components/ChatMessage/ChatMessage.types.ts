@@ -34,6 +34,8 @@ export interface ChatMessageActionCapabilities {
   copy?: ChatMessageAction;
   edit?: ChatMessageAction;
   retry?: ChatMessageAction;
+  /** Withdraws a queued message before it sends. Shown only while queued. */
+  cancel?: ChatMessageAction;
 }
 
 /** Render-ready presentation data; product payloads and parsing stay in adapters. */

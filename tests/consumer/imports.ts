@@ -2,6 +2,7 @@ import {
   Attachment,
   Button,
   Card,
+  ChatRichContent as RootChatRichContent,
   StatusBadge,
   Text,
 } from '@langchain/macaw-components';
@@ -37,11 +38,20 @@ import {
   ChatComposer,
   ChatComposerContext,
   ChatComposerInput,
+  ChatComposerModelSelect,
+  ChatComposerTextarea,
 } from '@langchain/macaw-components/ChatComposer';
 import type {
   ChatComposerInputProps,
+  ChatComposerModelOption,
+  ChatComposerModelSelectProps,
   ChatComposerProps,
+  ChatComposerTextareaProps,
 } from '@langchain/macaw-components/ChatComposer';
+import { ChatContextWindowPopover } from '@langchain/macaw-components/ChatContextWindowPopover';
+import type { ChatContextWindowPopoverProps } from '@langchain/macaw-components/ChatContextWindowPopover';
+import { ChatConversation } from '@langchain/macaw-components/ChatConversation';
+import type { ChatConversationProps } from '@langchain/macaw-components/ChatConversation';
 import {
   ChatConversationList,
   ChatConversationListGroup,
@@ -57,12 +67,48 @@ import {
   ChatMessageActions,
 } from '@langchain/macaw-components/ChatMessage';
 import type { ChatMessageModel } from '@langchain/macaw-components/ChatMessage';
-import { ChatState } from '@langchain/macaw-components/ChatState';
+import { ChatPlan } from '@langchain/macaw-components/ChatPlan';
+import type {
+  ChatPlanItem,
+  ChatPlanProps,
+} from '@langchain/macaw-components/ChatPlan';
+import {
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+} from '@langchain/macaw-components/ChatRichContent';
+import type {
+  ChatRichContentChoicesProps,
+  ChatRichContentChoicesValue,
+  ChatRichContentFallbackProps,
+  ChatRichContentNavigation,
+  ChatRichContentProps,
+  ChatRichContentRenderer,
+  ChatRichContentRendererContext,
+  ChatRichContentState,
+} from '@langchain/macaw-components/ChatRichContent';
+import {
+  ChatState,
+  formatChatDuration,
+} from '@langchain/macaw-components/ChatState';
 import type {
   ChatStateProps,
   ChatStateStatus,
   ChatStateTimerPrecision,
 } from '@langchain/macaw-components/ChatState';
+import {
+  ChatThread,
+  deepAgentTools,
+  toChatThread,
+  toHumanInTheLoopResponse,
+  useLangGraphChatThread,
+} from '@langchain/macaw-components/ChatThread';
+import type {
+  ChatThreadController,
+  ChatThreadProps,
+  ChatThreadSelectors,
+  ChatThreadStream,
+} from '@langchain/macaw-components/ChatThread';
 import {
   ChatToolCall,
   ChatToolCallGroup,
@@ -98,6 +144,16 @@ import type {
   InputProps,
 } from '@langchain/macaw-components/Input';
 import {
+  MarkdownDisplay,
+  prepareMarkdownXml,
+} from '@langchain/macaw-components/MarkdownDisplay';
+import type { MarkdownDisplayProps } from '@langchain/macaw-components/MarkdownDisplay';
+import {
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
+} from '@langchain/macaw-components/ProviderLogo';
+import {
   RadarChart,
   type RadarChartProps,
 } from '@langchain/macaw-components/RadarChart';
@@ -118,6 +174,9 @@ const buttonProps: ButtonProps = { children: 'Continue' };
 const language: CodeLanguageType = 'json';
 
 void [
+  AnthropicLogo,
+  GeminiLogo,
+  OpenAILogo,
   Breadcrumb,
   BreadcrumbLink,
   BreadcrumbPage,
@@ -165,15 +224,123 @@ void [
   ChatComposerContext,
   ChatComposerInput,
   { value: '', onChange: () => {} } satisfies ChatComposerInputProps,
+  ChatComposerModelSelect,
+  {
+    options: [
+      {
+        value: 'sonnet',
+        group: 'Anthropic',
+        icon: null,
+        badge: 'Default',
+      } satisfies ChatComposerModelOption,
+    ],
+    value: 'sonnet',
+    searchThreshold: 0,
+    onChange: () => {},
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [],
+    // @ts-expect-error Model groups are derived from options, not a separate input.
+    groups: [],
+    onChange: () => {},
+  } satisfies ChatComposerModelSelectProps,
+  {
+    options: [{ value: 'sonnet', label: 'Sonnet' }],
+    value: 'sonnet',
+    onChange: () => {},
+    // @ts-expect-error Selection metadata comes from options via value.
+    selectedOption: { value: 'sonnet', label: 'Sonnet' },
+  } satisfies ChatComposerModelSelectProps,
+  ChatComposerTextarea,
+  {
+    name: 'message',
+    value: '',
+    onChange: () => {},
+    onKeyDown: () => {},
+    ref: { current: null },
+  } satisfies ChatComposerTextareaProps,
   { action: 'sending' } satisfies ChatComposerProps,
   // @ts-expect-error onStop belongs to action="stop".
   { action: 'sending', onStop: () => {} } satisfies ChatComposerProps,
+  ChatContextWindowPopover,
+  {
+    tokensUsed: 65_800,
+    contextWindow: 200_000,
+    warningThreshold: 0.9,
+    description: 'Estimated from the latest request.',
+    children: null,
+    footer: null,
+  } satisfies ChatContextWindowPopoverProps,
+  ChatConversation,
+  {
+    children: null,
+    label: 'Support chat',
+    follow: 'none',
+    pinnedMessageId: 'message-1',
+    viewportRef: { current: null },
+  } satisfies ChatConversationProps,
   ChatMessage,
   ChatMessageActions,
+  RootChatRichContent,
+  ChatRichContent,
+  ChatRichContentChoices,
+  ChatRichContentFallback,
+  { title: 'Review', variant: 'approval' } satisfies ChatRichContentProps,
+  {
+    title: 'Review',
+    variant: 'approval',
+    // @ts-expect-error onSkip belongs to the form variant.
+    onSkip() {},
+  } satisfies ChatRichContentProps,
+  'validation-error' satisfies ChatRichContentState,
+  { current: 1, total: 2, onChange() {} } satisfies ChatRichContentNavigation,
+  ((context: ChatRichContentRendererContext) =>
+    context.errorId) satisfies ChatRichContentRenderer,
+  { selected: [] } satisfies ChatRichContentChoicesValue,
+  {
+    mode: 'single',
+    options: [],
+    value: { selected: [] },
+    onChange() {},
+    'aria-label': 'Tasks',
+  } satisfies ChatRichContentChoicesProps,
+  {} satisfies ChatRichContentFallbackProps,
   ChatState,
   { status: 'streaming', showElapsed: true } satisfies ChatStateProps,
   'input-required' satisfies ChatStateStatus,
   'tenths' satisfies ChatStateTimerPrecision,
+  formatChatDuration(65_000) satisfies string,
+  ChatPlan,
+  {
+    items: [{ id: '1', label: 'Search', status: 'in-progress' }],
+  } satisfies ChatPlanProps,
+  { id: '1', label: 'Search', status: 'completed' } satisfies ChatPlanItem,
+  {
+    title: 'Review',
+    variant: 'approval',
+    edit: { content: null, onSubmit() {} },
+  } satisfies ChatRichContentProps,
+  ChatThread,
+  useLangGraphChatThread,
+  deepAgentTools,
+  toChatThread({ messages: [{ type: 'human', content: 'Hi' }] }).turns,
+  toHumanInTheLoopResponse,
+  {
+    messages: [],
+    isLoading: false,
+    submit() {},
+    stop() {},
+  } satisfies ChatThreadStream,
+  {} satisfies ChatThreadSelectors,
+  {
+    stream: { messages: [], isLoading: false, submit() {}, stop() {} },
+  } satisfies ChatThreadProps,
+  {
+    thread: {
+      model: { turns: [], interrupts: [], queued: [], status: 'idle' },
+      actions: { async send() {} },
+    } satisfies ChatThreadController,
+  } satisfies ChatThreadProps,
   ChatToolCall,
   ChatToolCallGroup,
   ChatToolCallReasoning,
@@ -208,10 +375,19 @@ void [
     series: [{ id: 'series', label: 'Series', values: { axis: 1 } }],
     renderAxisTooltip: (axis) => axis.values.map(({ label }) => label).join(),
     selectedIds: new Set(['series']),
+    excludedIds: new Set(['other-series']),
     activeLegendItemId: 'series',
   } satisfies RadarChartProps,
   SankeyChart,
   { nodes: [], links: [], minimumPlotWidth: 0 } satisfies SankeyChartProps,
+  MarkdownDisplay,
+  prepareMarkdownXml,
+  {
+    content: '# Markdown',
+    isStreaming: true,
+    codeOverflow: 'wrap',
+    xmlTags: 'sections',
+  } satisfies MarkdownDisplayProps,
   useDebouncedCommit,
   ThinkingState,
   LoadingIndicator,

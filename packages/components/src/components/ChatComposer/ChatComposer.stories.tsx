@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
+import { expect } from 'storybook/test';
+
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
 import { SparkleIcon } from '@phosphor-icons/react/dist/ssr/Sparkle';
 import { StopIcon } from '@phosphor-icons/react/dist/ssr/Stop';
@@ -15,6 +17,7 @@ import {
   ChatComposerAttachments,
   ChatComposerInput,
   ChatComposerModelSelect,
+  ChatComposerTextarea,
   ChatComposerToolbar,
 } from '.';
 import type {
@@ -23,7 +26,7 @@ import type {
   ChatComposerDrawerIntent,
   ChatComposerProps,
 } from '.';
-import sampleImage from '../../stories/assets/attachment-preview.png';
+import sampleImage from '../../docs/assets/attachment-preview.png';
 import { cn } from '../../utils/cn';
 import { Button } from '../Button';
 import { DropdownMenuItem, DropdownMenuSeparator } from '../DropdownMenu';
@@ -31,6 +34,7 @@ import { IconButton } from '../IconButton';
 import { Text } from '../Text';
 import { ThinkingState } from '../ThinkingState';
 import { Tooltip } from '../Tooltip';
+import { MODEL_OPTIONS } from './stories/modelOptions';
 
 const meta = {
   title: 'Components/Chat/ChatComposer',
@@ -61,7 +65,7 @@ const meta = {
           'Control the draft with `value`/`onChange`; consumers handle sending, uploads, and streaming. Use `action="stop"` with `onStop` during generation.',
           'Use `drawer` for content attached above the editor, such as questions the reader answers before sending; the composer still owns submission. An input ref exposes `focus()` for external controls.',
           'Menu `accept`/`multiple` configure the picker only; validate all files in `onFilesSelected`.',
-          '`ChatComposerInput` grows from `minHeight` (40px) to `maxHeight` (240px).',
+          '`ChatComposerInput` grows from `minHeight` (40px) to `maxHeight` (240px). Use `ChatComposerTextarea` for a plain-text field with native textarea props.',
           'Enter sends from plain paragraphs; Shift+Enter continues editing; Ctrl/⌘+Enter sends from any block. Three backticks create a code block.',
           'Without `onSubmit`, Enter inserts paragraphs. Otherwise, send shortcuts stay reserved when `submitDisabled` or `action="stop"` blocks sending; Shift+Enter still edits.',
           'Examples use local state only.',
@@ -93,6 +97,7 @@ interface ComposerDemoProps {
   attachmentAppearance?: Pick<ChatComposerAttachmentsProps, 'size' | 'variant'>;
   initialResponding?: boolean;
   initialSending?: boolean;
+  initialStopping?: boolean;
   queueWhileRunning?: boolean;
   narrow?: boolean;
   showTools?: boolean;
@@ -102,20 +107,6 @@ interface ComposerDemoProps {
   drawer?: ReactNode;
   drawerIntent?: ChatComposerDrawerIntent;
 }
-
-const MODEL_OPTIONS = [
-  {
-    value: 'balanced',
-    label: 'Balanced model',
-    description: 'For everyday tasks',
-  },
-  {
-    value: 'reasoning',
-    label: 'Reasoning model',
-    description: 'For complex tasks',
-  },
-  { value: 'custom', label: 'Custom model with a longer display name' },
-];
 
 function ToolsToggle() {
   const [enabled, setEnabled] = useState(false);
@@ -150,6 +141,7 @@ function ComposerDemo({
   attachmentAppearance,
   initialResponding = false,
   initialSending = false,
+  initialStopping = false,
   queueWhileRunning = false,
   narrow = false,
   showTools = false,
@@ -160,10 +152,11 @@ function ComposerDemo({
   drawerIntent,
 }: ComposerDemoProps) {
   const [draft, setDraft] = useState(initialDraft);
-  const [model, setModel] = useState('balanced');
+  const [model, setModel] = useState<string | undefined>('claude-sonnet-5-5');
   const [attachments, setAttachments] = useState(initialAttachments);
   const [isResponding, setIsResponding] = useState(initialResponding);
   const [isSending, setIsSending] = useState(initialSending);
+  const [isStopping, setIsStopping] = useState(initialStopping);
   const [queuedCount, setQueuedCount] = useState(0);
   const [notice, setNotice] = useState('');
   const [lastMessage, setLastMessage] = useState('');
@@ -177,14 +170,21 @@ function ComposerDemo({
     Boolean(draft.trim() || attachments.length) && !hasPendingAttachments;
 
   const stop = () => {
-    setIsResponding(false);
-    setNotice('Response stopped. Your draft is preserved.');
+    // Cancellation takes a moment to confirm; Stop shows it as pending.
+    setIsStopping(true);
+    setTimeout(() => {
+      setIsStopping(false);
+      setIsResponding(false);
+      setNotice('Response stopped. Your draft is preserved.');
+    }, 800);
   };
   const actionProps: ChatComposerProps = isSending
     ? { action: 'sending' }
-    : isResponding && !queueWhileRunning
-      ? { action: 'stop', onStop: stop }
-      : { action: 'send' };
+    : isStopping
+      ? { action: 'stopping' }
+      : isResponding && !queueWhileRunning
+        ? { action: 'stop', onStop: stop }
+        : { action: 'send' };
 
   return (
     <div
@@ -265,7 +265,7 @@ function ComposerDemo({
             <ChatComposerModelSelect
               options={MODEL_OPTIONS}
               value={model}
-              onChange={(next) => next && setModel(next)}
+              onChange={setModel}
             />
           }
           actions={
@@ -489,6 +489,25 @@ export const WhileStreaming: Story = {
   ),
 };
 
+export const WhileStopping: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`action="stopping"` shows progress on Stop while a cancellation is pending. Sending stays blocked until the host confirms the stop and returns to `send`.',
+      },
+    },
+  },
+  render: () => (
+    <ComposerDemo
+      initialResponding
+      initialStopping
+      initialDraft="Drafting a follow-up while the response stops…"
+    />
+  ),
+};
+
 export const Disabled: Story = {
   tags: ['a11y-test'],
   render: () => (
@@ -506,6 +525,124 @@ export const Disabled: Story = {
       ]}
     />
   ),
+};
+
+export const DisabledWhileResponding: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A composer disabled during a response, such as when a usage limit arrives mid-run, still lets the reader stop it. Only the composer’s own parts read `disabled`, so pass it to any controls you add inside the composer.',
+      },
+    },
+  },
+  render: () => (
+    <ComposerDemo
+      disabled
+      initialResponding
+      initialDraft="Also check the staging deploy"
+      drawerIntent="warning"
+      drawer={
+        <div className="flex items-start gap-space-2 px-space-3 py-space-3">
+          <WarningIcon
+            size={16}
+            weight="regular"
+            aria-hidden
+            className="shrink-0 text-warning-primary"
+          />
+          <Text variant="sm">
+            <span className="font-medium">Usage limit reached: </span>
+            New messages are paused for this workspace. You can still stop the
+            current response.
+          </Text>
+        </div>
+      }
+    />
+  ),
+  play: async ({ canvas, userEvent }) => {
+    await expect(
+      canvas.getByRole('button', { name: 'Add attachments' })
+    ).toBeDisabled();
+    const stop = canvas.getByRole('button', { name: 'Stop response' });
+    await expect(stop).toBeEnabled();
+    await userEvent.click(stop);
+    // The rich input's loading placeholder is also a status, so match the text.
+    await expect(
+      await canvas.findByText('Response stopped. Your draft is preserved.')
+    ).toBeVisible();
+  },
+};
+
+function PlainTextareaDemo() {
+  const [draft, setDraft] = useState('');
+  const [sent, setSent] = useState<string[]>([]);
+
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-space-3">
+      <ChatComposer
+        aria-label="Chat composer"
+        submitDisabled={!draft.trim()}
+        onSubmit={(event) => {
+          const message = String(new FormData(event.currentTarget).get('q'));
+          setSent((current) => [...current, message]);
+          setDraft('');
+        }}
+      >
+        <ChatComposerTextarea
+          name="q"
+          value={draft}
+          onChange={setDraft}
+          placeholder="Ask a question…"
+          onKeyDown={(event) => {
+            const recalled = sent.at(-1);
+            if (
+              event.key === 'ArrowUp' &&
+              !draft &&
+              recalled &&
+              !event.defaultPrevented
+            ) {
+              event.preventDefault();
+              setDraft(recalled);
+            }
+          }}
+        />
+        <ChatComposerToolbar>
+          <ChatComposerAttachmentMenu />
+        </ChatComposerToolbar>
+      </ChatComposer>
+      <Text variant="xs" color="quaternary">
+        Enter to send, Shift+Enter for a new line, Up in an empty field to
+        recall the last message
+      </Text>
+      <Text variant="xs" color="secondary" role="status">
+        {sent.length > 0 && `Sent: ${sent.at(-1)}`}
+      </Text>
+    </div>
+  );
+}
+
+export const PlainTextarea: Story = {
+  tags: ['a11y-test'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`ChatComposerTextarea` is a plain-text field for hosts that rely on the native textarea: its ref and selection, a `name` in form data, or their own key handling. Enter sends unless the host prevents it in `onKeyDown`.',
+      },
+    },
+  },
+  render: () => <PlainTextareaDemo />,
+  play: async ({ canvas, userEvent }) => {
+    const field = canvas.getByRole('textbox', { name: 'Message' });
+    await userEvent.type(field, 'Summarize the last run{Enter}');
+    await expect(canvas.getByRole('status')).toHaveTextContent(
+      'Sent: Summarize the last run'
+    );
+    await expect(field).toHaveValue('');
+    await userEvent.keyboard('{ArrowUp}');
+    await expect(field).toHaveValue('Summarize the last run');
+  },
 };
 
 const DRAWER_EXAMPLES: {
