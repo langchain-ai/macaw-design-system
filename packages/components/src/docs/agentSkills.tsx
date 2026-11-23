@@ -1,8 +1,7 @@
-import { linkTo } from '@storybook/addon-links';
-
 import { Badge } from '../components/Badge';
 import { Link } from '../components/Link';
 import { Text } from '../components/Text';
+import { StoryLink } from './StoryLink';
 
 type AgentSkill = {
   name: string;
@@ -114,17 +113,13 @@ export function AgentSkillList() {
                   </Text>
                 </dt>
                 <dd className="m-0 min-w-0">
-                  <Link
-                    href={`?path=/story/${storyId(skill.story.title, skill.story.name)}`}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      if (skill.story)
-                        linkTo(skill.story.title, skill.story.name)();
-                    }}
+                  <StoryLink
+                    title={skill.story.title}
+                    name={skill.story.name}
                     variant="sm"
                   >
                     {skill.story.label}
-                  </Link>
+                  </StoryLink>
                 </dd>
               </>
             )}
@@ -133,13 +128,4 @@ export function AgentSkillList() {
       ))}
     </ul>
   );
-}
-
-function storyId(title: string, name: string) {
-  const slug = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-  return `${slug(title)}--${slug(name)}`;
 }

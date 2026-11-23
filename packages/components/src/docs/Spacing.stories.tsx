@@ -6,13 +6,13 @@ import { ChartCard } from '../components/ChartCard';
 import { Checkbox } from '../components/Checkbox';
 import { GroupedTabs } from '../components/GroupedTabs/GroupedTabs';
 import { Input } from '../components/Input/Input';
-import { Link } from '../components/Link';
 import { MetricChart } from '../components/MetricChart';
 import { Text } from '../components/Text/Text';
 import { Textarea } from '../components/Textarea/Textarea';
 import { PlusIcon } from '../icons/PaddedPhosphorIcons';
 import { SPACE_SCALE_PX, SPACE_STEPS } from '../utils/spacing';
 import type { SpaceStep } from '../utils/spacing';
+import { StoryLink } from './StoryLink';
 
 const meta: Meta = {
   title: 'Foundations/Spacing',
@@ -429,12 +429,9 @@ export const Examples: Story = {
         </p>
         <p className="text-sm text-secondary">
           Building a LangSmith settings page? Use{' '}
-          <Link
-            href="?path=/story/recipes-settings-pages--cta-table"
-            target="_top"
-          >
+          <StoryLink title="Recipes/Settings Pages" name="CTA + table">
             Recipes/Settings Pages
-          </Link>
+          </StoryLink>
           , which mirrors the real settings primitives.
         </p>
       </div>
