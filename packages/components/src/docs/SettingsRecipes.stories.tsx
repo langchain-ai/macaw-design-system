@@ -50,7 +50,6 @@ import {
   XIcon,
 } from '../icons/PaddedPhosphorIcons';
 import { cn } from '../utils/cn';
-import { StoryLink } from './StoryLink';
 
 /**
  * Recipes for LangSmith settings pages, one per layout. Each story shows the
@@ -106,42 +105,11 @@ const noop = () => {};
 // Recipe note: when to use the layout, shown above every recipe
 // ---------------------------------------------------------------------------
 
-function RecipeNote({
-  use,
-  instead,
-  parts,
-}: {
-  use: ReactNode;
-  instead?: ReactNode;
-  parts: string;
-}) {
+function RecipeNote({ children }: { children: string }) {
   return (
-    <aside
-      aria-label="When to use this recipe"
-      className="flex shrink-0 flex-col gap-space-1 rounded-lg border border-subtle bg-surface-level-1 px-space-4 py-space-3"
-    >
-      <Text as="p" variant="sm">
-        <Text as="span" variant="sm" weight="medium">
-          Use when{' '}
-        </Text>
-        {use}
-        {instead && (
-          <>
-            {' '}
-            <Text as="span" variant="sm" color="tertiary">
-              {instead}
-            </Text>
-          </>
-        )}
-      </Text>
-      <Text as="p" variant="xs" color="tertiary">
-        Built from <code>{parts}</code>. Agents apply these recipes through the{' '}
-        <StoryLink title="Agent Skills" docs variant="xs">
-          macaw-create-settings skill
-        </StoryLink>
-        .
-      </Text>
-    </aside>
+    <Text as="p" variant="sm" color="secondary" className="shrink-0">
+      {children}
+    </Text>
   );
 }
 
@@ -1204,10 +1172,9 @@ function CtaTableRecipe({ frame, filterFields }: RecipeArgs) {
       active="API Keys"
       fill
       note={
-        <RecipeNote
-          use="people search, filter, or page through a list, or create items in it. One primary action (a plus button named by the noun) leads the header; search and filters follow. Use the Filter popover for 2+ filter fields and segmented tabs for one small set. Switch filterFields to compare."
-          parts="SettingsPageLayout fill, SettingsPageHeader, SettingsToolbar, SettingsFilterBar, DataGridV2, SettingsCell"
-        />
+        <RecipeNote>
+          Use for a list people search, filter, or add to.
+        </RecipeNote>
       }
     >
       <SettingsPageLayout fill>
@@ -1349,11 +1316,7 @@ export const FormRows: Story = {
       frame={frame}
       active="Security Policies"
       note={
-        <RecipeNote
-          use="the page is settings that each apply on their own. Switches and dropdowns save on change, short inputs on Enter or blur, so there's no Save button."
-          instead="Sets of values and security or cost limits are the exception: an explicit Save that appears only when edited (Allowed URLs)."
-          parts="SettingsSection, SettingsRowList, SettingsRow, SettingsSwitchRow, SettingsTermsList"
-        />
+        <RecipeNote>Use for settings that each save on their own.</RecipeNote>
       }
     >
       <SettingsPageLayout>
@@ -1419,11 +1382,9 @@ export const ItemList: Story = {
       frame={frame}
       active="Data Planes"
       note={
-        <RecipeNote
-          use="the page lists a handful of things (data planes, connected apps), each with a status and one or two actions. Each item is a row in one card; its settings open from the row."
-          instead="More than ~10 items, or people need to search? Use CTA + table."
-          parts="SettingsRowList, SettingsRow"
-        />
+        <RecipeNote>
+          Use for a few items, each with a status and an action.
+        </RecipeNote>
       }
     >
       <SettingsPageLayout>
@@ -1489,11 +1450,9 @@ export const GroupedTabsPage: Story = {
         active="Webhooks"
         fill
         note={
-          <RecipeNote
-            use="several pages share one name and each deserves its own URL and nav search result. The group title sits above underlined tabs; each tab has its own description and actions."
-            instead="Never use tabs to filter a table; that's a filter."
-            parts="SettingsGroupedPage, SettingsPageTabList, useSettingsPageGroups"
-          />
+          <RecipeNote>
+            Use when sibling pages share one name and each needs its own URL.
+          </RecipeNote>
         }
       >
         <SettingsPageLayout fill>
@@ -1540,10 +1499,9 @@ export const Views: Story = {
         frame={frame}
         active="Usage Limits"
         note={
-          <RecipeNote
-            use="one page shows the same thing at different scopes. The title and description stay; the view is in the URL (?view=). Under another tab row, views become segmented tabs so tabs never nest."
-            parts="SettingsViewTabs, useSettingsView"
-          />
+          <RecipeNote>
+            Use when one page shows the same data at different scopes.
+          </RecipeNote>
         }
       >
         <SettingsPageLayout>
@@ -1634,10 +1592,9 @@ export const RowDialog: Story = {
         frame={frame}
         active="SSO"
         note={
-          <RecipeNote
-            use="a setting is an object with several fields (an identity provider, a Git connection). It's one row; Edit opens a dialog with a single Save and Delete on the left."
-            parts="SettingsRow + Dialog (bigger flows: SettingsPane)"
-          />
+          <RecipeNote>
+            Use when one setting has several fields that are edited together.
+          </RecipeNote>
         }
       >
         <SettingsPageLayout>
@@ -1711,12 +1668,7 @@ export const Stats: Story = {
     <Frame
       frame={frame}
       active="Credit Usage"
-      note={
-        <RecipeNote
-          use="the page reports numbers. Stats and charts join into one continuous card: edge to edge, no left border on later cards, no top border on a chart below. Show only values the API returns."
-          parts="ChartCard, MetricChart, LineChart, BarChart"
-        />
-      }
+      note={<RecipeNote>Use when the page reports numbers.</RecipeNote>}
     >
       <SettingsPageLayout>
         <SettingsPageHeader
@@ -1793,11 +1745,9 @@ export const Empty: Story = {
       active="API Keys"
       fill
       note={
-        <RecipeNote
-          use="the feature works but there's nothing to show. Keep the header and its action; center one empty state in the table area and name the thing (“No API keys yet”). A search with no results offers Clear filters."
-          instead="If the person can't use the feature at all, that's Unavailable."
-          parts="EmptyState in SettingsPageLayout fill"
-        />
+        <RecipeNote>
+          Use when the feature works but there's nothing to show yet.
+        </RecipeNote>
       }
     >
       <SettingsPageLayout fill>
@@ -1841,12 +1791,7 @@ export const Loading: Story = {
       frame={frame}
       active="Members"
       loading
-      note={
-        <RecipeNote
-          use="the page's data is loading. The bar pins to the top edge of the pane and the header stays. Inside a dialog or pane, use LinearProgress there instead; the page loader would land behind the overlay."
-          parts="SettingsPageLoading"
-        />
-      }
+      note={<RecipeNote>Use while the page's data loads.</RecipeNote>}
     >
       <SettingsPageLayout>
         <SettingsPageHeader
@@ -1889,10 +1834,9 @@ export const Unavailable: Story = {
       active="Access Policies"
       fill
       note={
-        <RecipeNote
-          use="the person can't use the feature: their plan doesn't include it, their role can't see it, or the deployment doesn't support it. The header stays so they know where they are; nothing else on the page renders."
-          parts="SettingsUnavailable"
-        />
+        <RecipeNote>
+          Use when the person's plan, role, or deployment blocks the feature.
+        </RecipeNote>
       }
     >
       <SettingsPageLayout fill>

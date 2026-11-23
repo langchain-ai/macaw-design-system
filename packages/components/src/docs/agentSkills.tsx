@@ -9,6 +9,8 @@ import { StoryLink } from './StoryLink';
 type AgentSkill = {
   name: string;
   icon: IconComponent;
+  /** The GitHub repository the skill lives in. */
+  repo: string;
   /** One short sentence. */
   summary: string;
   /** A story that shows what the skill builds. */
@@ -19,21 +21,26 @@ type AgentSkill = {
  * Every agent skill that builds with Macaw, one entry per skill. Each skill's
  * text lives in one repository; this list only says what it's for.
  */
+const MACAW_REPO = 'https://github.com/langchain-ai/macaw-design-system';
+
 export const agentSkills: AgentSkill[] = [
   {
     name: 'macaw',
     icon: BirdIcon,
+    repo: MACAW_REPO,
     summary:
       'Points agents at the installed Macaw docs and the component search CLI.',
   },
   {
     name: 'design-system',
     icon: SwatchesIcon,
+    repo: MACAW_REPO,
     summary: 'Changes Macaw itself: components, tokens, stories, and docs.',
   },
   {
     name: 'macaw-create-settings',
     icon: GearSixIcon,
+    repo: 'https://github.com/langchain-ai/langchainplus',
     summary: 'Builds and polishes LangSmith settings pages.',
     example: {
       title: 'Recipes/Settings Pages',
@@ -79,36 +86,42 @@ export function AgentSkillsPage() {
           {agentSkills.map((skill) => (
             <li
               key={skill.name}
-              className="flex min-w-0 flex-col gap-space-4 rounded-lg bg-surface-level-2 p-space-4"
+              className="relative flex min-w-0 flex-col gap-space-4 rounded-lg bg-surface-level-2 p-space-4 transition-colors duration-normal hover:bg-surface-level-2-hover motion-reduce:transition-none"
             >
               <span className="flex size-8 items-center justify-center rounded-md border border-subtle bg-surface-level-1">
                 <Icon
                   icon={skill.icon}
                   size="md"
+                  weight="fill"
                   className="text-icon-secondary"
                 />
               </span>
               <div className="flex flex-col gap-space-1">
-                <Text
-                  as="h2"
-                  variant="md"
-                  weight="semibold"
-                  className="font-mono"
-                >
-                  {skill.name}
+                <Text as="h2" variant="md" weight="semibold">
+                  {/* The link covers the card, so the whole card opens the repository. */}
+                  <a
+                    href={skill.repo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-focus"
+                  >
+                    {skill.name}
+                  </a>
                 </Text>
                 <Text variant="sm" color="secondary">
                   {skill.summary}
                 </Text>
               </div>
               {skill.example && (
-                <StoryLink
-                  title={skill.example.title}
-                  name={skill.example.name}
-                  variant="sm"
-                >
-                  {skill.example.label}
-                </StoryLink>
+                <span className="relative">
+                  <StoryLink
+                    title={skill.example.title}
+                    name={skill.example.name}
+                    variant="sm"
+                  >
+                    {skill.example.label}
+                  </StoryLink>
+                </span>
               )}
             </li>
           ))}
