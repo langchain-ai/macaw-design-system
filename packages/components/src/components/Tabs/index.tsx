@@ -24,14 +24,18 @@ import { Text } from '../Text';
 export function TabList({
   children,
   className,
+  responsiveHeight = false,
 }: {
   children: React.ReactNode;
   className?: string;
+  responsiveHeight?: boolean;
 }) {
   return (
     <HeadlessTabList
       className={cn(
         'flex gap-space-5 border-b border-secondary text-ls-black',
+        responsiveHeight &&
+          'h-full [&_[role=tab]]:h-full [&_[role=tab]]:py-space-2',
         className
       )}
     >

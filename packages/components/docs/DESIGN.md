@@ -51,15 +51,16 @@ Keep capability keywords in the static component-level `tags` array of the story
 Use existing components for their interaction contracts, not just their appearance. They own focus handling, keyboard behavior, accessible names, loading states, and responsive details that a styled native element may miss.
 
 - Use `Button` for actions and `Link` for navigation.
-- Use `IconButton` for an icon-only action and provide its `label`.
+- Use `IconButton` for an icon-only action and provide its `label`, which becomes its accessible name and tooltip. Requires `TooltipProvider`.
 - Use `Attachment` and `AttachmentList` for file rows and thumbnails; consumers own uploads, preview safety, and file operations. Set `disabled` to prevent opening, removal, and custom actions.
 - Use `ChatComposer` for a chat message input; see [Chat composer](#chat-composer).
 - Use `ChatRichContent` for a form or approval in chat; see [Chat rich content](#chat-rich-content).
-- Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options.
-- Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content.
-- Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work.
+- Use `Input` or `Textarea` for text entry, `Select` for a known option list, and `Typeahead` when the user types to search or create options. Give each `Select` an `aria-label`.
+- Use `RadioGroup` for a short visible choice set and `RadioCard` when an option needs supporting content. Give the group an accessible name and label every option.
+- Use `Dialog` for a short blocking decision and `Pane` for substantial editing or detail work. Give `DialogContent` a `title`, or compose `DialogTitle`, so the dialog has an accessible name.
 - Use the Tabs family for tabbed navigation, with routing handled by the app, and `GroupedTabs` for a local view switch.
-- Use `Banner` for persistent regional information, `useToast().createToast(...)` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
+- Use `Banner` for persistent regional information, `useToast().createToast(...)` inside `ToastProvider` for the result of an action, and field hint/error APIs for validation. All toast variants auto-dismiss after five seconds by default; callers can set `duration: Infinity` for manual dismissal or a custom duration in milliseconds.
+- Use `ErrorState` for a page-level failure or not-found state, with an `action` when the user can recover. Use `ErrorBoundary` to catch rendering failures.
 - Use `ThinkingState` for active AI work (generation, reasoning, or tool use); name the work and show elapsed time only for longer waits.
 - Use `LoadingIndicator` for the AI animation alone; announce status on its surrounding control or region.
 - Use `size="xs"` on `ThinkingState` or `LoadingIndicator` for compact inline status (12px indicator).
@@ -79,6 +80,20 @@ root barrel. `@langchain/macaw-components/ChatThread` composes them into an
 agent conversation view that adapts a LangGraph `useStream` handle by default
 or takes your own adapter's output. See [CHAT.md](./CHAT.md) for the
 host/component boundary.
+
+## Tabs
+
+Use `responsiveHeight` on `TabList` when its parent establishes a row height.
+The list fills that row, and each `TabLabel` centers its contents vertically
+with 8px block padding and keeps the selection indicator at the bottom edge.
+Without `responsiveHeight`, the list keeps its intrinsic height.
+
+## Tabs
+
+Use `responsiveHeight` on `TabList` when its parent establishes a row height.
+The list fills that row, and each `TabLabel` centers its contents vertically
+with 8px block padding and keeps the selection indicator at the bottom edge.
+Without `responsiveHeight`, the list keeps its intrinsic height.
 
 ## Breadcrumbs
 

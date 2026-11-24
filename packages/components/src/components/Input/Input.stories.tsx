@@ -1,6 +1,8 @@
 import type { ComponentProps } from 'react';
 import { useState } from 'react';
 
+import { expect } from 'storybook/test';
+
 import { EnvelopeIcon } from '@phosphor-icons/react/dist/ssr/Envelope';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 import { QuestionIcon } from '@phosphor-icons/react/dist/ssr/Question';
@@ -93,7 +95,7 @@ const meta: Meta<typeof Input> = {
     disabled: false,
     isError: false,
     required: false,
-    onChange: () => { },
+    onChange: () => {},
     debounceMs: 300,
   },
   render: (args) => (
@@ -165,7 +167,10 @@ const meta: Meta<typeof Input> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Playground: Story = {};
+export const Playground: Story = {
+  tags: ['a11y-test'],
+  parameters: { a11y: { test: 'error' } },
+};
 
 export const SizesAndVariants: Story = {
   name: 'Sizes & Variants',
@@ -191,7 +196,20 @@ export const SizesAndVariants: Story = {
 };
 
 export const States: Story = {
+  tags: ['a11y-test'],
+  play: async ({ canvas }) => {
+    for (const input of canvas.getAllByRole('textbox', { name: 'Error' })) {
+      await expect(input).toBeInvalid();
+      await expect(input).toHaveAccessibleDescription(
+        'Please enter a valid email address.'
+      );
+    }
+    for (const input of canvas.getAllByRole('textbox', { name: 'Disabled' })) {
+      await expect(input).toBeDisabled();
+    }
+  },
   parameters: {
+    a11y: { test: 'error' },
     controls: { include: ['leftIcon', 'rightIcon'] },
   },
   render: (args) => (

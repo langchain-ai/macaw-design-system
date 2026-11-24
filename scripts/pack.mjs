@@ -85,6 +85,8 @@ try {
   const button = JSON.parse(invoke('inspect', 'Button', '--json'));
   assert.equal(button.importPath, '@langchain/macaw-components/Button');
   assert.ok(JSON.parse(invoke('search', 'loading', '--json')).length > 0);
+  const topic = JSON.parse(invoke('foundations', 'components', '--json'));
+  assert.ok(topic.source.startsWith('https://github.com/'));
   const catalog = JSON.parse(invoke('list', '--json'));
   const requireFromConsumer = createRequire(join(consumer, 'package.json'));
   run(

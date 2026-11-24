@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check design rules
+        run: pnpm check:design
+
       - name: Install Chromium for accessibility tests
         run: pnpm exec playwright install --with-deps chromium
 
