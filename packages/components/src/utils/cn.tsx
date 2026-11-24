@@ -145,6 +145,8 @@ const customTwMerge = extendTailwindMerge({
         'bg-selected-hover',
         ...brandBgClasses,
       ],
+      // Background images layer on top of a background color
+      'bg-image': ['bg-canvas-dotted'],
       // Extend border-color to include custom border colors
       'border-color': [
         'border-input',
