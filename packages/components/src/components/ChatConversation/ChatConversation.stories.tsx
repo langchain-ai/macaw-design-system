@@ -13,6 +13,7 @@ import {
 } from '../ChatComposer';
 import { ChatMessage, type ChatMessageModel } from '../ChatMessage';
 import { ChatToolCall, ChatToolCallGroup } from '../ChatToolCall';
+import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Skeleton } from '../Skeleton';
 import { Text } from '../Text';
 
@@ -22,16 +23,29 @@ function ConversationMessages({
   messages: readonly ChatMessageModel[];
 }) {
   return messages.map((message) => (
-    <ChatMessage key={message.id} message={message} animateParagraphs />
+    <ChatMessage key={message.id} message={message} />
   ));
 }
 
-function paragraphBlocks(id: string, paragraphs: readonly string[]) {
-  return paragraphs.map((text, index) => ({
-    id: `${id}-${index}`,
-    type: 'text' as const,
-    text,
-  }));
+/** One Markdown block for an answer's paragraphs, or none before any arrive. */
+function markdownBlocks(
+  id: string,
+  paragraphs: readonly string[],
+  isStreaming = false
+) {
+  if (paragraphs.length === 0) return [];
+  return [
+    {
+      id: `${id}-markdown`,
+      type: 'custom' as const,
+      content: (
+        <MarkdownDisplay
+          content={paragraphs.join('\n\n')}
+          isStreaming={isStreaming}
+        />
+      ),
+    },
+  ];
 }
 
 const exchanges = [
@@ -51,9 +65,9 @@ const exchanges = [
   {
     question: 'Can you sketch out Saturday?',
     answer: [
-      'Morning: have a slow breakfast, then walk a coastal trail.',
-      'Afternoon: pick up lunch and spend a few hours at the beach. Leave a break at your accommodation before dinner.',
-      'Evening: choose a restaurant within walking distance and catch the sunset if the weather cooperates.',
+      '**Morning:** have a slow breakfast, then walk a coastal trail.',
+      '**Afternoon:** pick up lunch and spend a few hours at the beach. Leave a break at your accommodation before dinner.',
+      '**Evening:** choose a restaurant within walking distance and catch the sunset if the weather cooperates.',
     ],
   },
   {
@@ -143,7 +157,7 @@ function historyMessages(
       id: `${prefix}-${index}-assistant`,
       role: 'assistant',
       status: 'completed',
-      content: paragraphBlocks(`${prefix}-${index}-answer`, exchange.answer),
+      content: markdownBlocks(`${prefix}-${index}-answer`, exchange.answer),
     },
   ]);
 }
@@ -268,26 +282,26 @@ export const Loading: Story = {
 
 const streamedParagraphs = [
   'Here is a slower-paced version of the plan.',
-  'Friday: arrive, unpack, and walk to the waterfront for an early dinner. Skip anything that needs a reservation.',
-  'Saturday: sleep in, then pick one outing (the coastal trail if it is dry, the museum if it is not) and leave the rest of the day open.',
-  'Sunday: breakfast somewhere with a view, one last walk, and an unhurried checkout.',
+  '**Friday:** arrive, unpack, and walk to the waterfront for an early dinner. Skip anything that needs a reservation.',
+  '**Saturday:** sleep in, then pick one outing (the coastal trail if it is dry, the museum if it is not) and leave the rest of the day open.',
+  '**Sunday:** breakfast somewhere with a view, one last walk, and an unhurried checkout.',
   'If you want, I can turn this into a checklist you can share with your travel companion.',
 ];
 
 const packingParagraphs = [
   'Here is a packing list, grouped so you can check things off as you go.',
-  'Clothes: two outfits for walking, one for dinner, a warm layer for evenings by the water, and sleepwear. Pack the rain jacket even if the forecast looks clear.',
-  'Shoes: comfortable walking shoes for the coastal trail, plus sandals for the beach. Leave heavier boots at home unless rain is certain.',
-  'Beach: a towel each, sunscreen, sunglasses, and a hat. A small tote keeps everything together for the afternoon.',
-  'Toiletries: travel-size basics, any medication, and lip balm with SPF. Check whether the rental provides shampoo before packing your own.',
-  'Tech: phone chargers, a power bank for the trail, and headphones for the drive. A paper map is a good backup where the signal is patchy.',
-  'Food: a refillable water bottle, snacks for the drive, and a thermos if you want coffee on the morning walk.',
-  'Documents: your booking confirmation, a payment card, and some cash for small cafés and parking meters.',
-  'Outdoors: a compact umbrella, a reusable bag for beach finds, and a small first-aid kit with plasters for the long walks.',
-  'Evenings: a light sweater or scarf, since coastal towns cool down quickly once the sun sets.',
-  'Rainy afternoons: a paperback or a deck of cards for a slow hour in a café.',
-  'The drive: a phone mount, a charging cable, and a playlist or podcast downloaded before you leave.',
-  'Before you go: check the tide times for the beach walk and the rental’s check-in instructions.',
+  '**Clothes:** two outfits for walking, one for dinner, a warm layer for evenings by the water, and sleepwear. Pack the rain jacket even if the forecast looks clear.',
+  '**Shoes:** comfortable walking shoes for the coastal trail, plus sandals for the beach. Leave heavier boots at home unless rain is certain.',
+  '**Beach:** a towel each, sunscreen, sunglasses, and a hat. A small tote keeps everything together for the afternoon.',
+  '**Toiletries:** travel-size basics, any medication, and lip balm with SPF. Check whether the rental provides shampoo before packing your own.',
+  '**Tech:** phone chargers, a power bank for the trail, and headphones for the drive. A paper map is a good backup where the signal is patchy.',
+  '**Food:** a refillable water bottle, snacks for the drive, and a thermos if you want coffee on the morning walk.',
+  '**Documents:** your booking confirmation, a payment card, and some cash for small cafés and parking meters.',
+  '**Outdoors:** a compact umbrella, a reusable bag for beach finds, and a small first-aid kit with plasters for the long walks.',
+  '**Evenings:** a light sweater or scarf, since coastal towns cool down quickly once the sun sets.',
+  '**Rainy afternoons:** a paperback or a deck of cards for a slow hour in a café.',
+  '**The drive:** a phone mount, a charging cable, and a playlist or podcast downloaded before you leave.',
+  '**Before you go:** check the tide times for the beach walk and the rental’s check-in instructions.',
   'Leave some space for anything you pick up along the way. A bag with room to spare is easier to repack on Sunday.',
 ];
 
@@ -352,9 +366,10 @@ function StreamingExample({
         ? {
             ...message,
             status: isStreaming ? 'streaming' : 'completed',
-            content: paragraphBlocks(
+            content: markdownBlocks(
               reply.id,
-              paragraphs.slice(0, reply.streamed)
+              paragraphs.slice(0, reply.streamed),
+              isStreaming
             ),
           }
         : message
@@ -685,7 +700,7 @@ function PinningHarness() {
               </ChatToolCallGroup>
             ),
           },
-          ...paragraphBlocks(
+          ...markdownBlocks(
             `reply-${turn}`,
             Array.from(
               { length: paragraphs },
