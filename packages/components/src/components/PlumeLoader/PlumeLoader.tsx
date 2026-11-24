@@ -36,7 +36,7 @@ interface PlumeLoaderProps extends Omit<
   /** Field only: hubs across and down. */
   columns?: number;
   rows?: number;
-  /** Brand is LangChain primary blue (#006DDD); neutral follows the icon colour. */
+  /** Brand is LangChain light blue (#7FC8FF) in both themes; neutral follows the icon colour. */
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
   animated?: boolean;
