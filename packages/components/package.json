@@ -236,6 +236,10 @@
       "types": "./dist/components/PlainTextEditor/index.d.ts",
       "import": "./dist/components/PlainTextEditor/index.js"
     },
+    "./PlumeLoader": {
+      "types": "./dist/components/PlumeLoader/index.d.ts",
+      "import": "./dist/components/PlumeLoader/index.js"
+    },
     "./Popover": {
       "types": "./dist/components/Popover/index.d.ts",
       "import": "./dist/components/Popover/index.js"
@@ -556,6 +560,10 @@
     "./components/PlainTextEditor": {
       "types": "./dist/components/PlainTextEditor/index.d.ts",
       "import": "./dist/components/PlainTextEditor/index.js"
+    },
+    "./components/PlumeLoader": {
+      "types": "./dist/components/PlumeLoader/index.d.ts",
+      "import": "./dist/components/PlumeLoader/index.js"
     },
     "./components/Popover": {
       "types": "./dist/components/Popover/index.d.ts",
