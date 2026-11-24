@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Harness } from './Harness';
 
 const meta = {
-  title: 'Prototypes/Chat browser use',
+  title: 'POC/Chat browser use',
   component: Harness,
   parameters: { layout: 'fullscreen' },
 } satisfies Meta<typeof Harness>;
