@@ -45,6 +45,7 @@ interface LCPlumeIndicatorProps extends Omit<
   'children'
 > {
   size?: IndicatorSize;
+  /** Brand is LangChain primary blue (#006DDD); neutral follows the icon colour. */
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
   animated?: boolean;
@@ -56,7 +57,7 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
   function LCPlumeIndicator(
     {
       size = 'sm',
-      tone = 'neutral',
+      tone = 'brand',
       animated = true,
       speed = 'normal',
       className,
@@ -90,7 +91,7 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
         className={cn(
           plumeStyles.svg,
           'shrink-0',
-          tone === 'brand' ? 'text-icon-brand' : 'text-icon-primary',
+          tone === 'brand' ? plumeStyles.brand : 'text-icon-primary',
           className
         )}
         style={indicatorStyle}
@@ -124,7 +125,7 @@ const LCThinkingState = forwardRef<HTMLDivElement, LCThinkingStateProps>(
     {
       label = 'Thinking',
       size = 'sm',
-      tone = 'neutral',
+      tone = 'brand',
       motion = 'full',
       speed = 'normal',
       showElapsed = false,
