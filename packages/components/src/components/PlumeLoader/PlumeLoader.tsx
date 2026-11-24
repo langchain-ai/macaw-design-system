@@ -6,6 +6,12 @@ import type { ComponentPropsWithRef, CSSProperties, ReactNode } from 'react';
 
 import { cn } from '../../utils/cn';
 import { PlumeGlyph } from './PlumeGlyph';
+import { CONVERGE_POINT_ROTATION, hubDelay } from './plumeGeometry';
+import type {
+  ConvergePoint,
+  PlumeFlow,
+  SegmentAnimation,
+} from './plumeGeometry';
 
 import styles from './PlumeLoader.module.css';
 
@@ -36,6 +42,12 @@ interface PlumeLoaderProps extends Omit<
   /** Field only: hubs across and down. */
   columns?: number;
   rows?: number;
+  /** Diverge draws out from the single point; converge draws in to it. */
+  flow?: PlumeFlow;
+  /** Concurrent runs every strand together; independent runs each on its own random timing. */
+  segmentAnimation?: SegmentAnimation;
+  /** Plume only: where the single point sits. The strands open the other way. */
+  convergePoint?: ConvergePoint;
   /** Brand is LangChain light blue (#7FC8FF) in both themes; neutral follows the icon colour. */
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
@@ -45,9 +57,19 @@ interface PlumeLoaderProps extends Omit<
   label?: ReactNode;
 }
 
-function SinglePlume({ delayScale }: { delayScale: number }) {
+interface AnimationOptions {
+  cycleMs: number;
+  delayScale: number;
+  flow: PlumeFlow;
+  segmentAnimation: SegmentAnimation;
+}
+
+function SinglePlume({
+  convergePoint,
+  ...animation
+}: AnimationOptions & { convergePoint: ConvergePoint }) {
   return (
-    <>
+    <g transform={`rotate(${CONVERGE_POINT_ROTATION[convergePoint]})`}>
       <circle className={styles.ring} cx={0} cy={16} r={5} strokeWidth={0.3} />
       <PlumeGlyph
         strands={8}
@@ -55,22 +77,27 @@ function SinglePlume({ delayScale }: { delayScale: number }) {
         strokeWidth={0.32}
         tipRadius={0.6}
         baseRadius={0.8}
-        delayScale={delayScale}
+        {...animation}
       />
-      <circle className={styles.hub} cx={0} cy={16} r={2} />
-    </>
+      <circle
+        className={styles.hub}
+        cx={0}
+        cy={16}
+        r={2}
+        style={{
+          animationDelay: `${hubDelay(animation.flow) * animation.delayScale}ms`,
+        }}
+      />
+    </g>
   );
 }
 
 function PlumeField({
   columns,
   rows,
-  delayScale,
-}: {
-  columns: number;
-  rows: number;
-  delayScale: number;
-}) {
+  ...animation
+}: AnimationOptions & { columns: number; rows: number }) {
+  const { delayScale } = animation;
   const centreX = (columns - 1) / 2;
   const centreY = (rows - 1) / 2;
   const hubs = [];
@@ -91,7 +118,8 @@ function PlumeField({
               tipRadius={0.55}
               baseRadius={0.75}
               delay={wave + index * 40}
-              delayScale={delayScale}
+              seed={(row * columns + column) * 4 + index}
+              {...animation}
               transform={`translate(${x} ${y}) rotate(${rotation}) translate(0 ${-FIELD_STEM})`}
             />
           ))}
@@ -115,7 +143,9 @@ function PlumeField({
             cx={x}
             cy={y}
             r={3}
-            style={{ animationDelay: `${Math.round(wave * delayScale)}ms` }}
+            style={{
+              animationDelay: `${Math.round((wave + hubDelay(animation.flow)) * delayScale)}ms`,
+            }}
           />
         </g>
       );
@@ -132,6 +162,9 @@ const PlumeLoader = forwardRef<HTMLDivElement, PlumeLoaderProps>(
       size,
       columns = 5,
       rows = 3,
+      flow = 'diverge',
+      segmentAnimation = 'concurrent',
+      convergePoint = 'down',
       tone = 'brand',
       animated = true,
       speed = 'normal',
@@ -144,9 +177,9 @@ const PlumeLoader = forwardRef<HTMLDivElement, PlumeLoaderProps>(
   ) {
     const delayScale = speed === 'slow' ? 2 : 1;
     const cycle = variant === 'field' ? 5200 : 2000;
-    const plumeStyle: PlumeStyle = {
-      '--plume-cycle': `${cycle * delayScale}ms`,
-    };
+    const cycleMs = cycle * delayScale;
+    const animation = { cycleMs, delayScale, flow, segmentAnimation };
+    const plumeStyle: PlumeStyle = { '--plume-cycle': `${cycleMs}ms` };
     const isField = variant === 'field';
     const height = size ?? (isField ? 312 : 160);
 
@@ -167,6 +200,7 @@ const PlumeLoader = forwardRef<HTMLDivElement, PlumeLoaderProps>(
           focusable="false"
           className={styles.svg}
           data-animated={animated}
+          data-flow={flow}
           width={isField ? '100%' : height}
           height={height}
           viewBox={
@@ -178,13 +212,9 @@ const PlumeLoader = forwardRef<HTMLDivElement, PlumeLoaderProps>(
           style={plumeStyle}
         >
           {isField ? (
-            <PlumeField
-              columns={columns}
-              rows={rows}
-              delayScale={delayScale}
-            />
+            <PlumeField columns={columns} rows={rows} {...animation} />
           ) : (
-            <SinglePlume delayScale={delayScale} />
+            <SinglePlume convergePoint={convergePoint} {...animation} />
           )}
         </svg>
         <span className="sr-only">{label}</span>
