@@ -6,8 +6,17 @@ import type { ComponentPropsWithRef, CSSProperties } from 'react';
 
 import { cn } from '../../utils/cn';
 import { PlumeGlyph } from '../PlumeLoader/PlumeGlyph';
-import { PLUME_TOP } from '../PlumeLoader/plumeGeometry';
-import type { StrandCount } from '../PlumeLoader/plumeGeometry';
+import {
+  CONVERGE_POINT_ROTATION,
+  PLUME_TOP,
+  hubDelay,
+} from '../PlumeLoader/plumeGeometry';
+import type {
+  ConvergePoint,
+  PlumeFlow,
+  SegmentAnimation,
+  StrandCount,
+} from '../PlumeLoader/plumeGeometry';
 import { Text } from '../Text';
 import type { ThinkingStateProps } from './ThinkingState';
 import { ThinkingStateTimer } from './ThinkingStateTimer';
@@ -45,6 +54,12 @@ interface LCPlumeIndicatorProps extends Omit<
   'children'
 > {
   size?: IndicatorSize;
+  /** Diverge draws out from the single point; converge draws in to it. */
+  flow?: PlumeFlow;
+  /** Concurrent runs every strand together; independent runs each on its own random timing. */
+  segmentAnimation?: SegmentAnimation;
+  /** Where the single point sits. The strands open the other way. */
+  convergePoint?: ConvergePoint;
   /** Brand is LangChain light blue (#7FC8FF) in both themes; neutral follows the icon colour. */
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
@@ -57,6 +72,9 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
   function LCPlumeIndicator(
     {
       size = 'sm',
+      flow = 'diverge',
+      segmentAnimation = 'concurrent',
+      convergePoint = 'down',
       tone = 'brand',
       animated = true,
       speed = 'normal',
@@ -73,8 +91,9 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
     const top = PLUME_TOP - geometry.tipRadius;
     const bottom = geometry.stem + hubRadius;
     const offsetY = -(top + bottom) / 2;
+    const cycleMs = 2000 * delayScale;
     const indicatorStyle: PlumeIndicatorStyle = {
-      '--plume-cycle': `${2000 * delayScale}ms`,
+      '--plume-cycle': `${cycleMs}ms`,
       ...style,
     };
 
@@ -88,6 +107,7 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
         aria-hidden="true"
         focusable="false"
         data-animated={animated}
+        data-flow={flow}
         className={cn(
           plumeStyles.svg,
           'shrink-0',
@@ -96,13 +116,18 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
         )}
         style={indicatorStyle}
       >
-        <g transform={`translate(0 ${offsetY})`}>
+        <g
+          transform={`rotate(${CONVERGE_POINT_ROTATION[convergePoint]}) translate(0 ${offsetY})`}
+        >
           <PlumeGlyph
             strands={geometry.strands}
             stem={geometry.stem}
             strokeWidth={geometry.strokeWidth}
             tipRadius={geometry.tipRadius}
             baseRadius={geometry.tipRadius}
+            cycleMs={cycleMs}
+            flow={flow}
+            segmentAnimation={segmentAnimation}
             delayScale={delayScale}
           />
           <circle
@@ -110,6 +135,7 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
             cx={0}
             cy={geometry.stem}
             r={hubRadius}
+            style={{ animationDelay: `${hubDelay(flow) * delayScale}ms` }}
           />
         </g>
       </svg>
@@ -117,7 +143,8 @@ const LCPlumeIndicator = forwardRef<SVGSVGElement, LCPlumeIndicatorProps>(
   }
 );
 
-type LCThinkingStateProps = Omit<ThinkingStateProps, 'variant'>;
+type LCThinkingStateProps = Omit<ThinkingStateProps, 'variant'> &
+  Pick<LCPlumeIndicatorProps, 'flow' | 'segmentAnimation' | 'convergePoint'>;
 
 /** ThinkingState with the LangChain plume indicator. Proof of concept. */
 const LCThinkingState = forwardRef<HTMLDivElement, LCThinkingStateProps>(
@@ -125,6 +152,9 @@ const LCThinkingState = forwardRef<HTMLDivElement, LCThinkingStateProps>(
     {
       label = 'Thinking',
       size = 'sm',
+      flow,
+      segmentAnimation,
+      convergePoint,
       tone = 'brand',
       motion = 'full',
       speed = 'normal',
@@ -147,6 +177,9 @@ const LCThinkingState = forwardRef<HTMLDivElement, LCThinkingStateProps>(
       >
         <LCPlumeIndicator
           size={size}
+          flow={flow}
+          segmentAnimation={segmentAnimation}
+          convergePoint={convergePoint}
           tone={tone}
           animated={motion !== 'none'}
           speed={speed}
