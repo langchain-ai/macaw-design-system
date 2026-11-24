@@ -4,7 +4,9 @@
  * Plume animation, shared by PlumeLoader and LCThinkingState.
  * Each strand draws out from its base over a dim resting track, its tip dot
  * lights as it arrives, everything holds, then fades back to rest.
- * The cycle length comes from --plume-cycle on the <svg>.
+ * The cycle length comes from --plume-cycle on the <svg>. With
+ * data-flow="converge" the tips light first and the strands draw inward,
+ * from each tip to the base node, then down the stem to the hub.
  */
 .svg {
   display: block;
@@ -45,7 +47,8 @@
     infinite;
 }
 
-.tip {
+.tip,
+.base {
   fill: currentColor;
   opacity: 0.35;
   transform-box: fill-box;
@@ -60,14 +63,24 @@
   animation: plume-hub var(--plume-cycle) ease-in-out infinite;
 }
 
+.svg[data-flow='converge'] .strand {
+  animation-name: plume-strand-in;
+}
+
+.svg[data-flow='converge'] .tip {
+  animation-name: plume-tip-in;
+}
+
 .svg[data-animated='false'] .strand,
 .svg[data-animated='false'] .tip,
+.svg[data-animated='false'] .base,
 .svg[data-animated='false'] .hub {
   animation: none;
 }
 
 .svg[data-animated='false'] .track,
-.svg[data-animated='false'] .tip {
+.svg[data-animated='false'] .tip,
+.svg[data-animated='false'] .base {
   opacity: 0.6;
 }
 
@@ -88,6 +101,28 @@
   86%,
   100% {
     stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+/* Converge: the same draw, from the end of each path back to its start. */
+@keyframes plume-strand-in {
+  0% {
+    stroke-dashoffset: -1;
+    opacity: 1;
+  }
+  30%,
+  65% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  86%,
+  100% {
+    stroke-dashoffset: -1;
     opacity: 0;
   }
 }
@@ -114,6 +149,28 @@
   }
 }
 
+/* Converge: tips light at the start of the cycle, before their strands. */
+@keyframes plume-tip-in {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  18%,
+  65% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  85%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
 @keyframes plume-hub {
   0% {
     transform: scale(1);
@@ -127,15 +184,18 @@
   }
 }
 
+/* data-flow is always set, so these outrank the converge overrides above. */
 @media (prefers-reduced-motion: reduce) {
-  .strand,
-  .tip,
-  .hub {
+  .svg[data-flow] .strand,
+  .svg[data-flow] .tip,
+  .svg[data-flow] .base,
+  .svg[data-flow] .hub {
     animation: none;
   }
 
-  .track,
-  .tip {
+  .svg[data-flow] .track,
+  .svg[data-flow] .tip,
+  .svg[data-flow] .base {
     opacity: 0.6;
   }
 }
