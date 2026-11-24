@@ -137,16 +137,16 @@ function AgentMessage({
   const { work, answer } = splitParts(turn.parts);
   const actionCount = visibleActionCount(work, tools);
   const hasActions = actionCount > 0;
-  // One progress indicator per message. "Responding" until the agent produces
-  // output, then the work while it is the latest output (the group header,
-  // or the streaming reasoning row when there are no actions). Once the
-  // answer streams, none, so a short answer doesn't flash "Responding".
+  // One progress indicator per message. "Responding" shows only until the
+  // agent produces output, then the work owns progress (the group header, or
+  // the streaming reasoning row when there are no actions). "Responding"
+  // never comes back, so gaps between parts and short answers don't flash it.
   const working =
     turn.status === 'streaming' && work.length > 0 && answer.length === 0;
-  const workShowsProgress =
-    working &&
-    (hasActions ||
-      work.some((part) => part.type === 'reasoning' && part.streaming));
+  // A failed turn's error message already says it failed.
+  const showStatus = turn.error
+    ? false
+    : turn.status !== 'streaming' || (work.length === 0 && answer.length === 0);
   const showInterrupts = isLast && thread.model.interrupts.length > 0;
   const blocks: ChatMessageContentBlock[] = [];
 
@@ -221,7 +221,7 @@ function AgentMessage({
       }}
       name={agentName}
       isLatest={isLast}
-      showStatus={!workShowsProgress && answer.length === 0}
+      showStatus={showStatus}
       footer={
         answerText ? (
           <ChatMessageActions

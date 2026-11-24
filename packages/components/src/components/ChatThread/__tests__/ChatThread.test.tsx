@@ -697,7 +697,15 @@ describe('ChatThread progress indicators', () => {
     );
   });
 
-  it('shows a failed turn’s error as an error message', () => {
+  it('shows no indicator between reasoning and the next part', () => {
+    render(<ChatThread thread={threadWith([reasoning(false)])} />);
+    const { responding, working, thinking } = indicators();
+    expect(responding).toBeNull();
+    expect(working).toBeNull();
+    expect(thinking).toBeNull();
+  });
+
+  it('shows a failed turn’s error once', () => {
     const thread = threadWith([search('succeeded')]);
     thread.model.turns[0] = {
       ...thread.model.turns[0],
@@ -708,6 +716,17 @@ describe('ChatThread progress indicators', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       'The model provider returned an error.'
     );
+    expect(screen.queryByText('Failed')).toBeNull();
+    expect(screen.queryByText(/Stopped/)).toBeNull();
+    expect(screen.getByRole('button', { name: '1 action' })).toBeVisible();
+  });
+
+  it('keeps the Failed label when a failed turn has no error message', () => {
+    const thread = threadWith([search('succeeded')]);
+    thread.model.turns[0] = { ...thread.model.turns[0], status: 'failed' };
+    render(<ChatThread thread={thread} />);
+    expect(screen.getByText('Failed')).toBeInTheDocument();
+    expect(screen.queryByText(/Stopped/)).toBeNull();
   });
 
   it('shows no indicator when the answer streams without work', () => {

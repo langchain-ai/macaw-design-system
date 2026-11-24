@@ -261,11 +261,9 @@ export function WorkSummary({
     ? 'Working'
     : waiting
       ? `Waiting for you · ${actions}`
-      : turn.status === 'failed'
-        ? `Stopped · ${actions}`
-        : duration
-          ? `Worked for ${duration} · ${actions}`
-          : actions;
+      : duration
+        ? `Worked for ${duration} · ${actions}`
+        : actions;
 
   return (
     <ChatToolCallGroup
