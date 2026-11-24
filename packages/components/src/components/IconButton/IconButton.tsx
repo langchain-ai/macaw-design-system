@@ -132,7 +132,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
             disabled,
             onClick,
             'aria-label': label,
-            'aria-busy': loading || undefined,
+            ...(loading ? { 'aria-busy': true } : {}),
             ref,
             ...props,
             children,

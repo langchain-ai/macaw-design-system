@@ -199,3 +199,38 @@ describe('IconButton loading state', () => {
     expect(link).toHaveAttribute('aria-busy', 'true');
   });
 });
+
+describe('Slotted busy state', () => {
+  it('preserves the Button child state when no loading state is supplied', () => {
+    lsRender(
+      <Button
+        as={
+          <a href="/projects" aria-busy="true">
+            Projects
+          </a>
+        }
+      >
+        View projects
+      </Button>
+    );
+
+    expect(screen.getByRole('link', { name: 'View projects' })).toHaveAttribute(
+      'aria-busy',
+      'true'
+    );
+  });
+
+  it('preserves the IconButton child state when no loading state is supplied', () => {
+    lsRender(
+      <IconButton icon={MagnifyingGlassIcon} label="Search projects" asChild>
+        <a href="/projects" aria-busy="true">
+          Projects
+        </a>
+      </IconButton>
+    );
+
+    expect(
+      screen.getByRole('link', { name: 'Search projects' })
+    ).toHaveAttribute('aria-busy', 'true');
+  });
+});

@@ -174,7 +174,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className: cn(baseStyles, getColorVariantStyles(), className),
         onClick,
         ...accessibleNameProps,
-        'aria-busy': loading || undefined,
+        ...(loading ? { 'aria-busy': true } : {}),
         'aria-disabled': disabled || undefined,
         ref,
         ...props,
