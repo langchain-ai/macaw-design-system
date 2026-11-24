@@ -45,7 +45,7 @@ interface LCPlumeIndicatorProps extends Omit<
   'children'
 > {
   size?: IndicatorSize;
-  /** Brand is LangChain primary blue (#006DDD); neutral follows the icon colour. */
+  /** Brand is LangChain light blue (#7FC8FF) in both themes; neutral follows the icon colour. */
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
   animated?: boolean;
