@@ -1,0 +1,129 @@
+@reference "../../styles/tailwind.css";
+
+/*
+ * LCThinkingState (PoC): a single fan-out drawn as an inline animated SVG.
+ * One root node sends its branches out in turn; each end node lights as its
+ * branch arrives, holds, then the fan settles back to its resting state.
+ */
+.fan {
+  display: inline-block;
+  overflow: visible;
+}
+
+.track,
+.branch {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+}
+
+.track {
+  opacity: 0.35;
+}
+
+.branch {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: fan-branch var(--fan-cycle) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.leaf {
+  fill: currentColor;
+  opacity: 0.4;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fan-leaf var(--fan-cycle) ease-out infinite;
+}
+
+.root {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fan-root var(--fan-cycle) ease-in-out infinite;
+}
+
+.fan[data-animated='false'] .branch,
+.fan[data-animated='false'] .leaf,
+.fan[data-animated='false'] .root {
+  animation: none;
+}
+
+.fan[data-animated='false'] .track,
+.fan[data-animated='false'] .leaf {
+  opacity: 0.6;
+}
+
+@keyframes fan-branch {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  35%,
+  68% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  88% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  89%,
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes fan-leaf {
+  0%,
+  28% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+  38% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  48%,
+  68% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  88%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+}
+
+@keyframes fan-root {
+  0% {
+    transform: scale(1);
+  }
+  12% {
+    transform: scale(1.18);
+  }
+  30%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .branch,
+  .leaf,
+  .root {
+    animation: none;
+  }
+
+  .track,
+  .leaf {
+    opacity: 0.6;
+  }
+}
+
+@media (forced-colors: active) {
+  .fan {
+    color: CanvasText;
+  }
+}
