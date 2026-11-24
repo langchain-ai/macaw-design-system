@@ -3,7 +3,7 @@ import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Text } from '../Text';
-import { LCFanOutIndicator, LCThinkingState } from './LCThinkingState';
+import { LCPlumeIndicator, LCThinkingState } from './LCThinkingState';
 
 const meta = {
   title: 'Components/Status/LCThinkingState',
@@ -13,7 +13,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Proof of concept. ThinkingState with a LangChain fan-out indicator: one root node sends out its branches and each end node lights as its branch arrives. Drawn as an inline animated SVG. At 12px and 16px it draws three thicker branches so it still reads; at 20px and up it draws five. Respects reduced motion.',
+          'Proof of concept. ThinkingState with the LangChain plume from the GTM agent intro: the stem draws up from its hub, the strands fan out, and each tip lights as its strand arrives. Drawn as an inline animated SVG. It draws 4 heavier strands at 12px, 6 at 16px and 8 from 20px up, so it still reads small. See PlumeLoader for the full-size plume and the pattern. Respects reduced motion.',
       },
     },
   },
@@ -81,10 +81,10 @@ export const IndicatorScale: Story = {
   render: ({ tone }) => (
     <div className="flex items-end gap-space-6">
       {(['xs', 'sm', 'md', 'lg'] as const).map((size) => (
-        <LCFanOutIndicator key={size} size={size} tone={tone} />
+        <LCPlumeIndicator key={size} size={size} tone={tone} />
       ))}
-      <LCFanOutIndicator size="lg" tone={tone} width={48} height={48} />
-      <LCFanOutIndicator size="lg" tone={tone} width={96} height={96} />
+      <LCPlumeIndicator size="lg" tone={tone} width={48} height={48} />
+      <LCPlumeIndicator size="lg" tone={tone} width={96} height={96} />
     </div>
   ),
 };
