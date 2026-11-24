@@ -245,7 +245,7 @@ export function WorkSummary({
   turn: ChatThreadTurn;
   parts: ChatThreadPart[];
   count: number;
-  /** Whether the work is the turn's latest output; the answer settles it. */
+  /** Whether the work is the turn's latest output. */
   working: boolean;
 }) {
   const { thread } = useThread();
@@ -270,9 +270,8 @@ export function WorkSummary({
   return (
     <ChatToolCallGroup
       label={label}
-      // Open for the whole turn, even once the answer streams, so tool
-      // output doesn't vanish mid-read. Closed once the turn is done,
-      // unless the reader chose otherwise.
+      // Open until the turn ends, so tool output doesn't vanish while the
+      // answer streams.
       expanded={readerChoice ?? (turn.status === 'streaming' || waiting)}
       onExpandedChange={setReaderChoice}
       // Keeps the header working while the agent decides its next call.

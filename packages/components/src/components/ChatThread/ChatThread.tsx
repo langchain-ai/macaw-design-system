@@ -17,11 +17,10 @@ import {
   type ChatMessageContentBlock,
 } from '../ChatMessage';
 import { ChatPlan } from '../ChatPlan';
-import { ChatState } from '../ChatState';
 import { copyToClipboard } from '../CopyButton';
+import { ErrorMessage } from '../ErrorMessage';
 import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Skeleton } from '../Skeleton';
-import { Text } from '../Text';
 import { Textarea } from '../Textarea';
 import type {
   ChatThreadController,
@@ -138,12 +137,10 @@ function AgentMessage({
   const { work, answer } = splitParts(turn.parts);
   const actionCount = visibleActionCount(work, tools);
   const hasActions = actionCount > 0;
-  // One progress indicator per message. The message header's "Responding"
-  // owns it until the agent produces output. The work owns it while it is
-  // the latest output: the group header when there are actions, else the
-  // streaming reasoning row. Once the answer starts, the streaming text is
-  // the progress, so no indicator shows. A short answer would otherwise
-  // flash "Responding" for a moment.
+  // One progress indicator per message. "Responding" until the agent produces
+  // output, then the work while it is the latest output (the group header,
+  // or the streaming reasoning row when there are no actions). Once the
+  // answer streams, none, so a short answer doesn't flash "Responding".
   const working =
     turn.status === 'streaming' && work.length > 0 && answer.length === 0;
   const workShowsProgress =
@@ -204,23 +201,7 @@ function AgentMessage({
     blocks.push({
       id: 'error',
       type: 'custom',
-      content: (
-        <div className="flex min-w-0 items-start gap-space-2 rounded-lg bg-error-subtle px-space-3 py-space-2">
-          <ChatState
-            status="failed"
-            variant="simple"
-            showElapsed={false}
-            announce={false}
-          />
-          <Text
-            variant="sm"
-            color="error"
-            className="min-w-0 [overflow-wrap:anywhere]"
-          >
-            {turn.error}
-          </Text>
-        </div>
-      ),
+      content: <ErrorMessage message={turn.error} size="md" />,
     });
   }
 

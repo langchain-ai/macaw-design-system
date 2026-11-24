@@ -689,15 +689,24 @@ describe('ChatThread progress indicators', () => {
       <ChatThread thread={threadWith([search('succeeded'), answer(true)])} />
     );
     const { responding, working } = indicators();
-    // The streaming text is the progress, so a short answer doesn't flash
-    // "Responding" after the work settles.
     expect(responding).toBeNull();
     expect(working).toBeNull();
-    // The group stays open until the turn ends, so tool output doesn't
-    // vanish while the answer streams.
     expect(screen.getByRole('button', { name: '1 action' })).toHaveAttribute(
       'aria-expanded',
       'true'
+    );
+  });
+
+  it('shows a failed turn’s error as an error message', () => {
+    const thread = threadWith([search('succeeded')]);
+    thread.model.turns[0] = {
+      ...thread.model.turns[0],
+      status: 'failed',
+      error: 'The model provider returned an error.',
+    };
+    render(<ChatThread thread={thread} />);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'The model provider returned an error.'
     );
   });
 
