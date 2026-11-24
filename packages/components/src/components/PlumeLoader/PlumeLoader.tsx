@@ -36,6 +36,7 @@ interface PlumeLoaderProps extends Omit<
   /** Field only: hubs across and down. */
   columns?: number;
   rows?: number;
+  /** Brand is LangChain primary blue (#006DDD); neutral follows the icon colour. */
   tone?: 'neutral' | 'brand';
   /** Reduced-motion preferences always take precedence. */
   animated?: boolean;
@@ -156,7 +157,7 @@ const PlumeLoader = forwardRef<HTMLDivElement, PlumeLoaderProps>(
         role="status"
         className={cn(
           isField ? 'block w-full' : 'inline-block',
-          tone === 'brand' ? 'text-icon-brand' : 'text-icon-primary',
+          tone === 'brand' ? styles.brand : 'text-icon-primary',
           className
         )}
         style={style}
