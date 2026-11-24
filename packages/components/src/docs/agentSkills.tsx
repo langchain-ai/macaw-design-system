@@ -31,12 +31,12 @@ const MACAW_BLOB =
 
 export const agentSkills: AgentSkill[] = [
   {
-    name: 'macaw-create-settings',
+    name: 'frontend-settings-pages',
     icon: GearSixIcon,
     loadsWhen: 'Loads when you build or change a LangSmith settings page.',
     getIt: 'Included in the LangSmith repository.',
     example: {
-      title: 'Design System Examples/Settings',
+      title: 'LangSmith Examples/Settings',
       name: 'CTA + table',
       label: 'See the recipes',
     },
@@ -74,7 +74,7 @@ export function AgentSkillsPage() {
           <Text color="secondary">
             An agent loads a skill on its own when a task matches it. In Claude
             Code you can also run one by name, like{' '}
-            <code>/macaw-create-settings</code>.
+            <code>/frontend-settings-pages</code>.
           </Text>
         </header>
 
