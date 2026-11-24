@@ -4,6 +4,7 @@ import {
   cloneElement,
   forwardRef,
   isValidElement,
+  useId,
 } from 'react';
 
 import { cn } from '../../utils/cn';
@@ -94,24 +95,20 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       return buttonStyleMap[key] || '';
     };
 
-    // Generate aria-label automatically based on content
-    const getAriaLabel = () => {
-      if (props['aria-label']) {
-        return props['aria-label'];
-      }
-
-      // If children is a string, use it as aria-label
-      if (typeof children === 'string') {
-        return children;
-      }
-      // If children is not a string but tagText exists, use tagText
-      if (tagText) {
-        return tagText;
-      }
-
-      // Fallback to generic "button"
-      return 'button';
-    };
+    const loadingLabelId = useId();
+    const hasExplicitName = Boolean(
+      props['aria-label'] ||
+      props['aria-labelledby'] ||
+      (isValidElement(as) &&
+        (as.props['aria-label'] || as.props['aria-labelledby']))
+    );
+    const accessibleNameProps = hasExplicitName
+      ? {}
+      : typeof children === 'string'
+        ? { 'aria-label': children }
+        : loading
+          ? { 'aria-labelledby': loadingLabelId }
+          : {};
 
     const content = (
       <>
@@ -176,13 +173,16 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       return cloneElement(as, {
         className: cn(baseStyles, getColorVariantStyles(), className),
         onClick,
-        'aria-label': getAriaLabel(),
+        ...accessibleNameProps,
+        'aria-busy': loading || undefined,
         'aria-disabled': disabled || undefined,
         ref,
         ...props,
         children: loading ? (
           <>
-            <span className="invisible flex items-center">{content}</span>
+            <span id={loadingLabelId} className="invisible flex items-center">
+              {content}
+            </span>
             <span className="absolute">
               <Spinner size={spinnerSize} />
             </span>
@@ -201,12 +201,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(baseStyles, getColorVariantStyles(), className)}
         disabled={disabled}
         onClick={onClick}
-        aria-label={getAriaLabel()}
+        {...accessibleNameProps}
+        aria-busy={loading || undefined}
         {...props}
       >
         {loading ? (
           <>
-            <span className="invisible flex items-center">{content}</span>
+            <span id={loadingLabelId} className="invisible flex items-center">
+              {content}
+            </span>
             <span className="absolute">
               <Spinner size={spinnerSize} />
             </span>
