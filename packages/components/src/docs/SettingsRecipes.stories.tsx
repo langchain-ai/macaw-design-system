@@ -60,7 +60,7 @@ import { cn } from '../utils/cn';
  * so the spacing here is the spacing there. Build pages with the real ones.
  */
 const meta: Meta<RecipeArgs> = {
-  title: 'Design System Examples/Settings',
+  title: 'LangSmith Examples/Settings',
   tags: ['a11y-test'],
   parameters: {
     layout: 'fullscreen',
