@@ -691,7 +691,12 @@ describe('ChatThread progress indicators', () => {
     const { responding, working } = indicators();
     expect(responding).toBeInTheDocument();
     expect(working).toBeNull();
-    expect(screen.getByRole('button', { name: '1 action' })).toBeVisible();
+    // The group stays open until the turn ends, so tool output doesn't
+    // vanish while the answer streams.
+    expect(screen.getByRole('button', { name: '1 action' })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
   });
 
   it('shows no progress once the turn completes', () => {
@@ -704,5 +709,9 @@ describe('ChatThread progress indicators', () => {
     expect(responding).toBeNull();
     expect(working).toBeNull();
     expect(thinking).toBeNull();
+    expect(screen.getByRole('button', { name: '1 action' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
   });
 });

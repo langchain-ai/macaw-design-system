@@ -270,9 +270,10 @@ export function WorkSummary({
   return (
     <ChatToolCallGroup
       label={label}
-      // Open while the agent works or waits, so progress stays in view;
-      // closed once it's done, unless the reader chose otherwise.
-      expanded={readerChoice ?? (working || waiting)}
+      // Open for the whole turn, even once the answer streams, so tool
+      // output doesn't vanish mid-read. Closed once the turn is done,
+      // unless the reader chose otherwise.
+      expanded={readerChoice ?? (turn.status === 'streaming' || waiting)}
       onExpandedChange={setReaderChoice}
       // Keeps the header working while the agent decides its next call.
       running={working}
