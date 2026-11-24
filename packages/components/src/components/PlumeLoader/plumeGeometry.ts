@@ -52,5 +52,56 @@ function strandDelay([x]: Point): number {
   return 120 + Math.round((Math.abs(x) / PLUME_HALF_WIDTH) * 140);
 }
 
-export { PLUME_HALF_WIDTH, PLUME_TOP, plumeTips, strandDelay, strandPath };
-export type { Point, StrandCount };
+/**
+ * diverge: from the single point out to the tips.
+ * converge: from the tips in to the single point.
+ */
+type PlumeFlow = 'diverge' | 'converge';
+
+/**
+ * concurrent: every strand runs on the plume's shared timeline.
+ * independent: each strand runs on its own randomised delay and duration.
+ */
+type SegmentAnimation = 'concurrent' | 'independent';
+
+/** Where the plume's single point sits; the strands open the other way. */
+type ConvergePoint = 'down' | 'up' | 'left' | 'right';
+
+/** Rotation, in degrees, from the drawn orientation (point at the bottom). */
+const CONVERGE_POINT_ROTATION: Record<ConvergePoint, number> = {
+  down: 0,
+  left: 90,
+  up: 180,
+  right: 270,
+};
+
+/** When the hub at the end of the stem pulses, relative to the plume's start. */
+function hubDelay(flow: PlumeFlow): number {
+  return flow === 'converge' ? 900 : 0;
+}
+
+/** Deterministic 0–1 random from an integer seed, so renders stay stable. */
+function seededRandom(seed: number): number {
+  let t = (seed + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+export {
+  CONVERGE_POINT_ROTATION,
+  PLUME_HALF_WIDTH,
+  PLUME_TOP,
+  hubDelay,
+  plumeTips,
+  seededRandom,
+  strandDelay,
+  strandPath,
+};
+export type {
+  ConvergePoint,
+  PlumeFlow,
+  Point,
+  SegmentAnimation,
+  StrandCount,
+};
