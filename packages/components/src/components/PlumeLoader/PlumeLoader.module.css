@@ -11,9 +11,9 @@
   overflow: visible;
 }
 
-/* LangChain primary blue in both themes (icon-brand shifts in dark mode). */
+/* LangChain light blue (#7FC8FF) in both light and dark themes. */
 .brand {
-  color: var(--brand-400, #006ddd);
+  color: #7fc8ff;
 }
 
 .track,
