@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Proof of concept. The plume from the GTM agent intro animation as a loader, drawn as an inline animated SVG. `plume` is one full-size plume: the stem draws up from its hub, the strands fan out and each tip lights as its strand arrives. `field` tiles hubs of four plumes into a network that lights in a wave from the centre outward. Respects reduced motion.',
+          'Proof of concept. The plume from the GTM agent intro animation as a loader, drawn as an inline animated SVG in LangChain primary blue. `plume` is one full-size plume: the stem draws up from its hub, the strands fan out and each tip lights as its strand arrives. `field` tiles hubs of four plumes into a network that lights in a wave from the centre outward. Respects reduced motion.',
       },
     },
   },
@@ -44,13 +44,12 @@ export const PlumeOnDark: Story = {
     (Story) => (
       <div
         className="rounded-lg p-space-8"
-        style={{ background: '#030710', color: '#7FC8FF' }}
+        style={{ background: '#030710' }}
       >
         <Story />
       </div>
     ),
   ],
-  render: (args) => <PlumeLoader {...args} style={{ color: 'inherit' }} />,
 };
 
 export const Field: Story = {
@@ -63,12 +62,11 @@ export const FieldOnDark: Story = {
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
-      <div style={{ background: '#030710', color: '#7FC8FF' }}>
+      <div style={{ background: '#030710' }}>
         <Story />
       </div>
     ),
   ],
-  render: (args) => <PlumeLoader {...args} style={{ color: 'inherit' }} />,
 };
 
 export const Static: Story = { args: { size: 200, animated: false } };
