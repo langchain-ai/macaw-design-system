@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { ChartLegend, type ChartLegendItem } from '.';
+import { getCategoricalFillChartColor } from '../../utils/chartColors';
 import { BarChart, type BarChartSeries } from '../BarChart';
 import { DonutChart, type DonutChartSegment } from '../DonutChart';
 import { Text } from '../Text';
@@ -11,64 +12,64 @@ const legendItems: readonly ChartLegendItem[] = [
   {
     id: 'gpt-5.6-sol',
     label: 'gpt-5.6-sol',
-    markerColor: 'var(--viz-brand-200)',
+    markerColor: getCategoricalFillChartColor(0),
     value: '18.915s',
     secondaryValue: '33.5%',
   },
   {
     id: 'gpt-5.6-luna',
     label: 'gpt-5.6-luna',
-    markerColor: 'var(--viz-purple-200)',
+    markerColor: getCategoricalFillChartColor(1),
     value: '10.014s',
     secondaryValue: '17.7%',
   },
   {
     id: 'claude-opus-5',
     label: 'claude-opus-5',
-    markerColor: 'var(--viz-magenta-200)',
+    markerColor: getCategoricalFillChartColor(2),
     value: '8.958s',
     secondaryValue: '15.9%',
   },
   {
     id: 'claude-opus-4.8',
     label: 'claude-opus-4.8',
-    markerColor: 'var(--viz-orange-200)',
+    markerColor: getCategoricalFillChartColor(3),
     value: '7.586s',
     secondaryValue: '13.4%',
   },
   {
     id: 'gemini-3.1-flash-lite',
     label: 'gemini-3.1-flash-lite',
-    markerColor: 'var(--viz-red-200)',
+    markerColor: getCategoricalFillChartColor(4),
     value: '5.534s',
     secondaryValue: '9.8%',
   },
   {
     id: 'claude-haiku-4.5',
     label: 'claude-haiku-4.5',
-    markerColor: 'var(--viz-sky-200)',
+    markerColor: getCategoricalFillChartColor(5),
     value: '4.39s',
     secondaryValue: '7.8%',
   },
   {
     id: 'claude-sonnet-4.5',
     label: 'claude-sonnet-4.5',
-    markerColor: 'var(--viz-green-200)',
+    markerColor: getCategoricalFillChartColor(6),
   },
   {
     id: 'gpt-5.4-mini',
     label: 'gpt-5.4-mini',
-    markerColor: 'var(--viz-acid-200)',
+    markerColor: getCategoricalFillChartColor(7),
   },
   {
     id: 'kimi-k3',
     label: 'kimi-k3',
-    markerColor: 'var(--viz-orange-400)',
+    markerColor: getCategoricalFillChartColor(8),
   },
   {
     id: 'glm-5.2',
     label: 'glm-5.2',
-    markerColor: 'var(--viz-purple-100)',
+    markerColor: getCategoricalFillChartColor(9),
   },
 ];
 
@@ -236,7 +237,7 @@ export const Exclude: Story = {
       id: item.id,
       label: item.label,
       value: getExampleTotal(item),
-      color: item.markerColor ?? 'var(--viz-brand-200)',
+      color: item.markerColor ?? getCategoricalFillChartColor(0),
     }));
 
     const legendProps = {

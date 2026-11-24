@@ -292,7 +292,7 @@ export const Examples: Story = {
               Runs
             </Text>
             <div className="mb-space-3 flex gap-space-2">
-              <span className="rounded bg-blue-100 px-space-2 py-space-1 text-xs text-blue-800">
+              <span className="rounded bg-brand-subtle px-space-2 py-space-1 text-xs text-brand">
                 Runs
               </span>
               <span className="rounded bg-surface-level-3 px-space-2 py-space-1 text-xs text-tertiary">

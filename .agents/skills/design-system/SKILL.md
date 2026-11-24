@@ -18,7 +18,7 @@ tokens, CSS, Tailwind, spacing, or z-index.
 - Keep capability keywords in the static component-level `tags` array of the
   colocated story. The contributor CLI reads this metadata directly; the package build exports it as a catalog for the installed CLI.
 - Read long docs in bounded sections; `pnpm --silent design-system foundations`
-  lists the common ones. For styling, read **Usage Rules** in
+  lists the common ones (start with `components` and `decisions`). For styling, read **Usage Rules** in
   `packages/components/docs/STYLES.md` and the sections relevant to the change.
 - Use `ThinkingState` for active AI work and `LoadingIndicator` for its decorative
   animation. Use `Spinner` for routine loading, `Skeleton` for known content

@@ -84,6 +84,21 @@ test('semantic color channels and external Radix variables remain usable', () =>
   ).toEqual([]);
 });
 
+test('does not flag issue or order numbers in prose as hex colors', () => {
+  expect(
+    designFindings(
+      'Demo.stories.tsx',
+      `const copy = ['Where is my order #4512?', 'Issue #12345', 'Ticket #4512'];`
+    )
+  ).toEqual([]);
+  expect(
+    designFindings(
+      'Demo.stories.tsx',
+      `const bad = ['#fff', '#4f7cff', '#11223344', 'bg-[#0008]'];`
+    ).map(({ value }) => value)
+  ).toEqual(['#fff', '#4f7cff', '#11223344', '#0008']);
+});
+
 test('invalid source cannot silently pass', () => {
   expect(() => designFindings('Control.tsx', 'const = ;')).toThrow(
     /invalid source/

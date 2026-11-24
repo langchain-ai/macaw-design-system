@@ -1,7 +1,8 @@
 import { parseSync, Visitor } from 'oxc-parser';
 
 const rawColor =
-  /#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch)\([^)]*\)/gi;
+  /#(?:[\da-f]{8}|[\da-f]{6}|[\da-f]{3})(?![\da-f])|\b(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch)\([^)]*\)/gi;
+const rawHex4InStyle = /(?:\[|:\s*)(#[\da-f]{4})(?![\da-f])(?=[\];,\s]|$)/gi;
 const primitive =
   /var\(--(?:neutral|brand|gray|viz(?:-[a-z]+)?)-\d+\)|(?<![\w-])(?:bg|text|border|ring|fill|stroke|outline|divide|from|via|to|shadow)-(?:neutral|brand|gray|slate|zinc|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d+/gi;
 const spacing =
@@ -24,6 +25,13 @@ export function designFindings(file, source, tokens = new Set()) {
           continue;
         findings.push({ rule, value: match[0], offset: offset + match.index });
       }
+    }
+    for (const match of value.matchAll(rawHex4InStyle)) {
+      findings.push({
+        rule: 'raw-color',
+        value: match[1],
+        offset: offset + match.index + match[0].indexOf(match[1]),
+      });
     }
     if (tokens.size) {
       for (const match of value.matchAll(tokenReference)) {

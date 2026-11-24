@@ -222,22 +222,22 @@ export const ScaleAndGuidelines: Story = {
               Last 30 days
             </Text>
           </div>
-          <div className="flex h-1 overflow-hidden rounded-full bg-secondary">
-            <div className="w-1/2 bg-brand-700" />
-            <div className="w-1/3 bg-brand-300" />
-            <div className="flex-1 bg-brand-50" />
+          <div className="flex h-1 overflow-hidden rounded-full bg-surface-level-3">
+            <div className="w-1/2 bg-brand" />
+            <div className="w-1/3 bg-purple" />
+            <div className="flex-1 bg-surface-level-4" />
           </div>
           <div className="flex flex-wrap gap-space-4">
             <span className="inline-flex items-center gap-space-2 text-xs text-tertiary">
-              <span className="size-2 rounded-full bg-brand-700" />
+              <span className="size-2 rounded-full bg-brand" />
               Production
             </span>
             <span className="inline-flex items-center gap-space-2 text-xs text-tertiary">
-              <span className="size-2 rounded-full bg-brand-300" />
+              <span className="size-2 rounded-full bg-purple" />
               Support
             </span>
             <span className="inline-flex items-center gap-space-2 text-xs text-tertiary">
-              <span className="size-2 rounded-full bg-brand-50" />
+              <span className="size-2 rounded-full bg-surface-level-4" />
               Sandbox
             </span>
           </div>

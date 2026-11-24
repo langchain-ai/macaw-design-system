@@ -57,7 +57,7 @@ const meta = {
   decorators: [
     (Story) => (
       <TooltipProvider>
-        <div className="p-20">
+        <div className="p-space-9">
           <Story />
         </div>
       </TooltipProvider>

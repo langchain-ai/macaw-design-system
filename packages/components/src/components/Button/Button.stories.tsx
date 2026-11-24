@@ -80,21 +80,21 @@ type Story = StoryObj<typeof meta>;
 export const ExtraSmallSize: Story = {
   args: {
     size: 'xs',
-    children: 'Extra Small Button',
+    children: 'Extra small button',
   },
 };
 
 export const SmallSize: Story = {
   args: {
     size: 'sm',
-    children: 'Small Button',
+    children: 'Small button',
   },
 };
 
 export const MediumSize: Story = {
   args: {
     size: 'md',
-    children: 'Medium Button',
+    children: 'Medium button',
   },
 };
 
@@ -103,7 +103,7 @@ export const PrimaryNormal: Story = {
   args: {
     color: 'primary',
     variant: 'normal',
-    children: 'Primary Button',
+    children: 'Primary button',
   },
 };
 
@@ -111,7 +111,7 @@ export const PrimaryOutlined: Story = {
   args: {
     color: 'primary',
     variant: 'outlined',
-    children: 'Primary Outlined',
+    children: 'Primary outlined',
   },
 };
 
@@ -119,7 +119,7 @@ export const PrimaryPlain: Story = {
   args: {
     color: 'primary',
     variant: 'plain',
-    children: 'Primary Plain',
+    children: 'Primary plain',
   },
 };
 
@@ -127,7 +127,7 @@ export const PrimaryUnderlined: Story = {
   args: {
     color: 'primary',
     variant: 'underlined',
-    children: 'Primary Underlined',
+    children: 'Primary underlined',
   },
 };
 
@@ -135,7 +135,7 @@ export const SecondaryNormal: Story = {
   args: {
     color: 'secondary',
     variant: 'normal',
-    children: 'Secondary Button',
+    children: 'Secondary button',
   },
 };
 
@@ -143,7 +143,7 @@ export const SecondaryOutlined: Story = {
   args: {
     color: 'secondary',
     variant: 'outlined',
-    children: 'Secondary Outlined',
+    children: 'Secondary outlined',
   },
 };
 
@@ -151,7 +151,7 @@ export const SecondaryPlain: Story = {
   args: {
     color: 'secondary',
     variant: 'plain',
-    children: 'Secondary Plain',
+    children: 'Secondary plain',
   },
 };
 
@@ -159,7 +159,7 @@ export const SecondaryUnderlined: Story = {
   args: {
     color: 'secondary',
     variant: 'underlined',
-    children: 'Secondary Underlined',
+    children: 'Secondary underlined',
   },
 };
 
@@ -167,7 +167,7 @@ export const ErrorNormal: Story = {
   args: {
     color: 'error',
     variant: 'normal',
-    children: 'Error Button',
+    children: 'Error button',
   },
 };
 
@@ -175,7 +175,7 @@ export const ErrorOutlined: Story = {
   args: {
     color: 'error',
     variant: 'outlined',
-    children: 'Error Button',
+    children: 'Error button',
   },
 };
 
@@ -183,7 +183,7 @@ export const ErrorPlain: Story = {
   args: {
     color: 'error',
     variant: 'plain',
-    children: 'Error Button',
+    children: 'Error button',
   },
 };
 
@@ -191,7 +191,7 @@ export const ErrorPlain: Story = {
 export const WithLeftDecorator: Story = {
   args: {
     leftDecorator: PlusIcon,
-    children: 'Add Item',
+    children: 'Add item',
   },
 };
 
@@ -231,7 +231,7 @@ export const WithLeftTag: Story = {
 export const Disabled: Story = {
   args: {
     disabled: true,
-    children: 'Disabled Button',
+    children: 'Disabled button',
   },
 };
 
@@ -240,7 +240,7 @@ export const DisabledWithDecorators: Story = {
     disabled: true,
     leftDecorator: PlusIcon,
     rightDecorator: ArrowRightIcon,
-    children: 'Disabled with Icons',
+    children: 'Disabled with icons',
   },
 };
 
@@ -255,19 +255,19 @@ export const AllVariants: Story = {
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">Size Variants</h3>
         <div className="flex flex-wrap items-center gap-space-4">
-          <Button size="xs">Extra Small Button</Button>
-          <Button size="sm">Small Button</Button>
-          <Button size="md">Medium Button</Button>
+          <Button size="xs">Extra small button</Button>
+          <Button size="sm">Small button</Button>
+          <Button size="md">Medium button</Button>
         </div>
         <div className="flex flex-wrap items-center gap-space-4">
           <Button size="xs" leftDecorator={PlusIcon}>
-            Extra Small with Icon
+            Extra small with icon
           </Button>
           <Button size="sm" leftDecorator={PlusIcon}>
-            Small with Icon
+            Small with icon
           </Button>
           <Button size="md" leftDecorator={PlusIcon}>
-            Medium with Icon
+            Medium with icon
           </Button>
         </div>
       </div>
@@ -348,9 +348,9 @@ export const AllVariants: Story = {
       <div className="space-y-space-4">
         <h3 className="text-lg font-semibold">With Tags</h3>
         <div className="flex flex-wrap gap-space-4">
-          <Button tagText="New">Button with Right Tag</Button>
+          <Button tagText="New">Button with right tag</Button>
           <Button tagText="Beta" tagPosition="left">
-            Button with Left Tag
+            Button with left tag
           </Button>
         </div>
       </div>
@@ -360,25 +360,25 @@ export const AllVariants: Story = {
         <h3 className="text-lg font-semibold">Disabled States</h3>
         <div className="flex flex-wrap gap-space-4">
           <Button disabled color="primary" variant="normal">
-            Disabled Primary Normal
+            Disabled primary normal
           </Button>
           <Button disabled color="primary" variant="plain">
-            Disabled Primary Plain
+            Disabled primary plain
           </Button>
           <Button disabled color="primary" variant="underlined">
-            Disabled Primary Underlined
+            Disabled primary underlined
           </Button>
           <Button disabled color="secondary" variant="normal">
-            Disabled Secondary
+            Disabled secondary
           </Button>
           <Button disabled color="secondary" variant="underlined">
-            Disabled Secondary Underlined
+            Disabled secondary underlined
           </Button>
           <Button disabled leftDecorator={PlusIcon}>
-            Disabled with Icon
+            Disabled with icon
           </Button>
           <Button disabled tagText="New">
-            Disabled with Tag
+            Disabled with tag
           </Button>
         </div>
       </div>
@@ -396,7 +396,7 @@ export const InteractiveExample: Story = {
       <h3 className="text-lg font-semibold">Interactive Examples</h3>
       <div className="flex flex-wrap gap-space-4">
         <Button leftDecorator={PlusIcon} onClick={() => alert('Add clicked!')}>
-          Add Item
+          Add item
         </Button>
         <Button
           color="secondary"
@@ -411,7 +411,7 @@ export const InteractiveExample: Story = {
           variant="underlined"
           onClick={() => alert('Learn more clicked!')}
         >
-          Learn More
+          Learn more
         </Button>
       </div>
     </div>
@@ -421,6 +421,6 @@ export const InteractiveExample: Story = {
 export const Loading: Story = {
   args: {
     loading: true,
-    children: 'Loading Button',
+    children: 'Loading button',
   },
 };

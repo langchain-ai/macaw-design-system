@@ -44,7 +44,7 @@ const ThemeSetter = ({
 const preview: Preview = {
   parameters: {
     a11y: {
-      test: 'todo',
+      test: import.meta.env.MODE === 'test' ? 'error' : 'todo',
       // Include portals such as dialogs, which render outside the story root.
       context: 'body',
     },

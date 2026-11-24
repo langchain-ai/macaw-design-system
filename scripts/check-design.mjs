@@ -11,11 +11,9 @@ function sources(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = resolve(directory, entry.name);
     if (entry.isDirectory())
-      return ['__tests__', 'docs', 'stories', 'icons'].includes(entry.name)
-        ? []
-        : sources(path);
+      return ['__tests__', 'icons'].includes(entry.name) ? [] : sources(path);
     return /\.(?:tsx?|css)$/.test(entry.name) &&
-      !/\.(?:stories|test)\.tsx?$/.test(entry.name)
+      !/\.test\.tsx?$/.test(entry.name)
       ? [path]
       : [];
   });

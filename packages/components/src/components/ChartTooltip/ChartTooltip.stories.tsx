@@ -10,8 +10,18 @@ import {
   ChartTooltipHeader,
   ChartTooltipRow,
 } from '.';
+import {
+  CHART_SINGLE_FILL_COLOR,
+  getCategoricalFillChartColor,
+  getCategoricalLineChartColor,
+} from '../../utils/chartColors';
 import zIndices from '../../utils/zIndices';
 import { Text, textVariantClasses } from '../Text';
+
+const SUCCESSFUL_SERIES_COLOR = getCategoricalFillChartColor(0);
+const SUCCESSFUL_SERIES_ACTIVE_COLOR = getCategoricalLineChartColor(0);
+const ERRORS_SERIES_COLOR = getCategoricalFillChartColor(3);
+const ERRORS_SERIES_ACTIVE_COLOR = getCategoricalLineChartColor(3);
 
 const CHART_WIDTH = 640;
 const CHART_HEIGHT = 240;
@@ -165,12 +175,12 @@ function TooltipStoryChart({
                 variant === 'comparison'
                   ? bar.series === 'successful'
                     ? tooltipData?.hoveredBarKey === bar.key
-                      ? 'var(--viz-brand-600)'
-                      : 'var(--viz-brand-400)'
+                      ? SUCCESSFUL_SERIES_ACTIVE_COLOR
+                      : SUCCESSFUL_SERIES_COLOR
                     : tooltipData?.hoveredBarKey === bar.key
-                      ? 'var(--viz-orange-200)'
-                      : 'var(--viz-orange-100)'
-                  : 'var(--viz-brand-300)'
+                      ? ERRORS_SERIES_ACTIVE_COLOR
+                      : ERRORS_SERIES_COLOR
+                  : CHART_SINGLE_FILL_COLOR
               }
               rx={variant === 'daily-spend' ? 3 : 0}
               stroke={
@@ -253,13 +263,13 @@ export const SecondaryValues: Story = {
         <ChartTooltipHeader title="Experiment results" />
         <ChartTooltipBody>
           <ChartTooltipRow
-            markerColor="var(--viz-brand-400)"
+            markerColor={SUCCESSFUL_SERIES_COLOR}
             label="Correctness"
             value="84%"
             secondaryValue="0.92"
           />
           <ChartTooltipRow
-            markerColor="var(--viz-orange-100)"
+            markerColor={ERRORS_SERIES_COLOR}
             label="Helpfulness"
             value="77%"
             secondaryValue="0.81"
@@ -277,12 +287,12 @@ export const LongLabels: Story = {
         <ChartTooltipHeader title="Fleet tool usage" value="1,284" />
         <ChartTooltipBody>
           <ChartTooltipRow
-            markerColor="var(--viz-brand-400)"
+            markerColor={SUCCESSFUL_SERIES_COLOR}
             label="mcp__fixtures__get_coordinates"
             value="842"
           />
           <ChartTooltipRow
-            markerColor="var(--viz-orange-100)"
+            markerColor={ERRORS_SERIES_COLOR}
             label="mcp__weather__get_weather"
             value="442"
           />
@@ -307,13 +317,13 @@ export const HighlightedRow: Story = {
           />
           <ChartTooltipBody>
             <ChartTooltipRow
-              markerColor="var(--viz-brand-400)"
+              markerColor={SUCCESSFUL_SERIES_COLOR}
               label="Successful runs"
               value="1,102"
               highlighted={hoveredSeries === 'successful'}
             />
             <ChartTooltipRow
-              markerColor="var(--viz-orange-100)"
+              markerColor={ERRORS_SERIES_COLOR}
               label="Runs with errors"
               value="182"
               highlighted={hoveredSeries === 'errors'}
