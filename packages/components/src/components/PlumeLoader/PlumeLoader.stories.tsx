@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Proof of concept. The plume from the GTM agent intro animation as a loader, drawn as an inline animated SVG in LangChain primary blue. `plume` is one full-size plume: the stem draws up from its hub, the strands fan out and each tip lights as its strand arrives. `field` tiles hubs of four plumes into a network that lights in a wave from the centre outward. Respects reduced motion.',
+          'Proof of concept. The plume from the GTM agent intro animation as a loader, drawn as an inline animated SVG in LangChain light blue (#7FC8FF). `plume` is one full-size plume: the stem draws up from its hub, the strands fan out and each tip lights as its strand arrives. `field` tiles hubs of four plumes into a network that lights in a wave from the centre outward. Respects reduced motion.',
       },
     },
   },
