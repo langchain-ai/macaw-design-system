@@ -684,12 +684,14 @@ describe('ChatThread progress indicators', () => {
     expect(responding).toBeNull();
   });
 
-  it('settles the work group once the answer streams', () => {
+  it('shows no indicator once the answer streams', () => {
     render(
       <ChatThread thread={threadWith([search('succeeded'), answer(true)])} />
     );
     const { responding, working } = indicators();
-    expect(responding).toBeInTheDocument();
+    // The streaming text is the progress, so a short answer doesn't flash
+    // "Responding" after the work settles.
+    expect(responding).toBeNull();
     expect(working).toBeNull();
     // The group stays open until the turn ends, so tool output doesn't
     // vanish while the answer streams.
@@ -697,6 +699,14 @@ describe('ChatThread progress indicators', () => {
       'aria-expanded',
       'true'
     );
+  });
+
+  it('shows no indicator when the answer streams without work', () => {
+    render(<ChatThread thread={threadWith([answer(true)])} />);
+    const { responding, working, thinking } = indicators();
+    expect(responding).toBeNull();
+    expect(working).toBeNull();
+    expect(thinking).toBeNull();
   });
 
   it('shows no progress once the turn completes', () => {

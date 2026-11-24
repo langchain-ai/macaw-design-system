@@ -445,7 +445,7 @@ const PROGRESS_STEPS = [
   { name: 'Waiting', owner: 'Message header: “Responding”' },
   { name: 'Reasoning', owner: 'Reasoning row: “Thinking”' },
   { name: 'Tool running', owner: 'Work group header: “Working”' },
-  { name: 'Answer streaming', owner: 'Message header: “Responding”' },
+  { name: 'Answer streaming', owner: 'None: the streaming text' },
   { name: 'Done', owner: 'None' },
 ] as const;
 
@@ -577,7 +577,7 @@ export const ProgressIndicators: Story = {
     docs: {
       description: {
         story:
-          'One progress indicator per message. The message header shows “Responding” until the agent produces output. While the work is the latest output, the work group header owns progress when there are actions, and a streaming reasoning row owns it when there are none. Once the answer starts, the group settles and “Responding” returns.',
+          'One progress indicator per message. The message header shows “Responding” until the agent produces output. While the work is the latest output, the work group header owns progress when there are actions, and a streaming reasoning row owns it when there are none. Once the answer starts, the group settles and the streaming text is the only progress.',
       },
     },
   },

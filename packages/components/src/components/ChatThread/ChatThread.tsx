@@ -138,10 +138,12 @@ function AgentMessage({
   const { work, answer } = splitParts(turn.parts);
   const actionCount = visibleActionCount(work, tools);
   const hasActions = actionCount > 0;
-  // One progress indicator per message. The work owns it while it is the
-  // latest output: the group header when there are actions, else the
-  // streaming reasoning row. Before any output and once the answer starts,
-  // the message header's "Responding" does.
+  // One progress indicator per message. The message header's "Responding"
+  // owns it until the agent produces output. The work owns it while it is
+  // the latest output: the group header when there are actions, else the
+  // streaming reasoning row. Once the answer starts, the streaming text is
+  // the progress, so no indicator shows. A short answer would otherwise
+  // flash "Responding" for a moment.
   const working =
     turn.status === 'streaming' && work.length > 0 && answer.length === 0;
   const workShowsProgress =
@@ -238,7 +240,7 @@ function AgentMessage({
       }}
       name={agentName}
       isLatest={isLast}
-      showStatus={!workShowsProgress}
+      showStatus={!workShowsProgress && answer.length === 0}
       footer={
         answerText ? (
           <ChatMessageActions
