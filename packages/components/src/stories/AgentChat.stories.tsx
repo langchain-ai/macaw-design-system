@@ -23,6 +23,7 @@ import {
   ChatToolCallReasoning,
   type ChatToolCallStatus,
 } from '../components/ChatToolCall';
+import { MarkdownDisplay } from '../components/MarkdownDisplay';
 import { Text } from '../components/Text';
 
 const QUESTION =
@@ -34,12 +35,17 @@ const OPTIONS = [
   { value: 'include', label: 'Include it with a note' },
 ];
 
+/** Markdown paragraphs, revealed one at a time. */
 function answer(choice: string) {
   return [
-    'I wrote the comparison to report.md. Most papers still report end-to-end answer accuracy; only two of the five measure retrieval on its own.',
-    choice === 'exclude'
-      ? 'Recall@k on Natural Questions is the most common retrieval metric. I left out the paper that tunes on its test split.'
-      : 'Recall@k on Natural Questions is the most common retrieval metric. The paper that tunes on its test split is in the table with a note.',
+    'I wrote the comparison to `report.md`. Most papers still report end-to-end answer accuracy; only two of the five measure retrieval on its own.',
+    [
+      '- **Retrieval:** Recall@k on Natural Questions is the most common metric.',
+      '- **End to end:** every paper reports exact-match answer accuracy.',
+      choice === 'exclude'
+        ? '- **Leakage:** I left out the paper that tunes on its test split.'
+        : '- **Leakage:** the paper that tunes on its test split is in the table with a note.',
+    ].join('\n'),
     'Want me to add the per-dataset breakdown as a second table?',
   ];
 }
@@ -173,8 +179,12 @@ function AgentChatExample() {
         label={step === 0 ? 'Thinking' : 'Thought for 1s'}
         expandWhileStreaming
       >
-        Split the work: one subagent gathers papers and another checks their
-        methods, then combine the results into one write-up.
+        <MarkdownDisplay
+          content="Split the work: a `researcher` subagent gathers papers and a `critic` checks their methods, then combine the results into one write-up."
+          isStreaming={step === 0}
+          textColor="tertiary"
+          className="text-xs"
+        />
       </ChatToolCallReasoning>
       {step >= 1 && (
         <ChatToolCall
@@ -255,11 +265,20 @@ function AgentChatExample() {
       status: step >= STEPS && running ? 'streaming' : 'completed',
       content: [
         { id: 'reply-work', type: 'custom', content: work },
-        ...paragraphs.slice(0, Math.max(0, answerStep)).map((text, index) => ({
-          id: `reply-${index}`,
-          type: 'text' as const,
-          text,
-        })),
+        ...(answerStep > 0
+          ? [
+              {
+                id: 'reply-answer',
+                type: 'custom' as const,
+                content: (
+                  <MarkdownDisplay
+                    content={paragraphs.slice(0, answerStep).join('\n\n')}
+                    isStreaming={running}
+                  />
+                ),
+              },
+            ]
+          : []),
       ],
     },
   ];
@@ -343,11 +362,7 @@ function AgentChatExample() {
       }
     >
       <ChatMessage key={`sent-${run.id}`} message={messages[0]} />
-      <ChatMessage
-        key={`reply-${run.id}`}
-        message={messages[1]}
-        animateParagraphs
-      />
+      <ChatMessage key={`reply-${run.id}`} message={messages[1]} />
     </ChatConversation>
   );
 }

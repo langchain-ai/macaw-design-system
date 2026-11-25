@@ -18,6 +18,7 @@ import { Button } from '../Button';
 import { CopyIconButton } from '../CopyButton';
 import { IconButton } from '../IconButton';
 import { ImagePreviewBlock } from '../ImagePreviewBlock';
+import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Text } from '../Text';
 
 interface DemoMessage extends ChatMessageModel {
@@ -63,6 +64,7 @@ const meta = {
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
           '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
           '- The header shows no avatar or name by default; pass `avatar` (`Avatar` props) and `name`, separately and for any role.',
+          '- `text` blocks render escaped plain text. Render Markdown answers with `MarkdownDisplay` in a `custom` block.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
         ].join('\n'),
       },
@@ -104,8 +106,15 @@ const conversationMessages: DemoMessage[] = [
     content: [
       {
         id: 'history-text',
-        type: 'text',
-        text: 'Choose a walkable coastal town and keep your plans flexible.\n\nSpend Saturday morning on a coastal trail, then leave the afternoon open for the beach or a quiet café.',
+        type: 'custom',
+        content: (
+          <MarkdownDisplay
+            content={`Choose a **walkable coastal town** and keep your plans flexible:
+
+- **Saturday morning:** walk a coastal trail.
+- **Saturday afternoon:** leave it open for the beach or a quiet café.`}
+          />
+        ),
       },
     ],
   },
