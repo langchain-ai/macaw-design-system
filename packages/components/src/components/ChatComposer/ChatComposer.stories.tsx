@@ -69,7 +69,7 @@ const meta = {
           'Menu `accept`/`multiple` configure the picker only; validate all files in `onFilesSelected`.',
           '`ChatComposerInput` grows from `minHeight` (40px) to `maxHeight` (240px). Use `ChatComposerTextarea` for a plain-text field with native textarea props.',
           'Enter sends from plain paragraphs; Shift+Enter continues editing; Ctrl/⌘+Enter sends from any block. Three backticks create a code block.',
-          'Markdown formats as you type: `**bold**`, `*italic*`, `` `code` ``, `- ` or `1. ` lists, and `[text](url)` links. Selecting text opens a formatting menu for links, bold, italic, code, and the block type. Ctrl/⌘+B, I, and E toggle bold, italic, and code; pasting a URL over selected text links it.',
+          'Markdown formats as you type: `**bold**`, `*italic*`, `` `code` ``, `- ` or `1. ` lists, and `[text](url)` links. Selecting text opens a formatting menu for links, bold, italic, code, and the block type; Alt+F10 moves focus into it, arrow keys move between its controls, and Escape returns to the text. Ctrl/⌘+B, I, and E toggle bold, italic, and code; pasting a URL over selected text links it.',
           'Without `onSubmit`, Enter inserts paragraphs. Otherwise, send shortcuts stay reserved when `submitDisabled` or `action="stop"` blocks sending; Shift+Enter still edits.',
           'Examples use local state only.',
         ].join('\n\n'),

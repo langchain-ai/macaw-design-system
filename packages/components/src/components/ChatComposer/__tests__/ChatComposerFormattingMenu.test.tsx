@@ -149,4 +149,39 @@ describe('ChatComposerFormattingMenu', () => {
 
     expect(screen.getByLabelText('Draft')).toHaveTextContent(/^- First$/);
   });
+
+  it('reopens for a range selected again after a dismissal', async () => {
+    const { editor, user } = renderMenu('Hello world');
+    select(editor, 7, 12);
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('toolbar')).not.toBeInTheDocument();
+
+    select(editor, 3, 3);
+    select(editor, 7, 12);
+    expect(
+      screen.getByRole('toolbar', { name: 'Formatting' })
+    ).toBeInTheDocument();
+  });
+
+  it('reaches the menu from the keyboard and returns to the editor', async () => {
+    const { editor, user } = renderMenu('Hello world');
+    select(editor, 7, 12);
+
+    await user.keyboard('{Alt>}{F10}{/Alt}');
+    expect(screen.getByRole('button', { name: 'Add link' })).toHaveFocus();
+
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: 'Bold' })).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(
+      screen.getByRole('button', { name: 'Block type: Text' })
+    ).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+    expect(editor.view.dom).toHaveFocus();
+    expect(
+      screen.getByRole('toolbar', { name: 'Formatting' })
+    ).toBeInTheDocument();
+  });
 });

@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
 
 import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr/CaretDown';
 import { CheckIcon } from '@phosphor-icons/react/dist/ssr/Check';
@@ -82,7 +89,10 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
   const [linkMode, setLinkMode] = useState(false);
   const [linkInvalid, setLinkInvalid] = useState(false);
   const [blockMenuOpen, setBlockMenuOpen] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
   const linkInputId = useId();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const openRef = useRef(false);
   // Read lazily: the view mounts after this menu first renders and throws
   // once it unmounts, which can happen before the menu's last reposition.
   const anchorRef = useRef({
@@ -116,10 +126,84 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
     };
   }, [editor]);
 
+  // A dismissal only holds while the same range stays selected.
+  useEffect(() => {
+    if (
+      dismissedKey !== null &&
+      (dismissedKey !== selection.key || !selection.canFormat)
+    ) {
+      setDismissedKey(null);
+    }
+  }, [dismissedKey, selection.key, selection.canFormat]);
+
   const open =
     linkMode ||
     blockMenuOpen ||
+    focusWithin ||
     (selection.canFormat && !selecting && dismissedKey !== selection.key);
+  openRef.current = open;
+
+  const toolbarButtons = () =>
+    Array.from(
+      contentRef.current?.querySelectorAll<HTMLButtonElement>(
+        'button:not(:disabled)'
+      ) ?? []
+    );
+
+  const focusEditor = () => {
+    if (!editor.isDestroyed) editor.view.focus();
+  };
+
+  // A focused item can unmount without a blur, such as a chosen block type,
+  // so focus returning to the editor also ends focus within the menu.
+  useEffect(() => {
+    const onFocus = () => setFocusWithin(false);
+    editor.on('focus', onFocus);
+    return () => {
+      editor.off('focus', onFocus);
+    };
+  }, [editor]);
+
+  // Alt+F10 moves focus from the editor into the menu, as in other editors.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        !event.altKey ||
+        event.key !== 'F10' ||
+        !openRef.current ||
+        editor.isDestroyed ||
+        !(event.target instanceof Node) ||
+        !editor.view.dom.contains(event.target)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      toolbarButtons()[0]?.focus();
+    };
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
+  }, [editor]);
+
+  const moveToolbarFocus = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (linkMode) return;
+    const buttons = toolbarButtons();
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (index === -1) return;
+    const last = buttons.length - 1;
+    const next =
+      event.key === 'ArrowRight'
+        ? (index + 1) % buttons.length
+        : event.key === 'ArrowLeft'
+          ? (index - 1 + buttons.length) % buttons.length
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? last
+              : null;
+    if (next === null) return;
+    event.preventDefault();
+    buttons[next]?.focus();
+  };
 
   const closeLinkEntry = () => {
     setLinkMode(false);
@@ -146,7 +230,7 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
   };
 
   const setBlock = (type: BlockType) => {
-    const chain = editor.chain().focus();
+    const chain = editor.chain();
     if (type === 'paragraph') chain.clearNodes().run();
     else if (type === 'bulletList') chain.toggleBulletList().run();
     else if (type === 'orderedList') chain.toggleOrderedList().run();
@@ -192,7 +276,7 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
         closeLinkEntry();
         setBlockMenuOpen(false);
         setDismissedKey(selection.key);
-        if (linkMode) editor.commands.focus();
+        if (linkMode || focusWithin) focusEditor();
       }}
     >
       <PopoverAnchor virtualRef={anchorRef} />
@@ -204,14 +288,24 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
         updatePositionStrategy="always"
         role={linkMode ? 'dialog' : 'toolbar'}
         aria-label={linkMode ? 'Add link' : 'Formatting'}
+        ref={contentRef}
         className="flex w-auto items-center gap-space-0.5 p-space-1"
         onOpenAutoFocus={(event) => event.preventDefault()}
         onCloseAutoFocus={(event) => event.preventDefault()}
+        onFocus={() => setFocusWithin(true)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setFocusWithin(false);
+          }
+        }}
+        onKeyDown={moveToolbarFocus}
         onEscapeKeyDown={(event) => {
-          if (!linkMode) return;
+          // Escape from inside the menu returns to the editor and keeps the
+          // selection; from the editor it dismisses the menu.
+          if (!linkMode && !focusWithin) return;
           event.preventDefault();
           closeLinkEntry();
-          editor.commands.focus();
+          focusEditor();
         }}
         onInteractOutside={(event) => {
           // Selection changes in the editor decide whether the menu stays.
@@ -305,7 +399,10 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                onCloseAutoFocus={(event) => event.preventDefault()}
+                onCloseAutoFocus={(event) => {
+                  event.preventDefault();
+                  focusEditor();
+                }}
               >
                 {BLOCK_TYPES.map(({ type, label }) => (
                   <DropdownMenuItem
