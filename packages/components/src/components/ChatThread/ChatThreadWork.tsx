@@ -240,14 +240,16 @@ export function WorkSummary({
   turn,
   parts,
   count,
+  working,
 }: {
   turn: ChatThreadTurn;
   parts: ChatThreadPart[];
   count: number;
+  /** Whether the work is the turn's latest output. */
+  working: boolean;
 }) {
   const { thread } = useThread();
   const timing = thread.timings?.[turn.id];
-  const working = turn.status === 'streaming';
   const waiting = turn.status === 'interrupted';
   const [readerChoice, setReaderChoice] = useState<boolean>();
   const actions = `${count} ${count === 1 ? 'action' : 'actions'}`;
@@ -259,18 +261,16 @@ export function WorkSummary({
     ? 'Working'
     : waiting
       ? `Waiting for you · ${actions}`
-      : turn.status === 'failed'
-        ? `Stopped · ${actions}`
-        : duration
-          ? `Worked for ${duration} · ${actions}`
-          : actions;
+      : duration
+        ? `Worked for ${duration} · ${actions}`
+        : actions;
 
   return (
     <ChatToolCallGroup
       label={label}
-      // Open while the agent works or waits, so progress stays in view;
-      // closed once it's done, unless the reader chose otherwise.
-      expanded={readerChoice ?? (working || waiting)}
+      // Open until the turn ends, so tool output doesn't vanish while the
+      // answer streams.
+      expanded={readerChoice ?? (turn.status === 'streaming' || waiting)}
       onExpandedChange={setReaderChoice}
       // Keeps the header working while the agent decides its next call.
       running={working}

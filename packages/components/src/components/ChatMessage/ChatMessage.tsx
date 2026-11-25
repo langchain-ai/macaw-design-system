@@ -81,6 +81,12 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
    * message that mounts already settled, such as history, doesn't fade in.
    */
   animateParagraphs?: boolean;
+  /**
+   * Shows the status line, such as "Responding", in the default header. Set
+   * false while a part of the message shows its own progress, such as a
+   * running tool group, so the message shows one indicator at a time.
+   */
+  showStatus?: boolean;
   contentClassName?: string;
 }
 
@@ -99,6 +105,7 @@ export function ChatMessage({
   align,
   isLatest = false,
   animateParagraphs = false,
+  showStatus = true,
   className,
   contentClassName,
   children,
@@ -137,6 +144,7 @@ export function ChatMessage({
                 avatar={avatar}
                 name={name}
                 status={message.status}
+                showStatus={showStatus}
               />
               <ChatMessageBody
                 blocks={message.content}
@@ -171,6 +179,11 @@ export interface ChatMessageHeaderProps extends ComponentPropsWithRef<'div'> {
   avatar?: Omit<AvatarProps, 'size'>;
   name?: ReactNode;
   status?: ChatMessageStatus;
+  /**
+   * Shows the status label. When false, a streaming message still keeps the
+   * status line's height so the content below doesn't move.
+   */
+  showStatus?: boolean;
 }
 
 /**
@@ -181,6 +194,7 @@ export function ChatMessageHeader({
   avatar,
   name,
   status = 'completed',
+  showStatus = true,
   children,
   className,
   ...props
@@ -188,7 +202,7 @@ export function ChatMessageHeader({
   const [hasStreamed, setHasStreamed] = useState(status === 'streaming');
   if (status === 'streaming' && !hasStreamed) setHasStreamed(true);
 
-  const statusLabel = statusLabels[status];
+  const statusLabel = showStatus ? statusLabels[status] : null;
   const isEmpty =
     avatar == null && name == null && !statusLabel && children == null;
 
@@ -217,7 +231,7 @@ export function ChatMessageHeader({
           {name}
         </Text>
       )}
-      {status === 'streaming' ? (
+      {status === 'streaming' && statusLabel ? (
         <ThinkingState size="xs" label={statusLabel} motion="subtle" />
       ) : statusLabel ? (
         <Text

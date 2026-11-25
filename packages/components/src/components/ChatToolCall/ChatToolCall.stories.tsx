@@ -21,6 +21,7 @@ import {
 import { Button } from '../Button';
 import { formatChatDuration } from '../ChatState';
 import { CodeLite } from '../Code/CodeLite';
+import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Text } from '../Text';
 
 const exampleCall: ChatToolCallModel = {
@@ -80,6 +81,24 @@ function getSearchToolCallPresentation(
       </div>
     ),
   };
+}
+
+/** Reasoning renders as Markdown, the way ChatThread shows it. */
+function ReasoningText({
+  content,
+  isStreaming,
+}: {
+  content: string;
+  isStreaming?: boolean;
+}) {
+  return (
+    <MarkdownDisplay
+      content={content}
+      isStreaming={isStreaming}
+      textColor="tertiary"
+      className="text-xs"
+    />
+  );
 }
 
 const variants: NonNullable<ChatToolCallProps['variant']>[] = [
@@ -337,10 +356,7 @@ export const Default: Story = {
                 variant={variant}
                 onInspect={inspectToolCall}
               >
-                <Text variant="xs" color="tertiary">
-                  The RFC says retries stop at maxAttempts, but the scheduler
-                  keeps retrying. Checking the retry policy next.
-                </Text>
+                <ReasoningText content="The RFC says retries stop at `maxAttempts`, but the scheduler keeps retrying. Checking `retryPolicy.ts` next." />
               </ChatToolCallReasoning>
             ) : (
               <ChatToolCall
@@ -599,6 +615,11 @@ export const TrailingMetadata: Story = {
   },
 };
 
+const streamingReasoning = `The retry policy should cap the delay so a long outage doesn't stall the queue. Compare two options:
+
+- **Exponential backoff:** \`baseMs * 2 ** attempt\`
+- **Fixed ceiling:** \`capMs\`, 30s in the RFC`;
+
 function StreamingReasoningExample() {
   const [done, setDone] = useState(false);
   useEffect(() => {
@@ -615,8 +636,7 @@ function StreamingReasoningExample() {
         elapsedMs={done ? 3_000 : undefined}
         expandWhileStreaming
       >
-        The retry policy should cap the delay so a long outage doesn&apos;t
-        stall the queue. Compare exponential backoff with a fixed ceiling.
+        <ReasoningText content={streamingReasoning} isStreaming={!done} />
       </ChatToolCallReasoning>
       <Button
         size="xs"
@@ -667,7 +687,7 @@ function WorkSummaryExample() {
           icon={<MagnifyingGlassIcon size={12} weight="regular" />}
         />
         <ChatToolCallReasoning status="completed">
-          Two results mention the retry policy.
+          <ReasoningText content="Two results mention `retryPolicy`." />
         </ChatToolCallReasoning>
         <ChatToolCall
           toolCall={{

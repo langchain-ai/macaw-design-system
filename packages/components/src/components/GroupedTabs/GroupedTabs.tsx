@@ -164,6 +164,7 @@ export const GroupedTabs = <T extends string | number>({
               }}
               type="button"
               aria-label={option['aria-label']}
+              aria-pressed={isActive(option)}
               onClick={() => onChange(option.value)}
               disabled={option.disabled || disabled}
               className={cn(

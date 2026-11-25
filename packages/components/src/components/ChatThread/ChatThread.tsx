@@ -17,11 +17,10 @@ import {
   type ChatMessageContentBlock,
 } from '../ChatMessage';
 import { ChatPlan } from '../ChatPlan';
-import { ChatState } from '../ChatState';
 import { copyToClipboard } from '../CopyButton';
+import { ErrorMessage } from '../ErrorMessage';
 import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Skeleton } from '../Skeleton';
-import { Text } from '../Text';
 import { Textarea } from '../Textarea';
 import type {
   ChatThreadController,
@@ -138,6 +137,19 @@ function AgentMessage({
   const { work, answer } = splitParts(turn.parts);
   const actionCount = visibleActionCount(work, tools);
   const hasActions = actionCount > 0;
+  // One progress indicator per message. "Responding" shows only until the
+  // agent produces visible output, then the work owns progress (the group header, or
+  // the streaming reasoning row when there are no actions). "Responding"
+  // never comes back, so gaps between parts and short answers don't flash it.
+  const working =
+    turn.status === 'streaming' && work.length > 0 && answer.length === 0;
+  // Tools a host hides with a null renderer don't count as output.
+  const hasVisibleWork =
+    hasActions || work.some((part) => part.type !== 'tool-call');
+  // A failed turn's error message already says it failed.
+  const showStatus = turn.error
+    ? false
+    : turn.status !== 'streaming' || (!hasVisibleWork && answer.length === 0);
   const showInterrupts = isLast && thread.model.interrupts.length > 0;
   const blocks: ChatMessageContentBlock[] = [];
 
@@ -146,7 +158,12 @@ function AgentMessage({
       id: 'work',
       type: 'custom',
       content: hasActions ? (
-        <WorkSummary turn={turn} parts={work} count={actionCount} />
+        <WorkSummary
+          turn={turn}
+          parts={work}
+          count={actionCount}
+          working={working}
+        />
       ) : (
         <div className="flex min-w-0 flex-col gap-0.5">
           <WorkParts parts={work} />
@@ -187,23 +204,7 @@ function AgentMessage({
     blocks.push({
       id: 'error',
       type: 'custom',
-      content: (
-        <div className="flex min-w-0 items-start gap-space-2 rounded-lg bg-error-subtle px-space-3 py-space-2">
-          <ChatState
-            status="failed"
-            variant="simple"
-            showElapsed={false}
-            announce={false}
-          />
-          <Text
-            variant="sm"
-            color="error"
-            className="min-w-0 [overflow-wrap:anywhere]"
-          >
-            {turn.error}
-          </Text>
-        </div>
-      ),
+      content: <ErrorMessage message={turn.error} size="md" />,
     });
   }
 
@@ -223,6 +224,7 @@ function AgentMessage({
       }}
       name={agentName}
       isLatest={isLast}
+      showStatus={showStatus}
       footer={
         answerText ? (
           <ChatMessageActions
