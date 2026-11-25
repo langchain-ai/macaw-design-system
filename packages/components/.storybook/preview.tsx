@@ -64,7 +64,7 @@ const preview: Preview = {
       storySort: {
         method: 'alphabetical',
         order: [
-          'Welcome to Macaw Design System',
+          'Welcome to Macaw',
           'Foundations',
           'Components',
           [
