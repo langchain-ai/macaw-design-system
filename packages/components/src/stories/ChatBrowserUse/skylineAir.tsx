@@ -1,33 +1,27 @@
-// PROTOTYPE - throwaway. Nothing in production imports this folder.
+// POC fixture - a scripted browser session on a fictional airline site.
 import {
   type CSSProperties,
-  type ReactNode,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 
-import { ArticleIcon } from '@phosphor-icons/react/dist/ssr/Article';
-import { CameraIcon } from '@phosphor-icons/react/dist/ssr/Camera';
-import { CursorClickIcon } from '@phosphor-icons/react/dist/ssr/CursorClick';
-import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
-import { HandIcon } from '@phosphor-icons/react/dist/ssr/Hand';
-import { KeyboardIcon } from '@phosphor-icons/react/dist/ssr/Keyboard';
-
 import type { ChatToolCallStatus } from '../../components/ChatToolCall';
-import { cn } from '../../utils/cn';
+import type {
+  ChatBrowserUseAction,
+  ChatBrowserUseActions,
+  ChatBrowserUseSession,
+  ChatBrowserUseState,
+  ChatBrowserUseStep,
+} from './ChatBrowserUse';
+
+const PAGE_W = 1280;
+const PAGE_H = 800;
 
 // ---------- scenario ----------
 
-export type StepAction =
-  | 'navigate'
-  | 'type'
-  | 'click'
-  | 'read'
-  | 'screenshot'
-  | 'handoff';
+export type StepAction = ChatBrowserUseAction;
 
 export type PageId =
   | 'home'
@@ -222,44 +216,9 @@ export const ANSWER = [
   'Two other refundable nonstops were cheaper but leave after noon. Want me to book it now, or keep watching for a lower fare until the hold expires?',
 ];
 
-// ---------- session simulation ----------
+// ---------- simulation ----------
 
-export type Controller =
-  | 'connecting'
-  | 'agent'
-  | 'needs-you'
-  | 'user'
-  | 'ended';
-
-export interface StepState extends StepDef {
-  index: number;
-  status: ChatToolCallStatus;
-  elapsedMs?: number;
-}
-
-export interface Session {
-  steps: StepState[];
-  /** Index of the step the agent is on. -1 while connecting. */
-  active: number;
-  controller: Controller;
-  page: PageId | null;
-  url: string | null;
-  title: string | null;
-  cursor: { x: number; y: number } | null;
-  /** Click ripple key, changes on every agent click. */
-  clickKey: number;
-  done: boolean;
-  startedAt: number;
-  handoffMs?: number;
-  takeControl: () => void;
-  handBack: () => void;
-  signIn: () => void;
-  signedIn: boolean;
-}
-
-const CONNECT_MS = 900;
-
-/** Where a session starts. `live` plays the whole script; the rest freeze on one state. */
+/** Where a story starts. `live` plays the script; the rest hold one state. */
 export type Stage =
   | 'live'
   | 'connecting'
@@ -267,20 +226,20 @@ export type Stage =
   | 'needs-you'
   | 'user'
   | 'handed-back'
+  | 'reconnecting'
+  | 'closed'
   | 'ended';
 
-export const STAGES: { value: Stage; label: string }[] = [
-  { value: 'live', label: 'Live' },
-  { value: 'connecting', label: 'Connecting' },
-  { value: 'agent', label: 'Agent' },
-  { value: 'needs-you', label: 'Needs you' },
-  { value: 'user', label: 'You' },
-  { value: 'handed-back', label: 'Handed back' },
-  { value: 'ended', label: 'Ended' },
-];
+type Phase =
+  | 'connecting'
+  | 'running'
+  | 'handoff'
+  | 'user'
+  | 'reconnecting'
+  | 'closed'
+  | 'done';
 
-type Phase = 'connecting' | 'running' | 'handoff' | 'user' | 'done';
-
+const CONNECT_MS = 900;
 const HANDOFF = STEPS.findIndex((step) => step.action === 'handoff');
 const FROZEN_HANDOFF_MS = 72_000;
 
@@ -296,6 +255,10 @@ function initial(stage: Stage): {
     // Past the failed step, so the frozen frame shows the retry too.
     case 'agent':
       return { active: HANDOFF - 2, phase: 'running' };
+    case 'reconnecting':
+      return { active: HANDOFF - 2, phase: 'reconnecting' };
+    case 'closed':
+      return { active: HANDOFF - 2, phase: 'closed' };
     case 'needs-you':
       return { active: HANDOFF, phase: 'handoff' };
     case 'user':
@@ -315,16 +278,38 @@ function initial(stage: Stage): {
   }
 }
 
-export function useBrowserSession(stage: Stage = 'live'): Session {
+const STATE_BY_PHASE: Record<Phase, ChatBrowserUseState> = {
+  connecting: 'connecting',
+  running: 'agent',
+  handoff: 'needs-you',
+  user: 'user',
+  reconnecting: 'reconnecting',
+  closed: 'closed',
+  done: 'ended',
+};
+
+export function SkylineFavicon() {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-flex size-full items-center justify-center rounded-[3px] text-[60%] font-bold leading-none text-white"
+      style={{ background: '#0f5c4d' }}
+    >
+      S
+    </span>
+  );
+}
+
+/** Drives a `ChatBrowserUseSession` through the script, like a host would. */
+export function useSkylineSession(
+  stage: Stage = 'live'
+): ChatBrowserUseActions & { session: ChatBrowserUseSession } {
   const [start] = useState(() => initial(stage));
-  const [startedAt] = useState(() => Date.now());
   const [active, setActive] = useState(start.active);
   const [phase, setPhase] = useState<Phase>(start.phase);
   const [signedIn, setSignedIn] = useState(false);
-  const [handoffMs, setHandoffMs] = useState<number | undefined>(
-    start.handoffMs
-  );
-  // A frozen stage holds still until the reader acts, then plays on from there.
+  const [handoffMs, setHandoffMs] = useState(start.handoffMs);
+  // A held stage stays put until the reader acts, then plays on from there.
   const [playing, setPlaying] = useState(stage === 'live');
   const userStart = useRef(0);
 
@@ -338,7 +323,6 @@ export function useBrowserSession(stage: Stage = 'live'): Session {
       return () => window.clearTimeout(t);
     }
     if (phase !== 'running') return;
-    const step = STEPS[active];
     const t = window.setTimeout(() => {
       const next = active + 1;
       if (next >= STEPS.length) {
@@ -347,18 +331,18 @@ export function useBrowserSession(stage: Stage = 'live'): Session {
       }
       setActive(next);
       if (STEPS[next].action === 'handoff') setPhase('handoff');
-    }, step.ms);
+    }, STEPS[active].ms);
     return () => window.clearTimeout(t);
   }, [playing, phase, active]);
 
-  const takeControl = useCallback(() => {
+  const onTakeControl = useCallback(() => {
     userStart.current = Date.now();
     setPhase('user');
   }, []);
 
-  // A requested handoff completes on hand back. An early takeover only pauses
-  // the current step, which resumes from the start.
-  const handBack = useCallback(() => {
+  // A requested handoff completes on hand back. An early takeover only
+  // pauses the current step, which then starts over.
+  const onHandBack = useCallback(() => {
     if (STEPS[active]?.action === 'handoff') {
       setHandoffMs(Date.now() - userStart.current);
       setActive(active + 1);
@@ -367,277 +351,79 @@ export function useBrowserSession(stage: Stage = 'live'): Session {
     setPlaying(true);
   }, [active]);
 
-  const signIn = useCallback(() => setSignedIn(true), []);
-
-  const steps: StepState[] = STEPS.map((step, index) => {
-    let status: ChatToolCallStatus = 'pending';
-    if (index < active || (phase === 'done' && index === active)) {
-      status = step.error ? 'failed' : 'succeeded';
-    } else if (index === active) {
-      status =
-        phase === 'handoff' || (phase === 'user' && step.action === 'handoff')
-          ? 'input-required'
-          : phase === 'user'
-            ? 'pending'
-            : 'running';
+  const steps: ChatBrowserUseStep[] = STEPS.slice(0, active + 1).map(
+    (step, index) => {
+      let status: ChatToolCallStatus =
+        index < active || phase === 'done'
+          ? step.error
+            ? 'failed'
+            : 'succeeded'
+          : 'running';
+      if (index === active && phase !== 'done') {
+        if (phase === 'handoff') status = 'input-required';
+        else if (phase === 'user')
+          status = step.action === 'handoff' ? 'input-required' : 'pending';
+        else if (phase !== 'running') status = 'pending';
+      }
+      return {
+        id: step.id,
+        action: step.action,
+        label:
+          status === 'running' || status === 'input-required'
+            ? step.verbIng
+            : step.verb,
+        target: step.target,
+        url: step.url,
+        status,
+        error: step.error,
+        code: step.code,
+        elapsedMs:
+          step.action === 'handoff'
+            ? handoffMs
+            : status === 'succeeded' || status === 'failed'
+              ? step.ms
+              : undefined,
+        frame: <FakePage page={step.page} />,
+      };
     }
-    return {
-      ...step,
-      index,
-      status,
-      elapsedMs:
-        step.action === 'handoff'
-          ? handoffMs
-          : status === 'succeeded' || status === 'failed'
-            ? step.ms
-            : undefined,
-    };
-  });
+  );
 
   const current = active >= 0 ? STEPS[active] : null;
-  const controller: Controller =
-    phase === 'connecting'
-      ? 'connecting'
-      : phase === 'handoff'
-        ? 'needs-you'
-        : phase === 'user'
-          ? 'user'
-          : phase === 'done'
-            ? 'ended'
-            : 'agent';
-
   let page: PageId | null = current?.page ?? null;
   if (phase === 'user' && signedIn) page = 'signin-done';
+  const handoff = STEPS[HANDOFF];
 
   return {
-    steps: steps.filter((s) => s.index <= active),
-    active,
-    controller,
-    page,
-    url: current?.url ?? null,
-    title: current?.title ?? null,
-    cursor: phase === 'running' ? (current?.cursor ?? null) : null,
-    clickKey: active,
-    done: phase === 'done',
-    startedAt,
-    handoffMs,
-    takeControl,
-    handBack,
-    signIn,
-    signedIn,
+    session: {
+      state: STATE_BY_PHASE[phase],
+      url: current?.url,
+      title: current?.title,
+      favicon: current ? <SkylineFavicon /> : undefined,
+      steps,
+      frame: page ? (
+        <FakePage
+          page={page}
+          interactive={phase === 'user'}
+          onSignIn={() => setSignedIn(true)}
+          signedIn={signedIn}
+        />
+      ) : undefined,
+      deviceSize: { width: PAGE_W, height: PAGE_H },
+      cursor:
+        phase === 'running' && current?.cursor
+          ? { ...current.cursor, key: current.id }
+          : undefined,
+      handoff: {
+        title: 'The agent needs you to sign in',
+        reason: handoff.reason ?? '',
+      },
+      closedReason: 'The browser closed after 10 minutes without activity.',
+    },
+    onTakeControl:
+      phase === 'running' || phase === 'handoff' ? onTakeControl : undefined,
+    onHandBack: phase === 'user' ? onHandBack : undefined,
   };
 }
-
-// ---------- helpers ----------
-
-export function splitUrl(url: string) {
-  try {
-    const u = new URL(url);
-    return {
-      host: u.hostname.replace(/^www\./, ''),
-      path: `${u.pathname === '/' ? '' : u.pathname}${u.search}`,
-    };
-  } catch {
-    return { host: url, path: '' };
-  }
-}
-
-export const ACTION_ICONS = {
-  navigate: GlobeIcon,
-  type: KeyboardIcon,
-  click: CursorClickIcon,
-  read: ArticleIcon,
-  screenshot: CameraIcon,
-  handoff: HandIcon,
-} satisfies Record<StepAction, unknown>;
-
-export function StepIcon({
-  action,
-  size = 12,
-}: {
-  action: StepAction;
-  size?: number;
-}) {
-  const Icon = ACTION_ICONS[action];
-  return <Icon size={size} weight="regular" />;
-}
-
-export function stepLabel(step: StepState) {
-  return step.status === 'running' || step.status === 'input-required'
-    ? step.verbIng
-    : step.verb;
-}
-
-/** Frame a step left behind: failed steps leave the page as it was. */
-export function stepFrame(step: StepState): PageId {
-  return step.page;
-}
-
-/** Favicon tile for the fake site. */
-export function Favicon({ className }: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        'inline-flex size-3.5 shrink-0 items-center justify-center rounded-[3px] text-[8px] font-bold leading-none text-white',
-        className
-      )}
-      style={{ background: '#0f5c4d' }}
-    >
-      S
-    </span>
-  );
-}
-
-export function UrlText({
-  url,
-  className,
-  showPath = true,
-}: {
-  url: string;
-  className?: string;
-  showPath?: boolean;
-}) {
-  const { host, path } = splitUrl(url);
-  return (
-    <span className={cn('flex min-w-0 items-baseline', className)} title={url}>
-      <span className="shrink-0 text-secondary">{host}</span>
-      {showPath && path && (
-        <span className="min-w-0 truncate text-quaternary">{path}</span>
-      )}
-    </span>
-  );
-}
-
-// ---------- viewport ----------
-
-export const PAGE_W = 1280;
-export const PAGE_H = 800;
-
-/** Scales a 1280x800 page to the container width at its real aspect ratio. */
-export function Viewport({
-  page,
-  cursor,
-  clickKey,
-  interactive = false,
-  onSignIn,
-  signedIn,
-  className,
-  label = 'Browser view',
-  dim = false,
-  children,
-}: {
-  page: PageId | null;
-  cursor?: { x: number; y: number } | null;
-  clickKey?: number;
-  interactive?: boolean;
-  onSignIn?: () => void;
-  signedIn?: boolean;
-  className?: string;
-  label?: string;
-  dim?: boolean;
-  children?: ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => setScale(el.clientWidth / PAGE_W);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      role="img"
-      aria-label={label}
-      className={cn(
-        'relative w-full overflow-hidden bg-surface-level-2',
-        className
-      )}
-      style={{ aspectRatio: `${PAGE_W} / ${PAGE_H}` }}
-    >
-      {page == null ? (
-        <div className="absolute inset-0 animate-pulse bg-surface-level-3 motion-reduce:animate-none" />
-      ) : (
-        scale > 0 && (
-          <div
-            className="absolute left-0 top-0 origin-top-left"
-            style={{
-              width: PAGE_W,
-              height: PAGE_H,
-              transform: `scale(${scale})`,
-              pointerEvents: interactive ? 'auto' : 'none',
-            }}
-          >
-            <FakePage
-              page={page}
-              interactive={interactive}
-              onSignIn={onSignIn}
-              signedIn={signedIn}
-            />
-            {cursor && (
-              <AgentCursor x={cursor.x} y={cursor.y} clickKey={clickKey} />
-            )}
-          </div>
-        )
-      )}
-      {dim && <div className="absolute inset-0 bg-[rgba(0,0,0,0.35)]" />}
-      {children}
-    </div>
-  );
-}
-
-function AgentCursor({
-  x,
-  y,
-  clickKey,
-}: {
-  x: number;
-  y: number;
-  clickKey?: number;
-}) {
-  return (
-    <div
-      aria-hidden="true"
-      className="absolute left-0 top-0 transition-transform duration-[600ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
-      style={{ transform: `translate(${x}px, ${y}px)` }}
-    >
-      <span
-        key={clickKey}
-        className="proto-ripple absolute -left-6 -top-6 size-12 rounded-full border-2"
-        style={{ borderColor: '#2f6fed' }}
-      />
-      <svg
-        width="26"
-        height="30"
-        viewBox="0 0 18 21"
-        className="relative drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
-      >
-        <path
-          d="M1 1l15 8.5-6.6 1.6L6 18z"
-          fill="#2f6fed"
-          stroke="#fff"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  );
-}
-
-export const PROTO_CSS = `
-@keyframes proto-ripple { from { transform: scale(0.3); opacity: 0.9 } to { transform: scale(1.4); opacity: 0 } }
-.proto-ripple { animation: proto-ripple 700ms cubic-bezier(0.23,1,0.32,1) 450ms both; }
-@keyframes proto-live { 0%,100% { opacity: 1 } 50% { opacity: 0.35 } }
-.proto-live { animation: proto-live 1.6s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .proto-ripple, .proto-live { animation: none; } }
-`;
 
 // ---------- fake website (fixed light palette: it's a screenshot, not UI) ----------
 
