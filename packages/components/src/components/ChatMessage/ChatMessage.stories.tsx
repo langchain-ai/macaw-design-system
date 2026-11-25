@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { expect, fn, within } from 'storybook/test';
 
@@ -455,52 +455,105 @@ const editingMessages: DemoMessage[] = [
   },
 ];
 
-function EditableMessage({
-  item,
-  isLatest,
-}: {
-  item: DemoMessage;
-  isLatest: boolean;
-}) {
-  const [content, setContent] = useState(item.content);
-  const [editing, setEditing] = useState(false);
-  const text = content.find((block) => block.type === 'text')?.text;
-  const canEdit = item.role === 'user' && text !== undefined;
+/** The agent's scripted answer to an edited message, one paragraph at a time. */
+const editedReplyParagraphs = [
+  'Take a morning train to a small coastal town and leave the car at home.',
+  'Spend Saturday on a cliff walk, then keep Sunday open for the beach or a long lunch.',
+];
+
+function EditingConversation() {
+  const [messages, setMessages] = useState(editingMessages);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [reply, setReply] = useState<{ id: string; shown: number } | null>(
+    null
+  );
+  const responding =
+    reply !== null && reply.shown < editedReplyParagraphs.length;
+
+  useEffect(() => {
+    if (!reply || !responding) return;
+    const timer = setTimeout(
+      () => setReply({ ...reply, shown: reply.shown + 1 }),
+      700
+    );
+    return () => clearTimeout(timer);
+  }, [reply, responding]);
+
+  // Sending an edit replaces the message, drops everything after it, and
+  // asks the agent again.
+  const sendEdit = (index: number, text: string) => {
+    const edited = messages[index];
+    const replyId = `reply-${Date.now()}`;
+    setMessages([
+      ...messages.slice(0, index),
+      {
+        ...edited,
+        content: edited.content.map((block) =>
+          block.type === 'text' ? { ...block, text } : block
+        ),
+      },
+      { id: replyId, role: 'assistant', status: 'streaming', content: [] },
+    ]);
+    setReply({ id: replyId, shown: 0 });
+    setEditingId(null);
+  };
 
   return (
-    <ChatMessage
-      isLatest={isLatest}
-      message={{ ...item, content }}
-      editor={
-        editing && text !== undefined ? (
-          <ChatMessageEditor
-            defaultValue={text}
-            onCancel={() => setEditing(false)}
-            onSubmit={(value) => {
-              setContent(
-                content.map((block) =>
-                  block.type === 'text' ? { ...block, text: value } : block
-                )
-              );
-              setEditing(false);
-            }}
+    <div className="flex flex-col items-center gap-space-5">
+      {messages.map((item, index) => {
+        const shown: DemoMessage =
+          item.id === reply?.id
+            ? {
+                ...item,
+                status: responding ? 'streaming' : 'completed',
+                content: editedReplyParagraphs
+                  .slice(0, reply.shown)
+                  .map((text, paragraph) => ({
+                    id: `${item.id}-${paragraph}`,
+                    type: 'text',
+                    text,
+                  })),
+              }
+            : item;
+        const text = shown.content.find((block) => block.type === 'text')?.text;
+        return (
+          <ChatMessage
+            key={item.id}
+            isLatest={index === messages.length - 1}
+            animateParagraphs
+            message={shown}
+            editor={
+              editingId === item.id && text !== undefined ? (
+                <ChatMessageEditor
+                  defaultValue={text}
+                  onCancel={() => setEditingId(null)}
+                  onSubmit={(value) => sendEdit(index, value)}
+                />
+              ) : undefined
+            }
+            footer={
+              <>
+                <ChatMessageActions
+                  status={shown.status}
+                  readOnly={responding}
+                  actions={{
+                    copy: exampleActions.copy,
+                    ...(item.role === 'user'
+                      ? { edit: { onClick: () => setEditingId(item.id) } }
+                      : {}),
+                  }}
+                />
+                {item.timestamp && (
+                  <Text as="span" variant="xs" color="quaternary">
+                    {item.timestamp}
+                  </Text>
+                )}
+              </>
+            }
           />
-        ) : undefined
-      }
-      footer={
-        <>
-          <ChatMessageActions
-            actions={{
-              copy: exampleActions.copy,
-              ...(canEdit ? { edit: { onClick: () => setEditing(true) } } : {}),
-            }}
-          />
-          <Text as="span" variant="xs" color="quaternary">
-            {item.timestamp}
-          </Text>
-        </>
-      }
-    />
+        );
+      })}
+    </div>
   );
 }
 
@@ -509,21 +562,11 @@ export const Editing: Story = {
     docs: {
       description: {
         story:
-          'Edit a user message in place. The editor opens at the bubble’s width and grows as you type. Enter sends, Shift+Enter adds a line, and Escape cancels; focus returns to Edit either way.',
+          'Edit a user message in place. The editor opens at the bubble’s width and grows as you type. Enter sends the edit, which drops the replies after it and asks the agent again. Shift+Enter adds a line, and Escape cancels; focus returns to Edit either way.',
       },
     },
   },
-  render: () => (
-    <div className="flex flex-col items-center gap-space-5">
-      {editingMessages.map((item, index) => (
-        <EditableMessage
-          key={item.id}
-          item={item}
-          isLatest={index === editingMessages.length - 1}
-        />
-      ))}
-    </div>
-  ),
+  render: () => <EditingConversation />,
   play: async ({ canvas, userEvent }) => {
     const followUp = canvas.getByRole('article', {
       name: (_, element) =>
@@ -533,9 +576,21 @@ export const Editing: Story = {
     await userEvent.click(
       within(followUp).getByRole('button', { name: 'Edit message' })
     );
+    const field = canvas.getByRole('textbox', { name: 'Edit message' });
+    await expect(field).toHaveValue('Somewhere we can reach by train.');
+
+    await userEvent.type(field, ' No more than two hours away.{Enter}');
     await expect(
-      canvas.getByRole('textbox', { name: 'Edit message' })
-    ).toHaveValue('Somewhere we can reach by train.');
+      canvas.getByText(
+        'Somewhere we can reach by train. No more than two hours away.'
+      )
+    ).toBeVisible();
+    await expect(
+      canvas.queryByText(/Pick a town on a coastal rail line/)
+    ).toBeNull();
+    await canvas.findByText(editedReplyParagraphs[1], undefined, {
+      timeout: 3000,
+    });
   },
 };
 
