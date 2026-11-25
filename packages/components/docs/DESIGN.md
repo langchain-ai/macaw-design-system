@@ -4,6 +4,18 @@ Use existing components and semantic tokens. Compose or extend components to sup
 
 Read the relevant [`STYLES.md`](./STYLES.md) sections for token choices, values, and usage rules.
 
+## Authority map
+
+| Question                                                               | Owner                                                              |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Which component or interaction contract to use?                        | This file (`DESIGN.md`) and `macaw inspect <name> --json`          |
+| Which semantic token, spacing step, size family, or casing rule?       | [`STYLES.md`](./STYLES.md) and `@langchain/macaw-tokens`           |
+| Which props and live examples exist in the installed version?          | Installed `dist/catalog.json`, component declarations, and stories |
+| Product routing, data fetching, permissions, and app-specific layouts? | Consuming application `AGENTS.md` and local skills                 |
+| Marketing brand voice, editorial typography, or campaign palettes?     | Brand/marketing system, not Macaw (product UI rules stay separate) |
+
+When an older example or consuming page disagrees with this guide or [`STYLES.md`](./STYLES.md), follow the docs and fix or avoid copying the stale pattern.
+
 ## Package contract
 
 Import the package stylesheet once at the application entry point:
@@ -71,6 +83,16 @@ Use existing components for their interaction contracts, not just their appearan
 
 Custom components should compose primitives and keep feature data, permissions, navigation, and domain behavior in the feature. Prefer a few composable parts over large prop surfaces and boolean-driven branches. Use named exports for new components, and update types, stories, and relevant guidance when behavior changes.
 
+## Decisions
+
+Use these rules when two patterns look interchangeable. Each check names what to reject before shipping.
+
+- **Action vs navigation:** Use `Button` for actions and state changes, `Link` for navigation, and `IconButton` (with a required `label` inside `TooltipProvider`) for icon-only actions. **Reject:** `<Button onClick={() => navigate(...)}>` for ordinary route links, `<Link>` for mutations, or a raw `<button>`/`<a>` when a Macaw control fits. **Verify:** links expose `href` and open in a new tab; buttons activate with Space and Enter.
+- **Field vs floating overlay vs raised surface:** Use `bg-input` (`bg-input-plain` for borderless, `bg-input-disabled` for disabled) for form fields, `bg-popover` for floating layers (popovers, tooltips, dropdowns, select/typeahead/context/command menus), `bg-elevated` for raised cards and panes, and `bg-surface-level-1..4` for nested static regions. **Reject:** `bg-elevated` on popovers or menus, primitive palette utilities (`bg-brand-700`, `bg-blue-100`), raw hex colors, or fading a whole disabled field with `opacity-*`. **Verify:** inspect both light and dark modes; floating menus remain distinct from the surface underneath.
+- **AI work vs routine loading:** Use `ThinkingState` (or decorative `LoadingIndicator` inside an announced region) only for active AI generation, reasoning, or tool use; name the work. Use `Spinner` for routine saves, fetches, or refreshes (even on AI screens), `Skeleton` for known content shapes, `LinearProgress` for regional loading, and `ProgressBar` for measurable completion. **Reject:** `ThinkingState` for loading chat history or saving settings. **Verify:** active status is announced without layout shift.
+- **Semantic feedback vs system status vs chart series:** Use `success`/`warning`/`error` tokens for general feedback and form validation, `status-*` tokens for run/system states, and `@langchain/macaw-components/utils/chartColors` for chart SVG fills/strokes. **Reject:** raw `var(--viz-*)` variables or primitive tokens in charts, or categorical chart colors for validation states. **Verify:** every state pairs color with text, shape, or an icon.
+- **Overlay and notice scale:** Use `Dialog` for a short blocking decision, `Pane` for substantial editing or detail work, `Popover` for anchored interactive controls, `HoverCard` for non-essential hover previews, `useToast().createToast(...)` (inside `ToastProvider`) for transient action results, and `Banner` for persistent regional notices. **Reject:** multi-field editors crammed into a `Dialog`, stacked `Banner`s on one page, or missing accessible titles (`title`/`DialogTitle`). **Verify:** Escape dismisses, focus moves into and returns from modals, and content stays usable at narrow widths.
+
 ## Chat
 
 Import the tool-call presentation family from
@@ -81,13 +103,6 @@ root barrel. `@langchain/macaw-components/ChatThread` composes them into an
 agent conversation view that adapts a LangGraph `useStream` handle by default
 or takes your own adapter's output. See [CHAT.md](./CHAT.md) for the
 host/component boundary.
-
-## Tabs
-
-Use `responsiveHeight` on `TabList` when its parent establishes a row height.
-The list fills that row, and each `TabLabel` centers its contents vertically
-with 8px block padding and keeps the selection indicator at the bottom edge.
-Without `responsiveHeight`, the list keeps its intrinsic height.
 
 ## Tabs
 
@@ -392,7 +407,13 @@ Component size names are family-specific. Use the tiers supported by the compone
 
 Treat loading, empty, ready, error, disabled, and narrow-width behavior as part of the feature. Minimize layout shift. Keep focus styles visible and preserve keyboard behavior. Validate destructive or permission-gated changes before presenting them as complete. Error copy should state what happened or what the user must fix.
 
-For visible changes, run the affected page or Storybook story and inspect the relevant interaction, edge states, and dark mode. Lint and unit tests do not establish visual correctness.
+For visible changes, run the affected page or Storybook story and verify:
+
+- the specific route or story in both light and dark themes and relevant narrow widths,
+- keyboard behavior (Tab order, Enter/Space activation, Escape dismissal, and focus return),
+- relevant loading, empty, error, and disabled states, and any unresolved defects or unverified states.
+
+Lint, unit tests, and a static screenshot alone do not establish visual, interaction, or accessibility correctness.
 
 ## Source map (Macaw repository)
 

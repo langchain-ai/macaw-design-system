@@ -6,6 +6,7 @@ import type { Foundations } from '../../cli/src/commands.mts';
 // Sections of the canonical guides served by `macaw foundations <topic>`.
 const TOPICS = {
   components: ['DESIGN', '## Components', 'Choosing components'],
+  decisions: ['DESIGN', '## Decisions', 'Component and token decisions'],
   package: ['DESIGN', '## Package contract', 'Stylesheet and theme setup'],
   tokens: ['DESIGN', '## Tokens', 'Semantic token usage'],
   surfaces: ['STYLES', '### Surface — `bg-*`', 'Surface roles'],

@@ -106,6 +106,7 @@ interface ComposerDemoProps {
   maxHeight?: number;
   drawer?: ReactNode;
   drawerIntent?: ChatComposerDrawerIntent;
+  ariaLabel?: string;
 }
 
 function ToolsToggle() {
@@ -150,6 +151,7 @@ function ComposerDemo({
   maxHeight,
   drawer,
   drawerIntent,
+  ariaLabel = 'Chat composer',
 }: ComposerDemoProps) {
   const [draft, setDraft] = useState(initialDraft);
   const [model, setModel] = useState<string | undefined>('claude-sonnet-5-5');
@@ -205,7 +207,7 @@ function ComposerDemo({
         drawerIntent={drawerIntent}
         disabled={disabled}
         submitDisabled={!canSubmit}
-        aria-label="Chat composer"
+        aria-label={ariaLabel}
         onFilesSelected={(files) => {
           setAttachments((current) => [
             ...current,
@@ -361,6 +363,7 @@ export const Toolbar: Story = {
           Regular
         </Text>
         <ComposerDemo
+          ariaLabel="Regular chat composer"
           showTools
           initialDraft="Review the attached instructions and suggest a plan."
         />
@@ -370,7 +373,12 @@ export const Toolbar: Story = {
           Compact (240px)
         </Text>
         <div className="w-60 max-w-full">
-          <ComposerDemo showTools initialResponding queueWhileRunning />
+          <ComposerDemo
+            ariaLabel="Compact chat composer"
+            showTools
+            initialResponding
+            queueWhileRunning
+          />
         </div>
       </div>
     </div>
@@ -391,6 +399,7 @@ export const AttachmentStates: Story = {
           Files
         </Text>
         <ComposerDemo
+          ariaLabel="Files chat composer"
           narrow
           initialAttachments={[
             {
@@ -412,6 +421,7 @@ export const AttachmentStates: Story = {
           Thumbnails
         </Text>
         <ComposerDemo
+          ariaLabel="Thumbnails chat composer"
           narrow
           attachmentAppearance={{ size: 'md', variant: 'thumbnail' }}
           initialAttachments={[
@@ -469,6 +479,7 @@ export const WhileStreaming: Story = {
           Draft while streaming
         </Text>
         <ComposerDemo
+          ariaLabel="Draft while streaming composer"
           narrow
           initialResponding
           initialDraft="Here is my follow-up question…"
@@ -479,6 +490,7 @@ export const WhileStreaming: Story = {
           Queue while streaming
         </Text>
         <ComposerDemo
+          ariaLabel="Queue while streaming composer"
           showTools
           initialResponding
           queueWhileRunning
@@ -696,6 +708,7 @@ export const DrawerIntents: Story = {
         ({ intent, title, message, icon: Icon, iconClassName }) => (
           <ComposerDemo
             key={intent}
+            ariaLabel={`${title} drawer chat composer`}
             drawerIntent={intent}
             drawer={
               <div className="flex items-start gap-space-2 px-space-3 py-space-3">

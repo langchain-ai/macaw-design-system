@@ -253,7 +253,7 @@ export const Interactive: Story = {
     const [selected, setSelected] = useState<string | undefined>();
     return (
       <div className="flex flex-col gap-space-2">
-        <Text variant="xs" className="px-space-2 py-1.5 text-secondary">
+        <Text variant="xs" className="px-space-2 py-space-1 text-secondary">
           Selected: {selected ?? 'none'}
         </Text>
         <CommandMenu
@@ -316,7 +316,7 @@ export const InfiniteLoading: Story = {
  */
 export const Primitives: Story = {
   render: () => (
-    <Command className="p-1.5">
+    <Command className="p-space-1">
       <CommandInput placeholder="Search..." />
       <CommandList>
         {fruits.map((fruit) => (

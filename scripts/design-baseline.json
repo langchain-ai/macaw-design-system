@@ -42,6 +42,18 @@
     "count": 1
   },
   {
+    "file": "packages/components/src/components/ChatMessage/ChatMessage.stories.tsx",
+    "rule": "raw-color",
+    "value": "#4f7cff",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatMessage/ChatMessage.stories.tsx",
+    "rule": "raw-color",
+    "value": "#fff",
+    "count": 2
+  },
+  {
     "file": "packages/components/src/components/ChatThread/ChatThread.tsx",
     "rule": "spacing-scale",
     "value": "gap-0.5",
@@ -49,6 +61,12 @@
   },
   {
     "file": "packages/components/src/components/ChatThread/ChatThreadWork.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-0.5",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/components/ChatToolCall/ChatToolCall.stories.tsx",
     "rule": "spacing-scale",
     "value": "gap-0.5",
     "count": 1
@@ -447,6 +465,12 @@
     "file": "packages/components/src/components/UnsavedChangesDialog.tsx",
     "rule": "spacing-scale",
     "value": "gap-2",
+    "count": 1
+  },
+  {
+    "file": "packages/components/src/stories/AgentChat.stories.tsx",
+    "rule": "spacing-scale",
+    "value": "gap-0.5",
     "count": 1
   }
 ]

@@ -1,6 +1,9 @@
+import { useState } from 'react';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from '../Button/Button';
+import { Input } from '../Input/Input';
 import { Text } from '../Text/Text';
 import {
   Popover,
@@ -29,7 +32,7 @@ const meta = {
   tags: ['autodocs', 'floating', 'content', 'anchored', 'overlay'],
   decorators: [
     (Story) => (
-      <div className="p-20">
+      <div className="p-space-9">
         <Story />
       </div>
     ),
@@ -91,8 +94,11 @@ export const Variants: Story = {
   ),
 };
 
-export const WithForm: Story = {
-  render: () => (
+function PopoverFormDemo() {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+
+  return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outlined" color="secondary" size="sm">
@@ -105,22 +111,36 @@ export const WithForm: Story = {
             Settings
           </Text>
           <div className="flex flex-col gap-space-1">
-            <Text variant="xs" className="text-secondary">
+            <Text
+              as="label"
+              htmlFor="popover-name"
+              variant="xs"
+              color="secondary"
+            >
               Name
             </Text>
-            {/* eslint-disable-next-line react/forbid-elements */}
-            <input
-              className="rounded-md border border-secondary bg-transparent px-2.5 py-1.5 text-sm outline-hidden focus:border-brand"
+            <Input
+              id="popover-name"
+              size="sm"
+              value={name}
+              onChange={setName}
               placeholder="Enter name..."
             />
           </div>
           <div className="flex flex-col gap-space-1">
-            <Text variant="xs" className="text-secondary">
+            <Text
+              as="label"
+              htmlFor="popover-description"
+              variant="xs"
+              color="secondary"
+            >
               Description
             </Text>
-            {/* eslint-disable-next-line react/forbid-elements */}
-            <input
-              className="rounded-md border border-secondary bg-transparent px-2.5 py-1.5 text-sm outline-hidden focus:border-brand"
+            <Input
+              id="popover-description"
+              size="sm"
+              value={description}
+              onChange={setDescription}
               placeholder="Enter description..."
             />
           </div>
@@ -128,7 +148,11 @@ export const WithForm: Story = {
         </div>
       </PopoverContent>
     </Popover>
-  ),
+  );
+}
+
+export const WithForm: Story = {
+  render: () => <PopoverFormDemo />,
 };
 
 export const WithArrow: Story = {

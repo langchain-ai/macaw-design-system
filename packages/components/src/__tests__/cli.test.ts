@@ -535,6 +535,11 @@ test('prints focused foundations sections from the canonical guides', () => {
         source: 'docs/DESIGN.md#components',
       },
       {
+        topic: 'decisions',
+        title: 'Component and token decisions',
+        source: 'docs/DESIGN.md#decisions',
+      },
+      {
         topic: 'spacing',
         title: 'Spacing scale and relationships',
         source: 'docs/STYLES.md#spacing--space-',

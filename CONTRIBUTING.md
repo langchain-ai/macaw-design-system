@@ -84,9 +84,11 @@ Unlink `@langchain/macaw-tokens` too if you linked it.
 ## Accessibility checks
 
 The Storybook Accessibility panel runs axe checks on each story, including
-portaled content. Existing catalog findings are reported as warnings (`todo`)
-while stories tagged `a11y-test` use `parameters.a11y.test: 'error'` and block CI
-on violations. The suite uses the addon's default axe rules without additional exclusions.
+portaled content. Interactive Storybook reports existing catalog findings as
+warnings (`todo`), while stories tagged `a11y-test` run in blocking `error` mode
+automatically in `pnpm test:a11y` and CI. The suite uses the addon's default axe
+rules without blanket exclusions; any reviewed debt exception must be scoped to
+the specific rule and story with a comment explaining why.
 
 Run the browser suite locally (Node 26+):
 
@@ -97,7 +99,7 @@ pnpm test:a11y
 
 The suite runs the tagged stories in Chromium in both light and dark themes.
 It also checks keyboard toggling, tab selection, disabled-tab navigation, and dialog focus trapping/restoration.
-To expand coverage, tag a story `a11y-test` and set its a11y test mode to `error`.
+To expand coverage, tag a story `a11y-test`.
 Use `play` functions to expose interactive states before the automatic axe scan.
 Keep meaningful accessible names and avoid blanket rule exclusions. Automated
 checks complement manual keyboard and screen-reader testing.
