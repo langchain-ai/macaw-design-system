@@ -1,3 +1,13 @@
+## 1.8.2 (2026-11-25)
+
+### 🚀 Features
+
+- **chat:** add prototype for chat browser use [FEP-580] ([#143](https://github.com/langchain-ai/macaw-design-system/pull/143))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.8.1 (2026-11-25)
 
 ### 🩹 Fixes
