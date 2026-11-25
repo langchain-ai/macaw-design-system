@@ -464,9 +464,7 @@ function EditableMessage({
 }) {
   const [content, setContent] = useState(item.content);
   const [editing, setEditing] = useState(false);
-  const text = content.flatMap((block) =>
-    block.type === 'text' ? [block.text] : []
-  )[0];
+  const text = content.find((block) => block.type === 'text')?.text;
   const canEdit = item.role === 'user' && text !== undefined;
 
   return (

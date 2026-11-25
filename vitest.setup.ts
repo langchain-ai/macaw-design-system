@@ -25,6 +25,7 @@ beforeAll(() => {
 
   window.scrollTo = vi.fn();
   Element.prototype.scrollIntoView ??= vi.fn();
+  Element.prototype.animate ??= vi.fn();
 
   if (!Range.prototype.getClientRects) {
     Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
