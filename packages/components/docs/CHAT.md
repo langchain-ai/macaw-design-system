@@ -130,7 +130,8 @@ shows `cancel` on queued messages, and `ChatComposer` takes
 
 To edit a sent message in place, pass a `ChatMessageEditor` to `ChatMessage`
 as `editor` when the message's Edit action is clicked, and clear it on cancel
-or submit. The editor replaces the body and footer, owns the draft from
+or submit. The editor grows out of the message's bubble and takes the
+footer's place for Cancel and Send. It owns the draft from
 `defaultValue`, and calls `onSubmit` with the trimmed text. Enter sends,
 Shift+Enter adds a line, and Escape cancels. Put attachments the edit keeps in
 its `children`. Focus returns to Edit when the editor closes.
