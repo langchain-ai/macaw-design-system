@@ -54,6 +54,7 @@ function readSelection(editor: Editor) {
   return {
     key: `${selection.from}:${selection.to}`,
     canFormat:
+      !editor.isDestroyed &&
       editor.isEditable &&
       editor.isFocused &&
       !selection.empty &&
@@ -82,14 +83,16 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
   const [linkInvalid, setLinkInvalid] = useState(false);
   const [blockMenuOpen, setBlockMenuOpen] = useState(false);
   const linkInputId = useId();
-  // Read lazily: the editor view mounts after this menu first renders.
+  // Read lazily: the view mounts after this menu first renders and throws
+  // once it unmounts, which can happen before the menu's last reposition.
   const anchorRef = useRef({
     getBoundingClientRect: () => {
+      if (editor.isDestroyed) return new DOMRect();
       const { from, to } = editor.state.selection;
       return posToDOMRect(editor.view, from, to);
     },
     get contextElement() {
-      return editor.view.dom;
+      return editor.isDestroyed ? undefined : editor.view.dom;
     },
   });
 
@@ -213,6 +216,7 @@ export function ChatComposerFormattingMenu({ editor }: { editor: Editor }) {
         onInteractOutside={(event) => {
           // Selection changes in the editor decide whether the menu stays.
           if (
+            !editor.isDestroyed &&
             event.target instanceof Node &&
             editor.view.dom.contains(event.target)
           ) {
