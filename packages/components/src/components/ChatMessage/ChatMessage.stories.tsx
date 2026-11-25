@@ -422,41 +422,85 @@ export const StatesAndActions: Story = {
   ),
 };
 
-function EditingExample() {
-  const [text, setText] = useState(
-    'Help me plan a relaxed weekend by the coast.'
-  );
-  const [editing, setEditing] = useState(true);
+const editingMessages: DemoMessage[] = [
+  ...conversationMessages,
+  {
+    id: 'follow-up',
+    role: 'user',
+    status: 'completed',
+    timestamp: <time dateTime="2026-09-30T19:09:00">7:09 PM</time>,
+    content: [
+      {
+        id: 'follow-up-text',
+        type: 'text',
+        appearance: 'bubble',
+        text: 'Somewhere we can reach by train.',
+      },
+    ],
+  },
+  {
+    id: 'follow-up-answer',
+    role: 'assistant',
+    status: 'completed',
+    timestamp: <time dateTime="2026-09-30T19:09:00">7:09 PM</time>,
+    content: [
+      {
+        id: 'follow-up-answer-text',
+        type: 'custom',
+        content: (
+          <MarkdownDisplay content="Pick a town on a coastal rail line, so the station is a short walk from the water. Book a stay near the station and you won't need a car all weekend." />
+        ),
+      },
+    ],
+  },
+];
+
+function EditableMessage({
+  item,
+  isLatest,
+}: {
+  item: DemoMessage;
+  isLatest: boolean;
+}) {
+  const [content, setContent] = useState(item.content);
+  const [editing, setEditing] = useState(false);
+  const text = content.flatMap((block) =>
+    block.type === 'text' ? [block.text] : []
+  )[0];
+  const canEdit = item.role === 'user' && text !== undefined;
+
   return (
     <ChatMessage
-      isLatest
-      message={{
-        id: 'editable',
-        role: 'user',
-        status: 'completed',
-        content: [
-          { id: 'editable-text', type: 'text', appearance: 'bubble', text },
-        ],
-      }}
+      isLatest={isLatest}
+      message={{ ...item, content }}
       editor={
-        editing ? (
+        editing && text !== undefined ? (
           <ChatMessageEditor
             defaultValue={text}
             onCancel={() => setEditing(false)}
             onSubmit={(value) => {
-              setText(value);
+              setContent(
+                content.map((block) =>
+                  block.type === 'text' ? { ...block, text: value } : block
+                )
+              );
               setEditing(false);
             }}
           />
         ) : undefined
       }
       footer={
-        <ChatMessageActions
-          actions={{
-            copy: exampleActions.copy,
-            edit: { onClick: () => setEditing(true) },
-          }}
-        />
+        <>
+          <ChatMessageActions
+            actions={{
+              copy: exampleActions.copy,
+              ...(canEdit ? { edit: { onClick: () => setEditing(true) } } : {}),
+            }}
+          />
+          <Text as="span" variant="xs" color="quaternary">
+            {item.timestamp}
+          </Text>
+        </>
       }
     />
   );
@@ -467,16 +511,33 @@ export const Editing: Story = {
     docs: {
       description: {
         story:
-          'Edit opens the message in place. Enter sends, Shift+Enter adds a line, and Escape cancels; focus returns to Edit either way.',
+          'Edit a user message in place. The editor opens at the bubble’s width and grows as you type. Enter sends, Shift+Enter adds a line, and Escape cancels; focus returns to Edit either way.',
       },
     },
   },
-  render: () => <EditingExample />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  render: () => (
+    <div className="flex flex-col items-center gap-space-5">
+      {editingMessages.map((item, index) => (
+        <EditableMessage
+          key={item.id}
+          item={item}
+          isLatest={index === editingMessages.length - 1}
+        />
+      ))}
+    </div>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const followUp = canvas.getByRole('article', {
+      name: (_, element) =>
+        element.textContent?.includes('Somewhere we can reach by train.') ??
+        false,
+    });
+    await userEvent.click(
+      within(followUp).getByRole('button', { name: 'Edit message' })
+    );
     await expect(
       canvas.getByRole('textbox', { name: 'Edit message' })
-    ).toHaveValue('Help me plan a relaxed weekend by the coast.');
+    ).toHaveValue('Somewhere we can reach by train.');
   },
 };
 

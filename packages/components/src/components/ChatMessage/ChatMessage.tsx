@@ -60,14 +60,18 @@ const ChatMessageEditContext = createContext<{
 } | null>(null);
 
 /**
- * The editor grows out of the message on the curve chat uses for things
- * entering. Leaving fades the message back in, faster than it opened.
+ * The message's text never moves or fades between states. Only what changes
+ * animates: the field's edge around the bubble, and the footer swapping
+ * actions for Cancel and Send. Leaving is quicker than entering.
  */
 const editMotion = {
-  enterMs: 250,
+  enterMs: 200,
   exitMs: 150,
   easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
 };
+
+/** The field's edge, drawn inside the bubble so it never shifts the text. */
+const editRing = (color: string) => `inset 0 0 0 1px ${color}`;
 
 function canAnimate(element: HTMLElement) {
   return (
@@ -181,7 +185,7 @@ export function ChatMessage({
   if (isHistory && !isSettled) setIsHistory(false);
   const isEditing = editor != null;
   const rootRef = useRef<HTMLDivElement>(null);
-  const columnRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
   const contentBox = useRef<MessageBox | null>(null);
   const wasEditing = useRef(isEditing);
   const editContext = useMemo(() => ({ rootRef, contentBox }), []);
@@ -203,13 +207,24 @@ export function ChatMessage({
 
   useLayoutEffect(() => {
     const root = rootRef.current;
-    const column = columnRef.current;
-    if (wasEditing.current && !isEditing && root && column) {
-      if (canAnimate(column)) {
-        column.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: editMotion.exitMs,
-          easing: 'ease-out',
-        });
+    if (wasEditing.current && !isEditing && root) {
+      if (canAnimate(root)) {
+        const timing = { duration: editMotion.exitMs, easing: 'ease-out' };
+        const ring = getComputedStyle(root)
+          .getPropertyValue('--border-subtle')
+          .trim();
+        for (const bubble of root.querySelectorAll(
+          '[data-chat-message-bubble]'
+        )) {
+          bubble.animate(
+            [
+              { boxShadow: editRing(ring) },
+              { boxShadow: editRing('transparent') },
+            ],
+            timing
+          );
+        }
+        footerRef.current?.animate([{ opacity: 0 }, { opacity: 1 }], timing);
       }
       // The editor took focus with it when it unmounted; hand it back to Edit.
       const focused = document.activeElement;
@@ -241,12 +256,9 @@ export function ChatMessage({
       {...props}
     >
       <div
-        ref={columnRef}
         className={cn(
           'flex min-w-0 max-w-full flex-col gap-space-2',
-          alignment === 'end'
-            ? cn('max-w-[85%] items-end', isEditing ? 'w-full' : 'w-fit')
-            : 'w-full',
+          alignment === 'end' ? 'w-fit max-w-[85%] items-end' : 'w-full',
           contentClassName
         )}
       >
@@ -275,6 +287,7 @@ export function ChatMessage({
         </ChatMessageAlignmentContext.Provider>
         {footer != null && !isEditing && (
           <div
+            ref={footerRef}
             // Reserve the footer's space while streaming so it doesn't pop in.
             inert={isStreaming}
             className={cn(
@@ -432,6 +445,7 @@ export function ChatMessageBody({
         return block.appearance === 'bubble' ? (
           <div
             key={block.id}
+            data-chat-message-bubble=""
             className="w-fit min-w-0 max-w-full rounded-lg bg-surface-level-2 px-space-3 py-space-2"
           >
             {content}
@@ -483,34 +497,49 @@ export function ChatMessageEditor({
   const alignment = useContext(ChatMessageAlignmentContext);
   const edit = useContext(ChatMessageEditContext);
   const surfaceRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isBlank = draft.trim() === '';
 
   useLayoutEffect(() => {
     const surface = surfaceRef.current;
-    if (!surface || !canAnimate(surface)) return;
-    const fadeIn = [{ opacity: 0 }, { opacity: 1 }];
-    const fadeTiming: KeyframeAnimationOptions = {
-      duration: editMotion.enterMs - 50,
-      delay: 50,
-      easing: 'ease-out',
-      fill: 'backwards',
-    };
-    contentRef.current?.animate(fadeIn, fadeTiming);
-    actionsRef.current?.animate(fadeIn, fadeTiming);
-
+    if (!surface) return;
     const root = edit?.rootRef.current;
     const from = edit?.contentBox.current;
-    if (!root || !from) {
-      surface.animate(fadeIn, {
-        duration: editMotion.enterMs,
-        easing: editMotion.easing,
-      });
-      return;
+
+    // Open at the message's width so the text doesn't move, then grow with
+    // the text. Where the field can't size to its text, keep that width and
+    // wrap inside it.
+    if (from) {
+      const width = `${from.right - from.left}px`;
+      if (
+        typeof CSS !== 'undefined' &&
+        CSS.supports('field-sizing', 'content')
+      ) {
+        surface.style.minWidth = width;
+      } else {
+        surface.style.width = width;
+      }
     }
-    // Start clipped to the message's old box, then open to the full field.
+
+    if (!canAnimate(surface)) return;
+    surface.animate(
+      [
+        { boxShadow: editRing('transparent') },
+        { boxShadow: getComputedStyle(surface).boxShadow },
+      ],
+      { duration: 150, easing: 'ease-out' }
+    );
+    actionsRef.current?.animate(
+      [
+        { opacity: 0, transform: 'translateY(-4px)' },
+        { opacity: 1, transform: 'none' },
+      ],
+      { duration: editMotion.enterMs, easing: editMotion.easing }
+    );
+    if (!root || !from) return;
+    // Grow from the message's old box when the editor is bigger, such as
+    // with attachments below the text.
     const origin = root.getBoundingClientRect();
     const rect = surface.getBoundingClientRect();
     const top = rect.top - origin.top;
@@ -520,13 +549,14 @@ export function ChatMessageEditor({
       left + rect.width - from.right,
       top + rect.height - from.bottom,
       from.left - left,
-    ]
-      .map((value) => `${Math.max(0, value)}px`)
-      .join(' ');
+    ].map((value) => Math.max(0, value));
+    if (inset.every((value) => value < 1)) return;
     const radius = getComputedStyle(surface).borderRadius;
     surface.animate(
       [
-        { clipPath: `inset(${inset} round ${radius})` },
+        {
+          clipPath: `inset(${inset.map((value) => `${value}px`).join(' ')} round ${radius})`,
+        },
         { clipPath: `inset(0 round ${radius})` },
       ],
       { duration: editMotion.enterMs, easing: editMotion.easing }
@@ -564,31 +594,34 @@ export function ChatMessageEditor({
 
   return (
     <form
-      className={cn('flex w-full min-w-0 flex-col gap-space-2', className)}
+      className={cn(
+        'flex min-w-0 max-w-full flex-col gap-space-2',
+        alignment === 'end' ? 'items-end' : 'items-start',
+        className
+      )}
       onSubmit={handleSubmit}
       {...props}
     >
       {/* Same surface, padding, and type as a bubble, so the text stays put. */}
       <div
         ref={surfaceRef}
-        className="w-full min-w-0 rounded-lg bg-surface-level-2 px-space-3 py-space-2 shadow-[inset_0_0_0_1px_var(--border-subtle)]"
+        className="flex w-fit min-w-0 max-w-full flex-col gap-space-2 rounded-lg bg-surface-level-2 px-space-3 py-space-2 shadow-[inset_0_0_0_1px_var(--border-subtle)]"
       >
-        <div ref={contentRef} className="flex min-w-0 flex-col gap-space-2">
-          <Textarea
-            ref={textareaRef}
-            variant="plain"
-            aria-label={label}
-            placeholder={placeholder}
-            value={draft}
-            onChange={setDraft}
-            onKeyDown={handleKeyDown}
-            rows={1}
-            autoResize
-            maxHeight={320}
-            inputClassName="text-xs leading-normal tracking-normal"
-          />
-          {children}
-        </div>
+        <Textarea
+          ref={textareaRef}
+          variant="plain"
+          aria-label={label}
+          placeholder={placeholder}
+          value={draft}
+          onChange={setDraft}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          autoResize
+          maxHeight={320}
+          // Match the bubble's text exactly, so the words don't shift.
+          inputClassName="text-xs leading-normal tracking-snug [field-sizing:content]"
+        />
+        {children}
       </div>
       <div
         ref={actionsRef}
@@ -599,14 +632,14 @@ export function ChatMessageEditor({
       >
         <Button
           type="button"
-          size="sm"
+          size="xs"
           variant="plain"
           color="secondary"
           onClick={onCancel}
         >
           Cancel
         </Button>
-        <Button type="submit" size="sm" disabled={isBlank}>
+        <Button type="submit" size="xs" disabled={isBlank}>
           {submitLabel}
         </Button>
       </div>
