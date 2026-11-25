@@ -408,7 +408,17 @@ export function useSkylineSession(
           signedIn={signedIn}
         />
       ) : undefined,
+      // Screenshots come after each finished step, so the still lags the
+      // live page by one step.
+      snapshot:
+        phase === 'done' ? (
+          <FakePage page={STEPS[active].page} />
+        ) : active > 0 ? (
+          <FakePage page={STEPS[active - 1].page} />
+        ) : undefined,
       deviceSize: { width: PAGE_W, height: PAGE_H },
+      // The sign-in opens in a second tab.
+      tabCount: active >= HANDOFF - 1 ? 2 : 1,
       cursor:
         phase === 'running' && current?.cursor
           ? { ...current.cursor, key: current.id }

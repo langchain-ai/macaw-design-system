@@ -87,9 +87,18 @@ export interface ChatBrowserUseSession {
    * Leave it undefined before the first frame to show a skeleton.
    */
   frame?: ReactNode;
+  /**
+   * The latest screenshot. The row thumbnail and the card show it while the
+   * agent works, so long chats don't hold a stream open for every session.
+   * The live `frame` takes over in the panel, in the floating window, and in
+   * the card once the agent asks for you. Falls back to `frame`.
+   */
+  snapshot?: ReactNode;
   deviceSize?: { width: number; height: number };
-  /** Where the agent is pointing, in device pixels. `key` replays the click ripple. */
+  /** Where the agent is pointing on the live frame, in device pixels. `key` replays the click ripple. */
   cursor?: { x: number; y: number; key?: string | number };
+  /** Open tabs. The views show the active one and say how many there are. */
+  tabCount?: number;
   /** Required while `state` is `needs-you`. */
   handoff?: { title: string; reason: string };
   /** Shown while `state` is `closed`. */
@@ -140,6 +149,15 @@ function UrlText({
 }
 
 /** The host's favicon should fill its box (`size-full`). */
+function TabCount({ session }: { session: ChatBrowserUseSession }) {
+  if (!session.tabCount || session.tabCount < 2) return null;
+  return (
+    <span className="shrink-0 pl-space-2 text-tertiary tabular-nums">
+      {session.tabCount} tabs
+    </span>
+  );
+}
+
 function Favicon({
   session,
   size = 'sm',
@@ -760,7 +778,7 @@ export function ChatBrowserUseRow({
         ) : (
           <span className="pointer-events-none relative h-10 w-16 shrink-0 overflow-hidden rounded-[4px] border border-subtle">
             <ChatBrowserUseViewport
-              frame={session.frame}
+              frame={session.snapshot ?? session.frame}
               deviceSize={session.deviceSize}
               label=""
             />
@@ -843,6 +861,8 @@ export function ChatBrowserUseCard({
   const waiting = isWaiting(session.state);
   // A handoff always shows the page, whatever size the reader left it at.
   const showRow = isMinimized && !waiting;
+  // Inline, the card streams only once the agent asks for you.
+  const live = waiting;
   useEscToHandBack(session.state, actions.onHandBack, !showRow);
 
   if (showRow) {
@@ -873,7 +893,10 @@ export function ChatBrowserUseCard({
         <Favicon session={session} />
         <Text as="div" variant="xs" className="min-w-0 flex-1">
           {session.url ? (
-            <UrlText url={session.url} showPath={false} />
+            <span className="flex min-w-0 items-baseline">
+              <UrlText url={session.url} showPath={false} />
+              <TabCount session={session} />
+            </span>
           ) : (
             <span className="text-tertiary">Starting browser…</span>
           )}
@@ -892,9 +915,9 @@ export function ChatBrowserUseCard({
       </header>
       <div className="group/view relative border-y border-subtle">
         <ChatBrowserUseViewport
-          frame={session.frame}
+          frame={live ? session.frame : (session.snapshot ?? session.frame)}
           deviceSize={session.deviceSize}
-          cursor={session.cursor}
+          cursor={live ? session.cursor : undefined}
           interactive={session.state === 'user'}
           dim={
             session.state === 'needs-you' ||
@@ -1034,6 +1057,7 @@ export function ChatBrowserUsePanel({
           ) : (
             <span className="text-tertiary">about:blank</span>
           )}
+          <TabCount session={session} />
         </div>
         <NewTabButton
           session={session}
@@ -1156,7 +1180,10 @@ export function ChatBrowserUseFloating({
         <Favicon session={session} />
         <Text as="div" variant="xs" className="min-w-0 flex-1">
           {session.url ? (
-            <UrlText url={session.url} showPath={false} />
+            <span className="flex min-w-0 items-baseline">
+              <UrlText url={session.url} showPath={false} />
+              <TabCount session={session} />
+            </span>
           ) : (
             <span className="text-tertiary">Starting…</span>
           )}

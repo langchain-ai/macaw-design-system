@@ -391,6 +391,38 @@ export const RowStates: Story = {
   ),
 };
 
+function TwoSessionsExample() {
+  const first = useSkylineSession('ended');
+  const second = useSkylineSession('agent');
+  return (
+    <Chat
+      done={false}
+      inline={
+        // Each session gets its own row or card, in the order they ran.
+        <div className="flex min-w-0 flex-col gap-space-3">
+          <ChatBrowserUseCard
+            session={first.session}
+            defaultMinimized
+            onOpenInNewTab={openInNewTab}
+          />
+          <ChatBrowserUseCard
+            session={second.session}
+            onOpenInNewTab={openInNewTab}
+            onTakeControl={second.onTakeControl}
+            onHandBack={second.onHandBack}
+          />
+        </div>
+      }
+    />
+  );
+}
+
+/** Two browser sessions in one turn: one finished, one running. */
+export const TwoSessions: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <TwoSessionsExample />,
+};
+
 /**
  * Small screens use the card or the floating window. There's no room for a
  * side panel, so Panel isn't offered here.
