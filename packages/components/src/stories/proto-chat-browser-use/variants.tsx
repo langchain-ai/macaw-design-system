@@ -1,34 +1,22 @@
 // PROTOTYPE - throwaway. Nothing in production imports this folder.
-import {
-  type KeyboardEvent,
-  type ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr/ArrowClockwise';
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr/ArrowLeft';
 import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
-import { ArrowsInSimpleIcon } from '@phosphor-icons/react/dist/ssr/ArrowsInSimple';
-import { ArrowsOutSimpleIcon } from '@phosphor-icons/react/dist/ssr/ArrowsOutSimple';
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareOut';
-import { BrowserIcon } from '@phosphor-icons/react/dist/ssr/Browser';
-import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr/CaretDown';
-import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr/CaretLeft';
 import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
-import { CaretUpIcon } from '@phosphor-icons/react/dist/ssr/CaretUp';
+import { GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import { HandIcon } from '@phosphor-icons/react/dist/ssr/Hand';
 import { LockSimpleIcon } from '@phosphor-icons/react/dist/ssr/LockSimple';
 import { MinusIcon } from '@phosphor-icons/react/dist/ssr/Minus';
-import { SidebarSimpleIcon } from '@phosphor-icons/react/dist/ssr/SidebarSimple';
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/ssr/WarningCircle';
 import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { Button } from '../../components/Button';
-import { ChatState } from '../../components/ChatState';
-import { ChatToolCall, ChatToolCallGroup } from '../../components/ChatToolCall';
+import { ChatToolCall } from '../../components/ChatToolCall';
 import { ChatToolCallCollapse } from '../../components/ChatToolCall/ChatToolCallCollapse';
+import { ChatToolCallGroupContext } from '../../components/ChatToolCall/ChatToolCallGroupContext';
 import { CodeLite } from '../../components/Code/CodeLite';
 import { IconButton } from '../../components/IconButton';
 import { Text } from '../../components/Text';
@@ -36,7 +24,6 @@ import { cn } from '../../utils/cn';
 import {
   type Controller,
   Favicon,
-  formatClock,
   type Session,
   type StepState,
   StepIcon,
@@ -97,12 +84,11 @@ function ControlPill({
           className="proto-live size-1.5 rounded-full bg-success-strong"
         />
       )}
+      {/* Static: the message header already shows the thinking indicator. */}
       {controller === 'connecting' && (
-        <ChatState
-          variant="simple"
-          status="streaming"
-          showElapsed={false}
-          announce={false}
+        <span
+          aria-hidden="true"
+          className="size-1.5 rounded-full border border-current text-icon-tertiary"
         />
       )}
       {controller === 'needs-you' && <HandIcon size={12} aria-hidden="true" />}
@@ -254,111 +240,622 @@ function handoffCopy(session: Session) {
 function sessionSummary(session: Session) {
   const actions = session.steps.filter((s) => s.action !== 'handoff').length;
   const pages = new Set(session.steps.map((s) => s.url)).size;
-  return `${pages} pages · ${actions} actions`;
+  return `${actions} actions on ${pages} pages`;
 }
 
-// ---------- 1. Rows: extend ChatToolCall, no new surface ----------
+function isWaiting(session: Session) {
+  return session.controller === 'needs-you' || session.controller === 'user';
+}
 
-export function VariantRows({ session, display }: VariantProps): VariantParts {
-  useEscToHandBack(session);
-  const handoffIndex = session.steps.findIndex((s) => s.action === 'handoff');
-  const before =
-    handoffIndex === -1 ? session.steps : session.steps.slice(0, handoffIndex);
-  const handoff = handoffIndex === -1 ? null : session.steps[handoffIndex];
-  const after =
-    handoffIndex === -1 ? [] : session.steps.slice(handoffIndex + 1);
-  const waiting =
-    session.controller === 'needs-you' || session.controller === 'user';
+function rowTitle(session: Session) {
+  const current = session.steps[session.steps.length - 1];
+  if (session.done) return 'Browsed skylineair.com';
+  if (session.controller === 'needs-you')
+    return 'The agent needs you to sign in';
+  if (session.controller === 'user') return 'You’re driving the browser';
+  if (current) return `${stepLabel(current)} ${current.target}`;
+  return 'Starting a browser';
+}
 
-  const group = (steps: StepState[], key: string, running: boolean) =>
-    steps.length > 0 && (
-      <ChatToolCallGroup
-        key={key}
-        label={`Browsed skylineair.com · ${steps.length} ${steps.length === 1 ? 'action' : 'actions'}`}
-        defaultExpanded={display === 'expanded'}
-        running={running}
-      >
-        {steps.map((step) => (
+// ---------- session row: the one minimized view every placement shares ----------
+
+/**
+ * Live thumbnail + current step + URL + who drives. The thumbnail and the
+ * live dot are what tell a reader the agent is working, which plain tool
+ * rows did not (round 1, Rows). The whole row is one stretched button;
+ * trailing actions sit above it so they stay separately clickable.
+ */
+function SessionRow({
+  session,
+  onOpen,
+  openLabel,
+  selected = false,
+  expanded,
+  actions,
+}: {
+  session: Session;
+  onOpen: () => void;
+  openLabel: string;
+  selected?: boolean;
+  /** Whether the live view this row opens is showing. */
+  expanded?: boolean;
+  actions?: ReactNode;
+}) {
+  const needsYou = session.controller === 'needs-you';
+  return (
+    <div
+      className={cn(
+        // 8px from the thumbnail to the text. The right edge sits 12px from
+        // what's visible: pr-space-3 to a button, or pr-space-2 plus the
+        // caret button's own 4px inset.
+        'relative flex min-w-0 max-w-[560px] items-center gap-space-2 rounded-lg border py-space-2 pl-space-2 transition-colors duration-fast',
+        needsYou ? 'pr-space-3' : 'pr-space-2',
+        needsYou
+          ? 'border-warning bg-warning-subtle'
+          : selected
+            ? 'border-primary'
+            : 'border-subtle hover:bg-surface-level-2'
+      )}
+    >
+      <button
+        type="button"
+        aria-label={`${openLabel}: ${rowTitle(session)}`}
+        aria-expanded={expanded}
+        onClick={onOpen}
+        className="absolute inset-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      />
+      {/* Both slots are 40px tall so swapping them never moves the row.
+          The thumbnail shows the agent working while the page is hidden.
+          Once the page is showing elsewhere it would only repeat it, so the
+          row keeps just the site's identity. */}
+      {selected ? (
+        <span className="pointer-events-none flex size-10 shrink-0 items-center justify-center rounded-md border border-subtle bg-surface-level-2">
+          {session.url ? (
+            <Favicon className="size-5 rounded-[4px] text-[11px]" />
+          ) : (
+            <GlobeIcon
+              size={16}
+              className="text-icon-tertiary"
+              aria-hidden="true"
+            />
+          )}
+        </span>
+      ) : (
+        <span className="pointer-events-none relative h-10 w-16 shrink-0 overflow-hidden rounded-[4px] border border-subtle">
+          <Viewport page={session.page} label="" />
+        </span>
+      )}
+      <span className="pointer-events-none flex min-w-0 flex-1 flex-col gap-0.5">
+        <Text
+          as="span"
+          variant="xs"
+          weight="medium"
+          color="secondary"
+          className="truncate"
+        >
+          {rowTitle(session)}
+        </Text>
+        <Text as="span" variant="xs" color="tertiary" className="truncate">
+          {session.done ? (
+            sessionSummary(session)
+          ) : session.url ? (
+            <UrlText url={session.url} />
+          ) : (
+            'Connecting…'
+          )}
+        </Text>
+      </span>
+      {actions ? (
+        <span className="relative z-[1] ml-space-1 flex shrink-0 items-center gap-space-2">
+          {actions}
+        </span>
+      ) : (
+        <ControlPill
+          controller={session.controller}
+          className="pointer-events-none"
+        />
+      )}
+    </div>
+  );
+}
+
+/** Expandable list of steps; shared by Card's footer and Panel's row. */
+const SESSION_GROUP = { update: () => {}, remove: () => {} };
+
+function StepList({
+  session,
+  open,
+  onInspect,
+}: {
+  session: Session;
+  open: boolean;
+  onInspect?: (step: StepState) => void;
+}) {
+  // The session's control pill already says the agent is working, the way a
+  // group header does, so rows drop their own 16px running indicator.
+  return (
+    <ChatToolCallGroupContext.Provider value={SESSION_GROUP}>
+      <ChatToolCallCollapse open={open} className="flex flex-col gap-0.5">
+        {session.steps.map((step) => (
           <StepRow
             key={step.id}
             step={step}
-            showFrame={step.action === 'screenshot'}
+            variant={onInspect ? 'simple' : 'default'}
+            inspectLabel={onInspect ? 'Show in browser' : undefined}
+            onInspect={onInspect ? () => onInspect(step) : undefined}
           />
         ))}
-      </ChatToolCallGroup>
-    );
-
-  return {
-    inline: (
-      <div className="flex min-w-0 flex-col gap-space-2">
-        {group(before, 'before', !handoff && !session.done)}
-        {handoff && (
-          <ChatToolCall
-            toolCall={{
-              id: handoff.id,
-              name: 'browser_handoff',
-              status: handoff.status,
-              elapsedMs: handoff.elapsedMs,
-            }}
-            icon={<HandIcon size={12} />}
-            label={stepLabel(handoff)}
-            summary={waiting ? null : handoff.target}
-            meta={
-              !waiting && handoff.elapsedMs
-                ? formatClock(handoff.elapsedMs)
-                : undefined
-            }
-            // The ask stays open while it waits; a resolved record follows the size.
-            defaultExpanded={waiting || display === 'expanded'}
-          >
-            <div className="flex min-w-0 flex-col gap-space-3">
-              <Text variant="xs" color="secondary">
-                {waiting ? handoffCopy(session) : handoff.reason}
-              </Text>
-              {waiting && (
-                <>
-                  <Viewport
-                    page={session.page}
-                    interactive={session.controller === 'user'}
-                    onSignIn={session.signIn}
-                    label="Live browser"
-                    className={cn(
-                      'max-w-[520px] rounded-md border',
-                      session.controller === 'user'
-                        ? 'border-brand-strong'
-                        : 'border-subtle'
-                    )}
-                  />
-                  <div className="flex items-center gap-space-3">
-                    <HandoffActions session={session} />
-                    {session.controller === 'user' && (
-                      <Text variant="xs" color="quaternary">
-                        Esc also hands back
-                      </Text>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </ChatToolCall>
-        )}
-        {group(after, 'after', !session.done)}
-      </div>
-    ),
-  };
+      </ChatToolCallCollapse>
+    </ChatToolCallGroupContext.Provider>
+  );
 }
 
-// ---------- 2. Card: one session card, live viewport inline ----------
+function StepsToggle({
+  session,
+  open,
+  onToggle,
+}: {
+  session: Session;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  if (session.steps.length === 0) return null;
+  // Caret only: the count didn't help anyone decide anything.
+  return (
+    <IconButton
+      icon={CaretRightIcon}
+      label={open ? 'Hide steps' : 'Show steps'}
+      aria-expanded={open}
+      size="xs"
+      variant="plain"
+      color="secondary"
+      onClick={onToggle}
+      iconClassName={cn(
+        'transition-transform duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+        open && 'rotate-90'
+      )}
+    />
+  );
+}
+
+// ---------- consumer-owned options ----------
+
+/**
+ * Where the live page lives. Hosts pick one, because some can't add a panel.
+ * The page has exactly one home, and each home is either showing or hidden.
+ */
+export type Placement = 'card' | 'panel' | 'floating';
+
+/**
+ * Stands in for the host's new-tab target (the bare live view or the
+ * LangSmith Sandboxes page). The host decides, so the button only renders
+ * when the host passes a handler.
+ */
+function openInNewTab(session: Session) {
+  const tab = window.open('', '_blank');
+  if (!tab) return;
+  tab.document.title = 'LangSmith sandbox browser';
+  const note = tab.document.createElement('p');
+  note.textContent = `Prototype placeholder. The host opens its chosen live view for ${session.url ?? 'this session'} here.`;
+  note.style.cssText =
+    'font: 14px -apple-system, BlinkMacSystemFont, sans-serif; padding: 24px; color: #333';
+  tab.document.body.append(note);
+}
+
+// ---------- shared controls ----------
+
+/**
+ * Always available while the agent works, so it stays quiet. The loud
+ * version is reserved for when the agent asks for you.
+ */
+function TakeControlButton({
+  session,
+  size = 'xs',
+}: {
+  session: Session;
+  size?: 'xs' | 'sm';
+}) {
+  return (
+    <Button
+      size={size}
+      variant="plain"
+      color="secondary"
+      leftDecorator={HandIcon}
+      onClick={session.takeControl}
+      // A plain button's fill only shows on hover, so pull it out by its own
+      // padding: the visible icon and label then end 12px from the edge,
+      // like the content on the left.
+      className="-mr-space-2 shrink-0"
+    >
+      Take control
+    </Button>
+  );
+}
+
+/** Trailing action for any footer or control bar, by who drives. */
+function ControlAction({
+  session,
+  size = 'xs',
+}: {
+  session: Session;
+  size?: 'xs' | 'sm';
+}) {
+  if (isWaiting(session))
+    return <HandoffActions session={session} size={size} />;
+  if (session.controller === 'agent')
+    return <TakeControlButton session={session} size={size} />;
+  return null;
+}
+
+function footerCopy(session: Session) {
+  const current = session.steps[session.steps.length - 1];
+  if (session.controller === 'user') return 'Press Esc to hand back control';
+  if (session.controller === 'needs-you') return 'Paused until you sign in';
+  if (current) return `${stepLabel(current)} ${current.target}`;
+  return 'Connecting…';
+}
+
+/**
+ * Hover or focus reveals the host's new-tab action. A click on the page does
+ * nothing, so nobody pauses the agent or leaves the chat by accident.
+ */
+function ViewActions({
+  session,
+  onOpenInNewTab,
+}: {
+  session: Session;
+  onOpenInNewTab?: () => void;
+}) {
+  if (!onOpenInNewTab) return null;
+  const reveal =
+    'opacity-0 transition-opacity duration-fast ease-out group-hover/view:opacity-100 group-focus-within/view:opacity-100 [@media(hover:none)]:opacity-100 motion-reduce:transition-none';
+  return (
+    <>
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute inset-0 bg-[rgba(0,0,0,0.04)]',
+          reveal
+        )}
+      />
+      <div className={cn('absolute right-[8px] top-[8px] z-[1]', reveal)}>
+        <IconButton
+          icon={ArrowSquareOutIcon}
+          label="Open in new tab"
+          size="sm"
+          variant="outlined"
+          color="secondary"
+          disabled={!session.url}
+          onClick={onOpenInNewTab}
+        />
+      </div>
+    </>
+  );
+}
+
+function StepIconSlot({ session }: { session: Session }) {
+  const current = session.steps[session.steps.length - 1];
+  // No step yet, no slot: the text starts at the left edge instead of after
+  // an empty 12px gap.
+  if (!current) return null;
+  return (
+    <span className="flex size-3 shrink-0 items-center justify-center text-icon-tertiary">
+      <StepIcon action={current.action} />
+    </span>
+  );
+}
+
+// ---------- the page's homes beside the chat ----------
+
+function BrowserPanel({
+  session,
+  inspected,
+  onInspect,
+  onClose,
+  onOpenInNewTab,
+}: {
+  session: Session;
+  inspected: StepState | null;
+  onInspect: (step: StepState | null) => void;
+  onClose: () => void;
+  onOpenInNewTab?: () => void;
+}) {
+  const live = inspected == null;
+  const url = live ? session.url : inspected.url;
+  const drives = session.controller === 'user';
+  return (
+    <section
+      aria-label="Browser"
+      className="flex h-full min-h-0 flex-col bg-surface-level-1"
+    >
+      <div className="flex min-w-0 items-center gap-space-1 border-b border-subtle px-space-2 py-space-2">
+        <IconButton
+          icon={ArrowLeftIcon}
+          label="Back"
+          size="sm"
+          variant="plain"
+          color="secondary"
+          disabled={!drives}
+        />
+        <IconButton
+          icon={ArrowRightIcon}
+          label="Forward"
+          size="sm"
+          variant="plain"
+          color="secondary"
+          disabled={!drives}
+        />
+        <IconButton
+          icon={ArrowClockwiseIcon}
+          label="Reload"
+          size="sm"
+          variant="plain"
+          color="secondary"
+          disabled={!drives}
+        />
+        <div
+          className={cn(
+            'flex h-7 min-w-0 flex-1 items-center gap-space-2 rounded-md px-space-2 text-xs',
+            drives ? 'border border-input bg-input' : 'bg-surface-level-2'
+          )}
+        >
+          <LockSimpleIcon
+            size={12}
+            className="shrink-0 text-icon-tertiary"
+            aria-hidden="true"
+          />
+          {url ? (
+            <UrlText url={url} />
+          ) : (
+            <span className="text-tertiary">about:blank</span>
+          )}
+        </div>
+        {onOpenInNewTab && (
+          <IconButton
+            icon={ArrowSquareOutIcon}
+            label="Open in new tab"
+            size="sm"
+            variant="plain"
+            color="secondary"
+            disabled={!session.url}
+            onClick={onOpenInNewTab}
+          />
+        )}
+        {!drives && (
+          <IconButton
+            icon={XIcon}
+            label="Close browser panel"
+            size="sm"
+            variant="plain"
+            color="secondary"
+            onClick={onClose}
+          />
+        )}
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-space-3 overflow-auto bg-surface-level-2 p-space-4">
+        {!live && (
+          <div className="flex items-center justify-between gap-space-2">
+            <Text variant="xs" color="secondary">
+              Step {inspected.index + 1}: {stepLabel(inspected)}{' '}
+              {inspected.target}
+            </Text>
+            <Button
+              size="xs"
+              variant="outlined"
+              color="secondary"
+              onClick={() => onInspect(null)}
+            >
+              Back to live
+            </Button>
+          </div>
+        )}
+        <Viewport
+          page={live ? session.page : inspected.page}
+          cursor={live ? session.cursor : null}
+          clickKey={session.clickKey}
+          interactive={live && drives}
+          onSignIn={session.signIn}
+          label={live ? 'Live browser' : `Step ${inspected.index + 1}`}
+          className={cn(
+            'rounded-md border shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06)]',
+            live && drives ? 'border-brand-strong' : 'border-subtle'
+          )}
+        />
+      </div>
+      <div
+        className={cn(
+          'flex min-w-0 items-center gap-space-3 border-t py-space-2 pl-space-3 pr-space-3',
+          session.controller === 'needs-you'
+            ? 'border-warning bg-warning-subtle'
+            : 'border-subtle'
+        )}
+      >
+        {/* When the pill has no visible fill (it matches the amber bar, or
+            ended has none), pull it in by its own padding so its icon sits
+            12px in, mirroring the button on the right. */}
+        <ControlPill
+          controller={session.controller}
+          className={cn(
+            (session.controller === 'needs-you' ||
+              session.controller === 'ended') &&
+              '-ml-space-2'
+          )}
+        />
+        <Text variant="xs" color="secondary" className="min-w-0 flex-1">
+          {isWaiting(session)
+            ? handoffCopy(session)
+            : session.done
+              ? 'The agent closed the browser. The last frame stays here.'
+              : footerCopy(session)}
+        </Text>
+        <ControlAction session={session} size="sm" />
+      </div>
+    </section>
+  );
+}
+
+/** One size, wide enough that a handed-over page stays usable. */
+const FLOAT_WIDTH = 'w-[min(400px,calc(100vw-48px))]';
+
+function BrowserFloating({
+  session,
+  onMinimize,
+  onOpenInNewTab,
+}: {
+  session: Session;
+  onMinimize: () => void;
+  onOpenInNewTab?: () => void;
+}) {
+  const waiting = isWaiting(session);
+  return (
+    <section
+      aria-label="Live browser"
+      className={cn(
+        'pointer-events-auto overflow-hidden rounded-xl border bg-surface-level-1 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_12px_32px_rgba(0,0,0,0.16),0_2px_6px_rgba(0,0,0,0.08)] transition-[border-color] duration-normal',
+        FLOAT_WIDTH,
+        session.controller === 'needs-you'
+          ? 'border-warning'
+          : session.controller === 'user'
+            ? 'border-brand-strong'
+            : 'border-subtle'
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-space-2 py-space-1 pl-space-3 pr-space-1">
+        <Favicon />
+        <Text as="div" variant="xs" className="min-w-0 flex-1">
+          {session.url ? (
+            <UrlText url={session.url} showPath={false} />
+          ) : (
+            <span className="text-tertiary">Starting…</span>
+          )}
+        </Text>
+        {onOpenInNewTab && (
+          <IconButton
+            icon={ArrowSquareOutIcon}
+            label="Open in new tab"
+            size="xs"
+            variant="plain"
+            color="secondary"
+            disabled={!session.url}
+            onClick={onOpenInNewTab}
+          />
+        )}
+        {!waiting && (
+          <IconButton
+            icon={MinusIcon}
+            label="Hide browser window"
+            size="xs"
+            variant="plain"
+            color="secondary"
+            onClick={onMinimize}
+          />
+        )}
+      </div>
+      <Viewport
+        page={session.page}
+        cursor={session.cursor}
+        clickKey={session.clickKey}
+        interactive={session.controller === 'user'}
+        onSignIn={session.signIn}
+        label={session.title ?? 'Browser'}
+        className="border-y border-subtle"
+      />
+      <div
+        className={cn(
+          'flex min-w-0 items-center gap-space-2 py-space-2 pl-space-3 pr-space-3',
+          session.controller === 'needs-you' && 'bg-warning-subtle'
+        )}
+      >
+        <StepIconSlot session={session} />
+        <Text variant="xs" color="secondary" className="min-w-0 flex-1">
+          {session.controller === 'needs-you'
+            ? handoffCopy(session)
+            : footerCopy(session)}
+        </Text>
+        <ControlAction session={session} />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The row plus its step list. Clicking the row shows or hides the page's
+ * home. When the agent needs you, the pill becomes the ask.
+ */
+function SessionBlock({
+  session,
+  open,
+  openLabel,
+  onToggleOpen,
+  onTakeControl,
+  onInspect,
+}: {
+  session: Session;
+  open: boolean;
+  openLabel: string;
+  onToggleOpen: () => void;
+  onTakeControl: () => void;
+  onInspect?: (step: StepState) => void;
+}) {
+  const [stepsOpen, setStepsOpen] = useState(false);
+  return (
+    <div className="flex min-w-0 max-w-[560px] flex-col gap-space-1">
+      <SessionRow
+        session={session}
+        openLabel={openLabel}
+        selected={open}
+        expanded={open}
+        onOpen={onToggleOpen}
+        actions={
+          session.controller === 'needs-you' ? (
+            <Button size="xs" onClick={onTakeControl}>
+              Take control
+            </Button>
+          ) : (
+            <>
+              <ControlPill controller={session.controller} />
+              <StepsToggle
+                session={session}
+                open={stepsOpen}
+                onToggle={() => setStepsOpen(!stepsOpen)}
+              />
+            </>
+          )
+        }
+      />
+      <div className="pl-space-1">
+        <StepList session={session} open={stepsOpen} onInspect={onInspect} />
+      </div>
+    </div>
+  );
+}
+
+// ---------- 1. Card: the page lives inline ----------
 
 export function VariantCard({ session, display }: VariantProps): VariantParts {
   useEscToHandBack(session);
-  const [open, setOpen] = useState(false);
+  const [stepsOpen, setStepsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(display === 'minimized');
-  const current = session.steps[session.steps.length - 1];
-  const waiting =
-    session.controller === 'needs-you' || session.controller === 'user';
-  // A handoff always shows the page, whatever size the reader left the card at.
-  const showViewport = !collapsed || waiting;
+  const waiting = isWaiting(session);
+  const newTab = () => openInNewTab(session);
+
+  // A handoff always shows the page, whatever size the reader left it at.
+  if (collapsed && !waiting) {
+    return {
+      inline: (
+        <SessionBlock
+          session={session}
+          open={false}
+          openLabel="Show browser"
+          onToggleOpen={() => setCollapsed(false)}
+          onTakeControl={() => {
+            setCollapsed(false);
+            session.takeControl();
+          }}
+        />
+      ),
+    };
+  }
 
   return {
     inline: (
@@ -373,7 +870,7 @@ export function VariantCard({ session, display }: VariantProps): VariantParts {
               : 'border-subtle'
         )}
       >
-        <header className="flex min-w-0 items-center gap-space-2 px-space-3 py-space-2">
+        <header className="flex min-w-0 items-center gap-space-2 py-space-2 pl-space-3 pr-space-2">
           <Favicon />
           <Text as="div" variant="xs" className="min-w-0 flex-1">
             {session.url ? (
@@ -385,22 +882,16 @@ export function VariantCard({ session, display }: VariantProps): VariantParts {
           <ControlPill controller={session.controller} />
           {!waiting && (
             <IconButton
-              icon={collapsed ? CaretDownIcon : CaretUpIcon}
-              label={collapsed ? 'Show browser' : 'Hide browser'}
-              aria-expanded={!collapsed}
+              icon={MinusIcon}
+              label="Minimize browser"
               size="xs"
               variant="plain"
               color="secondary"
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => setCollapsed(true)}
             />
           )}
         </header>
-        <div
-          className={cn(
-            'relative border-y border-subtle',
-            !showViewport && 'hidden'
-          )}
-        >
+        <div className="group/view relative border-y border-subtle">
           <Viewport
             page={session.page}
             cursor={session.cursor}
@@ -423,652 +914,137 @@ export function VariantCard({ session, display }: VariantProps): VariantParts {
                 </div>
               </div>
             )}
+            {!waiting && (
+              <ViewActions session={session} onOpenInNewTab={newTab} />
+            )}
           </Viewport>
         </div>
-        <footer>
-          <div className="flex min-w-0 items-center gap-space-2 px-space-3 py-space-2">
-            <Button
-              variant="plain"
-              color="secondary"
-              size="xs"
-              aria-expanded={open}
-              onClick={() => setOpen(!open)}
-              className="min-w-0 flex-1 justify-start gap-space-2 px-space-1"
-            >
-              <span className="flex size-3 shrink-0 items-center text-icon-tertiary">
-                {current && <StepIcon action={current.action} />}
-              </span>
-              <span className="min-w-0 truncate text-secondary">
-                {session.done
-                  ? `Done · ${sessionSummary(session)}`
-                  : waiting
-                    ? session.controller === 'user'
-                      ? 'You’re driving. Esc hands back.'
-                      : 'Paused until you sign in'
-                    : current
-                      ? `${stepLabel(current)} ${current.target}`
-                      : 'Connecting…'}
-              </span>
-              <CaretRightIcon
-                size={12}
-                className={cn(
-                  'shrink-0 text-icon-tertiary transition-transform duration-normal',
-                  open && 'rotate-90'
-                )}
-                aria-hidden="true"
-              />
-            </Button>
-            {session.controller === 'user' && (
-              <HandoffActions session={session} size="xs" />
-            )}
-            {!waiting && (
+        {/* Both edges sit 12px in, like the header: pl-space-2 plus the
+              toggle's own px-space-1 on the left, pr-space-3 on the right. */}
+        <footer className="py-space-2 pl-space-2 pr-space-3">
+          <div className="flex min-w-0 items-center gap-space-2">
+            {session.steps.length === 0 ? (
+              // Nothing to unfold yet, so no toggle and no caret.
               <Text
+                as="span"
                 variant="xs"
-                color="quaternary"
-                className="shrink-0 tabular-nums"
+                color="secondary"
+                className="min-w-0 flex-1 truncate px-space-1"
               >
-                {session.steps.length > 0
-                  ? `${session.steps.length} steps`
-                  : ''}
+                {footerCopy(session)}
               </Text>
+            ) : (
+              <Button
+                variant="plain"
+                color="secondary"
+                size="xs"
+                aria-label={stepsOpen ? 'Hide steps' : 'Show steps'}
+                aria-expanded={stepsOpen}
+                onClick={() => setStepsOpen(!stepsOpen)}
+                className="min-w-0 flex-1 justify-start gap-space-2 px-space-1"
+              >
+                <StepIconSlot session={session} />
+                {session.done && (
+                  <span className="shrink-0 font-medium text-secondary">
+                    Done
+                  </span>
+                )}
+                <span
+                  className={cn(
+                    'min-w-0 truncate',
+                    session.done ? 'text-tertiary' : 'text-secondary'
+                  )}
+                >
+                  {session.done ? sessionSummary(session) : footerCopy(session)}
+                </span>
+                <CaretRightIcon
+                  size={12}
+                  className={cn(
+                    'shrink-0 text-icon-tertiary transition-transform duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+                    stepsOpen && 'rotate-90'
+                  )}
+                  aria-hidden="true"
+                />
+              </Button>
+            )}
+            {/* The overlay owns the ask while the agent waits for you. */}
+            {session.controller !== 'needs-you' && (
+              <ControlAction session={session} />
             )}
           </div>
-          <ChatToolCallCollapse
-            open={open}
-            className="flex flex-col gap-0.5 px-space-2 pb-space-2"
-          >
-            {session.steps.map((step) => (
-              <StepRow key={step.id} step={step} />
-            ))}
-          </ChatToolCallCollapse>
+          <div className={cn(stepsOpen && 'pb-space-1')}>
+            <StepList session={session} open={stepsOpen} />
+          </div>
         </footer>
       </section>
     ),
   };
 }
 
-// ---------- 3. Filmstrip: replay first, scrub frames by step ----------
+// ---------- 2 and 3. Panel and Floating: the page lives beside the chat ----------
 
-export function VariantFilmstrip({
+export function VariantDocked({
   session,
   display,
-}: VariantProps): VariantParts {
+  placement,
+}: VariantProps & { placement: 'panel' | 'floating' }): VariantParts {
   useEscToHandBack(session);
-  const [selected, setSelected] = useState<number | null>(null); // null = live
-  const [collapsed, setCollapsed] = useState(display === 'minimized');
-  const stripRef = useRef<HTMLDivElement>(null);
-  const steps = session.steps;
-  const live = selected == null;
-  const shown = live ? steps[steps.length - 1] : steps[selected];
-  const waiting =
-    session.controller === 'needs-you' || session.controller === 'user';
-
-  useEffect(() => {
-    if (!live) return;
-    const strip = stripRef.current;
-    strip?.scrollTo({ left: strip.scrollWidth, behavior: 'smooth' });
-  }, [steps.length, live]);
-
-  const move = (delta: number) => {
-    const from = selected ?? steps.length - 1;
-    const next = Math.min(steps.length - 1, Math.max(0, from + delta));
-    setSelected(next === steps.length - 1 ? null : next);
-  };
-
-  const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      e.preventDefault();
-      e.stopPropagation();
-      move(e.key === 'ArrowLeft' ? -1 : 1);
-    }
-  };
-
-  return {
-    inline: (
-      <section
-        aria-label="Browser session"
-        className="flex min-w-0 max-w-[600px] flex-col gap-space-2"
-      >
-        <div className="flex min-w-0 items-center gap-space-2 px-space-1">
-          <BrowserIcon
-            size={12}
-            className="shrink-0 text-icon-tertiary"
-            aria-hidden="true"
-          />
-          <Text
-            variant="xs"
-            color="tertiary"
-            className="min-w-0 flex-1 truncate"
-          >
-            {session.done
-              ? `Browsed skylineair.com · ${sessionSummary(session)}`
-              : 'Browsing skylineair.com'}
-          </Text>
-          <ControlPill controller={session.controller} />
-          {!waiting && (
-            <IconButton
-              icon={collapsed ? CaretDownIcon : CaretUpIcon}
-              label={collapsed ? 'Show frames' : 'Hide frames'}
-              aria-expanded={!collapsed}
-              size="xs"
-              variant="plain"
-              color="secondary"
-              onClick={() => setCollapsed(!collapsed)}
-            />
-          )}
-        </div>
-        <div className="overflow-hidden rounded-lg border border-subtle">
-          <Viewport
-            className={cn(collapsed && !waiting && 'hidden')}
-            page={live ? session.page : (shown?.page ?? null)}
-            cursor={live ? session.cursor : null}
-            clickKey={session.clickKey}
-            interactive={live && session.controller === 'user'}
-            onSignIn={session.signIn}
-            label={shown ? `${stepLabel(shown)} ${shown.target}` : 'Browser'}
-          />
-          <div className="flex min-w-0 items-center gap-space-2 border-t border-subtle px-space-3 py-space-2">
-            {shown && (
-              <span className="flex size-3 shrink-0 items-center text-icon-tertiary">
-                <StepIcon action={shown.action} />
-              </span>
-            )}
-            <Text as="div" variant="xs" className="min-w-0 flex-1">
-              {shown ? (
-                <span className="flex min-w-0 items-baseline gap-space-2">
-                  <span
-                    className={cn(
-                      'shrink-0',
-                      shown.error ? 'text-error-primary' : 'text-secondary'
-                    )}
-                  >
-                    {stepLabel(shown)} {shown.target}
-                  </span>
-                  {shown.error && (
-                    <span className="min-w-0 truncate text-error-secondary">
-                      {shown.error}
-                    </span>
-                  )}
-                </span>
-              ) : (
-                <span className="text-tertiary">Connecting…</span>
-              )}
-            </Text>
-            {waiting && live ? (
-              <HandoffActions session={session} size="xs" />
-            ) : (
-              !live && (
-                <Button
-                  size="xs"
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => setSelected(null)}
-                >
-                  Back to live
-                </Button>
-              )
-            )}
-          </div>
-        </div>
-        {waiting && live && (
-          <Text variant="xs" color="secondary" className="px-space-1">
-            {handoffCopy(session)}
-          </Text>
-        )}
-        <div
-          className={cn(
-            'flex min-w-0 items-center gap-space-1',
-            collapsed && !waiting && 'hidden'
-          )}
-        >
-          <IconButton
-            icon={CaretLeftIcon}
-            label="Previous step"
-            size="sm"
-            variant="plain"
-            color="secondary"
-            onClick={() => move(-1)}
-            disabled={steps.length === 0 || selected === 0}
-          />
-          <div
-            ref={stripRef}
-            role="listbox"
-            aria-label="Steps"
-            aria-orientation="horizontal"
-            tabIndex={0}
-            onKeyDown={onKeyDown}
-            className="flex min-w-0 flex-1 snap-x gap-space-2 overflow-x-auto scroll-smooth rounded-md p-0.5 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-          >
-            {steps.map((step, index) => {
-              const isShown = live
-                ? index === steps.length - 1
-                : index === selected;
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  role="option"
-                  aria-selected={isShown}
-                  tabIndex={-1}
-                  onClick={() =>
-                    setSelected(index === steps.length - 1 ? null : index)
-                  }
-                  title={`${stepLabel(step)} ${step.target}`}
-                  className={cn(
-                    'relative w-[88px] shrink-0 snap-start overflow-hidden rounded-md border text-left transition-[border-color,opacity] duration-fast active:scale-[0.97]',
-                    isShown
-                      ? 'border-primary'
-                      : 'border-subtle opacity-70 hover:opacity-100',
-                    step.status === 'input-required' && 'border-warning',
-                    step.status === 'failed' && 'border-error'
-                  )}
-                >
-                  <Viewport page={step.page} label="" />
-                  <span className="flex items-center gap-space-1 px-space-1 py-0.5 text-xxs text-tertiary">
-                    <span className="tabular-nums">{index + 1}</span>
-                    <span className="flex size-3 items-center">
-                      {step.status === 'failed' ? (
-                        <WarningCircleIcon
-                          size={11}
-                          className="text-icon-error"
-                        />
-                      ) : (
-                        <StepIcon action={step.action} size={11} />
-                      )}
-                    </span>
-                    {index === steps.length - 1 && !session.done && (
-                      <span
-                        className="proto-live ml-auto size-1.5 rounded-full bg-success-strong"
-                        aria-label="Live"
-                      />
-                    )}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <IconButton
-            icon={CaretRightIcon}
-            label="Next step"
-            size="sm"
-            variant="plain"
-            color="secondary"
-            onClick={() => move(1)}
-            disabled={live}
-          />
-        </div>
-      </section>
-    ),
-  };
-}
-
-// ---------- 4. Panel: compact rows in chat, browser docked beside ----------
-
-export function VariantPanel({ session, display }: VariantProps): VariantParts {
-  useEscToHandBack(session);
-  const [inspected, setInspected] = useState<string | null>(null);
-  const [panelState, setPanelOpen] = useState(display === 'expanded');
-  const step = inspected ? session.steps.find((s) => s.id === inspected) : null;
-  const live = step == null;
-  const url = live ? session.url : step.url;
-  const waiting =
-    session.controller === 'needs-you' || session.controller === 'user';
+  const [open, setOpen] = useState(display === 'expanded');
+  const [inspectedId, setInspectedId] = useState<string | null>(null);
+  const inspected =
+    session.steps.find((step) => step.id === inspectedId) ?? null;
   const drives = session.controller === 'user';
-  // Driving happens in the panel, so it stays open while the reader is in control.
-  const panelOpen = panelState || drives;
+  // You drive in the page's home, so it can't be hidden while you do.
+  const shown = open || drives;
+  const newTab = () => openInNewTab(session);
+  const where = placement === 'panel' ? 'browser panel' : 'browser window';
 
   return {
     inline: (
-      <div className="flex min-w-0 flex-col gap-space-2">
-        <ChatToolCallGroup
-          label={
-            session.done
-              ? `Browsed skylineair.com · ${sessionSummary(session)}`
-              : 'Browsing skylineair.com'
-          }
-          defaultExpanded
-          running={!session.done && !waiting}
-        >
-          {session.steps.map((s) => (
-            <StepRow
-              key={s.id}
-              step={s}
-              variant="simple"
-              inspectLabel="Show in browser"
-              onInspect={() => {
-                setPanelOpen(true);
-                setInspected(
-                  s.id === session.steps[session.steps.length - 1]?.id
+      <SessionBlock
+        session={session}
+        open={shown}
+        openLabel={shown ? `Hide ${where}` : `Show ${where}`}
+        onToggleOpen={() => {
+          if (drives) return;
+          setInspectedId(null);
+          setOpen(!shown);
+        }}
+        onTakeControl={() => {
+          setOpen(true);
+          session.takeControl();
+        }}
+        onInspect={
+          placement === 'panel'
+            ? (step) => {
+                setOpen(true);
+                setInspectedId(
+                  step.id === session.steps[session.steps.length - 1]?.id
                     ? null
-                    : s.id
+                    : step.id
                 );
-              }}
-            />
-          ))}
-        </ChatToolCallGroup>
-        {/* With the panel closed, the ask still lands in the transcript. */}
-        {!panelOpen && session.controller === 'needs-you' ? (
-          <div className="flex min-w-0 max-w-[560px] items-center gap-space-3 rounded-md border border-warning bg-warning-subtle px-space-3 py-space-2">
-            <HandIcon
-              size={14}
-              className="shrink-0 text-icon-warning"
-              aria-hidden="true"
-            />
-            <Text variant="xs" color="secondary" className="min-w-0 flex-1">
-              {handoffCopy(session)}
-            </Text>
-            <Button
-              size="xs"
-              onClick={() => {
-                setPanelOpen(true);
-                session.takeControl();
-              }}
-            >
-              Take control
-            </Button>
-          </div>
-        ) : (
-          !panelOpen && (
-            <Button
-              size="xs"
-              variant="outlined"
-              color="secondary"
-              className="self-start"
-              leftDecorator={SidebarSimpleIcon}
-              onClick={() => setPanelOpen(true)}
-            >
-              Show browser
-            </Button>
-          )
-        )}
-      </div>
+              }
+            : undefined
+        }
+      />
     ),
-    aside: panelOpen && (
-      <section
-        aria-label="Browser"
-        className="flex h-full min-h-0 flex-col bg-surface-level-1"
-      >
-        <div className="flex min-w-0 items-center gap-space-1 border-b border-subtle px-space-2 py-space-2">
-          <IconButton
-            icon={ArrowLeftIcon}
-            label="Back"
-            size="sm"
-            variant="plain"
-            color="secondary"
-            disabled={!drives}
-          />
-          <IconButton
-            icon={ArrowRightIcon}
-            label="Forward"
-            size="sm"
-            variant="plain"
-            color="secondary"
-            disabled={!drives}
-          />
-          <IconButton
-            icon={ArrowClockwiseIcon}
-            label="Reload"
-            size="sm"
-            variant="plain"
-            color="secondary"
-            disabled={!drives}
-          />
-          <div
-            className={cn(
-              'flex h-7 min-w-0 flex-1 items-center gap-space-2 rounded-md px-space-2 text-xs',
-              drives ? 'border border-input bg-input' : 'bg-surface-level-2'
-            )}
-          >
-            <LockSimpleIcon
-              size={12}
-              className="shrink-0 text-icon-tertiary"
-              aria-hidden="true"
-            />
-            {url ? (
-              <UrlText url={url} />
-            ) : (
-              <span className="text-tertiary">about:blank</span>
-            )}
-          </div>
-          <IconButton
-            icon={ArrowSquareOutIcon}
-            label="Open in new tab"
-            size="sm"
-            variant="plain"
-            color="secondary"
-            disabled={!session.url}
-          />
-          {!drives && (
-            <IconButton
-              icon={XIcon}
-              label="Close browser panel"
-              size="sm"
-              variant="plain"
-              color="secondary"
-              onClick={() => setPanelOpen(false)}
-            />
-          )}
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col justify-center gap-space-3 overflow-auto bg-surface-level-2 p-space-4">
-          {!live && (
-            <div className="flex items-center justify-between gap-space-2">
-              <Text variant="xs" color="secondary">
-                Step {step.index + 1}: {stepLabel(step)} {step.target}
-              </Text>
-              <Button
-                size="xs"
-                variant="outlined"
-                color="secondary"
-                onClick={() => setInspected(null)}
-              >
-                Back to live
-              </Button>
-            </div>
-          )}
-          <Viewport
-            page={live ? session.page : step.page}
-            cursor={live ? session.cursor : null}
-            clickKey={session.clickKey}
-            interactive={live && drives}
-            onSignIn={session.signIn}
-            label={live ? 'Live browser' : `Step ${step.index + 1}`}
-            className={cn(
-              'rounded-md border shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06)]',
-              live && drives ? 'border-brand-strong' : 'border-subtle'
-            )}
-          />
-        </div>
-        <div
-          className={cn(
-            'flex min-w-0 items-center gap-space-3 border-t px-space-3 py-space-3',
-            session.controller === 'needs-you'
-              ? 'border-warning bg-warning-subtle'
-              : 'border-subtle'
-          )}
-        >
-          <ControlPill controller={session.controller} />
-          <Text variant="xs" color="secondary" className="min-w-0 flex-1">
-            {waiting
-              ? handoffCopy(session)
-              : session.done
-                ? 'The agent closed the browser. The last frame stays here.'
-                : 'You can take over at any time.'}
-          </Text>
-          {waiting ? (
-            <HandoffActions session={session} />
-          ) : (
-            !session.done && (
-              <Button
-                size="sm"
-                variant="outlined"
-                color="secondary"
-                onClick={session.takeControl}
-                disabled={session.controller === 'connecting'}
-              >
-                Take control
-              </Button>
-            )
-          )}
-        </div>
-      </section>
-    ),
-  };
-}
-
-// ---------- 5. Ambient: status line in chat, floating mini viewport ----------
-
-export function VariantAmbient({
-  session,
-  display,
-}: VariantProps): VariantParts {
-  useEscToHandBack(session);
-  const [minimized, setMinimized] = useState(display === 'minimized');
-  const [expanded, setExpanded] = useState(display === 'expanded');
-  const waiting =
-    session.controller === 'needs-you' || session.controller === 'user';
-  const current = session.steps[session.steps.length - 1];
-  const big = waiting || expanded;
-  const showFloat = !session.done && (!minimized || waiting);
-
-  return {
-    inline: (
-      <div className="flex min-w-0 flex-col gap-space-2">
-        <button
-          type="button"
-          onClick={() => {
-            setMinimized(false);
-            setExpanded(true);
-          }}
-          className="group flex min-w-0 max-w-[560px] items-center gap-space-3 rounded-md px-space-1 py-space-1 text-left transition-colors duration-fast hover:bg-surface-level-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        >
-          <span className="w-16 shrink-0 overflow-hidden rounded-[4px] border border-subtle">
-            <Viewport page={session.page} label="" />
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <Text
-              as="span"
-              variant="xs"
-              weight="medium"
-              color="secondary"
-              className="truncate"
-            >
-              {session.done
-                ? 'Browsed skylineair.com'
-                : waiting
-                  ? 'Waiting for you in the browser'
-                  : current
-                    ? `${stepLabel(current)} ${current.target}`
-                    : 'Starting a browser'}
-            </Text>
-            <Text as="span" variant="xs" color="tertiary" className="truncate">
-              {session.done ? (
-                sessionSummary(session)
-              ) : session.url ? (
-                <UrlText url={session.url} />
-              ) : (
-                'Connecting…'
-              )}
-            </Text>
-          </span>
-          <ControlPill controller={session.controller} />
-        </button>
-        {session.done && (
-          <div className="flex gap-space-2 pl-space-1">
-            {session.steps
-              .filter((s) => s.action === 'screenshot')
-              .map((s) => (
-                <figure
-                  key={s.id}
-                  className="m-0 w-[180px] overflow-hidden rounded-md border border-subtle"
-                >
-                  <Viewport page={s.page} label={`Screenshot: ${s.target}`} />
-                  <figcaption className="px-space-2 py-space-1 text-xxs text-tertiary">
-                    {s.target}
-                  </figcaption>
-                </figure>
-              ))}
-          </div>
-        )}
-      </div>
-    ),
-    overlay: showFloat ? (
-      <section
-        aria-label="Live browser"
-        className={cn(
-          'pointer-events-auto overflow-hidden rounded-xl border bg-surface-level-1 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_12px_32px_rgba(0,0,0,0.16),0_2px_6px_rgba(0,0,0,0.08)] transition-[width,border-color] duration-slow ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
-          big ? 'w-[min(520px,calc(100vw-48px))]' : 'w-[280px]',
-          session.controller === 'needs-you'
-            ? 'border-warning'
-            : session.controller === 'user'
-              ? 'border-brand-strong'
-              : 'border-subtle'
-        )}
-      >
-        <div className="flex min-w-0 items-center gap-space-2 py-space-1 pl-space-3 pr-space-1">
-          <Favicon />
-          <Text as="div" variant="xs" className="min-w-0 flex-1">
-            {session.url ? (
-              <UrlText url={session.url} showPath={big} />
-            ) : (
-              <span className="text-tertiary">Starting…</span>
-            )}
-          </Text>
-          {!waiting && (
-            <>
-              <IconButton
-                icon={expanded ? ArrowsInSimpleIcon : ArrowsOutSimpleIcon}
-                label={expanded ? 'Shrink' : 'Enlarge'}
-                size="xs"
-                variant="plain"
-                color="secondary"
-                onClick={() => setExpanded(!expanded)}
-              />
-              <IconButton
-                icon={MinusIcon}
-                label="Minimize to chat"
-                size="xs"
-                variant="plain"
-                color="secondary"
-                onClick={() => {
-                  setMinimized(true);
-                  setExpanded(false);
-                }}
-              />
-            </>
-          )}
-        </div>
-        <Viewport
-          page={session.page}
-          cursor={session.cursor}
-          clickKey={session.clickKey}
-          interactive={session.controller === 'user'}
-          onSignIn={session.signIn}
-          label={session.title ?? 'Browser'}
-          className="border-t border-subtle"
+    aside:
+      placement === 'panel' && shown ? (
+        <BrowserPanel
+          session={session}
+          inspected={inspected}
+          onInspect={(step) => setInspectedId(step?.id ?? null)}
+          onClose={() => setOpen(false)}
+          onOpenInNewTab={newTab}
         />
-        {waiting && (
-          <div className="flex flex-col gap-space-3 border-t border-subtle p-space-3">
-            <div className="flex items-start gap-space-2">
-              <HandIcon
-                size={14}
-                className="mt-0.5 shrink-0 text-icon-warning"
-                aria-hidden="true"
-              />
-              <Text variant="xs" color="secondary">
-                {handoffCopy(session)}
-              </Text>
-            </div>
-            <div className="flex items-center justify-end gap-space-3">
-              {session.controller === 'user' && (
-                <Text variant="xs" color="quaternary">
-                  Esc hands back
-                </Text>
-              )}
-              <HandoffActions session={session} />
-            </div>
-          </div>
-        )}
-      </section>
-    ) : null,
+      ) : undefined,
+    overlay:
+      placement === 'floating' && shown ? (
+        <BrowserFloating
+          session={session}
+          onMinimize={() => setOpen(false)}
+          onOpenInNewTab={newTab}
+        />
+      ) : undefined,
   };
 }

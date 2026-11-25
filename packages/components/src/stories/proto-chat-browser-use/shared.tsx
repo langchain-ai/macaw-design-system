@@ -356,12 +356,16 @@ export function useBrowserSession(stage: Stage = 'live'): Session {
     setPhase('user');
   }, []);
 
+  // A requested handoff completes on hand back. An early takeover only pauses
+  // the current step, which resumes from the start.
   const handBack = useCallback(() => {
-    setHandoffMs(Date.now() - userStart.current);
-    setActive((i) => i + 1);
+    if (STEPS[active]?.action === 'handoff') {
+      setHandoffMs(Date.now() - userStart.current);
+      setActive(active + 1);
+    }
     setPhase('running');
     setPlaying(true);
-  }, []);
+  }, [active]);
 
   const signIn = useCallback(() => setSignedIn(true), []);
 
@@ -371,7 +375,11 @@ export function useBrowserSession(stage: Stage = 'live'): Session {
       status = step.error ? 'failed' : 'succeeded';
     } else if (index === active) {
       status =
-        phase === 'handoff' || phase === 'user' ? 'input-required' : 'running';
+        phase === 'handoff' || (phase === 'user' && step.action === 'handoff')
+          ? 'input-required'
+          : phase === 'user'
+            ? 'pending'
+            : 'running';
     }
     return {
       ...step,
@@ -402,7 +410,7 @@ export function useBrowserSession(stage: Stage = 'live'): Session {
   if (phase === 'user' && signedIn) page = 'signin-done';
 
   return {
-    steps: steps.filter((s) => s.status !== 'pending'),
+    steps: steps.filter((s) => s.index <= active),
     active,
     controller,
     page,
@@ -463,11 +471,6 @@ export function stepLabel(step: StepState) {
 /** Frame a step left behind: failed steps leave the page as it was. */
 export function stepFrame(step: StepState): PageId {
   return step.page;
-}
-
-export function formatClock(ms: number) {
-  const s = Math.max(1, Math.round(ms / 1000));
-  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
 }
 
 /** Favicon tile for the fake site. */

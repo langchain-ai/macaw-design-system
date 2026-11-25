@@ -25,23 +25,25 @@ import {
 } from './shared';
 import {
   type Display,
-  VariantAmbient,
   VariantCard,
-  VariantFilmstrip,
-  VariantPanel,
+  VariantDocked,
   type VariantParts,
-  VariantRows,
 } from './variants';
 
+// Each option is where the live page lives. The host picks one.
 const VARIANTS: {
   name: string;
   render: (props: { session: Session; display: Display }) => VariantParts;
 }[] = [
-  { name: 'Rows', render: VariantRows },
   { name: 'Card', render: VariantCard },
-  { name: 'Filmstrip', render: VariantFilmstrip },
-  { name: 'Panel', render: VariantPanel },
-  { name: 'Ambient', render: VariantAmbient },
+  {
+    name: 'Panel',
+    render: (props) => VariantDocked({ ...props, placement: 'panel' }),
+  },
+  {
+    name: 'Floating',
+    render: (props) => VariantDocked({ ...props, placement: 'floating' }),
+  },
 ];
 
 const STORAGE_KEY = 'proto-chat-browser-use';
@@ -398,7 +400,7 @@ function Run({
             <div className="flex items-center justify-between gap-space-3 border-b border-primary px-space-4 pb-space-3 pt-[100px]">
               <Text variant="h3">Travel agent</Text>
               <Text variant="xs" color="quaternary">
-                Prototype · {VARIANTS[index].name}
+                {VARIANTS[index].name} prototype
               </Text>
             </div>
           }
