@@ -9,8 +9,6 @@ import { Text, type TextProps } from '../Text';
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   /** Badge style preset */
   variant?: 'default' | 'manifestPreview';
-  /** @deprecated Badges are always square (`rounded-xs`). Ignored; remove it from call sites. */
-  rounded?: 'full' | 'none' | 'xs' | 'sm';
   /** Badge color scheme */
   color?:
     | 'primary'
@@ -81,7 +79,6 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       variant = 'default',
       color,
       size,
-      rounded: _rounded,
       leftDecorator: LeftIcon,
       rightDecorator: RightIcon,
       iconWeight,

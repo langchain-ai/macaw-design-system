@@ -991,7 +991,7 @@ function FilterChips({
 
 /**
  * Settings tables are DataGridV2 with the compact settings defaults, meaning `xs` cell
- * text, `Badge size="sm" rounded="xs"`, plain icon-button row actions, a
+ * text, `Badge size="sm"`, plain icon-button row actions, a
  * sticky header, and a pagination footer on the pane's edge.
  */
 function SettingsKeyTable({
@@ -1041,7 +1041,7 @@ function SettingsKeyTable({
                   </Text>
                 </td>
                 <td className="px-space-2">
-                  <Badge size="sm" rounded="xs" color="secondary">
+                  <Badge size="sm" color="secondary">
                     {row.type}
                   </Badge>
                 </td>
@@ -1435,7 +1435,7 @@ export const ItemList: Story = {
                       className="text-icon-tertiary"
                     />
                     {plane.name}
-                    <Badge size="sm" rounded="xs" color="secondary">
+                    <Badge size="sm" color="secondary">
                       {plane.status}
                     </Badge>
                   </span>

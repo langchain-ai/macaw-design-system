@@ -538,14 +538,14 @@ Custom decorative box/drop shadows must also opt out in dark mode. Avoid chained
 
 ### Radius — `rounded-*`
 
-| Class          | Value  | When to use                                |
-| -------------- | ------ | ------------------------------------------ |
-| `rounded-xs`   | 3px    | Compact labels, tags, and tag-style badges |
-| `rounded-sm`   | 4px    | Small inputs and icon buttons              |
-| `rounded-md`   | 6px    | Default buttons and most form controls     |
-| `rounded-lg`   | 8px    | Cards, dialogs, and larger content panels  |
-| `rounded-xl`   | 12px   | Sheets and large overlay surfaces          |
-| `rounded-full` | 9999px | Pills, default badges, and status dots     |
+| Class          | Value  | When to use                               |
+| -------------- | ------ | ----------------------------------------- |
+| `rounded-xs`   | 3px    | Compact labels, tags, and badges          |
+| `rounded-sm`   | 4px    | Small inputs and icon buttons             |
+| `rounded-md`   | 6px    | Default buttons and most form controls    |
+| `rounded-lg`   | 8px    | Cards, dialogs, and larger content panels |
+| `rounded-xl`   | 12px   | Sheets and large overlay surfaces         |
+| `rounded-full` | 9999px | Pills, avatars, and status dots           |
 
 Prefer these named values over Tailwind's built-in `rounded-*` scale (e.g. `rounded-lg` from Tailwind defaults to `8px` regardless of our design scale).
 
