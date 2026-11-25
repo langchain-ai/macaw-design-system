@@ -9,6 +9,7 @@ import {
   ChatMessage,
   ChatMessageActions,
   ChatMessageBody,
+  ChatMessageEditor,
   ChatTurnDivider,
   type ChatMessageContentBlock,
   type ChatMessageModel,
@@ -63,6 +64,7 @@ const meta = {
           '- Compose header, ordered content, and actions.',
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
           '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
+          '- Pass a `ChatMessageEditor` as `editor` to edit a message in place; it replaces the body and footer until the host clears it.',
           '- The header shows no avatar or name by default; pass `avatar` (`Avatar` props) and `name`, separately and for any role.',
           '- `text` blocks render escaped plain text. Render Markdown answers with `MarkdownDisplay` in a `custom` block.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
@@ -418,6 +420,64 @@ export const StatesAndActions: Story = {
       <ActionsExample readOnly />
     </div>
   ),
+};
+
+function EditingExample() {
+  const [text, setText] = useState(
+    'Help me plan a relaxed weekend by the coast.'
+  );
+  const [editing, setEditing] = useState(true);
+  return (
+    <ChatMessage
+      isLatest
+      message={{
+        id: 'editable',
+        role: 'user',
+        status: 'completed',
+        content: [
+          { id: 'editable-text', type: 'text', appearance: 'bubble', text },
+        ],
+      }}
+      editor={
+        editing ? (
+          <ChatMessageEditor
+            defaultValue={text}
+            onCancel={() => setEditing(false)}
+            onSubmit={(value) => {
+              setText(value);
+              setEditing(false);
+            }}
+          />
+        ) : undefined
+      }
+      footer={
+        <ChatMessageActions
+          actions={{
+            copy: exampleActions.copy,
+            edit: { onClick: () => setEditing(true) },
+          }}
+        />
+      }
+    />
+  );
+}
+
+export const Editing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Edit opens the message in place. Enter sends, Shift+Enter adds a line, and Escape cancels; focus returns to Edit either way.',
+      },
+    },
+  },
+  render: () => <EditingExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('textbox', { name: 'Edit message' })
+    ).toHaveValue('Help me plan a relaxed weekend by the coast.');
+  },
 };
 
 export const NarrowWidth: Story = {

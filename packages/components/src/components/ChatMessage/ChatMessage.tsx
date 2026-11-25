@@ -2,8 +2,12 @@ import {
   createContext,
   Fragment,
   useContext,
+  useEffect,
+  useRef,
   useState,
   type ComponentPropsWithRef,
+  type FormEvent,
+  type KeyboardEvent,
   type ReactNode,
 } from 'react';
 
@@ -15,11 +19,14 @@ import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
 import type { IconComponent } from '../../utils/icon-types';
+import { mergeRefs } from '../../utils/merge-refs';
 import { Avatar, type AvatarProps } from '../Avatar';
+import { Button } from '../Button';
 import { Divider } from '../Divider';
 import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
+import { Textarea } from '../Textarea';
 import { ThinkingState } from '../ThinkingState';
 import type {
   ChatMessageActionCapabilities,
@@ -87,6 +94,11 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
    * running tool group, so the message shows one indicator at a time.
    */
   showStatus?: boolean;
+  /**
+   * Puts the message in its edit state: a `ChatMessageEditor` replaces the
+   * body and footer. When editing ends, focus returns to the Edit action.
+   */
+  editor?: ReactNode;
   contentClassName?: string;
 }
 
@@ -106,9 +118,11 @@ export function ChatMessage({
   isLatest = false,
   animateParagraphs = false,
   showStatus = true,
+  editor,
   className,
   contentClassName,
   children,
+  ref,
   ...props
 }: ChatMessageProps) {
   const alignment = align ?? (message.role === 'user' ? 'end' : 'start');
@@ -116,9 +130,30 @@ export function ChatMessage({
   const isSettled = settledStatuses.has(message.status);
   const [isHistory, setIsHistory] = useState(isSettled);
   if (isHistory && !isSettled) setIsHistory(false);
+  const isEditing = editor != null;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const wasEditing = useRef(isEditing);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const focused = document.activeElement;
+    // The editor took focus with it when it unmounted; hand it back to Edit.
+    if (
+      wasEditing.current &&
+      !isEditing &&
+      root &&
+      (focused == null || focused === document.body || root.contains(focused))
+    ) {
+      root
+        .querySelector<HTMLElement>('[data-chat-message-action="edit"]')
+        ?.focus();
+    }
+    wasEditing.current = isEditing;
+  }, [isEditing]);
 
   return (
     <div
+      ref={mergeRefs([rootRef, ref])}
       role="article"
       aria-label={`${typeof name === 'string' ? name : avatar?.label || roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
@@ -133,27 +168,36 @@ export function ChatMessage({
       <div
         className={cn(
           'flex min-w-0 max-w-full flex-col gap-space-2',
-          alignment === 'end' ? 'w-fit max-w-[85%] items-end' : 'w-full',
+          alignment === 'end'
+            ? cn('max-w-[85%] items-end', isEditing ? 'w-full' : 'w-fit')
+            : 'w-full',
           contentClassName
         )}
       >
         <ChatMessageAlignmentContext.Provider value={alignment}>
-          {children ?? (
+          {isEditing ? (
             <>
-              <ChatMessageHeader
-                avatar={avatar}
-                name={name}
-                status={message.status}
-                showStatus={showStatus}
-              />
-              <ChatMessageBody
-                blocks={message.content}
-                animateParagraphs={animateParagraphs && !isHistory}
-              />
+              <ChatMessageHeader avatar={avatar} name={name} />
+              {editor}
             </>
+          ) : (
+            (children ?? (
+              <>
+                <ChatMessageHeader
+                  avatar={avatar}
+                  name={name}
+                  status={message.status}
+                  showStatus={showStatus}
+                />
+                <ChatMessageBody
+                  blocks={message.content}
+                  animateParagraphs={animateParagraphs && !isHistory}
+                />
+              </>
+            ))
           )}
         </ChatMessageAlignmentContext.Provider>
-        {footer != null && (
+        {footer != null && !isEditing && (
           <div
             // Reserve the footer's space while streaming so it doesn't pop in.
             inert={isStreaming}
@@ -323,6 +367,112 @@ export function ChatMessageBody({
   );
 }
 
+export interface ChatMessageEditorProps extends Omit<
+  ComponentPropsWithRef<'form'>,
+  'onSubmit' | 'children' | 'defaultValue'
+> {
+  /** The message's current text. The editor owns the draft from here. */
+  defaultValue: string;
+  /** Receives the trimmed draft. Send stays disabled while the draft is blank. */
+  onSubmit: (value: string) => void;
+  onCancel: () => void;
+  /** Defaults to "Send". */
+  submitLabel?: string;
+  /** Labels the text field. Defaults to "Edit message". */
+  label?: string;
+  placeholder?: string;
+  /** Host-owned extras below the text, such as attachments the edit keeps. */
+  children?: ReactNode;
+}
+
+/**
+ * The edit state of a message, passed to `ChatMessage` as `editor`. Enter
+ * sends, Shift+Enter adds a line, and Escape cancels.
+ */
+export function ChatMessageEditor({
+  defaultValue,
+  onSubmit,
+  onCancel,
+  submitLabel = 'Send',
+  label = 'Edit message',
+  placeholder,
+  children,
+  className,
+  ...props
+}: ChatMessageEditorProps) {
+  const [draft, setDraft] = useState(defaultValue);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isBlank = draft.trim() === '';
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  }, []);
+
+  const submit = () => {
+    if (!isBlank) onSubmit(draft.trim());
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submit();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      submit();
+    } else if (event.key === 'Escape') {
+      // Keep Escape from also closing a dialog or panel around the chat.
+      event.preventDefault();
+      event.stopPropagation();
+      onCancel();
+    }
+  };
+
+  return (
+    <form
+      className={cn(
+        'flex w-full min-w-0 flex-col gap-space-2 rounded-lg border border-focus bg-elevated p-space-2 duration-normal ease-out animate-in fade-in zoom-in-95 motion-reduce:animate-none',
+        className
+      )}
+      onSubmit={handleSubmit}
+      {...props}
+    >
+      <Textarea
+        ref={textareaRef}
+        variant="plain"
+        aria-label={label}
+        placeholder={placeholder}
+        value={draft}
+        onChange={setDraft}
+        onKeyDown={handleKeyDown}
+        rows={2}
+        autoResize
+        maxHeight={320}
+      />
+      {children}
+      <div className="flex justify-end gap-space-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="plain"
+          color="secondary"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" size="sm" disabled={isBlank}>
+          {submitLabel}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 const actionDefinitions: {
   name: keyof ChatMessageActionCapabilities;
   label: string;
@@ -394,6 +544,7 @@ export function ChatMessageActions({
       {visibleActions.map(({ name, label, icon, action }) => (
         <IconButton
           key={name}
+          data-chat-message-action={name}
           icon={icon}
           iconWeight="regular"
           label={action.label ?? label}

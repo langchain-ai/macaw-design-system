@@ -2,12 +2,14 @@ export {
   ChatMessage,
   ChatMessageActions,
   ChatMessageBody,
+  ChatMessageEditor,
   ChatMessageHeader,
   ChatTurnDivider,
 } from './ChatMessage';
 export type {
   ChatMessageActionsProps,
   ChatMessageBodyProps,
+  ChatMessageEditorProps,
   ChatMessageHeaderProps,
   ChatMessageProps,
   ChatTurnDividerProps,

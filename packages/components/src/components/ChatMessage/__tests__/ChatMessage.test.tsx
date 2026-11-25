@@ -6,6 +6,7 @@ import {
   ChatMessage,
   ChatMessageActions,
   ChatMessageBody,
+  ChatMessageEditor,
   ChatMessageHeader,
   ChatTurnDivider,
 } from '../ChatMessage';
@@ -17,6 +18,39 @@ const message: ChatMessageModel = {
   status: 'completed',
   content: [{ id: 'answer', type: 'text', text: 'Here is the answer.' }],
 };
+
+const userMessage: ChatMessageModel = {
+  id: 'question',
+  role: 'user',
+  status: 'completed',
+  content: [{ id: 'question-text', type: 'text', text: 'Plan a weekend' }],
+};
+
+function EditExample({ onSubmit }: { onSubmit: (value: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  return (
+    <ChatMessage
+      message={userMessage}
+      editor={
+        editing ? (
+          <ChatMessageEditor
+            defaultValue="Plan a weekend"
+            onCancel={() => setEditing(false)}
+            onSubmit={(value) => {
+              onSubmit(value);
+              setEditing(false);
+            }}
+          />
+        ) : undefined
+      }
+      footer={
+        <ChatMessageActions
+          actions={{ edit: { onClick: () => setEditing(true) } }}
+        />
+      }
+    />
+  );
+}
 
 function ActionExample({
   status = 'completed',
@@ -366,5 +400,71 @@ describe('ChatMessage', () => {
   it('renders an accessible turn boundary', () => {
     render(<ChatTurnDivider label="Yesterday" />);
     expect(screen.getByRole('separator', { name: 'Yesterday' })).toBeVisible();
+  });
+  describe('edit state', () => {
+    it('swaps the body and footer for the editor', async () => {
+      const { user } = render(<EditExample onSubmit={() => {}} />);
+      await user.click(screen.getByRole('button', { name: 'Edit message' }));
+
+      const field = screen.getByRole('textbox', { name: 'Edit message' });
+      expect(field).toHaveFocus();
+      expect(field).toHaveValue('Plan a weekend');
+      expect(
+        screen.queryByText('Plan a weekend', { selector: 'p' })
+      ).toBeNull();
+      expect(
+        screen.queryByRole('group', { name: 'Message actions' })
+      ).toBeNull();
+    });
+
+    it('sends the trimmed draft on Enter and returns focus to Edit', async () => {
+      const onSubmit = vi.fn();
+      const { user } = render(<EditExample onSubmit={onSubmit} />);
+      await user.click(screen.getByRole('button', { name: 'Edit message' }));
+      await user.type(
+        screen.getByRole('textbox', { name: 'Edit message' }),
+        ' by the coast  {Enter}'
+      );
+
+      expect(onSubmit).toHaveBeenCalledWith('Plan a weekend by the coast');
+      expect(
+        screen.getByRole('button', { name: 'Edit message' })
+      ).toHaveFocus();
+    });
+
+    it('keeps Shift+Enter as a new line', async () => {
+      const onSubmit = vi.fn();
+      const { user } = render(<EditExample onSubmit={onSubmit} />);
+      await user.click(screen.getByRole('button', { name: 'Edit message' }));
+      const field = screen.getByRole('textbox', { name: 'Edit message' });
+      await user.type(field, '{Shift>}{Enter}{/Shift}soon');
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(field).toHaveValue('Plan a weekend\nsoon');
+    });
+
+    it('cancels on Escape without sending', async () => {
+      const onSubmit = vi.fn();
+      const { user } = render(<EditExample onSubmit={onSubmit} />);
+      await user.click(screen.getByRole('button', { name: 'Edit message' }));
+      await user.keyboard('{Escape}');
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(screen.queryByRole('textbox')).toBeNull();
+      expect(
+        screen.getByRole('button', { name: 'Edit message' })
+      ).toHaveFocus();
+    });
+
+    it('disables Send while the draft is blank', async () => {
+      const onSubmit = vi.fn();
+      const { user } = render(<EditExample onSubmit={onSubmit} />);
+      await user.click(screen.getByRole('button', { name: 'Edit message' }));
+      await user.clear(screen.getByRole('textbox', { name: 'Edit message' }));
+
+      expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+      await user.keyboard('{Enter}');
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
   });
 });
