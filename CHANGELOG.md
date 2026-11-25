@@ -1,3 +1,13 @@
+## 1.9.0 (2026-11-25)
+
+### 🚀 Features
+
+- add an edit state to ChatMessage [FEP-631] ([#149](https://github.com/langchain-ai/macaw-design-system/pull/149))
+
+### ❤️ Thank You
+
+- Jeeyoon Hyun @jeeyoonhyun
+
 ## 1.8.2 (2026-11-25)
 
 ### 🚀 Features
