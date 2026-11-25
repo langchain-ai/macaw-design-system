@@ -117,7 +117,7 @@ export function ChatState({
       )}
     >
       {status === 'streaming' ? (
-        showIndicator && <LoadingIndicator size="sm" tone="neutral" />
+        showIndicator && <LoadingIndicator size="xs" tone="neutral" />
       ) : StatusIcon ? (
         <StatusIcon
           size={12}
