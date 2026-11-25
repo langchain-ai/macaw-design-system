@@ -9,6 +9,7 @@ import {
 
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareOut';
 import { ArticleIcon } from '@phosphor-icons/react/dist/ssr/Article';
+import { BrowserIcon } from '@phosphor-icons/react/dist/ssr/Browser';
 import { CameraIcon } from '@phosphor-icons/react/dist/ssr/Camera';
 import { CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 import { CursorClickIcon } from '@phosphor-icons/react/dist/ssr/CursorClick';
@@ -33,8 +34,6 @@ import { IconButton } from '../../components/IconButton';
 import { Text } from '../../components/Text';
 import { cn } from '../../utils/cn';
 
-// ---------- model ----------
-
 /**
  * Who drives the browser, plus the connection states the host reports.
  * `ended` means the agent finished. `closed` means the browser went away
@@ -57,14 +56,19 @@ export type ChatBrowserUseAction =
   | 'screenshot'
   | 'handoff';
 
+/**
+ * Everything but `id` and `status` is optional, so a step still reads well
+ * when the host only knows the tool call. Missing labels fall back to a verb
+ * for the action ("Clicked"), and a missing action to "Ran browser code".
+ */
 export interface ChatBrowserUseStep {
   id: string;
-  action: ChatBrowserUseAction;
+  action?: ChatBrowserUseAction;
   /** Verb, already in the right tense for the status: "Clicking", "Clicked". */
-  label: string;
+  label?: string;
   /** What the verb acts on: "Refundable fares only". */
-  target: string;
-  url: string;
+  target?: string;
+  url?: string;
   status: ChatToolCallStatus;
   error?: string;
   elapsedMs?: number;
@@ -99,7 +103,7 @@ export interface ChatBrowserUseSession {
   cursor?: { x: number; y: number; key?: string | number };
   /** Open tabs. The views show the active one and say how many there are. */
   tabCount?: number;
-  /** Required while `state` is `needs-you`. */
+  /** What the agent asks for while `state` is `needs-you`. */
   handoff?: { title: string; reason: string };
   /** Shown while `state` is `closed`. */
   closedReason?: string;
@@ -114,8 +118,6 @@ export interface ChatBrowserUseActions {
 }
 
 const DEFAULT_DEVICE = { width: 1280, height: 800 };
-
-// ---------- helpers ----------
 
 function splitUrl(url: string) {
   try {
@@ -148,7 +150,6 @@ function UrlText({
   );
 }
 
-/** The host's favicon should fill its box (`size-full`). */
 function TabCount({ session }: { session: ChatBrowserUseSession }) {
   if (!session.tabCount || session.tabCount < 2) return null;
   return (
@@ -158,6 +159,7 @@ function TabCount({ session }: { session: ChatBrowserUseSession }) {
   );
 }
 
+/** The host's favicon should fill its box (`size-full`). */
 function Favicon({
   session,
   size = 'sm',
@@ -188,9 +190,45 @@ const ACTION_ICONS = {
   handoff: HandIcon,
 } satisfies Record<ChatBrowserUseAction, unknown>;
 
-function StepIcon({ action }: { action: ChatBrowserUseAction }) {
-  const Icon = ACTION_ICONS[action];
+function StepIcon({ action }: { action?: ChatBrowserUseAction }) {
+  const Icon = action ? ACTION_ICONS[action] : BrowserIcon;
   return <Icon size={12} weight="regular" />;
+}
+
+/** Present and past forms, used when the host sends no label. */
+const FALLBACK_VERBS: Record<
+  ChatBrowserUseAction | 'unknown',
+  [string, string]
+> = {
+  navigate: ['Opening', 'Opened'],
+  type: ['Typing', 'Typed'],
+  click: ['Clicking', 'Clicked'],
+  read: ['Reading the page', 'Read the page'],
+  screenshot: ['Taking a screenshot', 'Took a screenshot'],
+  handoff: ['Waiting for you', 'You took over'],
+  unknown: ['Running browser code', 'Ran browser code'],
+};
+
+function stepVerb(step: ChatBrowserUseStep) {
+  if (step.label) return step.label;
+  const [present, past] = FALLBACK_VERBS[step.action ?? 'unknown'];
+  const ongoing =
+    step.status === 'running' ||
+    step.status === 'input-required' ||
+    step.status === 'pending';
+  return ongoing ? present : past;
+}
+
+/** An opened page can name itself from its URL; other targets stay blank. */
+function stepTarget(step: ChatBrowserUseStep) {
+  if (step.target) return step.target;
+  if (step.action === 'navigate' && step.url) return splitUrl(step.url).host;
+  return undefined;
+}
+
+function stepText(step: ChatBrowserUseStep) {
+  const target = stepTarget(step);
+  return target ? `${stepVerb(step)} ${target}` : stepVerb(step);
 }
 
 function currentStep(session: ChatBrowserUseSession) {
@@ -199,8 +237,12 @@ function currentStep(session: ChatBrowserUseSession) {
 
 function summary(session: ChatBrowserUseSession) {
   const actions = session.steps.filter((s) => s.action !== 'handoff').length;
-  const pages = new Set(session.steps.map((s) => s.url)).size;
-  return `${actions} actions on ${pages} pages`;
+  const pages = new Set(session.steps.flatMap((s) => (s.url ? [s.url] : [])))
+    .size;
+  const counted = `${actions} ${actions === 1 ? 'action' : 'actions'}`;
+  // Without URLs there are no pages to count, so the count stands alone.
+  if (pages === 0) return counted;
+  return `${counted} on ${pages} ${pages === 1 ? 'page' : 'pages'}`;
 }
 
 function isWaiting(state: ChatBrowserUseState) {
@@ -214,7 +256,7 @@ function isWaiting(state: ChatBrowserUseState) {
 function footerLine(session: ChatBrowserUseSession) {
   const step = currentStep(session);
   if ((session.state === 'reconnecting' || session.state === 'closed') && step)
-    return `${step.label} ${step.target}`;
+    return stepText(step);
   return statusLine(session);
 }
 
@@ -235,7 +277,7 @@ function statusLine(session: ChatBrowserUseSession) {
     case 'ended':
       return summary(session);
     case 'agent':
-      return step ? `${step.label} ${step.target}` : 'Connecting…';
+      return step ? stepText(step) : 'Connecting…';
   }
 }
 
@@ -256,7 +298,7 @@ function rowTitle(session: ChatBrowserUseSession) {
     case 'ended':
       return `Browsed ${host}`;
     case 'agent':
-      return step ? `${step.label} ${step.target}` : 'Starting a browser';
+      return step ? stepText(step) : 'Starting a browser';
   }
 }
 
@@ -282,8 +324,6 @@ function borderForState(state: ChatBrowserUseState) {
   return 'border-subtle';
 }
 
-// ---------- status ----------
-
 const STATUS_COPY: Record<ChatBrowserUseState, string> = {
   connecting: 'Connecting',
   agent: 'Agent browsing',
@@ -294,8 +334,8 @@ const STATUS_COPY: Record<ChatBrowserUseState, string> = {
   closed: 'Browser closed',
 };
 
-/** Pills without a visible fill, so containers can pull them in by their padding. */
-export function statusHasFill(state: ChatBrowserUseState) {
+/** Ended and closed pills have no fill, so containers can pull them in by their padding. */
+function statusHasFill(state: ChatBrowserUseState) {
   return !(state === 'ended' || state === 'closed');
 }
 
@@ -349,11 +389,9 @@ export function ChatBrowserUseStatus({
   );
 }
 
-// ---------- viewport ----------
-
 const RIPPLE_CSS = `
 @keyframes cbu-ripple { from { transform: scale(0.3); opacity: 0.9 } to { transform: scale(1.4); opacity: 0 } }
-.cbu-ripple { animation: cbu-ripple 700ms cubic-bezier(0.23,1,0.32,1) 450ms both; }
+.cbu-ripple { animation: cbu-ripple 700ms cubic-bezier(0.23,1,0.32,1) 400ms both; }
 @media (prefers-reduced-motion: reduce) { .cbu-ripple { animation: none; } }
 `;
 
@@ -369,7 +407,9 @@ function AgentCursor({
   return (
     <div
       aria-hidden="true"
-      className="absolute left-0 top-0 transition-transform duration-[600ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+      // Already on screen and moving, so ease-in-out. The ripple waits for it
+      // to land.
+      className="absolute left-0 top-0 transition-transform duration-[450ms] ease-[cubic-bezier(0.645,0.045,0.355,1)] motion-reduce:transition-none"
       style={{ transform: `translate(${x}px, ${y}px)` }}
     >
       <style>{RIPPLE_CSS}</style>
@@ -466,7 +506,10 @@ export function ChatBrowserUseViewport({
           </div>
         )
       )}
-      {dim && <div className="absolute inset-0 bg-[rgba(0,0,0,0.35)]" />}
+      {dim && (
+        // Fades with the ask that sits on it: same duration, same curve.
+        <div className="absolute inset-0 bg-[rgba(0,0,0,0.35)] transition-opacity duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] starting:opacity-0 motion-reduce:transition-none" />
+      )}
       {children}
     </div>
   );
@@ -489,8 +532,6 @@ function FrameNotice({ session }: { session: ChatBrowserUseSession }) {
     </div>
   );
 }
-
-// ---------- controls ----------
 
 /**
  * The trailing action, by who drives. Taking over is always offered while
@@ -606,14 +647,14 @@ function ViewActions({
   );
 }
 
-// ---------- steps ----------
-
 function StepDetails({ step }: { step: ChatBrowserUseStep }) {
   return (
     <div className="flex min-w-0 flex-col gap-space-2">
-      <Text as="div" variant="xs" className="min-w-0">
-        <UrlText url={step.url} />
-      </Text>
+      {step.url && (
+        <Text as="div" variant="xs" className="min-w-0">
+          <UrlText url={step.url} />
+        </Text>
+      )}
       {step.error && (
         <Text
           as="div"
@@ -673,8 +714,8 @@ export function ChatBrowserUseSteps({
             onInspect={onInspect ? () => onInspect(step) : undefined}
             inspectLabel={onInspect ? 'Show in browser' : undefined}
             icon={<StepIcon action={step.action} />}
-            label={onInspect ? `${step.label} ${step.target}` : step.label}
-            summary={step.target}
+            label={onInspect ? stepText(step) : stepVerb(step)}
+            summary={onInspect ? null : (stepTarget(step) ?? null)}
           >
             <StepDetails step={step} />
           </ChatToolCall>
@@ -701,14 +742,12 @@ function StepsToggle({
       color="secondary"
       onClick={onToggle}
       iconClassName={cn(
-        'transition-transform duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
-        open && 'rotate-90'
+        'transition-transform ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+        open ? 'rotate-90 duration-normal' : 'duration-[150ms]'
       )}
     />
   );
 }
-
-// ---------- row ----------
 
 export interface ChatBrowserUseRowProps extends ChatBrowserUseActions {
   session: ChatBrowserUseSession;
@@ -833,8 +872,6 @@ export function ChatBrowserUseRow({
   );
 }
 
-// ---------- card ----------
-
 export interface ChatBrowserUseCardProps extends ChatBrowserUseActions {
   session: ChatBrowserUseSession;
   minimized?: boolean;
@@ -861,8 +898,6 @@ export function ChatBrowserUseCard({
   const waiting = isWaiting(session.state);
   // A handoff always shows the page, whatever size the reader left it at.
   const showRow = isMinimized && !waiting;
-  // Inline, the card streams only once the agent asks for you.
-  const live = waiting;
   useEscToHandBack(session.state, actions.onHandBack, !showRow);
 
   if (showRow) {
@@ -884,7 +919,7 @@ export function ChatBrowserUseCard({
     <section
       aria-label="Browser session"
       className={cn(
-        'min-w-0 max-w-[560px] overflow-hidden rounded-lg border bg-surface-level-1 transition-[border-color] duration-normal',
+        'min-w-0 max-w-[560px] overflow-hidden rounded-lg border bg-surface-level-1 transition-[border-color] duration-normal motion-reduce:transition-none',
         borderForState(session.state),
         className
       )}
@@ -915,9 +950,10 @@ export function ChatBrowserUseCard({
       </header>
       <div className="group/view relative border-y border-subtle">
         <ChatBrowserUseViewport
-          frame={live ? session.frame : (session.snapshot ?? session.frame)}
+          // Inline, the card streams only once the agent asks for you.
+          frame={waiting ? session.frame : (session.snapshot ?? session.frame)}
           deviceSize={session.deviceSize}
-          cursor={live ? session.cursor : undefined}
+          cursor={waiting ? session.cursor : undefined}
           interactive={session.state === 'user'}
           dim={
             session.state === 'needs-you' ||
@@ -926,15 +962,17 @@ export function ChatBrowserUseCard({
           }
           label={session.title ?? 'Browser'}
         >
-          {session.state === 'needs-you' && session.handoff && (
+          {session.state === 'needs-you' && (
             <div className="absolute inset-0 flex items-center justify-center p-space-4">
-              <div className="flex max-w-[340px] flex-col items-start gap-space-3 rounded-lg bg-surface-level-1 p-space-4 shadow-[0_8px_24px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)]">
+              <div className="flex max-w-[340px] flex-col items-start gap-space-3 rounded-lg bg-surface-level-1 p-space-4 shadow-[0_8px_24px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.08)] transition-[opacity,scale] duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] starting:scale-[0.97] starting:opacity-0 motion-reduce:transition-none">
                 <Text variant="sm" weight="medium">
-                  {session.handoff.title}
+                  {session.handoff?.title ?? 'The agent needs you'}
                 </Text>
-                <Text variant="xs" color="secondary">
-                  {session.handoff.reason}
-                </Text>
+                {session.handoff?.reason && (
+                  <Text variant="xs" color="secondary">
+                    {session.handoff.reason}
+                  </Text>
+                )}
                 <ControlAction session={session} actions={actions} size="sm" />
               </div>
             </div>
@@ -990,8 +1028,8 @@ export function ChatBrowserUseCard({
                 size={12}
                 aria-hidden="true"
                 className={cn(
-                  'shrink-0 text-icon-tertiary transition-transform duration-normal ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
-                  stepsOpen && 'rotate-90'
+                  'shrink-0 text-icon-tertiary transition-transform ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+                  stepsOpen ? 'rotate-90 duration-normal' : 'duration-[150ms]'
                 )}
               />
             </Button>
@@ -1008,8 +1046,6 @@ export function ChatBrowserUseCard({
     </section>
   );
 }
-
-// ---------- panel ----------
 
 export interface ChatBrowserUsePanelProps extends ChatBrowserUseActions {
   session: ChatBrowserUseSession;
@@ -1079,7 +1115,7 @@ export function ChatBrowserUsePanel({
         {!live && (
           <div className="flex items-center justify-between gap-space-2">
             <Text variant="xs" color="secondary">
-              {inspectedStep.label} {inspectedStep.target}
+              {stepText(inspectedStep)}
             </Text>
             <Button
               size="xs"
@@ -1100,11 +1136,7 @@ export function ChatBrowserUsePanel({
             live &&
             (session.state === 'reconnecting' || session.state === 'closed')
           }
-          label={
-            live
-              ? 'Live browser'
-              : `${inspectedStep.label} ${inspectedStep.target}`
-          }
+          label={live ? 'Live browser' : stepText(inspectedStep)}
           className={cn(
             'rounded-md border shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06)]',
             live && drives ? 'border-brand-strong' : 'border-subtle'
@@ -1145,10 +1177,10 @@ export function ChatBrowserUsePanel({
   );
 }
 
-// ---------- floating ----------
-
 export interface ChatBrowserUseFloatingProps extends ChatBrowserUseActions {
   session: ChatBrowserUseSession;
+  /** Keep it mounted and toggle this, so it can animate both ways. */
+  open: boolean;
   onClose: () => void;
   className?: string;
 }
@@ -1160,18 +1192,28 @@ export interface ChatBrowserUseFloatingProps extends ChatBrowserUseActions {
  */
 export function ChatBrowserUseFloating({
   session,
+  open,
   onClose,
   className,
   ...actions
 }: ChatBrowserUseFloatingProps) {
-  useEscToHandBack(session.state, actions.onHandBack);
+  useEscToHandBack(session.state, actions.onHandBack, open);
   const waiting = isWaiting(session.state);
 
   return (
     <section
       aria-label="Live browser"
+      aria-hidden={!open}
+      inert={!open}
       className={cn(
-        'pointer-events-auto w-full max-w-[400px] overflow-hidden rounded-xl border bg-surface-level-1 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_12px_32px_rgba(0,0,0,0.16),0_2px_6px_rgba(0,0,0,0.08)] transition-[border-color] duration-normal',
+        // Transitions, not keyframes, so reopening mid-close turns around
+        // smoothly. It grows from the corner it's anchored to, and leaves
+        // faster and quieter than it arrives. Visibility flips at the end of
+        // the exit, so the hidden window can't take focus.
+        'w-full max-w-[400px] origin-bottom-right overflow-hidden rounded-xl border bg-surface-level-1 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_12px_32px_rgba(0,0,0,0.16),0_2px_6px_rgba(0,0,0,0.08)] transition-[opacity,translate,scale,visibility,border-color] motion-reduce:transition-none',
+        open
+          ? 'pointer-events-auto visible translate-y-0 scale-100 opacity-100 duration-normal ease-[cubic-bezier(0.32,0.72,0,1)]'
+          : 'pointer-events-none invisible translate-y-2 scale-[0.97] opacity-0 duration-[150ms] ease-in',
         borderForState(session.state),
         className
       )}

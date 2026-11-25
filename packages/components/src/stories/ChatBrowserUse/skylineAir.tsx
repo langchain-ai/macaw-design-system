@@ -19,11 +19,7 @@ import type {
 const PAGE_W = 1280;
 const PAGE_H = 800;
 
-// ---------- scenario ----------
-
-export type StepAction = ChatBrowserUseAction;
-
-export type PageId =
+type PageId =
   | 'home'
   | 'home-filled'
   | 'results'
@@ -32,9 +28,9 @@ export type PageId =
   | 'signin-done'
   | 'held';
 
-export interface StepDef {
+interface StepDef {
   id: string;
-  action: StepAction;
+  action: ChatBrowserUseAction;
   verb: string;
   verbIng: string;
   target: string;
@@ -57,7 +53,7 @@ const SIGNIN =
 const HOLD =
   'https://www.skylineair.com/en-us/book/hold/confirmation?pnr=QX7K2M&exp=2026-12-19T07%3A05';
 
-export const STEPS: StepDef[] = [
+const STEPS: StepDef[] = [
   {
     id: 's1',
     action: 'navigate',
@@ -216,8 +212,6 @@ export const ANSWER = [
   'Two other refundable nonstops were cheaper but leave after noon. Want me to book it now, or keep watching for a lower fare until the hold expires?',
 ];
 
-// ---------- simulation ----------
-
 /** Where a story starts. `live` plays the script; the rest hold one state. */
 export type Stage =
   | 'live'
@@ -288,7 +282,7 @@ const STATE_BY_PHASE: Record<Phase, ChatBrowserUseState> = {
   done: 'ended',
 };
 
-export function SkylineFavicon() {
+function SkylineFavicon() {
   return (
     <span
       aria-hidden="true"
@@ -300,9 +294,16 @@ export function SkylineFavicon() {
   );
 }
 
-/** Drives a `ChatBrowserUseSession` through the script, like a host would. */
+/**
+ * Drives a `ChatBrowserUseSession` through the script, like a host would.
+ * `labels: 'none'` mimics a host that only knows the tool calls: no labels
+ * or targets, and no action for `browser_run`, whose clicks, typing and
+ * navigation all look alike. Snapshot, screenshot and handoff are their own
+ * tools, so their actions stay.
+ */
 export function useSkylineSession(
-  stage: Stage = 'live'
+  stage: Stage = 'live',
+  { labels = 'full' }: { labels?: 'full' | 'none' } = {}
 ): ChatBrowserUseActions & { session: ChatBrowserUseSession } {
   const [start] = useState(() => initial(stage));
   const [active, setActive] = useState(start.active);
@@ -365,14 +366,20 @@ export function useSkylineSession(
           status = step.action === 'handoff' ? 'input-required' : 'pending';
         else if (phase !== 'running') status = 'pending';
       }
+      const bare = labels === 'none';
+      const ownTool =
+        step.action === 'read' ||
+        step.action === 'screenshot' ||
+        step.action === 'handoff';
       return {
         id: step.id,
-        action: step.action,
-        label:
-          status === 'running' || status === 'input-required'
+        action: bare && !ownTool ? undefined : step.action,
+        label: bare
+          ? undefined
+          : status === 'running' || status === 'input-required'
             ? step.verbIng
             : step.verb,
-        target: step.target,
+        target: bare ? undefined : step.target,
         url: step.url,
         status,
         error: step.error,
@@ -435,7 +442,7 @@ export function useSkylineSession(
   };
 }
 
-// ---------- fake website (fixed light palette: it's a screenshot, not UI) ----------
+// Fake website (fixed light palette: it's a screenshot, not UI)
 
 const C = {
   brand: '#0f5c4d',
@@ -874,7 +881,7 @@ function Held() {
   );
 }
 
-export function FakePage({
+function FakePage({
   page,
   interactive = false,
   onSignIn,

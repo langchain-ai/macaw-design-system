@@ -32,8 +32,6 @@ import {
   useSkylineSession,
 } from './skylineAir';
 
-// ---------- chat around the session ----------
-
 function Chat({
   inline,
   aside,
@@ -79,9 +77,7 @@ function Chat({
     <div
       className={cn(
         'flex min-h-0 bg-surface-level-1',
-        narrow
-          ? 'mx-auto my-space-5 h-[760px] w-[390px] overflow-hidden rounded-xl border border-subtle'
-          : 'h-screen'
+        narrow ? 'mx-auto h-screen w-[390px]' : 'h-screen'
       )}
     >
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
@@ -135,8 +131,6 @@ function Chat({
 
 /** Stands in for the host's new-tab target. */
 const openInNewTab = fn().mockName('onOpenInNewTab');
-
-// ---------- placements ----------
 
 function CardExample({
   stage,
@@ -246,20 +240,17 @@ function FloatingExample({
         />
       }
       overlay={
-        shown ? (
-          <ChatBrowserUseFloating
-            session={session}
-            onClose={() => setOpen(false)}
-            onOpenInNewTab={openInNewTab}
-            {...actions}
-          />
-        ) : undefined
+        <ChatBrowserUseFloating
+          session={session}
+          open={shown}
+          onClose={() => setOpen(false)}
+          onOpenInNewTab={openInNewTab}
+          {...actions}
+        />
       }
     />
   );
 }
-
-// ---------- stories ----------
 
 const STAGES: Stage[] = [
   'live',
@@ -364,6 +355,7 @@ export const Handoff: Story = {
 
 function RowState({ stage }: { stage: Stage }) {
   const { session, ...actions } = useSkylineSession(stage);
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-space-2">
       <Text variant="xs" color="tertiary">
@@ -371,8 +363,8 @@ function RowState({ stage }: { stage: Stage }) {
       </Text>
       <ChatBrowserUseRow
         session={session}
-        open={false}
-        onOpenChange={() => {}}
+        open={open}
+        onOpenChange={setOpen}
         onTakeControl={actions.onTakeControl}
       />
     </div>
@@ -389,6 +381,41 @@ export const RowStates: Story = {
       ))}
     </div>
   ),
+};
+
+function WithoutLabelsExample({ stage }: { stage: Stage }) {
+  const { session, ...actions } = useSkylineSession(stage, { labels: 'none' });
+  return (
+    <Chat
+      done={session.state === 'ended'}
+      inline={
+        <ChatBrowserUseCard
+          session={session}
+          onOpenInNewTab={openInNewTab}
+          {...actions}
+        />
+      }
+    />
+  );
+}
+
+/**
+ * A host that only knows the tool calls. Steps fall back to a verb for the
+ * action, or to "Ran browser code" when even that is unknown.
+ */
+export const WithoutLabels: Story = {
+  args: { stage: 'ended' },
+  render: (args) => (
+    <WithoutLabelsExample key={args.stage} stage={args.stage} />
+  ),
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Show steps' })
+    );
+    await expect(
+      (await canvas.findAllByText('Ran browser code')).length
+    ).toBeGreaterThan(0);
+  },
 };
 
 function TwoSessionsExample() {
