@@ -138,15 +138,18 @@ function AgentMessage({
   const actionCount = visibleActionCount(work, tools);
   const hasActions = actionCount > 0;
   // One progress indicator per message. "Responding" shows only until the
-  // agent produces output, then the work owns progress (the group header, or
+  // agent produces visible output, then the work owns progress (the group header, or
   // the streaming reasoning row when there are no actions). "Responding"
   // never comes back, so gaps between parts and short answers don't flash it.
   const working =
     turn.status === 'streaming' && work.length > 0 && answer.length === 0;
+  // Tools a host hides with a null renderer don't count as output.
+  const hasVisibleWork =
+    hasActions || work.some((part) => part.type !== 'tool-call');
   // A failed turn's error message already says it failed.
   const showStatus = turn.error
     ? false
-    : turn.status !== 'streaming' || (work.length === 0 && answer.length === 0);
+    : turn.status !== 'streaming' || (!hasVisibleWork && answer.length === 0);
   const showInterrupts = isLast && thread.model.interrupts.length > 0;
   const blocks: ChatMessageContentBlock[] = [];
 

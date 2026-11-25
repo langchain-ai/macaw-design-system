@@ -697,6 +697,18 @@ describe('ChatThread progress indicators', () => {
     );
   });
 
+  it('keeps Responding while only hidden tools run', () => {
+    render(
+      <ChatThread
+        thread={threadWith([search('running')])}
+        tools={{ web_search: () => null }}
+      />
+    );
+    const { responding, working } = indicators();
+    expect(responding).toBeInTheDocument();
+    expect(working).toBeNull();
+  });
+
   it('shows no indicator between reasoning and the next part', () => {
     render(<ChatThread thread={threadWith([reasoning(false)])} />);
     const { responding, working, thinking } = indicators();
