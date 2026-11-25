@@ -530,7 +530,7 @@ export const LoadingAndErrorStates: Story = {
     >;
 
     return (
-      <div className="grid grid-cols-1 gap-space-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 pl-px pt-px lg:grid-cols-2">
         {(
           [
             'bar',
@@ -549,11 +549,16 @@ export const LoadingAndErrorStates: Story = {
             title={`${skeletonVariant} chart`}
             state="loading"
             skeletonVariant={skeletonVariant}
-            className="h-64"
+            className="-ml-px -mt-px h-64"
             {...actionProps}
           />
         ))}
-        <ChartCard title="Trace count" state="error" {...actionProps} />
+        <ChartCard
+          title="Trace count"
+          state="error"
+          className="-ml-px -mt-px"
+          {...actionProps}
+        />
       </div>
     );
   },
