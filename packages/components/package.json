@@ -124,6 +124,10 @@
       "types": "./dist/components/Checkbox/index.d.ts",
       "import": "./dist/components/Checkbox/index.js"
     },
+    "./Checklist": {
+      "types": "./dist/components/Checklist/index.d.ts",
+      "import": "./dist/components/Checklist/index.js"
+    },
     "./CircularProgress": {
       "types": "./dist/components/CircularProgress/index.d.ts",
       "import": "./dist/components/CircularProgress/index.js"
