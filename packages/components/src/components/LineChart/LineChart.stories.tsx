@@ -118,6 +118,10 @@ const meta = {
         'Controlled x-domain range rendered as a brush-selection overlay. Update it from pointer callbacks using `pointerX`.',
       table: { type: { summary: '{ from: number; to: number }' } },
     },
+    yBands: {
+      description:
+        'Background ranges. Use warning, error, or success for theme-aware fills at full opacity. Custom CSS colors default to 0.12 opacity; an explicit opacity overrides either default.',
+    },
     yAxes: {
       description:
         'Optional axis definitions with domains, formatters, tick counts, or exact `tickValues`.',
@@ -290,7 +294,7 @@ export const ThresholdBand: Story = {
   render: () => (
     <div className="mx-auto h-80 w-full max-w-3xl">
       <LineChart
-        aria-label="Production requests with warning threshold"
+        aria-label="Production requests with success, warning, and error thresholds"
         series={[productionSeries]}
         showLegend={false}
         yAxes={[
@@ -304,10 +308,20 @@ export const ThresholdBand: Story = {
         ]}
         yBands={[
           {
+            id: 'low-volume',
+            to: 1_000,
+            color: 'success',
+          },
+          {
+            id: 'elevated-volume',
+            from: 1_000,
+            to: 1_200,
+            color: 'warning',
+          },
+          {
             id: 'high-volume',
             from: 1_200,
-            color: 'var(--bg-warning)',
-            opacity: 0.5,
+            color: 'error',
           },
         ]}
         xTickValues={[0, 2, 4, 6].map((index) => START + index * DAY)}

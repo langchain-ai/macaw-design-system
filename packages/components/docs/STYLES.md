@@ -221,6 +221,11 @@ over time or ordered buckets. Choose `variant` by the question the chart answers
 - To offer both views of the same data, pass the same series and switch
   `variant`. Each series keeps its hue, and legend, crosshair, points, markers,
   and bands behave the same.
+- Use `yBands` for background ranges. Set a band's `color` to `warning`,
+  `error`, or `success` to use the theme-aware `--bg-warning`, `--bg-error`, or
+  `--bg-success` token at full opacity. Custom CSS colors, including explicit
+  `var(...)` values, retain the default `0.12` opacity. A band's `opacity`
+  overrides either default, including `0` to hide its fill.
 - Pointer callbacks report each series' own value and its area color, not its
   stacked height. Show those values in the tooltip with one `ChartTooltipRow`
   per series, and add a `variant="total"` row when the total matters.
