@@ -2,9 +2,16 @@ import {
   createContext,
   Fragment,
   useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
   useState,
   type ComponentPropsWithRef,
+  type FormEvent,
+  type KeyboardEvent,
   type ReactNode,
+  type RefObject,
 } from 'react';
 
 import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr/ArrowClockwise';
@@ -15,11 +22,14 @@ import { XIcon } from '@phosphor-icons/react/dist/ssr/X';
 
 import { cn } from '../../utils/cn';
 import type { IconComponent } from '../../utils/icon-types';
+import { mergeRefs } from '../../utils/merge-refs';
 import { Avatar, type AvatarProps } from '../Avatar';
+import { Button } from '../Button';
 import { Divider } from '../Divider';
 import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
+import { Textarea } from '../Textarea';
 import { ThinkingState } from '../ThinkingState';
 import type {
   ChatMessageActionCapabilities,
@@ -34,6 +44,70 @@ import type {
  * blocks the same way the default body does.
  */
 const ChatMessageAlignmentContext = createContext<'start' | 'end'>('start');
+
+/** A rectangle relative to the message's root. */
+interface MessageBox {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+/** The message content an editor replaces, which sets its starting size. */
+const ChatMessageEditContext = createContext<{
+  rootRef: RefObject<HTMLDivElement | null>;
+  contentBox: RefObject<MessageBox | null>;
+} | null>(null);
+
+/**
+ * The message's text never moves or fades between states. Only what changes
+ * animates: the field's edge around the bubble, and the footer swapping
+ * actions for Cancel and Send.
+ */
+const editMotion = {
+  enterMs: 200,
+  fadeMs: 150,
+  easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
+};
+
+/** The field's edge, drawn inside the bubble so it never shifts the text. */
+const editRing = (color: string) => `inset 0 0 0 1px ${color}`;
+
+/**
+ * Apps test these components in jsdom, which has neither Web Animations nor
+ * `CSS.supports`. Without them the editor skips its motion and fixes its
+ * width instead of sizing to the text.
+ */
+function canAnimate(element: Element) {
+  return typeof element.animate === 'function';
+}
+
+function supportsFieldSizing() {
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('field-sizing', 'content')
+  );
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** The union of the body's blocks, since the body itself spans the column. */
+function measureContent(root: HTMLElement, body: Element): MessageBox | null {
+  const rects = Array.from(body.children, (child) =>
+    child.getBoundingClientRect()
+  );
+  if (rects.length === 0) return null;
+  const origin = root.getBoundingClientRect();
+  return {
+    top: Math.min(...rects.map((rect) => rect.top)) - origin.top,
+    right: Math.max(...rects.map((rect) => rect.right)) - origin.left,
+    bottom: Math.max(...rects.map((rect) => rect.bottom)) - origin.top,
+    left: Math.min(...rects.map((rect) => rect.left)) - origin.left,
+  };
+}
 
 const roleLabels: Record<ChatMessageRole, string> = {
   user: 'User',
@@ -87,6 +161,11 @@ export interface ChatMessageProps extends ComponentPropsWithRef<'div'> {
    * running tool group, so the message shows one indicator at a time.
    */
   showStatus?: boolean;
+  /**
+   * Puts the message in its edit state: a `ChatMessageEditor` replaces the
+   * body and footer. When editing ends, focus returns to the Edit action.
+   */
+  editor?: ReactNode;
   contentClassName?: string;
 }
 
@@ -106,9 +185,12 @@ export function ChatMessage({
   isLatest = false,
   animateParagraphs = false,
   showStatus = true,
+  editor,
   className,
   contentClassName,
   children,
+  ref,
+  onClickCapture,
   ...props
 }: ChatMessageProps) {
   const alignment = align ?? (message.role === 'user' ? 'end' : 'start');
@@ -116,9 +198,64 @@ export function ChatMessage({
   const isSettled = settledStatuses.has(message.status);
   const [isHistory, setIsHistory] = useState(isSettled);
   if (isHistory && !isSettled) setIsHistory(false);
+  const isEditing = editor != null;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const contentBox = useRef<MessageBox | null>(null);
+  const wasEditing = useRef(isEditing);
+  const editContext = useMemo(() => ({ rootRef, contentBox }), []);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (wasEditing.current && !isEditing && root) {
+      // Fades only, so these run under reduced motion too.
+      if (canAnimate(root)) {
+        const timing = { duration: editMotion.fadeMs, easing: 'ease-out' };
+        const ring = getComputedStyle(root)
+          .getPropertyValue('--border-subtle')
+          .trim();
+        for (const bubble of root.querySelectorAll(
+          '[data-chat-message-bubble]'
+        )) {
+          bubble.animate(
+            [
+              { boxShadow: editRing(ring) },
+              { boxShadow: editRing('transparent') },
+            ],
+            timing
+          );
+        }
+        footerRef.current?.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+      }
+      // The editor took focus with it when it unmounted; hand it back to Edit.
+      const focused = document.activeElement;
+      if (focused === document.body || root.contains(focused)) {
+        root
+          .querySelector<HTMLElement>('[data-chat-message-action="edit"]')
+          ?.focus();
+      }
+    }
+    wasEditing.current = isEditing;
+  }, [isEditing]);
 
   return (
     <div
+      ref={mergeRefs([rootRef, ref])}
+      onClickCapture={(event) => {
+        onClickCapture?.(event);
+        // Measure the content as Edit is clicked, before the editor replaces
+        // it, so the editor can open at the same size.
+        const root = rootRef.current;
+        const body = root?.querySelector('[data-chat-message-body]');
+        if (
+          root &&
+          body &&
+          event.target instanceof Element &&
+          event.target.closest('[data-chat-message-action="edit"]')
+        ) {
+          contentBox.current = measureContent(root, body);
+        }
+      }}
       role="article"
       aria-label={`${typeof name === 'string' ? name : avatar?.label || roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
@@ -138,23 +275,31 @@ export function ChatMessage({
         )}
       >
         <ChatMessageAlignmentContext.Provider value={alignment}>
-          {children ?? (
-            <>
-              <ChatMessageHeader
-                avatar={avatar}
-                name={name}
-                status={message.status}
-                showStatus={showStatus}
-              />
-              <ChatMessageBody
-                blocks={message.content}
-                animateParagraphs={animateParagraphs && !isHistory}
-              />
-            </>
+          {isEditing ? (
+            <ChatMessageEditContext.Provider value={editContext}>
+              <ChatMessageHeader avatar={avatar} name={name} />
+              {editor}
+            </ChatMessageEditContext.Provider>
+          ) : (
+            (children ?? (
+              <>
+                <ChatMessageHeader
+                  avatar={avatar}
+                  name={name}
+                  status={message.status}
+                  showStatus={showStatus}
+                />
+                <ChatMessageBody
+                  blocks={message.content}
+                  animateParagraphs={animateParagraphs && !isHistory}
+                />
+              </>
+            ))
           )}
         </ChatMessageAlignmentContext.Provider>
-        {footer != null && (
+        {footer != null && !isEditing && (
           <div
+            ref={footerRef}
             // Reserve the footer's space while streaming so it doesn't pop in.
             inert={isStreaming}
             className={cn(
@@ -278,6 +423,7 @@ export function ChatMessageBody({
 
   return (
     <div
+      data-chat-message-body=""
       className={cn(
         'flex w-full min-w-0 max-w-full flex-col gap-space-3 [overflow-wrap:anywhere]',
         alignment === 'end' && 'items-end',
@@ -311,6 +457,7 @@ export function ChatMessageBody({
         return block.appearance === 'bubble' ? (
           <div
             key={block.id}
+            data-chat-message-bubble=""
             className="w-fit min-w-0 max-w-full rounded-lg bg-surface-level-2 px-space-3 py-space-2"
           >
             {content}
@@ -320,6 +467,193 @@ export function ChatMessageBody({
         );
       })}
     </div>
+  );
+}
+
+export interface ChatMessageEditorProps extends Omit<
+  ComponentPropsWithRef<'form'>,
+  'onSubmit' | 'children' | 'defaultValue'
+> {
+  /** The message's current text. The editor owns the draft from here. */
+  defaultValue: string;
+  /** Receives the trimmed draft. Send stays disabled while the draft is blank. */
+  onSubmit: (value: string) => void;
+  onCancel: () => void;
+  /** Defaults to "Send". */
+  submitLabel?: string;
+  /** Labels the text field. Defaults to "Edit message". */
+  label?: string;
+  placeholder?: string;
+  /** Host-owned extras below the text, such as attachments the edit keeps. */
+  children?: ReactNode;
+}
+
+/**
+ * The edit state of a message, passed to `ChatMessage` as `editor`. It opens
+ * in the message's bubble at the bubble's width and grows as you type; Cancel
+ * and Send take the footer's place. Enter sends, Shift+Enter adds a line, and
+ * Escape cancels.
+ */
+export function ChatMessageEditor({
+  defaultValue,
+  onSubmit,
+  onCancel,
+  submitLabel = 'Send',
+  label = 'Edit message',
+  placeholder,
+  children,
+  className,
+  ...props
+}: ChatMessageEditorProps) {
+  const [draft, setDraft] = useState(defaultValue);
+  const alignment = useContext(ChatMessageAlignmentContext);
+  const edit = useContext(ChatMessageEditContext);
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isBlank = draft.trim() === '';
+
+  useLayoutEffect(() => {
+    const surface = surfaceRef.current;
+    if (!surface) return;
+    const root = edit?.rootRef.current;
+    const from = edit?.contentBox.current;
+
+    // Open at the message's width so the text doesn't move, then grow with
+    // the text. Where the field can't size to its text, keep that width and
+    // wrap inside it.
+    if (from) {
+      const width = `${from.right - from.left}px`;
+      if (supportsFieldSizing()) {
+        surface.style.minWidth = width;
+      } else {
+        surface.style.width = width;
+      }
+    }
+
+    if (!canAnimate(surface)) return;
+    surface.animate(
+      [
+        { boxShadow: editRing('transparent') },
+        { boxShadow: getComputedStyle(surface).boxShadow },
+      ],
+      { duration: editMotion.fadeMs, easing: 'ease-out' }
+    );
+    // Reduced motion keeps the fades and drops the movement.
+    const still = prefersReducedMotion();
+    actionsRef.current?.animate(
+      [
+        { opacity: 0, transform: still ? 'none' : 'translateY(-4px)' },
+        { opacity: 1, transform: 'none' },
+      ],
+      { duration: editMotion.enterMs, easing: editMotion.easing }
+    );
+    if (still || !root || !from) return;
+    // Grow from the message's old box when the editor is bigger, such as
+    // with attachments below the text.
+    const origin = root.getBoundingClientRect();
+    const rect = surface.getBoundingClientRect();
+    const top = rect.top - origin.top;
+    const left = rect.left - origin.left;
+    const inset = [
+      from.top - top,
+      left + rect.width - from.right,
+      top + rect.height - from.bottom,
+      from.left - left,
+    ].map((value) => Math.max(0, value));
+    if (inset.every((value) => value < 1)) return;
+    const radius = getComputedStyle(surface).borderRadius;
+    surface.animate(
+      [
+        {
+          clipPath: `inset(${inset.map((value) => `${value}px`).join(' ')} round ${radius})`,
+        },
+        { clipPath: `inset(0 round ${radius})` },
+      ],
+      { duration: editMotion.enterMs, easing: editMotion.easing }
+    );
+  }, [edit]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  }, []);
+
+  const submit = () => {
+    if (!isBlank) onSubmit(draft.trim());
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submit();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      submit();
+    } else if (event.key === 'Escape') {
+      // Keep Escape from also closing a dialog or panel around the chat.
+      event.preventDefault();
+      event.stopPropagation();
+      onCancel();
+    }
+  };
+
+  return (
+    <form
+      className={cn(
+        'flex min-w-0 max-w-full flex-col gap-space-2',
+        alignment === 'end' ? 'items-end' : 'items-start',
+        className
+      )}
+      onSubmit={handleSubmit}
+      {...props}
+    >
+      {/* The bubble's surface and text metrics, so the words don't move. */}
+      <div
+        ref={surfaceRef}
+        className="flex w-fit min-w-0 max-w-full flex-col gap-space-2 rounded-lg bg-surface-level-2 px-space-3 py-space-2 shadow-[inset_0_0_0_1px_var(--border-subtle)]"
+      >
+        <Textarea
+          ref={textareaRef}
+          variant="plain"
+          aria-label={label}
+          placeholder={placeholder}
+          value={draft}
+          onChange={setDraft}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          autoResize
+          maxHeight={320}
+          inputClassName="text-xs leading-normal tracking-snug [field-sizing:content]"
+        />
+        {children}
+      </div>
+      <div
+        ref={actionsRef}
+        className={cn(
+          'flex gap-space-2',
+          alignment === 'end' ? 'justify-end' : 'justify-start'
+        )}
+      >
+        <Button
+          type="button"
+          size="xs"
+          variant="plain"
+          color="secondary"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" size="xs" disabled={isBlank}>
+          {submitLabel}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -394,6 +728,7 @@ export function ChatMessageActions({
       {visibleActions.map(({ name, label, icon, action }) => (
         <IconButton
           key={name}
+          data-chat-message-action={name}
           icon={icon}
           iconWeight="regular"
           label={action.label ?? label}

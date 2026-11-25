@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { expect, fn, within } from 'storybook/test';
 
@@ -9,6 +9,7 @@ import {
   ChatMessage,
   ChatMessageActions,
   ChatMessageBody,
+  ChatMessageEditor,
   ChatTurnDivider,
   type ChatMessageContentBlock,
   type ChatMessageModel,
@@ -63,6 +64,7 @@ const meta = {
           '- Compose header, ordered content, and actions.',
           '- Compose metadata and actions in `footer`; hosts own formatting and navigation.',
           '- Pass `status` and `readOnly` to `ChatMessageActions` to hide edit/retry while pending or read-only.',
+          '- Pass a `ChatMessageEditor` as `editor` to edit a message in place; it replaces the body and footer until the host clears it.',
           '- The header shows no avatar or name by default; pass `avatar` (`Avatar` props) and `name`, separately and for any role.',
           '- `text` blocks render escaped plain text. Render Markdown answers with `MarkdownDisplay` in a `custom` block.',
           '- Hosts own parsing, safe custom content, streaming, callbacks, and permission checks.',
@@ -418,6 +420,178 @@ export const StatesAndActions: Story = {
       <ActionsExample readOnly />
     </div>
   ),
+};
+
+const editingMessages: DemoMessage[] = [
+  ...conversationMessages,
+  {
+    id: 'follow-up',
+    role: 'user',
+    status: 'completed',
+    timestamp: <time dateTime="2026-09-30T19:09:00">7:09 PM</time>,
+    content: [
+      {
+        id: 'follow-up-text',
+        type: 'text',
+        appearance: 'bubble',
+        text: 'Somewhere we can reach by train.',
+      },
+    ],
+  },
+  {
+    id: 'follow-up-answer',
+    role: 'assistant',
+    status: 'completed',
+    timestamp: <time dateTime="2026-09-30T19:09:00">7:09 PM</time>,
+    content: [
+      {
+        id: 'follow-up-answer-text',
+        type: 'custom',
+        content: (
+          <MarkdownDisplay content="Pick a town on a coastal rail line, so the station is a short walk from the water. Book a stay near the station and you won't need a car all weekend." />
+        ),
+      },
+    ],
+  },
+];
+
+/** The agent's scripted answer to an edited message, one paragraph at a time. */
+const editedReplyParagraphs = [
+  'Take a morning train to a small coastal town and leave the car at home.',
+  'Spend Saturday on a cliff walk, then keep Sunday open for the beach or a long lunch.',
+];
+
+function EditingConversation() {
+  const [messages, setMessages] = useState(editingMessages);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [reply, setReply] = useState<{ id: string; shown: number } | null>(
+    null
+  );
+  const responding =
+    reply !== null && reply.shown < editedReplyParagraphs.length;
+
+  useEffect(() => {
+    if (!reply || !responding) return;
+    const timer = setTimeout(
+      () => setReply({ ...reply, shown: reply.shown + 1 }),
+      700
+    );
+    return () => clearTimeout(timer);
+  }, [reply, responding]);
+
+  // Sending an edit replaces the message, drops everything after it, and
+  // asks the agent again.
+  const sendEdit = (index: number, text: string) => {
+    const edited = messages[index];
+    const replyId = `reply-${Date.now()}`;
+    setMessages([
+      ...messages.slice(0, index),
+      {
+        ...edited,
+        content: edited.content.map((block) =>
+          block.type === 'text' ? { ...block, text } : block
+        ),
+      },
+      { id: replyId, role: 'assistant', status: 'streaming', content: [] },
+    ]);
+    setReply({ id: replyId, shown: 0 });
+    setEditingId(null);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-space-5">
+      {messages.map((item, index) => {
+        const shown: DemoMessage =
+          item.id === reply?.id
+            ? {
+                ...item,
+                status: responding ? 'streaming' : 'completed',
+                content: editedReplyParagraphs
+                  .slice(0, reply.shown)
+                  .map((text, paragraph) => ({
+                    id: `${item.id}-${paragraph}`,
+                    type: 'text',
+                    text,
+                  })),
+              }
+            : item;
+        const text = shown.content.find((block) => block.type === 'text')?.text;
+        return (
+          <ChatMessage
+            key={item.id}
+            isLatest={index === messages.length - 1}
+            animateParagraphs
+            message={shown}
+            editor={
+              editingId === item.id && text !== undefined ? (
+                <ChatMessageEditor
+                  defaultValue={text}
+                  onCancel={() => setEditingId(null)}
+                  onSubmit={(value) => sendEdit(index, value)}
+                />
+              ) : undefined
+            }
+            footer={
+              <>
+                <ChatMessageActions
+                  status={shown.status}
+                  readOnly={responding}
+                  actions={{
+                    copy: exampleActions.copy,
+                    ...(item.role === 'user'
+                      ? { edit: { onClick: () => setEditingId(item.id) } }
+                      : {}),
+                  }}
+                />
+                {item.timestamp && (
+                  <Text as="span" variant="xs" color="quaternary">
+                    {item.timestamp}
+                  </Text>
+                )}
+              </>
+            }
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+export const Editing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Edit a user message in place. The editor opens at the bubble’s width and grows as you type. Enter sends the edit, which drops the replies after it and asks the agent again. Shift+Enter adds a line, and Escape cancels; focus returns to Edit either way.',
+      },
+    },
+  },
+  render: () => <EditingConversation />,
+  play: async ({ canvas, userEvent }) => {
+    const followUp = canvas.getByRole('article', {
+      name: (_, element) =>
+        element.textContent?.includes('Somewhere we can reach by train.') ??
+        false,
+    });
+    await userEvent.click(
+      within(followUp).getByRole('button', { name: 'Edit message' })
+    );
+    const field = canvas.getByRole('textbox', { name: 'Edit message' });
+    await expect(field).toHaveValue('Somewhere we can reach by train.');
+
+    await userEvent.type(field, ' No more than two hours away.{Enter}');
+    await expect(
+      canvas.getByText(
+        'Somewhere we can reach by train. No more than two hours away.'
+      )
+    ).toBeVisible();
+    await expect(
+      canvas.queryByText(/Pick a town on a coastal rail line/)
+    ).toBeNull();
+    await canvas.findByText(editedReplyParagraphs[1], undefined, {
+      timeout: 3000,
+    });
+  },
 };
 
 export const NarrowWidth: Story = {

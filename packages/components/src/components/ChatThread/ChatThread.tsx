@@ -1,7 +1,6 @@
 import { Fragment, type ReactNode, useMemo, useState } from 'react';
 
 import { cn } from '../../utils/cn';
-import { Button } from '../Button';
 import {
   ChatComposer,
   ChatComposerAction,
@@ -13,6 +12,7 @@ import { ChatConversation } from '../ChatConversation';
 import {
   ChatMessage,
   ChatMessageActions,
+  ChatMessageEditor,
   type ChatMessageActionCapabilities,
   type ChatMessageContentBlock,
 } from '../ChatMessage';
@@ -21,7 +21,6 @@ import { copyToClipboard } from '../CopyButton';
 import { ErrorMessage } from '../ErrorMessage';
 import { MarkdownDisplay } from '../MarkdownDisplay';
 import { Skeleton } from '../Skeleton';
-import { Textarea } from '../Textarea';
 import type {
   ChatThreadController,
   ChatThreadInterrupt,
@@ -62,48 +61,6 @@ function UserMessage({ turn }: { turn: ChatThreadTurn }) {
   const busy = thread.model.status === 'running';
   const fork = forkPoint === undefined ? undefined : thread.actions.fork;
 
-  if (editing && fork) {
-    const save = () => {
-      const text = draft.trim();
-      if (!text) return;
-      setEditing(false);
-      fork(text, forkPoint).catch(() => {
-        // Reopen the edit so the reader can send it again.
-        setDraft(text);
-        setEditing(true);
-      });
-    };
-    return (
-      <div
-        data-chat-message-id={user.message.id}
-        className="ml-auto flex w-full max-w-[85%] flex-col gap-space-2 rounded-lg border border-focus bg-elevated p-space-2 duration-normal ease-out animate-in fade-in zoom-in-95 motion-reduce:animate-none"
-      >
-        <Textarea
-          variant="plain"
-          aria-label="Edit message"
-          value={draft}
-          onChange={setDraft}
-          rows={3}
-          resize="vertical"
-          autoFocus
-        />
-        <div className="flex justify-end gap-space-2">
-          <Button
-            size="sm"
-            variant="plain"
-            color="secondary"
-            onClick={() => setEditing(false)}
-          >
-            Cancel
-          </Button>
-          <Button size="sm" disabled={!draft.trim()} onClick={save}>
-            Send
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   const actions: ChatMessageActionCapabilities = {
     copy: { onClick: () => void copyToClipboard(user.text) },
   };
@@ -121,6 +78,22 @@ function UserMessage({ turn }: { turn: ChatThreadTurn }) {
   return (
     <ChatMessage
       message={user.message}
+      editor={
+        editing && fork ? (
+          <ChatMessageEditor
+            defaultValue={draft}
+            onCancel={() => setEditing(false)}
+            onSubmit={(text) => {
+              setEditing(false);
+              fork(text, forkPoint).catch(() => {
+                // Reopen the edit so the reader can send it again.
+                setDraft(text);
+                setEditing(true);
+              });
+            }}
+          />
+        ) : undefined
+      }
       footer={<ChatMessageActions actions={actions} readOnly={busy} />}
     />
   );
