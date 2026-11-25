@@ -73,6 +73,23 @@ const editMotion = {
 /** The field's edge, drawn inside the bubble so it never shifts the text. */
 const editRing = (color: string) => `inset 0 0 0 1px ${color}`;
 
+/**
+ * Apps test these components in jsdom, which has neither Web Animations nor
+ * `CSS.supports`. Without them the editor skips its motion and fixes its
+ * width instead of sizing to the text.
+ */
+function canAnimate(element: Element) {
+  return typeof element.animate === 'function';
+}
+
+function supportsFieldSizing() {
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('field-sizing', 'content')
+  );
+}
+
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -173,6 +190,7 @@ export function ChatMessage({
   contentClassName,
   children,
   ref,
+  onClickCapture,
   ...props
 }: ChatMessageProps) {
   const alignment = align ?? (message.role === 'user' ? 'end' : 'start');
@@ -187,25 +205,11 @@ export function ChatMessage({
   const wasEditing = useRef(isEditing);
   const editContext = useMemo(() => ({ rootRef, contentBox }), []);
 
-  // Track the content's box so an editor opened later can grow out of it.
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    const body = root?.querySelector('[data-chat-message-body]');
-    if (isEditing || !root || !body) return;
-    const measure = () => {
-      contentBox.current = measureContent(root, body);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(body);
-    for (const child of body.children) observer.observe(child);
-    return () => observer.disconnect();
-  }, [isEditing, message.content, children]);
-
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (wasEditing.current && !isEditing && root) {
-      if (!prefersReducedMotion()) {
+      // Fades only, so these run under reduced motion too.
+      if (canAnimate(root)) {
         const timing = { duration: editMotion.fadeMs, easing: 'ease-out' };
         const ring = getComputedStyle(root)
           .getPropertyValue('--border-subtle')
@@ -237,6 +241,21 @@ export function ChatMessage({
   return (
     <div
       ref={mergeRefs([rootRef, ref])}
+      onClickCapture={(event) => {
+        onClickCapture?.(event);
+        // Measure the content as Edit is clicked, before the editor replaces
+        // it, so the editor can open at the same size.
+        const root = rootRef.current;
+        const body = root?.querySelector('[data-chat-message-body]');
+        if (
+          root &&
+          body &&
+          event.target instanceof Element &&
+          event.target.closest('[data-chat-message-action="edit"]')
+        ) {
+          contentBox.current = measureContent(root, body);
+        }
+      }}
       role="article"
       aria-label={`${typeof name === 'string' ? name : avatar?.label || roleLabels[message.role]} message`}
       aria-busy={isStreaming || message.status === 'submitting'}
@@ -505,14 +524,14 @@ export function ChatMessageEditor({
     // wrap inside it.
     if (from) {
       const width = `${from.right - from.left}px`;
-      if (CSS.supports('field-sizing', 'content')) {
+      if (supportsFieldSizing()) {
         surface.style.minWidth = width;
       } else {
         surface.style.width = width;
       }
     }
 
-    if (prefersReducedMotion()) return;
+    if (!canAnimate(surface)) return;
     surface.animate(
       [
         { boxShadow: editRing('transparent') },
@@ -520,14 +539,16 @@ export function ChatMessageEditor({
       ],
       { duration: editMotion.fadeMs, easing: 'ease-out' }
     );
+    // Reduced motion keeps the fades and drops the movement.
+    const still = prefersReducedMotion();
     actionsRef.current?.animate(
       [
-        { opacity: 0, transform: 'translateY(-4px)' },
+        { opacity: 0, transform: still ? 'none' : 'translateY(-4px)' },
         { opacity: 1, transform: 'none' },
       ],
       { duration: editMotion.enterMs, easing: editMotion.easing }
     );
-    if (!root || !from) return;
+    if (still || !root || !from) return;
     // Grow from the message's old box when the editor is bigger, such as
     // with attachments below the text.
     const origin = root.getBoundingClientRect();
