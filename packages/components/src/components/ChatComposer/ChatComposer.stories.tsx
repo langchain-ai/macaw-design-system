@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 
-import { expect } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 
 import { InfoIcon } from '@phosphor-icons/react/dist/ssr/Info';
 import { SparkleIcon } from '@phosphor-icons/react/dist/ssr/Sparkle';
@@ -50,6 +50,8 @@ const meta = {
     'drawer',
     'input',
     'markdown',
+    'rich-text',
+    'formatting',
     'code',
     'attachments',
     'upload',
@@ -67,6 +69,7 @@ const meta = {
           'Menu `accept`/`multiple` configure the picker only; validate all files in `onFilesSelected`.',
           '`ChatComposerInput` grows from `minHeight` (40px) to `maxHeight` (240px). Use `ChatComposerTextarea` for a plain-text field with native textarea props.',
           'Enter sends from plain paragraphs; Shift+Enter continues editing; Ctrl/⌘+Enter sends from any block. Three backticks create a code block.',
+          'Markdown formats as you type: `**bold**`, `*italic*`, `` `code` ``, `- ` or `1. ` lists, and `[text](url)` links. Selecting text opens a formatting menu for links, bold, italic, code, and the block type; Alt+F10 moves focus into it, arrow keys move between its controls, and Escape returns to the text. Ctrl/⌘+B, I, and E toggle bold, italic, and code; pasting a URL over selected text links it.',
           'Without `onSubmit`, Enter inserts paragraphs. Otherwise, send shortcuts stay reserved when `submitDisabled` or `action="stop"` blocks sending; Shift+Enter still edits.',
           'Examples use local state only.',
         ].join('\n\n'),
@@ -350,6 +353,43 @@ export const RichDraft: Story = {
       }
     />
   ),
+};
+
+export const RichTextFormatting: Story = {
+  tags: ['a11y-test'],
+  render: () => (
+    <div className="flex min-h-80 flex-col justify-end">
+      <ComposerDemo
+        initialDraft={
+          'Select text to format it, or type Markdown:\n\n- **Bold**, *italic*, and `code`\n- [Links](https://example.com) and lists'
+        }
+      />
+    </div>
+  ),
+  play: async ({ canvas, canvasElement }) => {
+    // The rich editor loads lazily, which can take a moment under load.
+    const input = await canvas.findByRole(
+      'textbox',
+      { name: 'Message' },
+      { timeout: 5000 }
+    );
+    // Focus without a click so the editor's own click handling cannot
+    // collapse the selection set below.
+    input.focus();
+    const text = within(input).getByText(/^Select text/).firstChild;
+    if (!text) throw new Error('Expected the draft text');
+    getSelection()?.setBaseAndExtent(text, 0, text, 'Select text'.length);
+    // The menu renders in a portal outside the story canvas.
+    const page = within(canvasElement.ownerDocument.body);
+    const toolbar = await page.findByRole(
+      'toolbar',
+      { name: 'Formatting' },
+      { timeout: 5000 }
+    );
+    await expect(
+      within(toolbar).getByRole('button', { name: 'Bold' })
+    ).toHaveAttribute('aria-pressed', 'false');
+  },
 };
 
 export const Toolbar: Story = {

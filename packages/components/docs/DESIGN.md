@@ -247,7 +247,12 @@ as well. Skip any state your app does not have.
 
 Enter sends from a plain paragraph, Shift+Enter adds a line, and Ctrl/⌘+Enter
 sends from any block. Without `onSubmit`, Enter only adds paragraphs. Three
-backticks start a code block. The input grows from `minHeight` (40px) to
+backticks start a code block. Markdown formats as you type: `**bold**`,
+`*italic*`, `` `code` ``, `- ` or `1. ` lists, and `[text](url)` links.
+Selecting text opens a formatting menu for links, bold, italic, code, and the
+block type; Alt+F10 moves focus into it, arrow keys move between its controls,
+and Escape returns to the text. Ctrl/⌘+B, I, and E toggle bold, italic, and code, and pasting a URL
+over selected text links it. The input grows from `minHeight` (40px) to
 `maxHeight` (240px), and its ref exposes `focus()`. If the rich editor fails to
 load, the input switches to a plain textarea and reports the error to
 `ErrorReporterContext` from

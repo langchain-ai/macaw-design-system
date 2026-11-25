@@ -81,7 +81,9 @@ function clipboard(text: string, withFile = true, html?: string) {
 describe('ChatComposer paste and drop', () => {
   let originalRangeRect: PropertyDescriptor | undefined;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    // Load the lazy rich editor before the first rich-input test waits for it.
+    await import('../ChatComposerRichInput');
     originalRangeRect = Object.getOwnPropertyDescriptor(
       Range.prototype,
       'getBoundingClientRect'
@@ -210,6 +212,23 @@ describe('ChatComposer paste and drop', () => {
       'https://example.com/'
     );
     expect(input.querySelector('u')).not.toBeInTheDocument();
+  });
+
+  it('links selected text when a URL is pasted over it', async () => {
+    const { user } = render(<PasteHarness rich initialDraft="docs" />);
+    const input = await screen.findByRole('textbox', { name: 'Message' });
+    await user.tab();
+    await user.keyboard('{Control>}a{/Control}');
+
+    await user.paste(clipboard('https://example.com/docs', false));
+
+    expect(within(input).getByRole('link', { name: 'docs' })).toHaveAttribute(
+      'href',
+      'https://example.com/docs'
+    );
+    expect(screen.getByLabelText('Draft')).toHaveTextContent(
+      /^\[docs\]\(https:\/\/example\.com\/docs\)$/
+    );
   });
 
   it('lets the rich editor insert mixed-paste text into its Markdown draft', async () => {

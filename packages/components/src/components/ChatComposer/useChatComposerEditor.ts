@@ -72,7 +72,13 @@ export function useChatComposerEditor({
       StarterKit.configure({
         codeBlock: false,
         // Links keep their URL in the draft but never navigate from the editor.
-        link: { openOnClick: false, autolink: false, linkOnPaste: false },
+        // Typed [text](url) and a URL pasted over selected text become links.
+        link: {
+          openOnClick: false,
+          autolink: false,
+          linkOnPaste: true,
+          markdownLinks: true,
+        },
         // Markdown has no underline, and pasted links carry it as an inline
         // style that would continue into the text typed after them.
         underline: false,
