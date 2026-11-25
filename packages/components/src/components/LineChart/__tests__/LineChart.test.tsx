@@ -444,7 +444,7 @@ describe('LineChart', () => {
     expect(renderedSeries.getElementsByTagName('circle')).toHaveLength(0);
   });
 
-  it('does not add point markers for isolated observations around gaps', () => {
+  it('renders isolated observations as visible dots instead of zero-length paths', () => {
     render(
       <LineChart
         aria-label="Disconnected null observations"
@@ -483,25 +483,44 @@ describe('LineChart', () => {
       />
     );
 
-    const chart = screen.getByRole('graphics-document', {
-      name: 'Disconnected null observations',
-    });
-    expect(chart.getElementsByTagName('circle')).toHaveLength(0);
     expect(
       screen
         .getByRole('group', { name: 'leading-and-trailing-gaps series' })
         .getElementsByTagName('path')
     ).toHaveLength(1);
-    expect(
-      screen
-        .getByRole('group', { name: 'isolated series' })
-        .getElementsByTagName('path')
-    ).toHaveLength(1);
-    expect(
-      screen
-        .getByRole('group', { name: 'separated series' })
-        .getElementsByTagName('path')
-    ).toHaveLength(2);
+    const isolated = screen.getByRole('group', { name: 'isolated series' });
+    expect(isolated.getElementsByTagName('path')).toHaveLength(0);
+    expect(isolated.getElementsByTagName('circle')).toHaveLength(1);
+    expect(isolated.getElementsByTagName('circle')[0]?.getAttribute('r')).toBe(
+      '3'
+    );
+    const separated = screen.getByRole('group', { name: 'separated series' });
+    expect(separated.getElementsByTagName('path')).toHaveLength(0);
+    expect(separated.getElementsByTagName('circle')).toHaveLength(2);
+  });
+
+  it('draws a lone observation as a dot without duplicating point markers', () => {
+    const { rerender } = render(
+      <LineChart
+        aria-label="Single observation"
+        showLegend={false}
+        series={[{ id: 'single', label: 'Single', points: [{ x: 0, y: 1 }] }]}
+      />
+    );
+    const chart = screen.getByRole('graphics-document', {
+      name: 'Single observation',
+    });
+    expect(chart.getElementsByTagName('circle')).toHaveLength(1);
+
+    rerender(
+      <LineChart
+        aria-label="Single observation"
+        showLegend={false}
+        showPoints
+        series={[{ id: 'single', label: 'Single', points: [{ x: 0, y: 1 }] }]}
+      />
+    );
+    expect(chart.getElementsByTagName('circle')).toHaveLength(1);
   });
 
   it('reports the nearest x bucket with visible values and semantic colors', async () => {
