@@ -81,7 +81,9 @@ function clipboard(text: string, withFile = true, html?: string) {
 describe('ChatComposer paste and drop', () => {
   let originalRangeRect: PropertyDescriptor | undefined;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    // Load the lazy rich editor before the first rich-input test waits for it.
+    await import('../ChatComposerRichInput');
     originalRangeRect = Object.getOwnPropertyDescriptor(
       Range.prototype,
       'getBoundingClientRect'

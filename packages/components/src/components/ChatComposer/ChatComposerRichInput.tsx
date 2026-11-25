@@ -7,6 +7,7 @@ import {
   ChatComposerInputEditableContext,
   useChatComposerContext,
 } from './ChatComposerContext';
+import { ChatComposerFormattingMenu } from './ChatComposerFormattingMenu';
 import type { ChatComposerInputProps } from './ChatComposerInput';
 import { useChatComposerEditor } from './useChatComposerEditor';
 
@@ -102,6 +103,7 @@ export function ChatComposerRichInput({
     >
       <ChatComposerInputEditableContext.Provider value={editable}>
         <EditorContent editor={editor} />
+        {editor && editable && <ChatComposerFormattingMenu editor={editor} />}
       </ChatComposerInputEditableContext.Provider>
     </div>
   );
