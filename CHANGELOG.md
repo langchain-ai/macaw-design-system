@@ -1,3 +1,13 @@
+## 1.8.1 (2026-11-25)
+
+### 🩹 Fixes
+
+- preserve button names and expose control states ([#146](https://github.com/langchain-ai/macaw-design-system/pull/146))
+
+### ❤️ Thank You
+
+- Nick
+
 ## 1.8.0 (2026-11-23)
 
 ### 🚀 Features
