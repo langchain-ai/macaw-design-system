@@ -424,3 +424,21 @@ export const Loading: Story = {
     children: 'Loading Button',
   },
 };
+
+export const RichLabel: Story = {
+  args: {
+    children: (
+      <span>
+        Save <strong>changes</strong>
+      </span>
+    ),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Nested content supplies the accessible name. Toggle loading to keep that name while the spinner replaces the visible label.',
+      },
+    },
+  },
+};
