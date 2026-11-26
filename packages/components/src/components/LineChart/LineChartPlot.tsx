@@ -25,7 +25,10 @@ import {
 } from '../../utils/chartValues';
 import { cn } from '../../utils/cn';
 import { Tooltip } from '../Tooltip';
-import { LINE_CHART_DEFAULT_TICK_COUNT } from './constants';
+import {
+  LINE_CHART_DEFAULT_TICK_COUNT,
+  LINE_CHART_EDGE_OVERFLOW,
+} from './constants';
 import type {
   LineChartDisplayAxis,
   LineChartDisplaySeries,
@@ -143,6 +146,7 @@ export const LineChartPlot = ({
 }: LineChartPlotProps) => {
   const activePointerId = useRef<number | null>(null);
   const clipPathId = `line-chart-${useId().replace(/:/g, '')}`;
+  const seriesClipPathId = `${clipPathId}-series`;
   const revealClipPathId = `${clipPathId}-reveal`;
   const axisById = new Map(axes.map((axis) => [axis.id, axis]));
   const primaryAxis = axes[0];
@@ -265,12 +269,20 @@ export const LineChartPlot = ({
             <clipPath id={clipPathId}>
               <rect width={innerWidth} height={innerHeight} />
             </clipPath>
+            <clipPath id={seriesClipPathId}>
+              <rect
+                y={-LINE_CHART_EDGE_OVERFLOW}
+                width={innerWidth}
+                height={innerHeight + LINE_CHART_EDGE_OVERFLOW * 2}
+              />
+            </clipPath>
             <clipPath id={revealClipPathId}>
               <animated.rect
+                y={-LINE_CHART_EDGE_OVERFLOW}
                 width={animation.progress.to(
                   (progress) => progress * innerWidth
                 )}
-                height={innerHeight}
+                height={innerHeight + LINE_CHART_EDGE_OVERFLOW * 2}
               />
             </clipPath>
           </defs>
@@ -387,7 +399,7 @@ export const LineChartPlot = ({
               />
             );
           })}
-          <g clipPath={`url(#${clipPathId})`}>
+          <g clipPath={`url(#${seriesClipPathId})`}>
             <g clipPath={`url(#${revealClipPathId})`}>
               {stackedSeries == null
                 ? series.map((item) => {
