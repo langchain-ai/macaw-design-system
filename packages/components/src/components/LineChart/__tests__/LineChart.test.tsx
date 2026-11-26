@@ -1001,6 +1001,37 @@ describe('LineChart', () => {
     ).toBeVisible();
   });
 
+  it('draws a value on the domain edge with its whole stroke and marker', () => {
+    render(
+      <LineChart
+        aria-label="Edge chart"
+        showLegend={false}
+        activeX={20}
+        series={[series[0]]}
+        yAxes={[{ id: 'requests', domain: [5, 9] }]}
+      />
+    );
+
+    const marker = screen
+      .getByRole('graphics-document', { name: 'Edge chart' })
+      .getElementsByTagName('circle')[0];
+    const clipId = screen
+      .getByRole('group', { name: 'requests series' })
+      .closest('g[clip-path]')
+      ?.parentElement?.closest('g[clip-path]')
+      ?.getAttribute('clip-path')
+      ?.match(/url\(#(.+)\)/)?.[1];
+    const clip = document
+      .getElementById(clipId ?? '')
+      ?.getElementsByTagName('rect')[0];
+    const markerReach =
+      Number(marker.getAttribute('r')) +
+      Number(marker.getAttribute('stroke-width')) / 2;
+
+    expect(Number(marker.getAttribute('cy'))).toBe(0);
+    expect(Number(clip?.getAttribute('y'))).toBeLessThanOrEqual(-markerReach);
+  });
+
   it('applies per-series line styles and active-marker visibility', () => {
     render(
       <LineChart
