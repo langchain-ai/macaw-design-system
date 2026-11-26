@@ -1,0 +1,207 @@
+@reference "../../styles/tailwind.css";
+
+/*
+ * Plume animation, shared by PlumeLoader and LCThinkingState.
+ * Each strand draws out from its base over a dim resting track, its tip dot
+ * lights as it arrives, everything holds, then fades back to rest.
+ * The cycle length comes from --plume-cycle on the <svg>. With
+ * data-flow="converge" the tips light first and the strands draw inward,
+ * from each tip to the base node, then down the stem to the hub.
+ */
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+/* LangChain light blue (#7FC8FF) in both light and dark themes. */
+.brand {
+  color: #7fc8ff;
+}
+
+.track,
+.strand,
+.ring,
+.tick {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.track {
+  opacity: 0.4;
+}
+
+.ring {
+  opacity: 0.5;
+}
+
+.tick {
+  opacity: 0.65;
+}
+
+.strand {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: plume-strand var(--plume-cycle) cubic-bezier(0.3, 0, 0.2, 1)
+    infinite;
+}
+
+.tip,
+.base {
+  fill: currentColor;
+  opacity: 0.35;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: plume-tip var(--plume-cycle) ease-out infinite;
+}
+
+.hub {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: plume-hub var(--plume-cycle) ease-in-out infinite;
+}
+
+.svg[data-flow='converge'] .strand {
+  animation-name: plume-strand-in;
+}
+
+.svg[data-flow='converge'] .tip {
+  animation-name: plume-tip-in;
+}
+
+.svg[data-animated='false'] .strand,
+.svg[data-animated='false'] .tip,
+.svg[data-animated='false'] .base,
+.svg[data-animated='false'] .hub {
+  animation: none;
+}
+
+.svg[data-animated='false'] .track,
+.svg[data-animated='false'] .tip,
+.svg[data-animated='false'] .base {
+  opacity: 0.6;
+}
+
+@keyframes plume-strand {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  30%,
+  65% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  86%,
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+/* Converge: the same draw, from the end of each path back to its start. */
+@keyframes plume-strand-in {
+  0% {
+    stroke-dashoffset: -1;
+    opacity: 1;
+  }
+  30%,
+  65% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  86%,
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
+}
+
+@keyframes plume-tip {
+  0%,
+  24% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+  32% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  42%,
+  65% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  85%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+/* Converge: tips light at the start of the cycle, before their strands. */
+@keyframes plume-tip-in {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  18%,
+  65% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  85%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+@keyframes plume-hub {
+  0% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.25);
+  }
+  25%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* data-flow is always set, so these outrank the converge overrides above. */
+@media (prefers-reduced-motion: reduce) {
+  .svg[data-flow] .strand,
+  .svg[data-flow] .tip,
+  .svg[data-flow] .base,
+  .svg[data-flow] .hub {
+    animation: none;
+  }
+
+  .svg[data-flow] .track,
+  .svg[data-flow] .tip,
+  .svg[data-flow] .base {
+    opacity: 0.6;
+  }
+}
+
+@media (forced-colors: active) {
+  .svg {
+    color: CanvasText;
+  }
+}
