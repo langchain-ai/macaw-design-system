@@ -536,6 +536,11 @@ module.exports = {
           },
       });
       addUtilities({
+        '.bg-canvas-dotted': {
+          backgroundImage: 'var(--bg-canvas-dotted)',
+          backgroundSize: 'var(--bg-canvas-dotted-size)',
+          backgroundRepeat: 'repeat',
+        },
         '.text-security': {
           textSecurity: 'disc',
           WebkitTextSecurity: 'disc',

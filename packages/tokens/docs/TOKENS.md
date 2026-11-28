@@ -22,5 +22,24 @@ generated from the same CSS. Its `rules` contain `selector` and `tokens` fields.
 Values retain CSS `var()` references; dark rules contain overrides, so apply them
 over the root values rather than treating them as a complete independent theme.
 
+## Dotted canvas background
+
+Use `--bg-canvas-dotted` as a background image for graph editors and creation
+canvases. Pair it with `--bg-canvas-dotted-size` for a repeating 20px grid of
+1px-radius dots. The pattern uses `--border-subtle` in each theme and leaves the
+surface color independent. It is a CSS gradient, not an SVG asset.
+
+```css
+.canvas {
+  background-color: var(--bg-surface-level-1);
+  background-image: var(--bg-canvas-dotted);
+  background-size: var(--bg-canvas-dotted-size);
+  background-repeat: repeat;
+}
+```
+
+With the component Tailwind preset, use
+`className="bg-canvas-dotted bg-surface-level-1"` instead.
+
 Applications using `@langchain/macaw-components/styles.css` already load these
 tokens and should not import the token stylesheet a second time.
