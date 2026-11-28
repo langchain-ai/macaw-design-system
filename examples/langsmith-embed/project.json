@@ -1,0 +1,32 @@
+{
+  "name": "langsmith-embed",
+  "root": "examples/langsmith-embed",
+  "projectType": "application",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node examples/langsmith-embed/server.mjs" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        { "target": "build", "projects": ["@langchain/macaw-components"] }
+      ],
+      "options": {
+        "command": "pnpm exec vite build --config examples/langsmith-embed/vite.config.ts"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec tsc -p examples/langsmith-embed/tsconfig.json --noEmit"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node --test examples/langsmith-embed/server.test.mjs"
+      }
+    }
+  }
+}
