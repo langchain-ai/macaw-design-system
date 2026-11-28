@@ -417,7 +417,7 @@ describe('ChatMessage', () => {
       ).toBeNull();
     });
 
-    it('sends the trimmed draft on Enter and returns focus to Edit', async () => {
+    it('sends the draft as typed on Enter and returns focus to Edit', async () => {
       const onSubmit = vi.fn();
       const { user } = render(<EditExample onSubmit={onSubmit} />);
       await user.click(screen.getByRole('button', { name: 'Edit message' }));
@@ -426,7 +426,7 @@ describe('ChatMessage', () => {
         ' by the coast  {Enter}'
       );
 
-      expect(onSubmit).toHaveBeenCalledWith('Plan a weekend by the coast');
+      expect(onSubmit).toHaveBeenCalledWith('Plan a weekend by the coast  ');
       expect(
         screen.getByRole('button', { name: 'Edit message' })
       ).toHaveFocus();

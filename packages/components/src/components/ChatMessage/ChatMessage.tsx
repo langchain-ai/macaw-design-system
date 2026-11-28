@@ -476,7 +476,7 @@ export interface ChatMessageEditorProps extends Omit<
 > {
   /** The message's current text. The editor owns the draft from here. */
   defaultValue: string;
-  /** Receives the trimmed draft. Send stays disabled while the draft is blank. */
+  /** Receives the draft as typed. Send stays disabled while the draft is blank. */
   onSubmit: (value: string) => void;
   onCancel: () => void;
   /** Defaults to "Send". */
@@ -582,7 +582,7 @@ export function ChatMessageEditor({
   }, []);
 
   const submit = () => {
-    if (!isBlank) onSubmit(draft.trim());
+    if (!isBlank) onSubmit(draft);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {

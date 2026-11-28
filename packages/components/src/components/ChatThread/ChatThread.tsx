@@ -83,7 +83,9 @@ function UserMessage({ turn }: { turn: ChatThreadTurn }) {
           <ChatMessageEditor
             defaultValue={draft}
             onCancel={() => setEditing(false)}
-            onSubmit={(text) => {
+            onSubmit={(value) => {
+              // Trimmed like a message sent from the composer.
+              const text = value.trim();
               setEditing(false);
               fork(text, forkPoint).catch(() => {
                 // Reopen the edit so the reader can send it again.
