@@ -118,13 +118,9 @@ export function ChatPlan({
       className={cn(
         'flex min-w-0 max-w-full flex-col font-sans text-primary',
         isDrawer
-          ? // Its own neutral surface keeps the plan neutral when it shares a
-            // drawer whose intent colors a question or notice.
-            cn(
-              'bg-surface-level-2 px-space-4 py-space-2',
-              ENTER,
-              'duration-normal'
-            )
+          ? // Matches ChatComposer's neutral drawer, so the plan stays neutral
+            // when it shares a drawer whose intent colors a question or notice.
+            cn('bg-elevated px-space-4 py-space-2', ENTER, 'duration-normal')
           : 'rounded-lg border border-subtle bg-elevated px-space-3 py-space-2',
         className
       )}
