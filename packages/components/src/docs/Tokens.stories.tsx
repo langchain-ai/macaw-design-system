@@ -624,7 +624,7 @@ const radiusTokens: UtilityToken[] = [
   {
     name: 'rounded-xs',
     previewClassName: 'rounded-xs',
-    usage: 'Compact labels and tag-style badges',
+    usage: 'Compact labels, tags, and badges',
   },
   {
     name: 'rounded-sm',
@@ -649,7 +649,7 @@ const radiusTokens: UtilityToken[] = [
   {
     name: 'rounded-full',
     previewClassName: 'rounded-full',
-    usage: 'Pills, default badges, avatars, and dots',
+    usage: 'Pills, avatars, and dots',
   },
 ];
 

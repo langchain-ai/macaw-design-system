@@ -508,7 +508,7 @@ export const MultipleWithCustomCreate: Story = {
           inputValue && (
             <>
               Add new
-              <Badge color="plain" rounded="sm" size="sm">
+              <Badge color="plain" size="sm">
                 {inputValue}
               </Badge>
             </>
@@ -593,7 +593,6 @@ export const CustomRendering: Story = {
               <Badge
                 key={tagProps.key}
                 color="plain"
-                rounded="sm"
                 size="sm"
                 onClick={tagProps.onDelete}
                 data-tag-index={tagProps['data-tag-index']}
@@ -615,7 +614,7 @@ export const CustomRendering: Story = {
               </Text>
             </div>
             {state.selected ? (
-              <Badge color="primary" size="xs" rounded="sm">
+              <Badge color="primary" size="xs">
                 Selected
               </Badge>
             ) : (

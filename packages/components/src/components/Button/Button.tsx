@@ -127,7 +127,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <Badge
             color={color}
             size={size === 'md' ? 'xs' : 'xxs'}
-            rounded="xs"
             className={cn('border-0 py-0', disabled && 'opacity-50')}
           >
             {tagText}
@@ -146,7 +145,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <Badge
             color={color}
             size={size === 'md' ? 'xs' : 'xxs'}
-            rounded="xs"
             className={cn('border-0 py-0', disabled && 'opacity-50')}
           >
             {tagText}

@@ -439,7 +439,6 @@ const CompactTextLabelMatrix = () => (
                 <Badge
                   size={name}
                   color="plain"
-                  rounded="xs"
                   leftDecorator={MagnifyingGlassIcon}
                   rightDecorator={InfoIcon}
                   iconWeight="regular"
