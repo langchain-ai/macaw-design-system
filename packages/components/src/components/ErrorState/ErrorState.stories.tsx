@@ -23,7 +23,6 @@ const meta: Meta<typeof ErrorState> = {
       control: 'select',
       options: [null, 404],
     },
-    withoutOverlay: { control: 'boolean' },
     title: { control: 'text' },
     message: { control: 'text' },
     backLabel: { control: 'text' },
@@ -47,18 +46,6 @@ export const NotFound404: Story = {
     message: "The page you're looking for doesn't exist or has moved.",
     status: 404,
     backTo: '/',
-  },
-};
-
-/** 404 without the animated wave — used for full-screen not-found views. */
-export const NotFoundNoOverlay: Story = {
-  args: {
-    title: 'Run not found',
-    message: 'This run may have been deleted or you may not have access to it.',
-    status: 404,
-    backTo: '/',
-    backLabel: 'Back to project',
-    withoutOverlay: true,
   },
 };
 
